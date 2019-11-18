@@ -7,12 +7,16 @@ using TMPro;
 
 public class MainMenu : MonoBehaviour {
     
+    [Header("Components")]
     [SerializeField] Canvas canvas;
 
     [Header("Button Settings")]
     [SerializeField] RectTransform buttonParent;
     [SerializeField] GameObject buttonTemplate;
     [SerializeField, Range(0, 20)] float buttonVerticalMargin;
+
+    [Header("Outside References")]
+    [SerializeField] GameObject backgroundContainer;
 
     List<Button> mainButtons;
 
@@ -50,12 +54,16 @@ public class MainMenu : MonoBehaviour {
 
     }
 
-    void Start() {
-        
+    // ---------------- TEMP ------------------------
+
+    public void Show () {
+        gameObject.SetActive(true);
+        backgroundContainer.SetActive(true);
     }
 
-    void Update() {
-        
+    public void Hide () {
+        gameObject.SetActive(false);
+        backgroundContainer.SetActive(false);
     }
 
 }

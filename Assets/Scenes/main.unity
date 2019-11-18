@@ -173,8 +173,8 @@ Camera:
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
   m_TargetEye: 3
-  m_HDR: 1
-  m_AllowMSAA: 1
+  m_HDR: 0
+  m_AllowMSAA: 0
   m_AllowDynamicResolution: 0
   m_ForceIntoRT: 0
   m_OcclusionCulling: 1
@@ -327,6 +327,21 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1535203313990747535, guid: 2ce3ff664fd9f1d4c87284e826f85164,
+        type: 3}
+      propertyPath: m_Shadows.m_Type
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7130508853083180532, guid: 2ce3ff664fd9f1d4c87284e826f85164,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 15303, guid: 0000000000000000f000000000000000, type: 0}
+    - target: {fileID: 1535203314384388586, guid: 2ce3ff664fd9f1d4c87284e826f85164,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 15303, guid: 0000000000000000f000000000000000, type: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2ce3ff664fd9f1d4c87284e826f85164, type: 3}
 --- !u!1001 &7845365078503731947
@@ -444,6 +459,41 @@ PrefabInstance:
     - target: {fileID: 7845365078698410574, guid: 2492a53789d03b749b98c494174710a8,
         type: 3}
       propertyPath: m_Pivot.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 926837806567692680, guid: 2492a53789d03b749b98c494174710a8,
+        type: 3}
+      propertyPath: m_Colors.m_FadeDuration
+      value: 0.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 926837806567692680, guid: 2492a53789d03b749b98c494174710a8,
+        type: 3}
+      propertyPath: m_Colors.m_HighlightedColor.a
+      value: 0.14901961
+      objectReference: {fileID: 0}
+    - target: {fileID: 926837806567692680, guid: 2492a53789d03b749b98c494174710a8,
+        type: 3}
+      propertyPath: m_Colors.m_PressedColor.a
+      value: 0.29803923
+      objectReference: {fileID: 0}
+    - target: {fileID: 8996609184558490308, guid: 2492a53789d03b749b98c494174710a8,
+        type: 3}
+      propertyPath: m_textInfo.characterCount
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8996609184558490308, guid: 2492a53789d03b749b98c494174710a8,
+        type: 3}
+      propertyPath: m_textInfo.wordCount
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8996609184558490308, guid: 2492a53789d03b749b98c494174710a8,
+        type: 3}
+      propertyPath: m_textInfo.lineCount
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8996609184558490308, guid: 2492a53789d03b749b98c494174710a8,
+        type: 3}
+      propertyPath: m_textInfo.pageCount
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []

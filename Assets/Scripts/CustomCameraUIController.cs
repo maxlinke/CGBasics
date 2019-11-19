@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.EventSystems;
 
 public class CustomCameraUIController : MonoBehaviour, IScrollHandler, IPointerDownHandler, IPointerUpHandler {
@@ -13,6 +11,7 @@ public class CustomCameraUIController : MonoBehaviour, IScrollHandler, IPointerD
     [SerializeField] float smoothScrollSensitivity;
     [SerializeField] float orbitSensitivity;
     [SerializeField] float moveSensitivity;
+    [SerializeField] bool inverted;
 
     Vector3 pivotPoint; 
     PointerType currentPointerType;
@@ -53,7 +52,7 @@ public class CustomCameraUIController : MonoBehaviour, IScrollHandler, IPointerD
     }
 
     void Orbit (Vector3 mouseDelta) {
-        targetCustomCam.transform.RotateAround(pivotPoint, Vector3.up, mouseDelta.x);
+        targetCustomCam.transform.RotateAround(pivotPoint, Vector3.up, mouseDelta.x * (inverted ? -1 : 1));
         targetCustomCam.transform.RotateAround(pivotPoint, targetCustomCam.transform.right, -mouseDelta.y);
     }
 

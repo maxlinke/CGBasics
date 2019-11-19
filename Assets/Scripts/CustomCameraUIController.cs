@@ -5,9 +5,14 @@ using UnityEngine.EventSystems;
 
 public class CustomCameraUIController : MonoBehaviour, IScrollHandler, IPointerDownHandler, IPointerUpHandler {
 
+    [Header("References")]
     [SerializeField] CustomCamera targetCustomCam;
 
+    [Header("Settings")]
     [SerializeField] float scrollSensitivity;
+    [SerializeField] float smoothScrollSensitivity;
+    [SerializeField] float orbitSensitivity;
+    [SerializeField] float moveSensitivity;
 
     Vector3 pivotPoint; 
     PointerType currentPointerType;
@@ -30,7 +35,7 @@ public class CustomCameraUIController : MonoBehaviour, IScrollHandler, IPointerD
                     Move(mouseDelta);
                     break;
                 case PointerType.Middle:
-                    Zoom(mouseDelta.y * 0.2f);
+                    Zoom(mouseDelta.y * smoothScrollSensitivity);  //TODO hardcoded sensitivity thingy
                     break;
                 default:
                     break;
@@ -40,7 +45,8 @@ public class CustomCameraUIController : MonoBehaviour, IScrollHandler, IPointerD
     }
 
     void Orbit (Vector3 mouseDelta) {
-
+        targetCustomCam.transform.RotateAround(pivotPoint, Vector3.up, mouseDelta.x);
+        targetCustomCam.transform.RotateAround(pivotPoint, targetCustomCam.transform.right, -mouseDelta.y);
     }
 
     void Move (Vector3 mouseDelta) {

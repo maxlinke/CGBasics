@@ -18,10 +18,6 @@ public class CustomCameraUIController : MonoBehaviour, IScrollHandler, IPointerD
     PointerType currentPointerType;
     Vector3 lastMousePos;
 
-    void Start () {
-        
-    }
-
     void Update () {
         if(currentPointerType != PointerType.None){
             Debug.Log(currentPointerType);
@@ -35,12 +31,24 @@ public class CustomCameraUIController : MonoBehaviour, IScrollHandler, IPointerD
                     Move(mouseDelta);
                     break;
                 case PointerType.Middle:
-                    Zoom(mouseDelta.y * smoothScrollSensitivity);  //TODO hardcoded sensitivity thingy
+                    Zoom(mouseDelta.y * smoothScrollSensitivity);
                     break;
                 default:
                     break;
             }
             lastMousePos = currentMousePos;
+        }
+        EnsureCameraLookingAtPivot();
+
+        void EnsureCameraLookingAtPivot () {
+            Vector3 origUp = targetCustomCam.transform.up;
+            Vector3 customUp;
+            if(Mathf.Abs(origUp.y) > 0.1f){
+                customUp = Vector3.up * Mathf.Sign(origUp.y);
+            }else{
+                customUp = Vector3.ProjectOnPlane(origUp, Vector3.up);
+            }
+            targetCustomCam.transform.LookAt(pivotPoint, customUp);
         }
     }
 
@@ -50,15 +58,23 @@ public class CustomCameraUIController : MonoBehaviour, IScrollHandler, IPointerD
     }
 
     void Move (Vector3 mouseDelta) {
-
+        Vector3 moveDelta = moveSensitivity * GetPivotDistanceScale() * -1 * (targetCustomCam.transform.right * mouseDelta.x + targetCustomCam.transform.up * mouseDelta.y);
+        pivotPoint += moveDelta;
+        targetCustomCam.transform.position += moveDelta;
     }
 
     void Zoom (float zoomAmount) {
         float currentDistToPivot = (targetCustomCam.transform.position - pivotPoint).magnitude;
         float nearPlaneDist = targetCustomCam.camera.nearClipPlane;
-        float tempDist = zoomAmount * scrollSensitivity * Mathf.Max(Mathf.Abs(currentDistToPivot - nearPlaneDist), 0.01f);
+        float tempDist = zoomAmount * scrollSensitivity * GetPivotDistanceScale();
         Vector3 moveDelta = targetCustomCam.transform.forward * Mathf.Clamp(tempDist, Mathf.NegativeInfinity, currentDistToPivot - nearPlaneDist);
         targetCustomCam.transform.position += moveDelta;
+    }
+
+    float GetPivotDistanceScale () {
+        float currentDistToPivot = (targetCustomCam.transform.position - pivotPoint).magnitude;
+        float nearPlaneDist = targetCustomCam.camera.nearClipPlane;
+        return Mathf.Max(Mathf.Abs(currentDistToPivot - nearPlaneDist), 0.01f);
     }
 
     public void OnPointerDown (PointerEventData eventData) {

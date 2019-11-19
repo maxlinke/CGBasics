@@ -433,7 +433,7 @@ MonoBehaviour:
   scrollSensitivity: 0.1
   smoothScrollSensitivity: 0.2
   orbitSensitivity: 0.5
-  moveSensitivity: 1
+  moveSensitivity: 0.002
 --- !u!114 &668416068
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1155,7 +1155,7 @@ MonoBehaviour:
   scrollSensitivity: 0.2
   smoothScrollSensitivity: 0.2
   orbitSensitivity: 0.5
-  moveSensitivity: 1
+  moveSensitivity: 0.002
 --- !u!114 &1309295567
 MonoBehaviour:
   m_ObjectHideFlags: 0

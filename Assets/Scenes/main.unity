@@ -428,6 +428,7 @@ GameObject:
   m_Component:
   - component: {fileID: 805506398}
   - component: {fileID: 805506397}
+  - component: {fileID: 805506396}
   m_Layer: 10
   m_Name: Vert_ExternalCamera
   m_TagString: Untagged
@@ -435,6 +436,21 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &805506396
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 805506395}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c45c01e8be2082a46988ed1b259d26f5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  realCam: {fileID: 805506397}
+  isExternalCamera: 1
+  otherCamera: {fileID: 1976233771}
 --- !u!20 &805506397
 Camera:
   m_ObjectHideFlags: 0
@@ -484,8 +500,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 805506395}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: -0.087682806, y: -0.8932373, z: 0.19910538, w: -0.39344132}
+  m_LocalPosition: {x: -3.1768036, y: 2.2984583, z: 2.5064528}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -840,6 +856,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1976233773}
   - component: {fileID: 1976233772}
+  - component: {fileID: 1976233771}
   m_Layer: 10
   m_Name: Vert_MatrixCamera
   m_TagString: Untagged
@@ -847,6 +864,21 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &1976233771
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1976233770}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c45c01e8be2082a46988ed1b259d26f5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  realCam: {fileID: 1976233772}
+  isExternalCamera: 0
+  otherCamera: {fileID: 0}
 --- !u!20 &1976233772
 Camera:
   m_ObjectHideFlags: 0
@@ -869,8 +901,8 @@ Camera:
     y: 0
     width: 1
     height: 1
-  near clip plane: 0.3
-  far clip plane: 1000
+  near clip plane: 1
+  far clip plane: 5
   field of view: 60
   orthographic: 0
   orthographic size: 5
@@ -1035,13 +1067,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7730905139910672244}
-  m_LocalRotation: {x: -0.1646808, y: -0.9826566, z: -0.06624191, w: -0.053651042}
+  m_LocalRotation: {x: -0.06765883, y: -0.922, z: -0.1936975, w: 0.32835892}
   m_LocalPosition: {x: 0, y: 0, z: 2.91}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 8
-  m_LocalEulerAnglesHint: {x: -6.4600005, y: -187.35799, z: 19.443}
+  m_LocalEulerAnglesHint: {x: -156.321, y: -320.763, z: 179.847}
 --- !u!1 &7730905139910672244
 GameObject:
   m_ObjectHideFlags: 0
@@ -1054,6 +1086,7 @@ GameObject:
   - component: {fileID: 7730905139911730036}
   - component: {fileID: 7730905139912860084}
   - component: {fileID: 7730905139910672245}
+  - component: {fileID: 7730905139910672246}
   m_Layer: 10
   m_Name: default
   m_TagString: Untagged
@@ -1074,6 +1107,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rotationSpeed: {x: 13, y: 25, z: 32}
+--- !u!114 &7730905139910672246
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7730905139910672244}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 437dc15652c6da04184148a1f9832270, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!33 &7730905139911730036
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -1099,7 +1144,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 0737392d7f76e874c8958fc4f4ac55aa, type: 3}
+  - {fileID: 2100000, guid: 4fa83742b06bb664aa4d0fb8cf344dcd, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

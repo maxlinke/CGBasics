@@ -6,15 +6,12 @@ public class TumblingRotator : MonoBehaviour {
 
     [SerializeField] Vector3 rotationSpeed;
 
-    Vector3 randomStartOffset;
-
     void Start() {
-        randomStartOffset = Random.insideUnitSphere * 100f;
+        transform.Rotate(360f * Vector3.Scale(Random.insideUnitSphere, rotationSpeed));
     }
 
     void Update() {
-        var rot = randomStartOffset + Vector3.Scale(rotationSpeed, Vector3.one * Time.time);
-        transform.rotation = Quaternion.Euler(rot);
+        transform.Rotate(Time.deltaTime * rotationSpeed);
     }
 	
 }

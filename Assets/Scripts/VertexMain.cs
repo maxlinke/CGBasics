@@ -8,8 +8,8 @@ public class VertexMain : MonoBehaviour {
     [SerializeField] Camera externalCam;
 
     void Awake () {
-        matrixCam.gameObject.SetActive(false);
-        externalCam.gameObject.SetActive(false);
+        // matrixCam.gameObject.SetActive(false);
+        // externalCam.gameObject.SetActive(false);
     }
 
     void Start() {
@@ -17,9 +17,9 @@ public class VertexMain : MonoBehaviour {
     }
 
     void Update() {
-        if(Input.GetKeyDown(KeyCode.Q)){
-            matrixCam.Render();
-        }
+        // if(Input.GetKeyDown(KeyCode.Q)){
+        //     matrixCam.Render();
+        // }
     }
 
 

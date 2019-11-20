@@ -8,7 +8,7 @@
         _LightColorBack ("Light Color Back", Color) = (0.2, 0.2, 0.5, 1)
         _LightColorAmbient ("Light Color Ambient", Color) = (0.2, 0.1, 0.1, 1)
         [Toggle(LIT_BACKFACES)] _LitBackfaces("Lit Backfaces", Int) = 0
-        // [Toggle(SOLID_BACKFACES)] _SolidBackfaces("Solid Backfaces", Int) = 0
+        [Toggle(SOLID_BACKFACES)] _SolidBackfaces("Solid Backfaces", Int) = 0
         [Enum(UnityEngine.Rendering.CullMode)] _Cull ("Cull", Int) = 0
     }
 	
@@ -27,7 +27,7 @@
             #pragma fragment frag
             #pragma geometry geom
             #pragma shader_feature LIT_BACKFACES
-            // #pragma shader_feature SOLID_BACKFACES
+            #pragma shader_feature SOLID_BACKFACES
 
             #include "UnityCG.cginc"
 
@@ -45,7 +45,6 @@
             struct v2f {
                 float4 vertex : SV_POSITION;
                 float3 worldPos : TEXCOORD0;
-                float4 screenPos : TEXCOORD1;
             };
 
             struct g2f {
@@ -57,7 +56,6 @@
                 v2f o;
                 o.vertex = UnityObjectToClipPos(v.vertex);
                 o.worldPos = mul(unity_ObjectToWorld, v.vertex).xyz;
-                o.screenPos = ComputeScreenPos(o.vertex);
                 return o;
             }
 
@@ -94,13 +92,12 @@
                 #ifndef LIT_BACKFACES
                     diff = lerp(fixed4(1,1,1,1), diff, faceStep);
                 #endif
-                // #ifndef SOLID_BACKFACES
-                //     float2 xyScreenPos = i.data.screenPos.xy / max(i.data.screenPos.w, 0.001);
-                //     float2 pixelPos = xyScreenPos * _ScreenParams.xy;
-                //     pixelPos = frac(pixelPos / 2) * 2;
-                //     fixed pixelID = abs(pixelPos.x - pixelPos.y);
-                //     clip(face + pixelID);
-                // #endif
+                #ifndef SOLID_BACKFACES
+                    float2 pixelPos = i.data.vertex.xy;;
+                    pixelPos = frac(pixelPos / 2) * 2;
+                    fixed pixelID = abs(pixelPos.x - pixelPos.y);
+                    clip(face + pixelID);
+                #endif
                 return col * diff;
             }
 			

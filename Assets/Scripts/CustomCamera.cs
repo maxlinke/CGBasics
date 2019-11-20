@@ -54,7 +54,7 @@ public class CustomCamera : MonoBehaviour {
         GL.PushMatrix();
         GL.LoadIdentity();
         if(useGLMatrices){
-            GL.MultMatrix(GLMatrixCreator.GetViewMatrix(transform.position, transform.position + transform.forward, transform.up));
+            GL.MultMatrix(GLMatrixCreator.GetViewMatrix(transform.position, transform.forward, transform.up));
             GL.LoadProjectionMatrix(GLMatrixCreator.GetProjectionMatrix(realCam.fieldOfView, realCam.aspect, realCam.nearClipPlane, realCam.farClipPlane));            
         }else{
             GL.MultMatrix(GetCustomViewMatrix());

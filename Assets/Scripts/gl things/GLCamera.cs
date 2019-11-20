@@ -71,8 +71,8 @@ public class GLCamera : MonoBehaviour {
             zFar: attachedUnityCam.farClipPlane
         );
         var viewMatrix = GLMatrixCreator.GetViewMatrix(
-            eye: attachedUnityCam.transform.position,
-            center: attachedUnityCam.transform.position + attachedUnityCam.transform.forward,
+            pos: attachedUnityCam.transform.position,
+            forward: attachedUnityCam.transform.forward,
             up: attachedUnityCam.transform.up
         );
         var modelMatrix = GLMatrixCreator.GetTranslationMatrix(meshToDraw.transform.position);

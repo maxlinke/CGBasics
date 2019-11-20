@@ -11,8 +11,13 @@ public static class GLMatrixCreator {
         );
     }
 
-    public static Matrix4x4 GetViewMatrix (Vector3 eye, Vector3 center, Vector3 up) {
+    // there for "legacy" reasons i guess...
+    public static Matrix4x4 GetLookAtMatrix (Vector3 eye, Vector3 center, Vector3 up) {
         Vector3 forward = (center - eye).normalized;
+        return GetViewMatrix(eye, forward, up);        
+    }
+
+    public static Matrix4x4 GetViewMatrix (Vector3 pos, Vector3 forward, Vector3 up) {
         Vector3 right = Vector3.Cross(forward, up).normalized;
         up = Vector3.Cross(right, forward).normalized;
 
@@ -32,7 +37,7 @@ public static class GLMatrixCreator {
             new Vector4(0, 0, 0, 1)
         );
 
-        Matrix4x4 translation = GetTranslationMatrix(eye * -1);
+        Matrix4x4 translation = GetTranslationMatrix(pos * -1);
 
         // return translation * rotation;
         return rotation * translation;  // whoops

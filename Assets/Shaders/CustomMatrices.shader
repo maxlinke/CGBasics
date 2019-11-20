@@ -1,4 +1,4 @@
-﻿Shader "Custom/MatrixExperiments/FwdBaseLitCustomMatrix" {
+﻿Shader "Custom/CustomMatrices" {
     
     Properties {
         _MainTex ("Texture", 2D) = "white" {}
@@ -40,6 +40,8 @@
             float4x4 CustomModelMatrix;
             float4x4 CustomInverseModelMatrix;
 
+            float3 CustomCameraWorldPos;
+
             struct appdata {
                 float4 vertex : POSITION;
                 float4 normal : NORMAL;
@@ -69,6 +71,21 @@
                 fixed3 diff = saturate(dot(i.lightDir, i.worldNormal)) * _LightColor0.rgb;
                 diff += _EnvLevel * texCUBElod(_EnvTex, float4(i.worldNormal, _EnvMip));
                 col.rgb *= diff;
+                // #ifdef DARKEN_CLIPPING
+                    // float3 mult = abs(i.worldPos);
+                    // mult = step(mult, 1);
+                    // mult = 1 - mult;
+                    // float singleMult = dot(mult, 1);
+                    // singleMult = saturate(singleMult);
+                    // singleMult *= 0.667;
+                    // singleMult = 1 - singleMult;
+                    // col.rgb *= singleMult;
+                // #endif
+                col = fixed4(1,1,1,1);
+                // col.rgb *= saturate(dot(i.worldNormal, normalize(CustomCameraWorldPos - i.worldPos)));
+                col.rgb *= frac(i.worldPos);
+                // col.rgb = i.vertex.z;
+                // col.rgb = i.worldNormal;
                 return col;
             }
 

@@ -19,7 +19,6 @@ public class CustomCameraUIController : MonoBehaviour, IScrollHandler, IPointerD
 
     void Update () {
         if(currentPointerType != PointerType.None){
-            Debug.Log(currentPointerType);
             var currentMousePos = Input.mousePosition;
             var mouseDelta = currentMousePos - lastMousePos;
             switch(currentPointerType){

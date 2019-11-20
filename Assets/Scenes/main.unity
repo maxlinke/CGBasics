@@ -425,6 +425,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 437dc15652c6da04184148a1f9832270, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  reAwake: 0
 --- !u!65 &1099725429
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -917,6 +918,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 437dc15652c6da04184148a1f9832270, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  reAwake: 0
 --- !u!33 &7730905139911730036
 MeshFilter:
   m_ObjectHideFlags: 0

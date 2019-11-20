@@ -10,6 +10,8 @@ public class CustomCamera : MonoBehaviour {
     [SerializeField] bool isExternalCamera;
     [SerializeField] CustomCamera otherCamera;
 
+    private Material lineMaterial;
+
     public new Camera camera => realCam;    // new because "camera" is an old inherited monobehaviour thing
     public new Transform transform {        // because these cameras should not move. culling n stuff.
         get {  
@@ -35,6 +37,38 @@ public class CustomCamera : MonoBehaviour {
         }
     }
 
+    void OnPostRender () {
+        if(lineMaterial == null){
+            // from https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnPostRender.html
+            var shader = Shader.Find("Hidden/Internal-Colored");
+            lineMaterial = new Material(shader);
+            lineMaterial.hideFlags = HideFlags.HideAndDontSave;
+            lineMaterial.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.One);
+            lineMaterial.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.Zero);
+            // Turn off backface culling, depth writes, depth test.
+            lineMaterial.SetInt("_Cull", (int)UnityEngine.Rendering.CullMode.Off);
+            lineMaterial.SetInt("_ZWrite", 0);
+            lineMaterial.SetInt("_ZTest", (int)UnityEngine.Rendering.CompareFunction.LessEqual);
+        }
+        GL.PushMatrix();
+        GL.LoadIdentity();
+        GL.MultMatrix(GetCustomViewMatrix());
+        GL.LoadProjectionMatrix(GetProjectionMatrix(true, false));
+        lineMaterial.SetPass(0);
+        GL.Color(new Color(1,1,1));
+        GL.Begin(GL.LINES);
+        for(int x=-10; x<=10; x++){
+            GL.Vertex(new Vector3(x, 0, -10));
+            GL.Vertex(new Vector3(x, 0, 10));
+        }
+        for(int z=-10; z<=10; z++){
+            GL.Vertex(new Vector3(-10, 0, z));
+            GL.Vertex(new Vector3(10, 0, z));
+        }
+        GL.End();
+        GL.PopMatrix();
+    }
+
     public void GetMatrices (GameObject otherGO, out Matrix4x4 modelMatrix, out Matrix4x4 mvpMatrix) {
         modelMatrix = CreateModelMatrix(otherGO.transform);
         if(isExternalCamera && otherCamera != null){
@@ -42,10 +76,6 @@ public class CustomCamera : MonoBehaviour {
         }
         mvpMatrix = GetVPMatrix() * modelMatrix;
     }
-
-    // TODO what do when there is no more view and projection matrix? 
-    // treat everything as the model matrix and return identity for vp i guess
-    // TODO what to do about object culling? hmmmm.... drawmeshimmediate?
 
     private Matrix4x4 CreateModelMatrix (Transform otherTransform) {
         var translationMatrix = Matrix4x4.Translate(otherTransform.position);

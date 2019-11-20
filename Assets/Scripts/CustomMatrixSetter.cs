@@ -7,8 +7,11 @@ public class CustomMatrixSetter : MonoBehaviour {
     MaterialPropertyBlock mpb;
     int mvpMatrixID;
     int modelMatrixID;
-    int normalMatrixID;
     int inverseModelMatrixID;
+    int camWorldPosID;
+
+    static bool staticReAwake;
+    [SerializeField] bool reAwake;
 
     void Awake () {
         mr = GetComponent<MeshRenderer>();
@@ -19,11 +22,22 @@ public class CustomMatrixSetter : MonoBehaviour {
         mpb = new MaterialPropertyBlock();
         mvpMatrixID = Shader.PropertyToID("CustomMVPMatrix");
         modelMatrixID = Shader.PropertyToID("CustomModelMatrix");
-        normalMatrixID = Shader.PropertyToID("CustomNormalMatrix");
         inverseModelMatrixID = Shader.PropertyToID("CustomInverseModelMatrix");
+        camWorldPosID = Shader.PropertyToID("CustomCameraWorldPos");
     }
 
     void OnWillRenderObject () {
+        if(reAwake && !staticReAwake){
+            staticReAwake = true;
+        }else if(reAwake && staticReAwake){
+            staticReAwake = false;
+            reAwake = false;
+        }
+
+        if(staticReAwake){
+            Awake();
+        }
+
         if(mr == null){
             Debug.LogError($"Nullref!!! No MeshRenderer on ${this.gameObject.name}!");
             return;
@@ -34,9 +48,11 @@ public class CustomMatrixSetter : MonoBehaviour {
 
         var cam = Camera.current;
         var customCam = cam.gameObject.GetComponent<CustomCamera>();
+        Vector3 camPos;
         Matrix4x4 mvpMatrix, modelMatrix;
         if(customCam != null){
             customCam.GetMatrices(this.gameObject, out modelMatrix, out mvpMatrix);
+            camPos = customCam.transform.position;
         }else{
             var translationMatrix = Matrix4x4.Translate(transform.position);
             var rotationMatrix = Matrix4x4.Rotate(transform.rotation);
@@ -45,6 +61,7 @@ public class CustomMatrixSetter : MonoBehaviour {
             var viewMatrix = cam.worldToCameraMatrix;
             var projectionMatrix = GL.GetGPUProjectionMatrix(cam.projectionMatrix, true);
             mvpMatrix = projectionMatrix * viewMatrix * modelMatrix;
+            camPos = cam.transform.position;
         }
 
         var inverseModelMatrix = modelMatrix.inverse;
@@ -52,6 +69,7 @@ public class CustomMatrixSetter : MonoBehaviour {
         mpb.SetMatrix(mvpMatrixID, mvpMatrix);
         mpb.SetMatrix(modelMatrixID, modelMatrix);
         mpb.SetMatrix(inverseModelMatrixID, inverseModelMatrix);
+        mpb.SetVector(camWorldPosID, camPos);
         mr.SetPropertyBlock(mpb);
     }
 	

@@ -37,13 +37,22 @@ public class GLCamera : MonoBehaviour {
         }
         GL.PushMatrix();
         GL.LoadIdentity();
-        GL.LoadProjectionMatrix(GLMatrixCreator.GetProjectionMatrix(fov, aspectRatio, zNear, zFar));
+        var projectionMatrix = GLMatrixCreator.GetProjectionMatrix(fov, aspectRatio, zNear, zFar);
+        var fixAttemptMatrix = new Matrix4x4(
+            new Vector4(1, 0, 0, 0),
+            new Vector4(0, 1, 0, 0),
+            new Vector4(0, 0, -1, 0),
+            new Vector4(0, 0, 0, 1)
+        );
+        projectionMatrix = projectionMatrix * fixAttemptMatrix;
+        GL.LoadProjectionMatrix(projectionMatrix);
         drawMat.SetPass(0);
         GL.Color(Color.white);
         GL.Begin(GL.TRIANGLES);
         var verts = meshToDraw.vertices;
         var tris = meshToDraw.triangles;
-        var vertOffset = Vector3.Scale(offset, new Vector3(1, 1, -1));
+        // var vertOffset = Vector3.Scale(offset, new Vector3(1, 1, -1));
+        var vertOffset = offset;
         for(int i=0; i<tris.Length; i+=3){
             GL.Vertex(verts[tris[i+0]] + vertOffset);
             GL.Vertex(verts[tris[i+1]] + vertOffset);

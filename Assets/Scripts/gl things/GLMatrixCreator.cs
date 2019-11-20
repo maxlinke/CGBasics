@@ -31,9 +31,11 @@ public static class GLMatrixCreator {
             new Vector4(-right.z, up.z, forward.z, 0),
             new Vector4(0, 0, 0, 1)
         );
-        
+
         Matrix4x4 translation = GetTranslationMatrix(eye * -1);
-        return translation * rotation;
+
+        // return translation * rotation;
+        return rotation * translation;  // whoops
     }
 
     public static Matrix4x4 GetProjectionMatrix (float fov, float aspectRatio, float zNear, float zFar) {

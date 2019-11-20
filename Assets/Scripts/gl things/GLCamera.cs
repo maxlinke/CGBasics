@@ -4,17 +4,17 @@ using UnityEngine;
 
 public class GLCamera : MonoBehaviour {
 
-    [SerializeField] Camera unityCam;
-    [SerializeField] Mesh meshToDraw;
+    [SerializeField] Camera matchCam;
+    [SerializeField] MeshFilter meshToDraw;
     [SerializeField] Material drawMat;
     [SerializeField] Vector3 offset;
 
-    // public float fov;
-    // public float zNear;
-    // public float zFar;
-    // public float aspectRatio => (Screen.width * unityCam.rect.width) / (Screen.height * unityCam.rect.height);
-
+    Camera attachedUnityCam;
     Material lineMaterial;
+
+    void Awake () {
+        attachedUnityCam = GetComponent<Camera>();
+    }
 
     void Start () {
         
@@ -22,6 +22,18 @@ public class GLCamera : MonoBehaviour {
 
     void Update () {
         
+    }
+
+    void LateUpdate () {
+        attachedUnityCam.transform.position = matchCam.transform.position;
+        attachedUnityCam.transform.rotation = matchCam.transform.rotation;
+        attachedUnityCam.fieldOfView = matchCam.fieldOfView;
+        attachedUnityCam.nearClipPlane = matchCam.nearClipPlane;
+        attachedUnityCam.farClipPlane = matchCam.farClipPlane;
+    }
+
+    void OnPreRender () {
+        attachedUnityCam.cullingMask = 0;       // just making sure we're not rendering anything the unity way...
     }
 
     void OnPostRender () {
@@ -50,31 +62,42 @@ public class GLCamera : MonoBehaviour {
             return;
         }
         GL.PushMatrix();
+        
         GL.LoadIdentity();
-        GL.MultMatrix(GLMatrixCreator.GetViewMatrix(
-            eye: unityCam.transform.position,
-            center: unityCam.transform.position + unityCam.transform.forward,
-            up: unityCam.transform.up
-        ));
-        // GL.LoadProjectionMatrix(GLMatrixCreator.GetProjectionMatrix(fov, aspectRatio, zNear, zFar));
-        GL.LoadProjectionMatrix(GLMatrixCreator.GetProjectionMatrix(
-            fov: unityCam.fieldOfView,
-            aspectRatio: unityCam.aspect,
-            zNear: unityCam.nearClipPlane,
-            zFar: unityCam.farClipPlane
-        ));
+        var projectionMatrix = GLMatrixCreator.GetProjectionMatrix(
+            fov: attachedUnityCam.fieldOfView,
+            aspectRatio: attachedUnityCam.aspect,
+            zNear: attachedUnityCam.nearClipPlane,
+            zFar: attachedUnityCam.farClipPlane
+        );
+        var viewMatrix = GLMatrixCreator.GetViewMatrix(
+            eye: attachedUnityCam.transform.position,
+            center: attachedUnityCam.transform.position + attachedUnityCam.transform.forward,
+            up: attachedUnityCam.transform.up
+        );
+        var modelMatrix = GLMatrixCreator.GetTranslationMatrix(meshToDraw.transform.position);
+        GL.MultMatrix(viewMatrix);
+        GL.LoadProjectionMatrix(projectionMatrix);
+
         drawMat.SetPass(0);
         GL.Color(Color.white);
         GL.Begin(GL.TRIANGLES);
-        var verts = meshToDraw.vertices;
-        var tris = meshToDraw.triangles;
-        var vertOffset = offset;
+        var verts = meshToDraw.sharedMesh.vertices;
+        var tris = meshToDraw.sharedMesh.triangles;
         for(int i=0; i<tris.Length; i+=3){
-            GL.Vertex(verts[tris[i+0]] + vertOffset);
-            GL.Vertex(verts[tris[i+1]] + vertOffset);
-            GL.Vertex(verts[tris[i+2]] + vertOffset);
+            // GL.Vertex((Vector3)(modelMatrix * ToV4(verts[tris[i+0]])));
+            // GL.Vertex((Vector3)(modelMatrix * ToV4(verts[tris[i+1]])));
+            // GL.Vertex((Vector3)(modelMatrix * ToV4(verts[tris[i+2]])));
+
+            // Vector4 ToV4(Vector3 v3) {
+            //     return new Vector4(v3.x, v3.y, v3.z, 1);
+            // }
+            GL.Vertex(verts[tris[i+0]]);
+            GL.Vertex(verts[tris[i+1]]);
+            GL.Vertex(verts[tris[i+2]]);
         }
         GL.End();
+
         lineMaterial.SetPass(0);
         GL.Color(new Color(1,1,1));
         GL.Begin(GL.LINES);
@@ -87,6 +110,7 @@ public class GLCamera : MonoBehaviour {
             GL.Vertex(new Vector3(10, 0, z));
         }
         GL.End();
+
         GL.PopMatrix();
     }
 	

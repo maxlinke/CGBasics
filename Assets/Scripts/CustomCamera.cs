@@ -9,6 +9,7 @@ public class CustomCamera : MonoBehaviour {
     [Header("Settings")]
     [SerializeField] bool isExternalCamera;
     [SerializeField] CustomCamera otherCamera;
+    [SerializeField] bool useGLMatrices;
 
     private Material lineMaterial;
 
@@ -52,8 +53,13 @@ public class CustomCamera : MonoBehaviour {
         }
         GL.PushMatrix();
         GL.LoadIdentity();
-        GL.MultMatrix(GetCustomViewMatrix());
-        GL.LoadProjectionMatrix(GetProjectionMatrix(true, false));
+        if(useGLMatrices){
+            GL.MultMatrix(GLMatrixCreator.GetViewMatrix(transform.position, transform.position + transform.forward, transform.up));
+            GL.LoadProjectionMatrix(GLMatrixCreator.GetProjectionMatrix(realCam.fieldOfView, realCam.aspect, realCam.nearClipPlane, realCam.farClipPlane));            
+        }else{
+            GL.MultMatrix(GetCustomViewMatrix());
+            GL.LoadProjectionMatrix(GetProjectionMatrix(true, false));
+        }
         lineMaterial.SetPass(0);
         GL.Color(new Color(1,1,1));
         GL.Begin(GL.LINES);

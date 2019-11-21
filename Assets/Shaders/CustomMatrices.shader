@@ -51,7 +51,7 @@
             struct v2f {
                 float4 vertex : SV_POSITION;
                 float2 uv : TEXCOORD0;
-                float3 worldPos : TEXCOORD1;
+                float4 worldPos : TEXCOORD1;
                 float3 worldNormal : TEXCOORD2;
                 float3 lightDir : TEXCOORD3;
             };
@@ -60,7 +60,9 @@
                 v2f o;
                 o.vertex = mul(CustomMVPMatrix, v.vertex);
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
-                o.worldPos = mul(CustomModelMatrix, v.vertex).xyz;
+                float4 f4worldPos = mul(CustomModelMatrix, v.vertex);
+                // o.worldPos = f4worldPos / f4worldPos.w;
+                o.worldPos = f4worldPos;
                 o.worldNormal = normalize(mul(v.normal, CustomInverseModelMatrix).xyz);
                 o.lightDir = WorldSpaceLightDir(v.vertex);
                 return o;
@@ -82,10 +84,7 @@
                     // col.rgb *= singleMult;
                 // #endif
                 col = fixed4(1,1,1,1);
-                // col.rgb *= saturate(dot(i.worldNormal, normalize(CustomCameraWorldPos - i.worldPos)));
-                col.rgb *= frac(i.worldPos);
-                // col.rgb = i.vertex.z;
-                // col.rgb = i.worldNormal;
+                col.rgb *= frac(i.worldPos.xyz / i.worldPos.w);
                 return col;
             }
 

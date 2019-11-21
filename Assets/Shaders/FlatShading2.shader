@@ -7,8 +7,10 @@
         _LightColorFront ("Light Color Front", Color) = (0.8, 0.9, 0.9, 1)
         _LightColorBack ("Light Color Back", Color) = (0.2, 0.2, 0.5, 1)
         _LightColorAmbient ("Light Color Ambient", Color) = (0.2, 0.1, 0.1, 1)
+        _ClippingOverlayColor ("Clipping Overlay Color", Color) = (0, 0, 0, 0.8)
         [Toggle(LIT_BACKFACES)] _LitBackfaces("Lit Backfaces", Int) = 0
         [Toggle(SOLID_BACKFACES)] _SolidBackfaces("Solid Backfaces", Int) = 0
+        [Toggle(SHOW_CLIPPING)] _ShowClipping("Show Clipping", Int) = 0
         [Enum(UnityEngine.Rendering.CullMode)] _Cull ("Cull", Int) = 0
     }
 	
@@ -28,6 +30,7 @@
             #pragma geometry geom
             #pragma shader_feature LIT_BACKFACES
             #pragma shader_feature SOLID_BACKFACES
+            #pragma shader_feature SHOW_CLIPPING
 
             #include "UnityCG.cginc"
 
@@ -37,6 +40,7 @@
             fixed4 _LightColorFront;
             fixed4 _LightColorBack;
             fixed4 _LightColorAmbient;
+            fixed4 _ClippingOverlayColor;
 
             struct appdata {
                 float4 vertex : POSITION;
@@ -44,7 +48,7 @@
 
             struct v2f {
                 float4 vertex : SV_POSITION;
-                float3 worldPos : TEXCOORD0;
+                float4 worldPos : TEXCOORD0;
             };
 
             struct g2f {
@@ -55,7 +59,7 @@
             v2f vert (appdata v) {
                 v2f o;
                 o.vertex = UnityObjectToClipPos(v.vertex);
-                o.worldPos = mul(unity_ObjectToWorld, v.vertex).xyz;
+                o.worldPos = mul(unity_ObjectToWorld, v.vertex);
                 return o;
             }
 
@@ -67,9 +71,9 @@
                 g1.data = i[1];
                 g2.data = i[2];
 
-                float3 p0 = i[0].worldPos;
-	            float3 p1 = i[1].worldPos;
-	            float3 p2 = i[2].worldPos;
+                float3 p0 = i[0].worldPos.xyz;
+	            float3 p1 = i[1].worldPos.xyz;
+	            float3 p2 = i[2].worldPos.xyz;
 
                 float3 faceNormal = normalize(cross(p1 - p0, p2 - p0));
 
@@ -84,11 +88,11 @@
 
             fixed4 frag (g2f i, fixed face : VFACE) : SV_Target {
                 fixed faceStep = step(0, face);
-                fixed4 col = face * _FrontColor + (1 - face) * _BackColor;
+                fixed3 col = face * _FrontColor.rgb + (1 - face) * _BackColor.rgb;
                 float nDotL = dot(i.normal, normalize(_LightDir));
-                fixed4 diffFront = saturate(nDotL) * _LightColorFront;
-                fixed4 diffBack = saturate(-nDotL) * _LightColorBack;
-                fixed4 diff = _LightColorAmbient + diffFront + diffBack;
+                fixed3 diffFront = saturate(nDotL) * _LightColorFront.rgb;
+                fixed3 diffBack = saturate(-nDotL) * _LightColorBack.rgb;
+                fixed3 diff = _LightColorAmbient.rgb + diffFront + diffBack;
                 #ifndef LIT_BACKFACES
                     diff = lerp(fixed4(1,1,1,1), diff, faceStep);
                 #endif
@@ -98,7 +102,20 @@
                     fixed pixelID = abs(pixelPos.x - pixelPos.y);
                     clip(face + pixelID);
                 #endif
-                return col * diff;
+                fixed3 output = col * diff;
+                #ifdef SHOW_CLIPPING
+                    float4 wPos = i.data.worldPos;
+                    wPos /= wPos.w;
+                    fixed inOrOut = saturate(            //0 = in, 1 = out
+                        step(1, abs(wPos.x)) + 
+                        step(1, abs(wPos.y)) + 
+                        (1 - step(0, wPos.z) + step(1, wPos.z))
+                    );
+                    fixed oa = _ClippingOverlayColor.a;
+                    fixed3 outputClipped = (1 - oa) * output + oa * _ClippingOverlayColor.rgb;
+                    output = lerp(output, outputClipped, inOrOut);                    
+                #endif
+                return fixed4(output, 1);
             }
 			
             ENDCG

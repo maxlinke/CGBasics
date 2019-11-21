@@ -259,6 +259,7 @@ MonoBehaviour:
   customExternalTransform: {fileID: 805506399}
   isExternalCamera: 1
   otherCamera: {fileID: 1976233771}
+  useGLMatrices: 1
 --- !u!20 &805506397
 Camera:
   m_ObjectHideFlags: 0
@@ -533,6 +534,7 @@ MonoBehaviour:
   customExternalTransform: {fileID: 1976233774}
   isExternalCamera: 0
   otherCamera: {fileID: 0}
+  useGLMatrices: 1
 --- !u!20 &1976233772
 Camera:
   m_ObjectHideFlags: 0
@@ -555,8 +557,8 @@ Camera:
     y: 0
     width: 0.333
     height: 0.5
-  near clip plane: 0.5
-  far clip plane: 10
+  near clip plane: 2
+  far clip plane: 5
   field of view: 60
   orthographic: 0
   orthographic size: 5

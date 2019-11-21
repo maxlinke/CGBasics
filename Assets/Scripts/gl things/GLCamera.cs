@@ -85,13 +85,6 @@ public class GLCamera : MonoBehaviour {
         var verts = meshToDraw.sharedMesh.vertices;
         var tris = meshToDraw.sharedMesh.triangles;
         for(int i=0; i<tris.Length; i+=3){
-            // GL.Vertex((Vector3)(modelMatrix * ToV4(verts[tris[i+0]])));
-            // GL.Vertex((Vector3)(modelMatrix * ToV4(verts[tris[i+1]])));
-            // GL.Vertex((Vector3)(modelMatrix * ToV4(verts[tris[i+2]])));
-
-            // Vector4 ToV4(Vector3 v3) {
-            //     return new Vector4(v3.x, v3.y, v3.z, 1);
-            // }
             GL.Vertex(verts[tris[i+0]]);
             GL.Vertex(verts[tris[i+1]]);
             GL.Vertex(verts[tris[i+2]]);

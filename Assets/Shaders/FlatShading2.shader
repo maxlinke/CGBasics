@@ -10,7 +10,7 @@
         _ClippingOverlayColor ("Clipping Overlay Color", Color) = (0, 0, 0, 0.8)
         [Toggle(LIT_BACKFACES)] _LitBackfaces("Lit Backfaces", Int) = 0
         [Toggle(SOLID_BACKFACES)] _SolidBackfaces("Solid Backfaces", Int) = 0
-        [Toggle(SHOW_CLIPPING)] _ShowClipping("Show Clipping", Int) = 0
+        // [Toggle(SHOW_CLIPPING)] _ShowClipping("Show Clipping", Int) = 0
         [Enum(UnityEngine.Rendering.CullMode)] _Cull ("Cull", Int) = 0
     }
 	
@@ -31,9 +31,10 @@
             // gui-toggleable
             #pragma shader_feature LIT_BACKFACES
             #pragma shader_feature SOLID_BACKFACES
-            #pragma shader_feature SHOW_CLIPPING
             // no gui-toggle
+            #pragma shader_feature SHOW_CLIPPING
             #pragma shader_feature USE_SPECIAL_MODEL_MATRIX
+            #pragma shader_feature USE_SPECIAL_CLIPPING_MATRIX
 
             #include "UnityCG.cginc"
 
@@ -46,6 +47,7 @@
             fixed4 _ClippingOverlayColor;
 
             float4x4 _SpecialModelMatrix;
+            float4x4 _SpecialClippingMatrix;
 
             struct appdata {
                 float4 vertex : POSITION;
@@ -54,6 +56,7 @@
             struct v2f {
                 float4 vertex : SV_POSITION;
                 float4 worldPos : TEXCOORD0;
+                float4 clippingPos : TEXCOORD1;
             };
 
             struct g2f {
@@ -64,11 +67,15 @@
             v2f vert (appdata v) {
                 v2f o;
                 o.vertex = UnityObjectToClipPos(v.vertex);
-                #ifndef USE_SPECIAL_MODEL_MATRIX
-                    o.worldPos = mul(unity_ObjectToWorld, v.vertex);
-                #endif
                 #ifdef USE_SPECIAL_MODEL_MATRIX
                     o.worldPos = mul(_SpecialModelMatrix, v.vertex);
+                #else
+                    o.worldPos = mul(unity_ObjectToWorld, v.vertex);
+                #endif
+                #ifdef USE_SPECIAL_CLIPPING_MATRIX
+                    o.clippingPos = mul(_SpecialClippingMatrix, v.vertex);
+                #else
+                    o.clippingPos = o.worldPos;
                 #endif
                 return o;
             }
@@ -114,13 +121,13 @@
                 #endif
                 fixed3 output = col * diff;
                 #ifdef SHOW_CLIPPING
-                    float4 wPos = i.data.worldPos;
-                    wPos /= wPos.w;
+                    float4 cPos = i.data.clippingPos;
+                    cPos /= cPos.w;
                     fixed inOrOut = saturate(            //0 = in, 1 = out
-                        step(1, abs(wPos.x)) + 
-                        step(1, abs(wPos.y)) + 
+                        step(1, abs(cPos.x)) + 
+                        step(1, abs(cPos.y)) + 
                         // (1 - step(0, wPos.z) + step(1, wPos.z))
-                        step(1, abs(wPos.z))
+                        step(1, abs(cPos.z))
                     );
                     fixed oa = _ClippingOverlayColor.a;
                     fixed3 outputClipped = (1 - oa) * output + oa * _ClippingOverlayColor.rgb;

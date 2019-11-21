@@ -49,6 +49,7 @@ public class CustomGLCamera : MonoBehaviour {
 
         if(isExternalCamera){
             objectMat.EnableKeyword("SHOW_CLIPPING");
+            objectMat.EnableKeyword("USE_SPECIAL_CLIPPING_MATRIX");
         }
     }
 
@@ -168,13 +169,10 @@ public class CustomGLCamera : MonoBehaviour {
         GL.LoadIdentity();
         GL.MultMatrix(currentViewMatrix * modelMatrix);
 
-        Matrix4x4 specialModelMatrix;
         if(isExternalCamera){
-            specialModelMatrix = otherCamera.currentProjectionMatrix * otherCamera.currentViewMatrix * modelMatrix;
-        }else{
-            specialModelMatrix = modelMatrix;
+            objectMat.SetMatrix("_SpecialClippingMatrix", otherCamera.currentProjectionMatrix * otherCamera.currentViewMatrix * modelMatrix);
         }
-        objectMat.SetMatrix("_SpecialModelMatrix", specialModelMatrix);
+        objectMat.SetMatrix("_SpecialModelMatrix", modelMatrix);
         objectMat.SetPass(0);
         GL.Begin(GL.TRIANGLES);
         GL.Color(Color.white);

@@ -10,24 +10,40 @@ public class CustomGLCamera : MonoBehaviour {
     [SerializeField] CustomGLCamera otherCamera;
 
     public Camera attachedUnityCam { get; private set; }
-    Material lineMaterial;
+    Material lineMaterialSolid;
+    Material lineMaterialSeeThrough;
 
     public Matrix4x4 currentViewMatrix { get; private set; }
     public Matrix4x4 currentProjectionMatrix { get; private set; }
 
+    [System.NonSerialized] public VertexMain vertexScreen;
+    [System.NonSerialized] public bool drawPivot;
+    [System.NonSerialized] public Vector3 pivotPointToDraw;
+
     void Awake () {
         attachedUnityCam = GetComponent<Camera>();
 
-        // from https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnPostRender.html
+        // modified from https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnPostRender.html
         var shader = Shader.Find("Hidden/Internal-Colored");
-        lineMaterial = new Material(shader);
-        lineMaterial.hideFlags = HideFlags.HideAndDontSave;
-        lineMaterial.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.One);
-        lineMaterial.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.Zero);
-        // Turn off backface culling, depth writes, depth test.
-        lineMaterial.SetInt("_Cull", (int)UnityEngine.Rendering.CullMode.Off);
-        lineMaterial.SetInt("_ZWrite", 0);
-        lineMaterial.SetInt("_ZTest", (int)UnityEngine.Rendering.CompareFunction.LessEqual);
+        lineMaterialSolid = new Material(shader);
+        lineMaterialSolid.hideFlags = HideFlags.HideAndDontSave;
+        lineMaterialSolid.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.One);
+        lineMaterialSolid.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.Zero);
+        lineMaterialSolid.SetInt("_Cull", (int)UnityEngine.Rendering.CullMode.Off);
+        lineMaterialSolid.SetInt("_ZWrite", 0);
+        lineMaterialSolid.SetInt("_ZTest", (int)UnityEngine.Rendering.CompareFunction.LessEqual);
+
+        lineMaterialSeeThrough = new Material(shader);
+        lineMaterialSeeThrough.hideFlags = HideFlags.HideAndDontSave;
+        lineMaterialSeeThrough.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+        lineMaterialSeeThrough.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+        lineMaterialSeeThrough.SetInt("_Cull", (int)UnityEngine.Rendering.CullMode.Off);
+        lineMaterialSeeThrough.SetInt("_ZWrite", 0);
+        lineMaterialSeeThrough.SetInt("_ZTest", (int)UnityEngine.Rendering.CompareFunction.Always);
+
+        objectMat = Instantiate(objectMat);
+        objectMat.hideFlags = HideFlags.HideAndDontSave;
+        objectMat.EnableKeyword("USE_SPECIAL_MODEL_MATRIX");
     }
 
     void OnPreRender () {
@@ -42,11 +58,23 @@ public class CustomGLCamera : MonoBehaviour {
         GL.LoadIdentity();
         GL.MultMatrix(currentViewMatrix);
 
+        vertexScreen.GetCurrentMeshAndModelMatrix(out Mesh meshToDraw, out Matrix4x4 modelMatrix);
+        // draw solid things first
+        if(meshToDraw != null){
+            DrawObject(meshToDraw, modelMatrix);
+        }
+        // then the see-though stuff
+        if(drawPivot){
+            DrawPivot(true);
+        }
+        // then the non-solid but opaque
         DrawWireFloor();
         DrawAxes();
         if(isExternalCamera){
             DrawOtherCamera();
         }
+        //TODO draw pivot!!!
+        //TODO 2 line materials? 1 for always and 1 z-tested one...
 
         GL.PopMatrix();
     }
@@ -66,9 +94,9 @@ public class CustomGLCamera : MonoBehaviour {
     }
 
     void DrawWireFloor () {
-        lineMaterial.SetPass(0);
+        lineMaterialSolid.SetPass(0);
         GL.Begin(GL.LINES);
-        GL.Color(new Color(0.2f, 0.2f, 0.2f));
+        GL.Color(new Color(0.3f, 0.3f, 0.3f));
         for(int x=-10; x<=10; x++){
             GL.Vertex3(x, 0, -10);
             GL.Vertex3(x, 0, 10);
@@ -81,7 +109,7 @@ public class CustomGLCamera : MonoBehaviour {
     }
 
     void DrawAxes () {
-        lineMaterial.SetPass(0);
+        lineMaterialSolid.SetPass(0);
         GL.Begin(GL.LINES);
         GL.Color(Color.red);
         GL.Vertex3(0, 0, 0);
@@ -106,7 +134,7 @@ public class CustomGLCamera : MonoBehaviour {
             new Vector3( 1,  1, 1),
             new Vector3(-1,  1, 1)
         };
-        lineMaterial.SetPass(0);
+        lineMaterialSolid.SetPass(0);
         GL.PushMatrix();
         
         GL.LoadProjectionMatrix(currentProjectionMatrix);
@@ -131,10 +159,31 @@ public class CustomGLCamera : MonoBehaviour {
         }
     }
 
-    void DrawWithGL (System.Action betweenPushPop) {
+    void DrawObject (Mesh meshToDraw, Matrix4x4 modelMatrix) {
+        GL.PushMatrix();
         
-        betweenPushPop();
+        GL.LoadProjectionMatrix(currentProjectionMatrix);
+        GL.LoadIdentity();
+        GL.MultMatrix(currentViewMatrix * modelMatrix);
+
+        objectMat.SetMatrix("_SpecialModelMatrix", modelMatrix);
+        objectMat.SetPass(0);
+        GL.Begin(GL.TRIANGLES);
+        GL.Color(Color.white);
+        var verts = meshToDraw.vertices;
+        var tris = meshToDraw.triangles;
+        for(int i=0; i<tris.Length; i+=3){
+            GL.Vertex(verts[tris[i+0]]);
+            GL.Vertex(verts[tris[i+1]]);
+            GL.Vertex(verts[tris[i+2]]);
+        }
+        GL.End();
+
         GL.PopMatrix();
     }
 	
+    void DrawPivot (bool seeThrough) {
+        
+    }
+
 }

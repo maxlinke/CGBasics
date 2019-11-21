@@ -28,9 +28,12 @@
             #pragma vertex vert
             #pragma fragment frag
             #pragma geometry geom
+            // gui-toggleable
             #pragma shader_feature LIT_BACKFACES
             #pragma shader_feature SOLID_BACKFACES
             #pragma shader_feature SHOW_CLIPPING
+            // no gui-toggle
+            #pragma shader_feature USE_SPECIAL_MODEL_MATRIX
 
             #include "UnityCG.cginc"
 
@@ -41,6 +44,8 @@
             fixed4 _LightColorBack;
             fixed4 _LightColorAmbient;
             fixed4 _ClippingOverlayColor;
+
+            float4x4 _SpecialModelMatrix;
 
             struct appdata {
                 float4 vertex : POSITION;
@@ -59,7 +64,12 @@
             v2f vert (appdata v) {
                 v2f o;
                 o.vertex = UnityObjectToClipPos(v.vertex);
-                o.worldPos = mul(unity_ObjectToWorld, v.vertex);
+                #ifndef USE_SPECIAL_MODEL_MATRIX
+                    o.worldPos = mul(unity_ObjectToWorld, v.vertex);
+                #endif
+                #ifdef USE_SPECIAL_MODEL_MATRIX
+                    o.worldPos = mul(_SpecialModelMatrix, v.vertex);
+                #endif
                 return o;
             }
 
@@ -115,6 +125,7 @@
                     fixed3 outputClipped = (1 - oa) * output + oa * _ClippingOverlayColor.rgb;
                     output = lerp(output, outputClipped, inOrOut);                    
                 #endif
+                output = frac(i.data.worldPos.xyz);
                 return fixed4(output, 1);
             }
 			

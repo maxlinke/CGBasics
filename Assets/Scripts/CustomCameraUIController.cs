@@ -38,6 +38,9 @@ public class CustomCameraUIController : MonoBehaviour, IScrollHandler, IPointerD
         }
         EnsureCameraLookingAtPivot();
 
+        targetCam.drawPivot = currentPointerType != PointerType.None;
+        targetCam.pivotPointToDraw = pivotPoint;
+
         void EnsureCameraLookingAtPivot () {
             Vector3 origUp = targetCam.transform.up;
             Vector3 customUp;
@@ -83,7 +86,9 @@ public class CustomCameraUIController : MonoBehaviour, IScrollHandler, IPointerD
     }
 
     public void OnPointerUp (PointerEventData eventData) {
-        currentPointerType = PointerType.None;
+        if(PointerIDToType(eventData.pointerId) == currentPointerType){
+            currentPointerType = PointerType.None;
+        }
     }
 
     public void OnScroll (PointerEventData eventData) {

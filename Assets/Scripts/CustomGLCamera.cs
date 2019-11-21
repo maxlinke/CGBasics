@@ -8,6 +8,7 @@ public class CustomGLCamera : MonoBehaviour {
     [Header("Settings")]
     [SerializeField] bool isExternalCamera;
     [SerializeField] CustomGLCamera otherCamera;
+    [SerializeField] float pivotSize;
 
     public Camera attachedUnityCam { get; private set; }
     Material lineMaterialSolid;
@@ -59,22 +60,18 @@ public class CustomGLCamera : MonoBehaviour {
         GL.MultMatrix(currentViewMatrix);
 
         vertexScreen.GetCurrentMeshAndModelMatrix(out Mesh meshToDraw, out Matrix4x4 modelMatrix);
-        // draw solid things first
         if(meshToDraw != null){
             DrawObject(meshToDraw, modelMatrix);
         }
-        // then the see-though stuff
-        if(drawPivot){
-            DrawPivot(true);
-        }
-        // then the non-solid but opaque
         DrawWireFloor();
         DrawAxes();
         if(isExternalCamera){
             DrawOtherCamera();
         }
-        //TODO draw pivot!!!
-        //TODO 2 line materials? 1 for always and 1 z-tested one...
+        if(drawPivot){
+            DrawPivot(true);
+            DrawPivot(false);
+        }
 
         GL.PopMatrix();
     }
@@ -183,7 +180,42 @@ public class CustomGLCamera : MonoBehaviour {
     }
 	
     void DrawPivot (bool seeThrough) {
-        
+        //should always have the same pixel-size
+        float dist = (pivotPointToDraw - attachedUnityCam.transform.position).magnitude;
+        Vector3 offsetH = pivotSize * attachedUnityCam.transform.right * dist / Screen.height;
+        Vector3 offsetV = pivotSize * attachedUnityCam.transform.up * dist / Screen.height;
+        Vector3[] points = new Vector3[]{
+            pivotPointToDraw + offsetV,
+            pivotPointToDraw + offsetH,
+            pivotPointToDraw - offsetV,
+            pivotPointToDraw - offsetH
+        };
+        Color pivotColor = new Color(1, 0.667f, 0);
+        Color outlineColor = new Color(0, 0, 0);
+        if(seeThrough){
+            lineMaterialSeeThrough.SetPass(0);
+            pivotColor.a = 0.333f;
+            outlineColor.a = 0.333f;
+        }else{
+            lineMaterialSolid.SetPass(0);
+        }
+        GL.Begin(GL.TRIANGLES);
+        GL.Color(pivotColor);
+        GL.Vertex(points[0]);
+        GL.Vertex(points[1]);
+        GL.Vertex(points[2]);
+        GL.Vertex(points[2]);
+        GL.Vertex(points[3]);
+        GL.Vertex(points[0]);
+        GL.End();
+        GL.Begin(GL.LINE_STRIP);
+        GL.Color(outlineColor);
+        GL.Vertex(points[0]);
+        GL.Vertex(points[1]);
+        GL.Vertex(points[2]);
+        GL.Vertex(points[3]);
+        GL.Vertex(points[0]);
+        GL.End();
     }
 
 }

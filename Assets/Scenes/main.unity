@@ -227,7 +227,7 @@ MonoBehaviour:
   objectMat: {fileID: 2100000, guid: e7f3840cfe72eb14597634e5a22d91a3, type: 2}
   isExternalCamera: 1
   otherCamera: {fileID: 1976233771}
-  vertexScreen: {fileID: 0}
+  pivotSize: 9
 --- !u!20 &805506397
 Camera:
   m_ObjectHideFlags: 0
@@ -579,7 +579,7 @@ MonoBehaviour:
   objectMat: {fileID: 2100000, guid: e7f3840cfe72eb14597634e5a22d91a3, type: 2}
   isExternalCamera: 0
   otherCamera: {fileID: 0}
-  vertexScreen: {fileID: 0}
+  pivotSize: 9
 --- !u!20 &1976233772
 Camera:
   m_ObjectHideFlags: 0

@@ -9,12 +9,9 @@ public class VertexMain : MonoBehaviour {
     [SerializeField] Camera externalCam;
 
     [SerializeField] TextMeshProUGUI tempTextField;
-    CustomCamera matrixCustomCam;
 
     void Awake () {
-        // matrixCam.gameObject.SetActive(false);
-        // externalCam.gameObject.SetActive(false);
-        matrixCustomCam = matrixCam.gameObject.GetComponent<CustomCamera>();
+
     }
 
     void Start () {
@@ -22,13 +19,11 @@ public class VertexMain : MonoBehaviour {
     }
 
     void Update () {
-        // tempTextField.text = matrixCustomCam.GetProjectionMatrix().ToString();
-        tempTextField.text = $"{matrixCustomCam.GetRealCameraViewMatrix().ToString()}\n{matrixCustomCam.GetCustomViewMatrix().ToString()}";
+
     }
 
     void LateUpdate () {
-        // matrixCam.Render();
-        // externalCam.Render();
+        
     }
 
 

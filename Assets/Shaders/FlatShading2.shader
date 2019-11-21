@@ -119,13 +119,14 @@
                     fixed inOrOut = saturate(            //0 = in, 1 = out
                         step(1, abs(wPos.x)) + 
                         step(1, abs(wPos.y)) + 
-                        (1 - step(0, wPos.z) + step(1, wPos.z))
+                        // (1 - step(0, wPos.z) + step(1, wPos.z))
+                        step(1, abs(wPos.z))
                     );
                     fixed oa = _ClippingOverlayColor.a;
                     fixed3 outputClipped = (1 - oa) * output + oa * _ClippingOverlayColor.rgb;
                     output = lerp(output, outputClipped, inOrOut);                    
                 #endif
-                output = frac(i.data.worldPos.xyz);
+                // output = frac(i.data.worldPos.xyz);
                 return fixed4(output, 1);
             }
 			

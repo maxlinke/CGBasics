@@ -8,6 +8,7 @@ public class CustomGLCamera : MonoBehaviour {
     [Header("Settings")]
     [SerializeField] bool isExternalCamera;
     [SerializeField] CustomGLCamera otherCamera;
+    [SerializeField] bool clipSpaceVis;
     [SerializeField] float pivotSize;
 
     public Camera attachedUnityCam { get; private set; }
@@ -45,6 +46,10 @@ public class CustomGLCamera : MonoBehaviour {
         objectMat = Instantiate(objectMat);
         objectMat.hideFlags = HideFlags.HideAndDontSave;
         objectMat.EnableKeyword("USE_SPECIAL_MODEL_MATRIX");
+
+        if(isExternalCamera){
+            objectMat.EnableKeyword("SHOW_CLIPPING");
+        }
     }
 
     void OnPreRender () {
@@ -122,10 +127,10 @@ public class CustomGLCamera : MonoBehaviour {
 
     void DrawOtherCamera () {
         Vector3[] clipSpaceVertices = new Vector3[]{
-            new Vector3(-1, -1, 0),
-            new Vector3( 1, -1, 0),
-            new Vector3( 1,  1, 0),
-            new Vector3(-1,  1, 0),
+            new Vector3(-1, -1, -1),
+            new Vector3( 1, -1, -1),
+            new Vector3( 1,  1, -1),
+            new Vector3(-1,  1, -1),
             new Vector3(-1, -1, 1),
             new Vector3( 1, -1, 1),
             new Vector3( 1,  1, 1),
@@ -163,7 +168,13 @@ public class CustomGLCamera : MonoBehaviour {
         GL.LoadIdentity();
         GL.MultMatrix(currentViewMatrix * modelMatrix);
 
-        objectMat.SetMatrix("_SpecialModelMatrix", modelMatrix);
+        Matrix4x4 specialModelMatrix;
+        if(isExternalCamera){
+            specialModelMatrix = otherCamera.currentProjectionMatrix * otherCamera.currentViewMatrix * modelMatrix;
+        }else{
+            specialModelMatrix = modelMatrix;
+        }
+        objectMat.SetMatrix("_SpecialModelMatrix", specialModelMatrix);
         objectMat.SetPass(0);
         GL.Begin(GL.TRIANGLES);
         GL.Color(Color.white);

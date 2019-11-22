@@ -45,7 +45,22 @@ public class ColorScheme : ScriptableObject {
     public Color VertRenderOriginZAxis => vertRenderOriginZAxis;
     public Color VertRenderPivot => vertRenderPivot;
     public Color VertRenderPivotOutline => vertRenderPivotOutline;
+
+    [Header("Vert Render View Object")]
+    [SerializeField] Color vertRenderObjectColor;
+    [SerializeField] Color vertRenderObjectBackfaceColor;
+    [SerializeField] Color vertRenderLight1;
+    [SerializeField] Color vertRenderLight2;
+    [SerializeField] Color vertRenderAmbientLight;
+    [SerializeField] Color vertRenderClippingOverlay;
 	
+    public Color VertRenderObjectColor => vertRenderObjectColor;
+    public Color VertRenderObjectBackfaceColor => vertRenderObjectBackfaceColor;
+    public Color VertRenderLight1 => vertRenderLight1;
+    public Color VertRenderLight2 => vertRenderLight2;
+    public Color VertRenderAmbientLight => vertRenderAmbientLight;
+    public Color VertRenderClippingOverlay => vertRenderClippingOverlay;
+
 }
 
 #if UNITY_EDITOR

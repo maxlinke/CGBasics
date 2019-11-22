@@ -88,9 +88,9 @@
                 g1.data = i[1];
                 g2.data = i[2];
 
-                float3 p0 = i[0].worldPos.xyz;
-	            float3 p1 = i[1].worldPos.xyz;
-	            float3 p2 = i[2].worldPos.xyz;
+                float3 p0 = i[0].worldPos.xyz / i[0].worldPos.w;
+	            float3 p1 = i[1].worldPos.xyz / i[1].worldPos.w;
+	            float3 p2 = i[2].worldPos.xyz / i[2].worldPos.w;
 
                 float3 faceNormal = normalize(cross(p1 - p0, p2 - p0));
 
@@ -133,7 +133,6 @@
                     fixed3 outputClipped = (1 - oa) * output + oa * _ClippingOverlayColor.rgb;
                     output = lerp(output, outputClipped, inOrOut);                    
                 #endif
-                // output = frac(i.data.worldPos.xyz);
                 return fixed4(output, 1);
             }
 			

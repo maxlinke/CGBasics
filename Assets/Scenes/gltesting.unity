@@ -169,7 +169,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1219933830
 GameObject:
@@ -267,7 +267,8 @@ Transform:
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: -2}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
+  m_Children:
+  - {fileID: 1612637890}
   m_Father: {fileID: 1753723867}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -298,13 +299,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 1612637887}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1c8ced9948c536341a2756a0bbade32d, type: 3}
+  m_Script: {fileID: 11500000, guid: a64e194b52a185d45910f7a7134f67bf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  matchCam: {fileID: 1325020315}
-  meshToDraw: {fileID: 1216703110}
-  drawMat: {fileID: 2100000, guid: e7f3840cfe72eb14597634e5a22d91a3, type: 2}
-  offset: {x: 0, y: 0, z: 1}
+  objectMat: {fileID: 2100000, guid: e7f3840cfe72eb14597634e5a22d91a3, type: 2}
+  isExternalCamera: 0
+  otherCamera: {fileID: 0}
 --- !u!20 &1612637889
 Camera:
   m_ObjectHideFlags: 0
@@ -336,15 +336,15 @@ Camera:
   m_CullingMask:
     serializedVersion: 2
     m_Bits: 0
-  m_RenderingPath: -1
+  m_RenderingPath: 1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
   m_TargetEye: 3
-  m_HDR: 1
-  m_AllowMSAA: 1
+  m_HDR: 0
+  m_AllowMSAA: 0
   m_AllowDynamicResolution: 0
   m_ForceIntoRT: 0
-  m_OcclusionCulling: 1
+  m_OcclusionCulling: 0
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
 --- !u!4 &1612637890
@@ -354,12 +354,12 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1612637887}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_Father: {fileID: 1325020316}
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1753723866
 GameObject:
@@ -473,7 +473,7 @@ Transform:
   m_LocalScale: {x: 0.8, y: 0.8, z: 0.8}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 17.868, y: -122.961006, z: -14.173}
 --- !u!1 &8771274150788397124
 GameObject:

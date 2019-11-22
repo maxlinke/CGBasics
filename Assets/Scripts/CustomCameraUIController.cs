@@ -66,7 +66,7 @@ public class CustomCameraUIController : MonoBehaviour, IScrollHandler, IPointerD
 
     void Zoom (float zoomAmount) {
         float currentDistToPivot = (targetCam.transform.position - pivotPoint).magnitude;
-        float nearPlaneDist = targetCam.attachedUnityCam.nearClipPlane;
+        float nearPlaneDist = targetCam.nearClipPlane;
         float tempDist = zoomAmount * scrollSensitivity * GetPivotDistanceScale();
         Vector3 moveDelta = targetCam.transform.forward * Mathf.Clamp(tempDist, Mathf.NegativeInfinity, currentDistToPivot - nearPlaneDist);
         targetCam.transform.position += moveDelta;
@@ -74,7 +74,7 @@ public class CustomCameraUIController : MonoBehaviour, IScrollHandler, IPointerD
 
     float GetPivotDistanceScale () {
         float currentDistToPivot = (targetCam.transform.position - pivotPoint).magnitude;
-        float nearPlaneDist = targetCam.attachedUnityCam.nearClipPlane;
+        float nearPlaneDist = targetCam.nearClipPlane;
         return Mathf.Max(Mathf.Abs(currentDistToPivot - nearPlaneDist), 0.01f);
     }
 

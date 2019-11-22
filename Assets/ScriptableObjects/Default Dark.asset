@@ -21,6 +21,7 @@ MonoBehaviour:
   vertRenderOriginZAxis: {r: 0.112, g: 0.42, b: 1, a: 1}
   vertRenderPivot: {r: 1, g: 0.667, b: 0, a: 1}
   vertRenderPivotOutline: {r: 0, g: 0, b: 0, a: 1}
+  vertRenderWireObject: {r: 1, g: 1, b: 1, a: 1}
   vertRenderObjectColor: {r: 1, g: 1, b: 1, a: 1}
   vertRenderObjectBackfaceColor: {r: 1, g: 0, b: 1, a: 1}
   vertRenderLight1: {r: 0.8, g: 0.8, b: 0.8, a: 1}

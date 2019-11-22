@@ -35,6 +35,7 @@ public class ColorScheme : ScriptableObject {
     [SerializeField] Color vertRenderOriginZAxis;
     [SerializeField] Color vertRenderPivot;
     [SerializeField] Color vertRenderPivotOutline;
+    [SerializeField] Color vertRenderWireObject;
 
     public Color VertRenderBackground => vertRenderBackground;
     public Color VertRenderWireGridFloor => vertRenderWireGridFloor;
@@ -45,6 +46,7 @@ public class ColorScheme : ScriptableObject {
     public Color VertRenderOriginZAxis => vertRenderOriginZAxis;
     public Color VertRenderPivot => vertRenderPivot;
     public Color VertRenderPivotOutline => vertRenderPivotOutline;
+    public Color VertRenderWireObject => vertRenderWireObject;
 
     [Header("Vert Render View Object")]
     [SerializeField] Color vertRenderObjectColor;

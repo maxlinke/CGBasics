@@ -9,6 +9,7 @@ public class CustomGLCamera : MonoBehaviour {
     [SerializeField] bool isExternalCamera;
     [SerializeField] CustomGLCamera otherCamera;
 
+    public bool matricesAreUpdated { get; private set; }
     public Matrix4x4 currentViewMatrix { get; private set; }
     public Matrix4x4 currentProjectionMatrix { get; private set; }
 
@@ -33,6 +34,12 @@ public class CustomGLCamera : MonoBehaviour {
     [System.NonSerialized] public bool drawPivot;
     [System.NonSerialized] public Vector3 pivotPointToDraw;
     [System.NonSerialized] public bool drawSeeThrough;
+    // [System.NonSerialized] public bool drawObjectAsWireFrame;
+    public bool drawObjectAsWireFrame;
+
+    Camera attachedUnityCam;
+    Material lineMaterialSolid;
+    Material lineMaterialSeeThrough;
 
     float startNearClipPlane;
     float startFarClipPlane;
@@ -41,9 +48,18 @@ public class CustomGLCamera : MonoBehaviour {
     Vector3 startPosition;
     Quaternion startRotation;
 
-    Camera attachedUnityCam;
-    Material lineMaterialSolid;
-    Material lineMaterialSeeThrough;
+    const float seeThroughAlphaMultiplier = 0.333f;
+    const float pivotSize = 9f;
+
+    Color wireGridColor;
+    Color wireObjectColor;
+    Color camFrustumColor;
+    Color clipBoxColor;
+    Color xColor;
+    Color yColor;
+    Color zColor;
+    Color pivotColor;
+    Color pivotOutlineColor;
 
     Vector3[] clipSpaceVertices = new Vector3[]{
         new Vector3(-1, -1, -1),
@@ -55,17 +71,6 @@ public class CustomGLCamera : MonoBehaviour {
         new Vector3( 1,  1, 1),
         new Vector3(-1,  1, 1)
     };
-    const float seeThroughAlphaMultiplier = 0.333f;
-    const float pivotSize = 9f;
-
-    Color wireGridColor;
-    Color camFrustumColor;
-    Color clipBoxColor;
-    Color xColor;
-    Color yColor;
-    Color zColor;
-    Color pivotColor;
-    Color pivotOutlineColor;
 
     void Awake () {
         attachedUnityCam = GetComponent<Camera>();
@@ -109,6 +114,7 @@ public class CustomGLCamera : MonoBehaviour {
     void LoadColors (ColorScheme cs) {
         attachedUnityCam.backgroundColor = cs.VertRenderBackground;
         wireGridColor = cs.VertRenderWireGridFloor;
+        wireObjectColor = cs.VertRenderWireObject;
         camFrustumColor = cs.VertRenderCameraFrustum;
         clipBoxColor = cs.VertRenderClipSpaceBox;
         xColor = cs.VertRenderOriginXAxis;
@@ -145,15 +151,36 @@ public class CustomGLCamera : MonoBehaviour {
         lineMaterialSeeThrough.SetInt("_ZTest", (int)UnityEngine.Rendering.CompareFunction.Always);
     }
 
-    void LateUpdate () {
-        SetupCurrentViewAndProjectionMatrix();
+    void Update () {
+        matricesAreUpdated = false;
     }
 
     void OnPreRender () {
         attachedUnityCam.cullingMask = 0;
+        if(isExternalCamera && !otherCamera.matricesAreUpdated){
+            otherCamera.UpdateMatrices();  //TODO change to a better name maybe?
+        }
+        UpdateMatrices();
+    }
+
+    void UpdateMatrices () {
+        currentViewMatrix = GLMatrixCreator.GetViewMatrix(
+            pos: transform.position,
+            forward: transform.forward,
+            up: transform.up
+        );
+        currentProjectionMatrix = GLMatrixCreator.GetProjectionMatrix(
+            fov: fieldOfView,
+            aspectRatio: aspect,
+            zNear: nearClipPlane,
+            zFar: farClipPlane
+        );
     }
 
     void OnPostRender () {
+        bool wireCache = GL.wireframe;
+        GL.wireframe = drawObjectAsWireFrame;
+
         GL.PushMatrix();
 
         GL.LoadProjectionMatrix(currentProjectionMatrix);
@@ -182,6 +209,8 @@ public class CustomGLCamera : MonoBehaviour {
 
         GL.PopMatrix();
 
+        GL.wireframe = wireCache;
+
         void DrawAllTheWireThings (bool seeThrough) {
             DrawWireFloor(seeThrough);
             DrawAxes(seeThrough);
@@ -192,19 +221,7 @@ public class CustomGLCamera : MonoBehaviour {
         }
     }
 
-    void SetupCurrentViewAndProjectionMatrix () {
-        currentViewMatrix = GLMatrixCreator.GetViewMatrix(
-            pos: transform.position,
-            forward: transform.forward,
-            up: transform.up
-        );
-        currentProjectionMatrix = GLMatrixCreator.GetProjectionMatrix(
-            fov: fieldOfView,
-            aspectRatio: aspect,
-            zNear: nearClipPlane,
-            zFar: farClipPlane
-        );
-    }
+#region GL_Drawing
 
     void DrawWireFloor (bool seeThrough) {
         GL.Begin(GL.LINES);
@@ -241,7 +258,7 @@ public class CustomGLCamera : MonoBehaviour {
         GL.LoadIdentity();
         GL.MultMatrix(currentViewMatrix * (otherCamera.currentProjectionMatrix * otherCamera.currentViewMatrix).inverse);
         DrawClipSpace(camFrustumColor, seeThrough);
-        
+
         GL.PopMatrix();
     }
 
@@ -271,10 +288,18 @@ public class CustomGLCamera : MonoBehaviour {
         if(isExternalCamera){
             objectMat.SetMatrix("_SpecialClippingMatrix", otherCamera.currentProjectionMatrix * otherCamera.currentViewMatrix * modelMatrix);
         }
-        objectMat.SetMatrix("_SpecialModelMatrix", modelMatrix);
-        objectMat.SetPass(0);
+        if(drawObjectAsWireFrame){
+            lineMaterialSolid.SetPass(0);
+        }else{
+            objectMat.SetMatrix("_SpecialModelMatrix", modelMatrix);
+            objectMat.SetPass(0);
+        }
         GL.Begin(GL.TRIANGLES);
-        GL.Color(Color.white);
+        if(drawObjectAsWireFrame){
+            GL.Color(wireObjectColor);
+        }else{
+            GL.Color(Color.white);
+        }
         var verts = meshToDraw.vertices;
         var tris = meshToDraw.triangles;
         for(int i=0; i<tris.Length; i+=3){
@@ -321,6 +346,8 @@ public class CustomGLCamera : MonoBehaviour {
         GL.Vertex(points[0]);
         GL.End();
     }
+
+#endregion
 
     Color GetConditionalSeeThroughColor (Color inputColor, bool seeThrough) {
         return (seeThrough ? GetSeeThroughColor(inputColor) : inputColor);

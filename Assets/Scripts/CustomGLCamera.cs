@@ -313,10 +313,12 @@ public class CustomGLCamera : MonoBehaviour {
     }
 	
     void DrawPivot (bool seeThrough) {
-        //should always have the same pixel-size
+        // should always have the same pixel-size
         float dist = (pivotPointToDraw - attachedUnityCam.transform.position).magnitude;
-        Vector3 offsetH = pivotSize * attachedUnityCam.transform.right * dist / Screen.height;
-        Vector3 offsetV = pivotSize * attachedUnityCam.transform.up * dist / Screen.height;
+        float preMul = pivotSize * dist / Screen.height;
+        preMul *= fieldOfView / 60;         // not perfect but better than nothing. 
+        Vector3 offsetH = preMul * transform.right;
+        Vector3 offsetV = preMul * transform.up;
         Vector3[] points = new Vector3[]{
             pivotPointToDraw + offsetV,
             pivotPointToDraw + offsetH,
@@ -328,14 +330,12 @@ public class CustomGLCamera : MonoBehaviour {
         }else{
             lineMaterialSolid.SetPass(0);
         }
-        GL.Begin(GL.TRIANGLES);
+        GL.Begin(GL.TRIANGLE_STRIP);
         GL.Color(pivotColor * new Color(1,1,1, seeThrough ? seeThroughAlphaMultiplier : 1));
+        GL.Vertex(points[3]);
+        GL.Vertex(points[2]);
         GL.Vertex(points[0]);
         GL.Vertex(points[1]);
-        GL.Vertex(points[2]);
-        GL.Vertex(points[2]);
-        GL.Vertex(points[3]);
-        GL.Vertex(points[0]);
         GL.End();
         GL.Begin(GL.LINE_STRIP);
         GL.Color(pivotOutlineColor * new Color(1,1,1, seeThrough ? seeThroughAlphaMultiplier : 1));

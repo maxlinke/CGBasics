@@ -22,8 +22,19 @@ public class CustomGLCamera : MonoBehaviour {
     [System.NonSerialized] public bool drawPivot;
     [System.NonSerialized] public Vector3 pivotPointToDraw;
 
+    const float seeThroughAlphaMultiplier = 0.333f;
+    Color wireGridColor;
+    Color camFrustumColor;
+    Color clipBoxColor;
+    Color xColor;
+    Color yColor;
+    Color zColor;
+    Color pivotColor;
+    Color pivotOutlineColor;
+
     void Awake () {
         attachedUnityCam = GetComponent<Camera>();
+        LoadColors(ColorScheme.current);
 
         // modified from https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnPostRender.html
         var shader = Shader.Find("Hidden/Internal-Colored");
@@ -53,9 +64,32 @@ public class CustomGLCamera : MonoBehaviour {
         }
     }
 
+    void OnEnable () {
+        ColorScheme.onChange += LoadColors;
+    }
+
+    void OnDisable () {
+        ColorScheme.onChange -= LoadColors;
+    }
+
+    void LoadColors (ColorScheme cs) {
+        attachedUnityCam.backgroundColor = cs.VertRenderBackground;
+        wireGridColor = cs.VertRenderWireGridFloor;
+        camFrustumColor = cs.VertRenderCameraFrustum;
+        clipBoxColor = cs.VertRenderClipSpaceBox;
+        xColor = cs.VertRenderOriginXAxis;
+        yColor = cs.VertRenderOriginYAxis;
+        zColor = cs.VertRenderOriginZAxis;
+        pivotColor = cs.VertRenderPivot;
+        pivotOutlineColor = cs.VertRenderPivotOutline;
+    }
+
+    void LateUpdate () {
+        SetupCurrentViewAndProjectionMatrix();
+    }
+
     void OnPreRender () {
         attachedUnityCam.cullingMask = 0;
-        SetupCurrentViewAndProjectionMatrix();
     }
 
     void OnPostRender () {
@@ -99,7 +133,7 @@ public class CustomGLCamera : MonoBehaviour {
     void DrawWireFloor () {
         lineMaterialSolid.SetPass(0);
         GL.Begin(GL.LINES);
-        GL.Color(new Color(0.3f, 0.3f, 0.3f));
+        GL.Color(wireGridColor);
         for(int x=-10; x<=10; x++){
             GL.Vertex3(x, 0, -10);
             GL.Vertex3(x, 0, 10);
@@ -114,13 +148,13 @@ public class CustomGLCamera : MonoBehaviour {
     void DrawAxes () {
         lineMaterialSolid.SetPass(0);
         GL.Begin(GL.LINES);
-        GL.Color(Color.red);
+        GL.Color(xColor);
         GL.Vertex3(0, 0, 0);
         GL.Vertex3(1, 0, 0);
-        GL.Color(Color.green);
+        GL.Color(yColor);
         GL.Vertex3(0, 0, 0);
         GL.Vertex3(0, 1, 0);
-        GL.Color(Color.blue);
+        GL.Color(zColor);
         GL.Vertex3(0, 0, 0);
         GL.Vertex3(0, 0, 1);
         GL.End();
@@ -145,7 +179,7 @@ public class CustomGLCamera : MonoBehaviour {
         GL.MultMatrix(currentViewMatrix * (otherCamera.currentProjectionMatrix * otherCamera.currentViewMatrix).inverse);
 
         GL.Begin(GL.LINES);
-        GL.Color(Color.white);
+        GL.Color(camFrustumColor);
 
         for(int i=0; i<4; i++){
             ClipVertLine(i, (i+1)%4);
@@ -199,17 +233,13 @@ public class CustomGLCamera : MonoBehaviour {
             pivotPointToDraw - offsetV,
             pivotPointToDraw - offsetH
         };
-        Color pivotColor = new Color(1, 0.667f, 0);
-        Color outlineColor = new Color(0, 0, 0);
         if(seeThrough){
             lineMaterialSeeThrough.SetPass(0);
-            pivotColor.a = 0.333f;
-            outlineColor.a = 0.333f;
         }else{
             lineMaterialSolid.SetPass(0);
         }
         GL.Begin(GL.TRIANGLES);
-        GL.Color(pivotColor);
+        GL.Color(pivotColor * new Color(1,1,1, seeThrough ? seeThroughAlphaMultiplier : 1));
         GL.Vertex(points[0]);
         GL.Vertex(points[1]);
         GL.Vertex(points[2]);
@@ -218,7 +248,7 @@ public class CustomGLCamera : MonoBehaviour {
         GL.Vertex(points[0]);
         GL.End();
         GL.Begin(GL.LINE_STRIP);
-        GL.Color(outlineColor);
+        GL.Color(pivotOutlineColor * new Color(1,1,1, seeThrough ? seeThroughAlphaMultiplier : 1));
         GL.Vertex(points[0]);
         GL.Vertex(points[1]);
         GL.Vertex(points[2]);

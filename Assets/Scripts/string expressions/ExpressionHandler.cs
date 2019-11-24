@@ -17,8 +17,9 @@ namespace StringExpressions {
 
         public static string Debug (string inputString, Dictionary<string, float> variables = null) {
             inputString = RemoveAllWhiteSpaces(inputString);
-            int testID = 3;
+            int testID = 4;
             string output;
+            string remainder;
             float parsedNumber;
             switch(testID){
                 case 0: 
@@ -39,8 +40,12 @@ namespace StringExpressions {
                     }
                     break;
                 case 3:
-                    ParseAndRemoveNumber(inputString, out parsedNumber);
-                    output = parsedNumber.ToString();
+                    remainder = ParseAndRemoveNumber(inputString, out parsedNumber);
+                    output = $"{parsedNumber.ToString()}\n\"{remainder}\"";
+                    break;
+                case 4: 
+                    remainder = ParseAndRemoveOperand(inputString, out parsedNumber, variables);
+                    output = $"{parsedNumber.ToString()}\n\"{remainder}\"";
                     break;
                 default: 
                     output = "invalid testID";
@@ -83,28 +88,24 @@ namespace StringExpressions {
         }
 
         private static string ParseAndRemoveOperand (string inputString, out float operandValue, Dictionary<string, float> variables) {
-            bool doneWithSign = false;
             float sign = 1;
             int charCounter = 0;
             operandValue = float.NaN;
             foreach(char ch in inputString){
                 charCounter ++;
-                if(!doneWithSign){
-                    if(ch == '-'){
-                        sign *= -1;
-                        continue;
-                    }else if(ch != '+'){
-                        doneWithSign = true;
-                        inputString = inputString.Substring(charCounter - 1, inputString.Length - charCounter - 1);
-                        if(IsNumberChar(ch, true)){
-                            inputString = ParseAndRemoveNumber(inputString, out operandValue);
-                            break;
-                        }else if(IsIdentifierChar(ch)){
-                            inputString = ParseAndRemoveIdentifier(inputString, out operandValue, variables);
-                            break;
-                        }else{
-                            throw new System.ArgumentException($"Invalid operand char \"{ch}\"!");
-                        }
+                if(ch == '-'){
+                    sign *= -1;
+                    continue;
+                }else if(ch != '+'){
+                    inputString = inputString.Remove(0, charCounter - 1);
+                    if(IsNumberChar(ch, true)){
+                        inputString = ParseAndRemoveNumber(inputString, out operandValue);
+                        break;
+                    }else if(IsIdentifierChar(ch)){
+                        inputString = ParseAndRemoveIdentifier(inputString, out operandValue, variables);
+                        break;
+                    }else{
+                        throw new System.ArgumentException($"Invalid operand char \"{ch}\"!");
                     }
                 }
             }
@@ -113,6 +114,7 @@ namespace StringExpressions {
         }
 
         private static string ParseAndRemoveNumber (string inputString, out float outputNumber) {
+            UnityEngine.Debug.Log($"parse \"{inputString}\"");
             // any + and - should have been removed in the ParseOperand(...)-phase
             if(inputString[0] == '+' || inputString[0] == '-'){
                 throw new System.ArgumentException($"Numbers to parse should not have '+' or '-' in the beginning. String: \"{inputString}\"");
@@ -149,7 +151,7 @@ namespace StringExpressions {
                         break;
                     }
                 }else if(!pastExpSign){
-                    if(IsNumberChar(ch, false) || (ch == '+' || ch == '-')){
+                    if(IsNumberChar(ch, false) || ch == '+' || ch == '-'){
                         pastExpSign = true;
                         continue;
                     }else{

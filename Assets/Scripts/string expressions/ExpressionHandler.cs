@@ -17,8 +17,9 @@ namespace StringExpressions {
 
         public static string Debug (string inputString, Dictionary<string, float> variables = null) {
             inputString = RemoveAllWhiteSpaces(inputString);
-            int testID = 1;
+            int testID = 3;
             string output;
+            float parsedNumber;
             switch(testID){
                 case 0: 
                     RemoveAndGetFunctionParameters(inputString, out var parameters);
@@ -28,14 +29,18 @@ namespace StringExpressions {
                     }
                     break;
                 case 1: 
-                    ParseAndRemoveIdentifier(inputString, out var outputNumber, variables);
-                    output = outputNumber.ToString();
+                    ParseAndRemoveIdentifier(inputString, out parsedNumber, variables);
+                    output = parsedNumber.ToString();
                     break;
                 case 2: 
                     output = string.Empty;
                     foreach(var ch in inputString){
                         output += $"{ch == '('}\t{IsIdentifierChar(ch)}\n";
                     }
+                    break;
+                case 3:
+                    ParseAndRemoveNumber(inputString, out parsedNumber);
+                    output = parsedNumber.ToString();
                     break;
                 default: 
                     output = "invalid testID";
@@ -77,47 +82,101 @@ namespace StringExpressions {
             return output;
         }
 
-        private static string RemoveAndGetFirstOperandValue (string inputString, out float operandValue, Dictionary<string, float> variables) {
+        private static string ParseAndRemoveOperand (string inputString, out float operandValue, Dictionary<string, float> variables) {
             bool doneWithSign = false;
             float sign = 1;
-            int totalCharCounter = 0;
-            int startChar = -1;
-            bool parsingNumber = false;
-            bool parsingIdentifier = false;
-            string processedString = inputString;
+            int charCounter = 0;
+            operandValue = float.NaN;
             foreach(char ch in inputString){
-                totalCharCounter ++;
+                charCounter ++;
                 if(!doneWithSign){
                     if(ch == '-'){
                         sign *= -1;
                         continue;
                     }else if(ch != '+'){
                         doneWithSign = true;
-                        startChar = totalCharCounter - 1;
-                        if(IsNumberChar(ch)){
-                            parsingNumber = true;
+                        inputString = inputString.Substring(charCounter - 1, inputString.Length - charCounter - 1);
+                        if(IsNumberChar(ch, true)){
+                            inputString = ParseAndRemoveNumber(inputString, out operandValue);
+                            break;
                         }else if(IsIdentifierChar(ch)){
-                            parsingIdentifier = true;
+                            inputString = ParseAndRemoveIdentifier(inputString, out operandValue, variables);
+                            break;
                         }else{
                             throw new System.ArgumentException($"Invalid operand char \"{ch}\"!");
                         }
                     }
                 }
-                if(parsingNumber){
-
-                }else if(parsingIdentifier){
-
-                }else{
-                    throw new System.Exception("This part of the code should NEVER be reached. Something went wrong!");
-                }
             }
-            operandValue = float.NaN;
-            return inputString.Remove(0, totalCharCounter);
+            operandValue *= sign;;
+            return inputString;
         }
 
         private static string ParseAndRemoveNumber (string inputString, out float outputNumber) {
-            outputNumber = float.NaN;
-            return null;
+            // any + and - should have been removed in the ParseOperand(...)-phase
+            if(inputString[0] == '+' || inputString[0] == '-'){
+                throw new System.ArgumentException($"Numbers to parse should not have '+' or '-' in the beginning. String: \"{inputString}\"");
+            }
+
+            bool pastDecimalPoint = false;
+            bool pastExpIndicator = false;
+            bool pastExpSign = false;
+            int charCounter = 0;
+            foreach(char ch in inputString){
+                charCounter++;
+                if(!pastDecimalPoint){
+                    if(IsNumberChar(ch, false)){
+                        continue;
+                    }else if(ch == '.'){
+                        pastDecimalPoint = true;
+                        continue;
+                    }else if(ValidExpIndicator()){
+                        pastDecimalPoint = true;
+                        pastExpIndicator = true;
+                        continue;
+                    }else{
+                        charCounter--;
+                        break;
+                    }
+                }else if(!pastExpIndicator){
+                    if(IsNumberChar(ch, false)){
+                        continue;
+                    }else if(ValidExpIndicator()){
+                        pastExpIndicator = true;
+                        continue;
+                    }else{
+                        charCounter--;
+                        break;
+                    }
+                }else if(!pastExpSign){
+                    if(IsNumberChar(ch, false) || (ch == '+' || ch == '-')){
+                        pastExpSign = true;
+                        continue;
+                    }else{
+                        charCounter--;
+                        break;
+                    }
+                }else{
+                    if(IsNumberChar(ch, false)){
+                        continue;
+                    }else{
+                        charCounter--;
+                        break;
+                    }
+                }
+
+                bool ValidExpIndicator () {
+                    return ((ch == 'e' || ch == 'E') && charCounter > 2);   // to prevent ".Exyz" and "Exyz"
+                }
+            }
+
+            string numberString = inputString.Substring(0, charCounter);
+            if(float.TryParse(numberString, out outputNumber)){
+                return inputString.Remove(0, charCounter);                
+            }else{
+                throw new System.ArgumentException($"Couldn't parse number \"{numberString}\"");
+            }
+
         }
 
         // variables and functions...
@@ -232,8 +291,8 @@ namespace StringExpressions {
         }
 
         // e and + or - needs special treatment (as in 2.3e-5)...
-        private static bool IsNumberChar (char inputChar) {
-            return (inputChar >= '0' && inputChar <= '9' || inputChar == '.');
+        private static bool IsNumberChar (char inputChar, bool includeDecimalPoint = false) {
+            return ((inputChar >= '0' && inputChar <= '9') || (inputChar == '.' && includeDecimalPoint));
         }
 
         private static bool IsIdentifierChar (char inputChar) {

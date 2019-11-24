@@ -257,20 +257,15 @@ namespace StringExpressions {
         private static float ExecuteFunction (string functionName, string[] parameters, Dictionary<string, float> variables) {
             switch(functionName){
                 case "pi": 
-                    CheckParameterCount(0);
-                    return Mathf.PI;
+                    return Exec0(() => Mathf.PI);
                 case "e":
-                    CheckParameterCount(0);
-                    return (float)System.Math.E;            // interesting that Mathf doesn't have that value...
+                    return Exec0(() => (float)(System.Math.E));            // interesting that Mathf doesn't have that value...
                 case "sin":
-                    CheckParameterCount(1);
-                    return Mathf.Sin(Param(0));
+                    return Exec1(Mathf.Sin);
                 case "cos": 
-                    CheckParameterCount(1);
-                    return Mathf.Cos(Param(0));
+                    return Exec1(Mathf.Cos);
                 case "tan": 
-                    CheckParameterCount(1);
-                    return Mathf.Tan(Param(0));
+                    return Exec1(Mathf.Tan);
                 default: 
                     throw new System.ArgumentException($"Unknown function call \"{functionName}\"...");
             }
@@ -283,6 +278,16 @@ namespace StringExpressions {
 
             float Param (int index) {
                 return ParseExpression(parameters[index], variables);
+            }
+
+            float Exec0 (System.Func<float> function){
+                CheckParameterCount(0);
+                return function();
+            }
+
+            float Exec1 (System.Func<float, float> function) {
+                CheckParameterCount(1);
+                return function(Param(0));
             }
         }
 

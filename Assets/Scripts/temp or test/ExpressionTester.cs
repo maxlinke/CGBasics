@@ -36,10 +36,19 @@ public class ExpressionTester : MonoBehaviour {
 
             // outputField.text = input;
 
-            if(float.TryParse(input, out float val)){
-                outputField.text = val.ToString();
-            }else{
-                outputField.text = "Error";
+            // if(float.TryParse(input, out float val)){
+            //     outputField.text = val.ToString();
+            // }else{
+            //     outputField.text = "Error";
+            // }
+
+            var outputString = string.Empty;
+            try{
+                outputString = ExpressionHandler.Debug(input);
+            }catch(System.Exception e){
+                outputString = e.ToString();
+            }finally{
+                outputField.text = outputString;
             }
         });
     }

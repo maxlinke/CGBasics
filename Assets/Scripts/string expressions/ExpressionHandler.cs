@@ -1,18 +1,56 @@
-﻿using System.Collections.Generic;
+﻿using UnityEngine;
+using System.Collections.Generic;
 
 namespace StringExpressions {
 
     public class ExpressionHandler {
 
-        public static bool TryEvaluateAsNumber (string inputExpression, out float number, Dictionary<string, float> variables = null) {
-            if(inputExpression == null){
+        public static bool TryParseExpression (string inputExpression, out float number, Dictionary<string, float> variables = null) {
+            try{
+                number = ParseExpression(inputExpression, variables);
+                return !(float.IsNaN(number));
+            }catch{
                 number = float.NaN;
                 return false;
             }
+        }
+
+        public static string Debug (string inputString, Dictionary<string, float> variables = null) {
+            inputString = RemoveAllWhiteSpaces(inputString);
+            int testID = 1;
+            string output;
+            switch(testID){
+                case 0: 
+                    RemoveAndGetFunctionParameters(inputString, out var parameters);
+                    output = string.Empty;
+                    foreach(var parameter in parameters){
+                        output += $"{parameter}\n";
+                    }
+                    break;
+                case 1: 
+                    ParseAndRemoveIdentifier(inputString, out var outputNumber, variables);
+                    output = outputNumber.ToString();
+                    break;
+                case 2: 
+                    output = string.Empty;
+                    foreach(var ch in inputString){
+                        output += $"{ch == '('}\t{IsIdentifierChar(ch)}\n";
+                    }
+                    break;
+                default: 
+                    output = "invalid testID";
+                    break;
+            }
+            return output;
+        }
+
+        private static float ParseExpression (string inputExpression, Dictionary<string, float> variables) {
+            if(inputExpression == null){
+                throw new System.NullReferenceException("Input Expression can't be null!");
+            }
             inputExpression = RemoveAllWhiteSpaces(inputExpression);
             if(!(inputExpression.Length > 0)){
-                number = float.NaN;
-                return false;
+                throw new System.ArgumentException("Input Expression can't be empty!");
             }
             Stack<Token> tokenStack = new Stack<Token>();
             var processedInput = inputExpression;
@@ -27,18 +65,7 @@ namespace StringExpressions {
             }
 
 
-            number = float.NaN;
-            return false;
-        }
-
-        // TODO use this for testing
-        public static string Debug (string inputString, Dictionary<string, float> variables = null) {
-            var asdf = RemoveAndGetFunctionParameters(inputString, out var parameters, variables);
-            var output = string.Empty;
-            foreach(var parameter in parameters){
-                output += $"{parameter}\n";
-            }
-            return output;
+            return float.NaN;;
         }
 
         private static string RemoveAllWhiteSpaces (string input) {
@@ -95,32 +122,62 @@ namespace StringExpressions {
 
         // variables and functions...
         private static string ParseAndRemoveIdentifier (string inputString, out float outputNumber, Dictionary<string, float> variables) {
-            bool isVariable = false;
-            bool isFunction = false;
             int charCounter = 0;
-            string processedInput = inputString;
             foreach(var ch in inputString){
                 charCounter++;
                 if(IsIdentifierChar(ch)){
                     continue;
                 }else{
                     if(ch == '('){
-                        isFunction = true;
                         var functionName = inputString.Substring(0, charCounter-1);
-                        processedInput = inputString.Remove(0, charCounter-1);
-                        // get parameter array
+                        inputString = inputString.Remove(0, charCounter-1);
+                        inputString = RemoveAndGetFunctionParameters(inputString, out var parameters);
+                        outputNumber = ExecuteFunction(functionName, parameters, variables);
+                        return inputString;
                     }else{
-
+                        var variableName = inputString.Substring(0, charCounter-1);
+                        inputString = inputString.Remove(0, charCounter-1);
+                        outputNumber = GetVariableValue(variableName, variables);
+                        return inputString;
                     }
                 }
             }
-
-            //for compiler
-            outputNumber = float.NaN;
-            return null;
+            outputNumber = GetVariableValue(inputString, variables);
+            return string.Empty;
         }
 
-        private static string RemoveAndGetFunctionParameters (string inputString, out string[] parameters, Dictionary<string, float> variables) {
+        // TODO use extra class with "GetAll" function and each function gets a description (for automatic help generation...)
+        private static float ExecuteFunction (string functionName, string[] parameters, Dictionary<string, float> variables) {
+            switch(functionName){
+                case "pi": 
+                    CheckParameterCount(0);
+                    return Mathf.PI;
+                case "e":
+                    CheckParameterCount(0);
+                    return (float)System.Math.E;            // interesting that Mathf doesn't have that value...
+                // TODO add the rest once i get everything working (needs to use parseexpression for the params...)
+                default: 
+                    throw new System.ArgumentException($"Unknown function call \"{functionName}\"...");
+            }
+
+            void CheckParameterCount (int expectedParameterCount) {
+                if(parameters.Length != expectedParameterCount){
+                    throw new System.ArgumentException($"Function \"{functionName}\" expected {expectedParameterCount} parameters but got {parameters.Length}!");
+                }
+            }
+        }
+
+        private static float GetVariableValue (string variableName, Dictionary<string, float> variables) {
+            if(variables == null){
+                throw new System.NullReferenceException($"Requested lookup of variable \"{variableName}\" but variable map was null!");
+            }else if(variables.TryGetValue(variableName, out var variableValue)){
+                return variableValue;
+            }else{
+                throw new System.ArgumentException($"Found no variable named \"{variableName}\"!");
+            }
+        }
+
+        private static string RemoveAndGetFunctionParameters (string inputString, out string[] parameters) {
             if(!(inputString.Length > 0)){
                 parameters = new string[0];
                 return inputString;
@@ -138,15 +195,20 @@ namespace StringExpressions {
                     parenthesisCounter++;
                 }else if(ch == ')'){
                     parenthesisCounter--;
-                    if(parenthesisCounter == 0){
-                        parameterList.Add(inputString.Substring(currentParameterStart, charCounter - 1 - currentParameterStart));
+                    int paramLength = ParamStringLength();
+                    if(parenthesisCounter == 0 && paramLength > 0){
+                        parameterList.Add(inputString.Substring(currentParameterStart, paramLength));
                         break;
                     }
                 }else if(ch == ','){
                     if(parenthesisCounter == 1){
-                        parameterList.Add(inputString.Substring(currentParameterStart, charCounter - 1 - currentParameterStart));
+                        parameterList.Add(inputString.Substring(currentParameterStart, ParamStringLength()));
                         currentParameterStart = charCounter;
                     }
+                }
+
+                int ParamStringLength () {
+                    return charCounter - 1 - currentParameterStart;
                 }
             }
             if(parenthesisCounter != 0){
@@ -175,7 +237,7 @@ namespace StringExpressions {
         }
 
         private static bool IsIdentifierChar (char inputChar) {
-            return ((inputChar >= 'a' && inputChar <= 'z') || (inputChar >= 'A' || inputChar <= 'Z'));
+            return ((inputChar >= 'a' && inputChar <= 'z') || (inputChar >= 'A' && inputChar <= 'Z'));
         }
 
         // https://www.geeksforgeeks.org/infix-to-postfix-using-different-precedence-values-for-in-stack-and-out-stack/

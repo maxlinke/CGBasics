@@ -42,14 +42,21 @@ public class ExpressionTester : MonoBehaviour {
             //     outputField.text = "Error";
             // }
 
-            var outputString = string.Empty;
-            try{
-                outputString = ExpressionHandler.Debug(input);
-            }catch(System.Exception e){
-                outputString = e.ToString();
-            }finally{
-                outputField.text = outputString;
-            }
+            // var outputString = string.Empty;
+            // try{
+            //     outputString = ExpressionHandler.Debug(input);
+            // }catch(System.Exception e){
+            //     outputString = e.ToString();
+            // }finally{
+            //     outputField.text = outputString;
+            // }
+
+            Dictionary<string, float> vars = new Dictionary<string, float>();
+            vars.Add("x", 1);
+            vars.Add("y", 2);
+            vars.Add("z", 3);
+
+            outputField.text = ExpressionHandler.Debug(input, vars);
         });
     }
 

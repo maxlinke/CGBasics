@@ -49,7 +49,8 @@ public class ExpressionTester : MonoBehaviour {
 
             var outputString = string.Empty;
             try{
-                outputString = ExpressionHandler.Debug(input);
+                // outputString = ExpressionHandler.Debug(input);
+                outputString = ExpressionHandler.ParseExpression(input, vars).ToString();
             }catch(System.Exception e){
                 outputString = e.Message;
             }finally{

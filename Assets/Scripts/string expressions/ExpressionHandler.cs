@@ -54,7 +54,7 @@ namespace StringExpressions {
             return output;
         }
 
-        private static float ParseExpression (string inputExpression, Dictionary<string, float> variables) {
+        public static float ParseExpression (string inputExpression, Dictionary<string, float> variables) {
             if(inputExpression == null){
                 throw new System.NullReferenceException("Input Expression can't be null!");
             }
@@ -62,20 +62,68 @@ namespace StringExpressions {
             if(!(inputExpression.Length > 0)){
                 throw new System.ArgumentException("Input Expression can't be empty!");
             }
-            Stack<Token> tokenStack = new Stack<Token>();
-            var processedInput = inputExpression;
-            while(processedInput.Length > 0){
-                if(processedInput[0] == '('){
-
-                }else if(processedInput[0] == ')'){
-
+            Stack<Token> tempStack = new Stack<Token>();
+            Queue<Token> postfix = new Queue<Token>();
+            while(inputExpression.Length > 0){
+                char ch = inputExpression[0];
+                if(IsOperatorChar(ch, true)){
+                    if(ch == ')'){
+                        while(!tempStack.Peek().Equals('(')){
+                            postfix.Enqueue(tempStack.Pop());
+                            if(!(tempStack.Count > 0)){
+                                throw new System.ArgumentOutOfRangeException("Mismatched parenthesis count!");
+                            }
+                        }
+                        tempStack.Pop();
+                    }else{
+                        if(tempStack.Count > 0){
+                            if(OutStackPrecedence(ch) > InStackPrecedence(tempStack.Peek())){
+                                tempStack.Push(new OperatorToken(ch));
+                            }else{
+                                while((tempStack.Count > 0) && (OutStackPrecedence(ch) < InStackPrecedence(tempStack.Peek()))){
+                                    postfix.Enqueue(tempStack.Pop());
+                                }
+                                tempStack.Push(new OperatorToken(ch));
+                            }
+                        }else{
+                            tempStack.Push(new OperatorToken(ch));
+                        }
+                    }
+                    inputExpression = inputExpression.Substring(1);
                 }else{
-
+                    inputExpression = ParseAndRemoveOperand(inputExpression, out float parsedOperand, variables);
+                    postfix.Enqueue(new NumberToken(parsedOperand));                        
                 }
             }
-
-
-            return float.NaN;;
+            UnityEngine.Debug.Log("done with processing input");
+            while(tempStack.Count > 0){
+                postfix.Enqueue(tempStack.Pop());
+            }
+            tempStack.Clear();      // just to be EXTRA sure
+            while(postfix.Count > 0){
+                var top = postfix.Dequeue();
+                if(top is NumberToken){
+                    tempStack.Push(top);
+                }else{
+                    float a = ((NumberToken)(tempStack.Pop())).value;
+                    float b = ((NumberToken)(tempStack.Pop())).value;
+                    switch(((OperatorToken)top).value){
+                        case '+':
+                            tempStack.Push(new NumberToken(a + b));
+                            break;
+                        case '-':
+                            tempStack.Push(new NumberToken(a - b));
+                            break;
+                        case '*':
+                            tempStack.Push(new NumberToken(a * b));
+                            break;
+                        case '/':
+                            tempStack.Push(new NumberToken(a / b));
+                            break;
+                    }
+                }
+            }
+            return ((NumberToken)(tempStack.Pop())).value;
         }
 
         private static string RemoveAllWhiteSpaces (string input) {
@@ -114,7 +162,6 @@ namespace StringExpressions {
         }
 
         private static string ParseAndRemoveNumber (string inputString, out float outputNumber) {
-            UnityEngine.Debug.Log($"parse \"{inputString}\"");
             // any + and - should have been removed in the ParseOperand(...)-phase
             if(inputString[0] == '+' || inputString[0] == '-'){
                 throw new System.ArgumentException($"Numbers to parse should not have '+' or '-' in the beginning. String: \"{inputString}\"");
@@ -302,7 +349,7 @@ namespace StringExpressions {
         }
 
         // https://www.geeksforgeeks.org/infix-to-postfix-using-different-precedence-values-for-in-stack-and-out-stack/
-        private uint InStackPrecedence (char opChar) {
+        private static uint InStackPrecedence (char opChar) {
             switch(opChar){
                 case '(': return 0;
                 case '+': return 2;
@@ -313,8 +360,16 @@ namespace StringExpressions {
             }
         }
 
+        private static uint InStackPrecedence (Token tok) {
+            if(tok is NumberToken){
+                return 0;
+            }else{
+                return InStackPrecedence(((OperatorToken)tok).value);
+            }
+        }
+
         // https://www.geeksforgeeks.org/infix-to-postfix-using-different-precedence-values-for-in-stack-and-out-stack/
-        private uint OutStackPrecedence (char opChar) {
+        private static uint OutStackPrecedence (char opChar) {
             switch(opChar){
                 case '(': return 100;
                 case '+': return 1;
@@ -325,7 +380,19 @@ namespace StringExpressions {
             }
         }
 
-        private abstract class Token { }
+        private static uint OutStackPrecedence (Token tok) {
+            if(tok is NumberToken){
+                return 0;
+            }else{
+                return OutStackPrecedence(((OperatorToken)tok).value);
+            }
+        }
+
+        private abstract class Token { 
+
+            public abstract bool Equals (char ch);
+
+        }
 
         private class NumberToken : Token {
 
@@ -334,17 +401,25 @@ namespace StringExpressions {
             public NumberToken (float value) {
                 this.value = value;
             }
+
+            public override bool Equals (char ch) {
+                return false;
+            }
         }
 
         private class OperatorToken : Token {
 
-            private readonly char value;
+            public readonly char value;
 
             public OperatorToken (char value) {
                 if(!IsOperatorChar(value, true)){
                     throw new System.ArgumentException($"Invalid Operator \"{value}\"!");
                 }
                 this.value = value;
+            }
+
+            public override bool Equals (char ch) {
+                return ch == this.value;
             }
         }
     }

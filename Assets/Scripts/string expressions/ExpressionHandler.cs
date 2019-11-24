@@ -95,7 +95,6 @@ namespace StringExpressions {
                     postfix.Enqueue(new NumberToken(parsedOperand));                        
                 }
             }
-            UnityEngine.Debug.Log("done with processing input");
             while(tempStack.Count > 0){
                 postfix.Enqueue(tempStack.Pop());
             }
@@ -263,7 +262,15 @@ namespace StringExpressions {
                 case "e":
                     CheckParameterCount(0);
                     return (float)System.Math.E;            // interesting that Mathf doesn't have that value...
-                // TODO add the rest once i get everything working (needs to use parseexpression for the params...)
+                case "sin":
+                    CheckParameterCount(1);
+                    return Mathf.Sin(Param(0));
+                case "cos": 
+                    CheckParameterCount(1);
+                    return Mathf.Cos(Param(0));
+                case "tan": 
+                    CheckParameterCount(1);
+                    return Mathf.Tan(Param(0));
                 default: 
                     throw new System.ArgumentException($"Unknown function call \"{functionName}\"...");
             }
@@ -272,6 +279,10 @@ namespace StringExpressions {
                 if(parameters.Length != expectedParameterCount){
                     throw new System.ArgumentException($"Function \"{functionName}\" expected {expectedParameterCount} parameters but got {parameters.Length}!");
                 }
+            }
+
+            float Param (int index) {
+                return ParseExpression(parameters[index], variables);
             }
         }
 

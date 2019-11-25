@@ -2,6 +2,10 @@
 using System.Collections.Generic;
 
 public static class StringExpressions {
+
+    // ((4 - pow(2, 3) + 1) * -sqrt(3*3+4*4)) / 2
+    // should return 7.5 (and it CURRENTLY does)
+    // just for future tests...
     
     public static bool TryParseExpression (string inputExpression, out float number, Dictionary<string, float> variables = null) {
         try{

@@ -5,13 +5,14 @@ using System.Collections.Generic;
 public class ExpressionTester : MonoBehaviour {
 
     [SerializeField] InputField inputField;
+    [SerializeField] Button testButton;
     [SerializeField] Text outputField;
 
     void Start () {
         outputField.text = GetFunctionHelper();
-        
 
-        inputField.onEndEdit.AddListener((input) => {Dictionary<string, float> vars = new Dictionary<string, float>();
+        inputField.onEndEdit.AddListener((input) => {
+            Dictionary<string, float> vars = new Dictionary<string, float>();
             // vars.Add("x", 1);
             // vars.Add("y", 2);
             // vars.Add("z", 3);
@@ -28,15 +29,43 @@ public class ExpressionTester : MonoBehaviour {
             // }
             // outputField.text = $"{outputString}\n\n{GetFunctionHelper()}\nframe{Time.frameCount}";
 
-            outputField.text = "";
-            for(int i=0; i<35; i++){
-                string generated = GenerateFloatingPointNumberString();
-                if(StringExpressions.TryParseExpression(generated, out var parsed)){
-                    outputField.text += $"{generated} -> {parsed.ToString()}";
-                }else{
-                    outputField.text += $" >>> Error <<< {generated}";
+            var outputString = string.Empty;
+            try{
+                outputString = StringExpressions.ParseExpression(input, vars).ToString();
+            }catch(System.Exception e){
+                outputString = e.ToString();
+            }finally{
+                outputField.text = $"{outputString}\n\nf{Time.frameCount}";
+            }
+
+            // outputField.text = "";
+            // for(int i=0; i<35; i++){
+            //     // string generated = GenerateFloatingPointNumberString();
+            //     // if(StringExpressions.TryParseExpression(generated, out var parsed)){
+            //     //     outputField.text += $"{generated} -> {parsed.ToString()}";
+            //     // }else{
+            //     //     outputField.text += $" >>> Error <<< {generated}";
+            //     // }
+            //     outputField.text += GenerateTestString(4, whiteSpaceEverywhere : false);
+            //     outputField.text += "\n";
+            // }
+        });
+
+        testButton.onClick.AddListener(() => {
+            Test(
+                testNumber: 10000,
+                generateInput: () => GenerateTestString(4),
+                out var errorCount, 
+                out var errorInputs
+            );
+            if(errorCount > 0){
+                var errorMsg = $"{errorCount} errors!";
+                foreach(var errorInput in errorInputs){
+                    errorMsg += $"\n{errorInput}";
                 }
-                outputField.text += "\n";
+                Debug.LogError(errorMsg);
+            }else{
+                Debug.Log("no issues");
             }
         });
     }
@@ -63,6 +92,19 @@ public class ExpressionTester : MonoBehaviour {
         return sb.ToString();
     }
 
+    void Test (int testNumber, System.Func<string> generateInput, out int errorCount, out string[] errorInputs) {
+        errorCount = 0;
+        List<string> errorList = new List<string>();
+        for(int i=0; i<testNumber; i++){
+            var generated = generateInput();
+            if(!StringExpressions.TryParseExpression(generated, out _, null)){
+                errorCount++;
+                errorList.Add(generated);
+            }
+        }
+        errorInputs = errorList.ToArray();
+    }
+
     string VarsToNiceString (Dictionary<string, float> variables) {
         int maxVarNameLength = 0;
         string[] varNames = new string[variables.Keys.Count];
@@ -87,14 +129,83 @@ public class ExpressionTester : MonoBehaviour {
     }
 
     string GenerateTestString (int numberOfOperands, Dictionary<string, float> variables = null, bool whiteSpaceEverywhere = true, int maxFunctionDepth = 3) {
-        var output = string.Empty;
+        System.Text.StringBuilder sb = new System.Text.StringBuilder();
+        float parenthesisProbability = 0.333f;
+        float functionProbability = 0.2f;
+        float variableProbability = 0.2f;
         int parenthesisLevel = 0;
-        int functionParamsToAdd = 0;
-        for(int i=0; i<numberOfOperands; i++){
-
+        string[] operands = new string[]{"+", "-", "*", "/"};
+        var allFunctions = StringExpressions.Functions.GetAllFunctions();
+        List<string> forbiddenFunctions = new List<string>(){"asin", "acos", "atan", "atan", "sqrt"};     //all the functions that can return NaN
+        List<StringExpressions.Functions.Function> allowedFunctionList = new List<StringExpressions.Functions.Function>();
+        foreach(var function in allFunctions){
+            if(!forbiddenFunctions.Contains(function.functionName)){
+                allowedFunctionList.Add(function);
+            } 
         }
-        return output;
+        var functions = allowedFunctionList.ToArray();
+        for(int i=0; i<numberOfOperands; i++){
+            if(Random.value < parenthesisProbability){
+                sb.Append("(");
+                parenthesisLevel++;
+                MaybeAddWhiteSpace();
+            }
+            int switchInput = Random.Range(0, 2 - (maxFunctionDepth > 0 ? 0 : 1) + (variables != null ? 1 : 0));
+            if(switchInput == 1){
+                if(Random.value > functionProbability){
+                    switchInput = 0;
+                }
+            }else if(switchInput == 2){
+                if(Random.value > variableProbability){
+                    switchInput = 0;
+                }
+            }
+            switch(switchInput){
+                case 0:
+                    sb.Append(GenerateFloatingPointNumberString());
+                    break;
+                case 1: 
+                    var function = functions.Random();
+                    sb.Append(function.functionName);
+                    sb.Append("(");
+                    for(int j=0; j<function.paramNumber; j++){
+                        sb.Append(GenerateTestString(Mathf.Max(numberOfOperands / 2, 1), variables, whiteSpaceEverywhere, maxFunctionDepth-1));
+                        if(j+1 < function.paramNumber){
+                            sb.Append(",");
+                            MaybeAddWhiteSpace();
+                        }
+                    }
+                    sb.Append(")");
+                    break;
+                case 2:
+                    sb.Append(variables.RandomKey());
+                    break;
+                default:
+                    throw new System.NotImplementedException("This is a programmer error!");
+            }
+            MaybeAddWhiteSpace();
+            if(Random.value < parenthesisProbability && parenthesisLevel > 0){
+                sb.Append(")");
+                parenthesisLevel--;
+                MaybeAddWhiteSpace();
+            }
+            if(i+1 < numberOfOperands){
+                sb.Append(operands.Random());
+                MaybeAddWhiteSpace();
+            }
+        }
+        while(parenthesisLevel>0){
+            sb.Append(")");
+            parenthesisLevel--;
+        }
+        return sb.ToString();
+
+        void MaybeAddWhiteSpace () {
+            if(whiteSpaceEverywhere) sb.Append(" ");
+        }
     }
+
+    
 
     string GenerateFloatingPointNumberString () {
         var output = Random.Range(-256, +256).ToString();

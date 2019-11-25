@@ -17,12 +17,11 @@ public class ExpressionTester : MonoBehaviour {
 
             var outputString = string.Empty;
             try{
-                // outputString = ExpressionHandler.Debug(input);
                 outputString = StringExpressions.ParseExpression(input, vars).ToString();
             }catch(System.Exception e){
                 outputString = e.Message;
             }finally{
-                outputField.text = $"{outputString}\n{Time.frameCount}\n\n{GetFunctionHelper()}";
+                outputField.text = $"{outputString}\n\n{GetFunctionHelper()}\n\nframe{Time.frameCount}";
             }
             // outputString = ExpressionHandler.ParseExpression(input, vars).ToString();
         });

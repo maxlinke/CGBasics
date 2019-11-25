@@ -19,46 +19,6 @@ public static class StringExpressions {
         }
     }
 
-    public static string Debug (string inputString, Dictionary<string, float> variables = null) {
-        // inputString = RemoveAllWhiteSpaces(inputString);
-        inputString = inputString.Trim();
-        int testID = 4;
-        string output;
-        string remainder;
-        float parsedNumber;
-        switch(testID){
-            case 0: 
-                RemoveAndGetFunctionParameters(inputString, out var parameters);
-                output = string.Empty;
-                foreach(var parameter in parameters){
-                    output += $"{parameter}\n";
-                }
-                break;
-            case 1: 
-                ParseAndRemoveIdentifier(inputString, out parsedNumber, variables);
-                output = parsedNumber.ToString();
-                break;
-            case 2: 
-                output = string.Empty;
-                foreach(var ch in inputString){
-                    output += $"{ch == '('}\t{IsIdentifierChar(ch)}\n";
-                }
-                break;
-            case 3:
-                remainder = ParseAndRemoveNumber(inputString, out parsedNumber);
-                output = $"{parsedNumber.ToString()}\n\"{remainder}\"";
-                break;
-            case 4: 
-                remainder = ParseAndRemoveOperand(inputString, out parsedNumber, variables);
-                output = $"{parsedNumber.ToString()}\n\"{remainder}\"";
-                break;
-            default: 
-                output = "invalid testID";
-                break;
-        }
-        return output;
-    }
-
     public static float ParseExpression (string inputExpression, Dictionary<string, float> variables) {
         PruneInputExpression();
         var postfix = InfixToPostfix(inputExpression, variables);
@@ -316,7 +276,7 @@ public static class StringExpressions {
             CheckParameterCount(1);
             return function(Param(0));
         }
-        
+
         float Exec2 (System.Func<float, float, float> function) {
             CheckParameterCount(2);
             return function(Param(0), Param(1));

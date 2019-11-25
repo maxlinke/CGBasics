@@ -16,13 +16,14 @@ public class ExpressionTester : MonoBehaviour {
             vars.Add("z", 3);
 
             var outputString = string.Empty;
-            try{
-                outputString = StringExpressions.ParseExpression(input, vars).ToString();
-            }catch(System.Exception e){
-                outputString = e.Message;
-            }finally{
-                outputField.text = $"{outputString}\n\n{GetFunctionHelper()}\n\nframe{Time.frameCount}";
+            for(int i=0; i<16 * 6; i++){        //simulating all the matrices
+                try{
+                    outputString = StringExpressions.ParseExpression(input, vars).ToString();
+                }catch(System.Exception e){
+                    outputString = e.Message;
+                }
             }
+            outputField.text = $"{outputString}\n\n{GetFunctionHelper()}\nframe{Time.frameCount}";
             // outputString = ExpressionHandler.ParseExpression(input, vars).ToString();
         });
     }

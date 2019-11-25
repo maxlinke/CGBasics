@@ -16,7 +16,8 @@ namespace StringExpressions {
         }
 
         public static string Debug (string inputString, Dictionary<string, float> variables = null) {
-            inputString = RemoveAllWhiteSpaces(inputString);
+            // inputString = RemoveAllWhiteSpaces(inputString);
+            inputString = inputString.Trim();
             int testID = 4;
             string output;
             string remainder;
@@ -58,7 +59,8 @@ namespace StringExpressions {
             if(inputExpression == null){
                 throw new System.NullReferenceException("Input Expression can't be null!");
             }
-            inputExpression = RemoveAllWhiteSpaces(inputExpression);
+            // inputExpression = RemoveAllWhiteSpaces(inputExpression);
+            inputExpression = inputExpression.Trim();
             if(!(inputExpression.Length > 0)){
                 throw new System.ArgumentException("Input Expression can't be empty!");
             }
@@ -94,6 +96,7 @@ namespace StringExpressions {
                     inputExpression = ParseAndRemoveOperand(inputExpression, out float parsedOperand, variables);
                     postfix.Enqueue(new NumberToken(parsedOperand));                        
                 }
+                inputExpression = inputExpression.Trim();
             }
             while(tempStack.Count > 0){
                 postfix.Enqueue(tempStack.Pop());
@@ -108,16 +111,16 @@ namespace StringExpressions {
                     float b = ((NumberToken)(tempStack.Pop())).value;
                     switch(((OperatorToken)top).value){
                         case '+':
-                            tempStack.Push(new NumberToken(a + b));
+                            tempStack.Push(new NumberToken(b + a));
                             break;
                         case '-':
-                            tempStack.Push(new NumberToken(a - b));
+                            tempStack.Push(new NumberToken(b - a));
                             break;
                         case '*':
-                            tempStack.Push(new NumberToken(a * b));
+                            tempStack.Push(new NumberToken(b * a));
                             break;
                         case '/':
-                            tempStack.Push(new NumberToken(a / b));
+                            tempStack.Push(new NumberToken(b / a));
                             break;
                     }
                 }
@@ -125,14 +128,14 @@ namespace StringExpressions {
             return ((NumberToken)(tempStack.Pop())).value;
         }
 
-        private static string RemoveAllWhiteSpaces (string input) {
-            var noWhiteSpace = input.Split((char[])null, System.StringSplitOptions.RemoveEmptyEntries);     // TODO figure out why Regex.Replace(input, @"s", ""); didn't work...
-            var output = string.Empty;
-            foreach(var subString in noWhiteSpace){
-                output += subString;
-            }
-            return output;
-        }
+        // private static string RemoveAllWhiteSpaces (string input) {
+        //     var noWhiteSpace = input.Split((char[])null, System.StringSplitOptions.RemoveEmptyEntries);     // TODO figure out why Regex.Replace(input, @"s", ""); didn't work...
+        //     var output = string.Empty;
+        //     foreach(var subString in noWhiteSpace){
+        //         output += subString;
+        //     }
+        //     return output;
+        // }
 
         private static string ParseAndRemoveOperand (string inputString, out float operandValue, Dictionary<string, float> variables) {
             float sign = 1;

@@ -10,39 +10,7 @@ public class ExpressionTester : MonoBehaviour {
     [SerializeField] Text outputField;
 
     void Start () {
-        // int i = -1;
-        // char c = (char)i;
-        // string s = c.ToString();
-        // outputField.text = s;
-
-        inputField.onEndEdit.AddListener((input) => {
-            // if(Tokenizer.TryTokenize(input, out Token[] tokens)){
-            //     foreach(var token in tokens){
-            //         outputField.text += $"{token.stringValue}\n";
-            //     }
-            // }else{
-            //     outputField.text = "Error";
-            // }
-
-            // var outputString = string.Empty;
-            // try{
-            //     var result = new DataTable().Compute(input, null);
-            //     outputString = $"{result} ({result.GetType()})\n";
-            // }catch(System.Exception e){
-            //     outputString = e.ToString();
-            // }finally{
-            //     outputField.text = outputString;
-            // }
-
-            // outputField.text = input;
-
-            // if(float.TryParse(input, out float val)){
-            //     outputField.text = val.ToString();
-            // }else{
-            //     outputField.text = "Error";
-            // }
-
-            Dictionary<string, float> vars = new Dictionary<string, float>();
+        inputField.onEndEdit.AddListener((input) => {Dictionary<string, float> vars = new Dictionary<string, float>();
             vars.Add("x", 1);
             vars.Add("y", 2);
             vars.Add("z", 3);
@@ -57,7 +25,11 @@ public class ExpressionTester : MonoBehaviour {
                 outputField.text = $"{outputString}\n{Time.frameCount}";
             }
 
-            // outputField.text = ExpressionHandler.Debug(input, vars);
+            // string outputString = string.Empty;
+            // foreach(var ch in input){
+            //     outputString += $"{(int)ch}\n";
+            // }
+            // outputField.text = outputString;
         });
     }
 

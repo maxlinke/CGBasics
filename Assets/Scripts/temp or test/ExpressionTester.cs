@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-using StringExpressions;
 using System.Data;
 using System.Collections.Generic;
 
@@ -18,7 +17,7 @@ public class ExpressionTester : MonoBehaviour {
             var outputString = string.Empty;
             try{
                 // outputString = ExpressionHandler.Debug(input);
-                outputString = ExpressionHandler.ParseExpression(input, vars).ToString();
+                outputString = StringExpressions.ParseExpression(input, vars).ToString();
             }catch(System.Exception e){
                 outputString = e.Message;
             }finally{

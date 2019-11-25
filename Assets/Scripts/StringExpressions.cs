@@ -314,7 +314,10 @@ public static partial class StringExpressions {
                 int paramLength = ParamStringLength();
                 if(parenthesisCounter == 0){
                     if(paramLength > 0 || parameterList.Count > 0){
-                        parameterList.Add(inputString.Substring(currentParameterStart, paramLength));
+                        var tempParam = inputString.Substring(currentParameterStart, paramLength).Trim();
+                        if(tempParam.Length > 0 || parameterList.Count > 0){
+                            parameterList.Add(tempParam);
+                        }
                     }
                     break;
                 }

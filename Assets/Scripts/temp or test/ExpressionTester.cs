@@ -52,6 +52,7 @@ public class ExpressionTester : MonoBehaviour {
         });
 
         testButton.onClick.AddListener(() => {
+            int numTests = 1000;
             Test(
                 testNumber: 10000,
                 generateInput: () => GenerateTestString(4),
@@ -59,13 +60,13 @@ public class ExpressionTester : MonoBehaviour {
                 NaNIsError: false
             );
             if(errorInputs.Length > 0){
-                var errorMsg = $"{errorInputs.Length} errors!";
+                var errorMsg = $"ran {numTests} tests with {errorInputs.Length} errors!";
                 foreach(var errorInput in errorInputs){
                     errorMsg += $"\n{errorInput}";
                 }
                 Debug.LogError(errorMsg);
             }else{
-                Debug.Log("no issues");
+                Debug.Log($"ran {numTests} tests with no issues");
             }
         });
     }
@@ -98,7 +99,7 @@ public class ExpressionTester : MonoBehaviour {
             var generated = generateInput();
             try{
                 var parsed = StringExpressions.ParseExpression(generated, null);
-                if(float.IsNaN(parsed) && NaNIsError){
+                if(float.IsNaN(parsed) && (NaNIsError || !InputMightCauseNaN(generated))){
                     errorList.Add(generated);
                 }
             }catch(System.Exception){
@@ -106,6 +107,16 @@ public class ExpressionTester : MonoBehaviour {
             }
         }
         errorInputs = errorList.ToArray();
+        
+        bool InputMightCauseNaN (string generatedInput) {
+            return generatedInput.Contains("asin(")      // only [-1, 1] as input allowed
+                || generatedInput.Contains("acos(")      // only [-1, 1] as input allowed
+                // || generatedInput.Contains("atan(")   // these two are cool because they have [-infinity, infinity] as input
+                // || generatedInput.Contains("atan2(")  // these two are cool because they have [-infinity, infinity] as input
+                || generatedInput.Contains("sqrt(")      // sqrt(negative values)
+                || generatedInput.Contains("pow(")       // high values resulting in infinity or zero
+                || generatedInput.Contains("exp(");      // high values resulting in infinity or zero
+        }
     }
 
     string VarsToNiceString (Dictionary<string, float> variables) {
@@ -172,6 +183,7 @@ public class ExpressionTester : MonoBehaviour {
                     var function = functions.Random();
                     sb.Append(function.functionName);
                     sb.Append("(");
+                    MaybeAddWhiteSpace();
                     for(int j=0; j<function.paramNumber; j++){
                         sb.Append(GenerateTestString(Mathf.Max(numberOfOperands / 2, 1), variables, whiteSpaceEverywhere, maxFunctionDepth-1));
                         if(j+1 < function.paramNumber){

@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-using System.Data;
 using System.Collections.Generic;
 
 public class ExpressionTester : MonoBehaviour {

@@ -55,11 +55,11 @@ public class ExpressionTester : MonoBehaviour {
             Test(
                 testNumber: 10000,
                 generateInput: () => GenerateTestString(4),
-                out var errorCount, 
-                out var errorInputs
+                out var errorInputs,
+                NaNIsError: false
             );
-            if(errorCount > 0){
-                var errorMsg = $"{errorCount} errors!";
+            if(errorInputs.Length > 0){
+                var errorMsg = $"{errorInputs.Length} errors!";
                 foreach(var errorInput in errorInputs){
                     errorMsg += $"\n{errorInput}";
                 }
@@ -92,13 +92,16 @@ public class ExpressionTester : MonoBehaviour {
         return sb.ToString();
     }
 
-    void Test (int testNumber, System.Func<string> generateInput, out int errorCount, out string[] errorInputs) {
-        errorCount = 0;
+    void Test (int testNumber, System.Func<string> generateInput, out string[] errorInputs, bool NaNIsError = true) {
         List<string> errorList = new List<string>();
         for(int i=0; i<testNumber; i++){
             var generated = generateInput();
-            if(!StringExpressions.TryParseExpression(generated, out _, null)){
-                errorCount++;
+            try{
+                var parsed = StringExpressions.ParseExpression(generated, null);
+                if(float.IsNaN(parsed) && NaNIsError){
+                    errorList.Add(generated);
+                }
+            }catch(System.Exception){
                 errorList.Add(generated);
             }
         }
@@ -135,15 +138,16 @@ public class ExpressionTester : MonoBehaviour {
         float variableProbability = 0.2f;
         int parenthesisLevel = 0;
         string[] operands = new string[]{"+", "-", "*", "/"};
-        var allFunctions = StringExpressions.Functions.GetAllFunctions();
-        List<string> forbiddenFunctions = new List<string>(){"asin", "acos", "atan", "atan", "sqrt"};     //all the functions that can return NaN
-        List<StringExpressions.Functions.Function> allowedFunctionList = new List<StringExpressions.Functions.Function>();
-        foreach(var function in allFunctions){
-            if(!forbiddenFunctions.Contains(function.functionName)){
-                allowedFunctionList.Add(function);
-            } 
-        }
-        var functions = allowedFunctionList.ToArray();
+        // var allFunctions = StringExpressions.Functions.GetAllFunctions();
+        // List<string> forbiddenFunctions = new List<string>(){"asin", "acos", "atan", "atan", "sqrt"};     //all the functions that can return NaN
+        // List<StringExpressions.Functions.Function> allowedFunctionList = new List<StringExpressions.Functions.Function>();
+        // foreach(var function in allFunctions){
+        //     if(!forbiddenFunctions.Contains(function.functionName)){
+        //         allowedFunctionList.Add(function);
+        //     } 
+        // }
+        // var functions = allowedFunctionList.ToArray();
+        var functions = StringExpressions.Functions.GetAllFunctions();
         for(int i=0; i<numberOfOperands; i++){
             if(Random.value < parenthesisProbability){
                 sb.Append("(");

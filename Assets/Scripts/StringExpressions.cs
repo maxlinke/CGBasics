@@ -206,7 +206,7 @@ public static partial class StringExpressions {
         int charCounter = 0;
         foreach(var ch in inputString){
             charCounter++;
-            if(IsIdentifierChar(ch)){
+            if(IsIdentifierChar(ch) || (charCounter > 1 && IsNumberChar(ch, false))){        // because "atan2" is a valid function name (but "2atan2" isn't..."
                 continue;
             }else{
                 if(ch == '('){

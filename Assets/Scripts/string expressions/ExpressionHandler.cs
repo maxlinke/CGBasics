@@ -56,16 +56,27 @@ namespace StringExpressions {
         }
 
         public static float ParseExpression (string inputExpression, Dictionary<string, float> variables) {
-            if(inputExpression == null){
+            PruneInputExpression();
+            var postfix = InfixToPostfix(inputExpression, variables);
+            return EvaluatePostfix(postfix);
+
+            void PruneInputExpression () {
+                if(inputExpression == null){
                 throw new System.NullReferenceException("Input Expression can't be null!");
+                }
+                // inputExpression = RemoveAllWhiteSpaces(inputExpression);
+                inputExpression = inputExpression.Trim();
+                if(!(inputExpression.Length > 0)){
+                    throw new System.ArgumentException("Input Expression can't be empty!");
+                }
             }
-            // inputExpression = RemoveAllWhiteSpaces(inputExpression);
-            inputExpression = inputExpression.Trim();
-            if(!(inputExpression.Length > 0)){
-                throw new System.ArgumentException("Input Expression can't be empty!");
-            }
+        }
+
+        private static Queue<Token> InfixToPostfix (string inputExpression, Dictionary<string, float> variables) {
             Stack<Token> tempStack = new Stack<Token>();
             Queue<Token> postfix = new Queue<Token>();
+            bool nextPlusOrMinusIsSignInsteadOfOperator = true;
+            float tempSign = 1;
             while(inputExpression.Length > 0){
                 char ch = inputExpression[0];
                 if(IsOperatorChar(ch, true)){
@@ -77,6 +88,8 @@ namespace StringExpressions {
                             }
                         }
                         tempStack.Pop();
+                    }else if((ch == '+' || ch == '-') && nextPlusOrMinusIsSignInsteadOfOperator){
+                        tempSign *= (ch == '-' ? -1 : 1);
                     }else{
                         if(tempStack.Count > 0){
                             if(OutStackPrecedence(ch) > InStackPrecedence(tempStack.Peek())){
@@ -90,23 +103,32 @@ namespace StringExpressions {
                         }else{
                             tempStack.Push(new OperatorToken(ch));
                         }
+                        nextPlusOrMinusIsSignInsteadOfOperator = true;
                     }
                     inputExpression = inputExpression.Substring(1);
                 }else{
                     inputExpression = ParseAndRemoveOperand(inputExpression, out float parsedOperand, variables);
-                    postfix.Enqueue(new NumberToken(parsedOperand));                        
+                    parsedOperand *= tempSign;
+                    nextPlusOrMinusIsSignInsteadOfOperator = false;
+                    postfix.Enqueue(new NumberToken(parsedOperand));
                 }
                 inputExpression = inputExpression.Trim();
             }
             while(tempStack.Count > 0){
                 postfix.Enqueue(tempStack.Pop());
             }
-            tempStack.Clear();      // just to be EXTRA sure
+            return postfix;
+        }
+
+        private static float EvaluatePostfix (Queue<Token> postfix) {
+            Stack<Token> tempStack = new Stack<Token>();
             while(postfix.Count > 0){
                 var top = postfix.Dequeue();
                 if(top is NumberToken){
                     tempStack.Push(top);
                 }else{
+                    // float a = (tempStack.Count > 0 ? ((NumberToken)(tempStack.Pop())).value : 0);    //this almost works but "2--2" results in "-4"...
+                    // float b = (tempStack.Count > 0 ? ((NumberToken)(tempStack.Pop())).value : 0);
                     float a = ((NumberToken)(tempStack.Pop())).value;
                     float b = ((NumberToken)(tempStack.Pop())).value;
                     switch(((OperatorToken)top).value){

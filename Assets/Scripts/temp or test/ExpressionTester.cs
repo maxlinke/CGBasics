@@ -24,6 +24,7 @@ public class ExpressionTester : MonoBehaviour {
             }finally{
                 outputField.text = $"{outputString}\n{Time.frameCount}";
             }
+            // outputString = ExpressionHandler.ParseExpression(input, vars).ToString();
 
             // string outputString = string.Empty;
             // foreach(var ch in input){

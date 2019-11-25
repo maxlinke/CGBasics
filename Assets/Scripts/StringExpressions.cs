@@ -8,6 +8,8 @@ public static partial class StringExpressions {
     // just for future tests...
     // and here's the increasingly verbose variant
     // (((9 - 5) - pow(1+1, sqrt(9)) + (3 + (-2))) * -sqrt(3*3+4*pow(2, 2))) / sqrt(4)
+    // and this one has whitespaces everywhere
+    //  ( ( ( 9 - 5 ) - pow( 1 + 1 , sqrt( 9 ) ) + ( 3 + ( - 2 ) ) ) * - sqrt( 3 * 3 + 4 * pow( 2 , 2 ) ) ) / sqrt( 4 ) 
     
     public static bool TryParseExpression (string inputExpression, out float number, Dictionary<string, float> variables = null) {
         try{

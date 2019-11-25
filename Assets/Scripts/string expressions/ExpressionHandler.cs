@@ -62,7 +62,7 @@ namespace StringExpressions {
 
             void PruneInputExpression () {
                 if(inputExpression == null){
-                throw new System.NullReferenceException("Input Expression can't be null!");
+                    throw new System.NullReferenceException("Input Expression can't be null!");
                 }
                 // inputExpression = RemoveAllWhiteSpaces(inputExpression);
                 inputExpression = inputExpression.Trim();
@@ -109,6 +109,7 @@ namespace StringExpressions {
                 }else{
                     inputExpression = ParseAndRemoveOperand(inputExpression, out float parsedOperand, variables);
                     parsedOperand *= tempSign;
+                    tempSign = 1;
                     nextPlusOrMinusIsSignInsteadOfOperator = false;
                     postfix.Enqueue(new NumberToken(parsedOperand));
                 }

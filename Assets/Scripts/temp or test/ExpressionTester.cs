@@ -8,6 +8,8 @@ public class ExpressionTester : MonoBehaviour {
     [SerializeField] Text outputField;
 
     void Start () {
+        outputField.text = GetFunctionHelper();
+
         inputField.onEndEdit.AddListener((input) => {Dictionary<string, float> vars = new Dictionary<string, float>();
             vars.Add("x", 1);
             vars.Add("y", 2);
@@ -20,33 +22,32 @@ public class ExpressionTester : MonoBehaviour {
             }catch(System.Exception e){
                 outputString = e.Message;
             }finally{
-                outputField.text = $"{outputString}\n{Time.frameCount}";
+                outputField.text = $"{outputString}\n{Time.frameCount}\n\n{GetFunctionHelper()}";
             }
             // outputString = ExpressionHandler.ParseExpression(input, vars).ToString();
-
-            // string outputString = string.Empty;
-            // foreach(var ch in input){
-            //     outputString += $"{(int)ch}\n";
-            // }
-            // outputField.text = outputString;
         });
     }
 
-    // second comment at https://stackoverflow.com/questions/3422673/how-to-evaluate-a-math-expression-given-in-string-form
-    // is somewhat useful i guess
-
-    bool TryParseExpression (string inputExpression, out float parsedValue, Dictionary<string, float> variables = null) {
-        parsedValue = float.NaN;
-        return false;
-    }
-
-    string RemoveAllWhiteSpaces (string input) {
-        var noWhiteSpace = input.Split((char[])null, System.StringSplitOptions.RemoveEmptyEntries);     // TODO figure out why Regex.Replace(input, @"s", ""); didn't work...
-        var output = string.Empty;
-        foreach(var subString in noWhiteSpace){
-            output += subString;
+    string GetFunctionHelper () {
+        var funcs = StringExpressions.Functions.GetAllFunctions();
+        int maxCallLength = 0;
+        string[] calls = new string[funcs.Length];
+        string[] descs = new string[funcs.Length];
+        for(int i=0; i<funcs.Length; i++){
+            calls[i] = funcs[i].exampleCall;
+            descs[i] = funcs[i].description;
+            maxCallLength = Mathf.Max(maxCallLength, calls[i].Length);
         }
-        return output;
+        System.Text.StringBuilder sb = new System.Text.StringBuilder();
+        for(int i=0; i<calls.Length; i++){
+            int callLength = calls[i].Length;
+            sb.Append(calls[i]);
+            for(int j=0; j<maxCallLength-callLength; j++){
+                sb.Append(" ");
+            }
+            sb.Append($" \t{descs[i]}\n");
+        }
+        return sb.ToString();
     }
 	
 }

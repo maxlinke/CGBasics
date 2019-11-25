@@ -6,6 +6,8 @@ public static class StringExpressions {
     // ((4 - pow(2, 3) + 1) * -sqrt(3*3+4*4)) / 2
     // should return 7.5 (and it CURRENTLY does)
     // just for future tests...
+    // and here's the increasingly verbose variant
+    // (((9 - 5) - pow(1+1, sqrt(9)) + (3 + (-2))) * -sqrt(3*3+4*pow(2, 2))) / sqrt(4)
     
     public static bool TryParseExpression (string inputExpression, out float number, Dictionary<string, float> variables = null) {
         try{
@@ -265,43 +267,7 @@ public static class StringExpressions {
         return string.Empty;
     }
 
-    // TODO use extra class with "GetAll" function and each function gets a description (for automatic help generation...)
     private static float ExecuteFunction (string functionName, string[] parameters, Dictionary<string, float> variables) {
-        // switch(functionName){
-        //     case "pi":      return Exec0(() => Mathf.PI);
-        //     case "e":       return Exec0(() => (float)(System.Math.E));            // interesting that Mathf doesn't have that value...
-        //     case "sin":     return Exec1(Mathf.Sin);
-        //     case "cos":     return Exec1(Mathf.Cos);
-        //     case "tan":     return Exec1(Mathf.Tan);
-        //     case "asin":    return Exec1(Mathf.Asin);
-        //     case "acos":    return Exec1(Mathf.Acos);
-        //     case "atan":    return Exec1(Mathf.Atan);
-        //     case "atan2":   return Exec2(Mathf.Atan2);
-        //     case "sqrt":    return Exec1(Mathf.Sqrt);
-        //     case "pow":     return Exec2(Mathf.Pow);
-        //     case "exp":     return Exec1(Mathf.Exp);
-        //     default:        throw new System.ArgumentException($"Unknown function call \"{functionName}\"...");
-        // }
-        // void CheckParameterCount (int expectedParameterCount) {
-        //     if(parameters.Length != expectedParameterCount){
-        //         throw new System.ArgumentException($"Function \"{functionName}\" expected {expectedParameterCount} parameters but got {parameters.Length}!");
-        //     }
-        // }
-        // float Param (int index) {
-        //     return ParseExpression(parameters[index], variables);
-        // }
-        // float Exec0 (System.Func<float> function){
-        //     CheckParameterCount(0);
-        //     return function();
-        // }
-        // float Exec1 (System.Func<float, float> function) {
-        //     CheckParameterCount(1);
-        //     return function(Param(0));
-        // }
-        // float Exec2 (System.Func<float, float, float> function) {
-        //     CheckParameterCount(2);
-        //     return function(Param(0), Param(1));
-        // }
         if(Functions.TryGetFunction(functionName, out var funcToExecute)){
             float[] floatParams = new float[parameters.Length];
             for(int i=0; i<floatParams.Length; i++){
@@ -311,7 +277,50 @@ public static class StringExpressions {
         }else{
             throw new System.ArgumentException($"Unknown function call \"{functionName}\"...");
         }
+    }
+
+    // keep around, in case the other version is wayy to laggy (doesn't seem like it at present tho)
+    private static float ExecuteFunctionLegacy (string functionName, string[] parameters, Dictionary<string, float> variables) {
+        switch(functionName){
+            case "pi":      return Exec0(() => Mathf.PI);
+            case "e":       return Exec0(() => (float)(System.Math.E));            // interesting that Mathf doesn't have that value...
+            case "sin":     return Exec1(Mathf.Sin);
+            case "cos":     return Exec1(Mathf.Cos);
+            case "tan":     return Exec1(Mathf.Tan);
+            case "asin":    return Exec1(Mathf.Asin);
+            case "acos":    return Exec1(Mathf.Acos);
+            case "atan":    return Exec1(Mathf.Atan);
+            case "atan2":   return Exec2(Mathf.Atan2);
+            case "sqrt":    return Exec1(Mathf.Sqrt);
+            case "pow":     return Exec2(Mathf.Pow);
+            case "exp":     return Exec1(Mathf.Exp);
+            default:        throw new System.ArgumentException($"Unknown function call \"{functionName}\"...");
+        }
+
+        void CheckParameterCount (int expectedParameterCount) {
+            if(parameters.Length != expectedParameterCount){
+                throw new System.ArgumentException($"Function \"{functionName}\" expected {expectedParameterCount} parameters but got {parameters.Length}!");
+            }
+        }
+
+        float Param (int index) {
+            return ParseExpression(parameters[index], variables);
+        }
+
+        float Exec0 (System.Func<float> function){
+            CheckParameterCount(0);
+            return function();
+        }
+
+        float Exec1 (System.Func<float, float> function) {
+            CheckParameterCount(1);
+            return function(Param(0));
+        }
         
+        float Exec2 (System.Func<float, float, float> function) {
+            CheckParameterCount(2);
+            return function(Param(0), Param(1));
+        }
     }
 
     private static float GetVariableValue (string variableName, Dictionary<string, float> variables) {

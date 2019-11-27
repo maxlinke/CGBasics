@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 59e431f5e04311e499c42cb4db66087d, type: 3}
   m_Name: Default Dark
   m_EditorClassIdentifier: 
+  m_enumName: 0
   vertRenderBackground: {r: 0.1, g: 0.1, b: 0.1, a: 1}
   vertRenderWireGridFloor: {r: 0.3, g: 0.3, b: 0.3, a: 1}
   vertRenderCameraFrustum: {r: 1, g: 1, b: 1, a: 1}
@@ -43,6 +44,7 @@ MonoBehaviour:
   - {r: 0.5568628, g: 0.24313726, b: 0.428802, a: 1}
   uiMatrixBackground: {r: 0.2, g: 0.2, b: 0.2, a: 1}
   uiMatrixOutline: {r: 0.9, g: 0.9, b: 0.9, a: 1}
-  uiMatrixLabel: {r: 0, g: 0, b: 0, a: 1}
+  uiMatrixLabel: {r: 1, g: 1, b: 1, a: 1}
+  uiMatrixLabelDropShadow: {r: 0, g: 0, b: 0, a: 0.5019608}
   uiMatrixFieldBackground: {r: 0, g: 0, b: 0, a: 0.2}
   uiMatrixFieldText: {r: 1, g: 1, b: 1, a: 1}

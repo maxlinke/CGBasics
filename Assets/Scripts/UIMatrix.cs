@@ -13,6 +13,7 @@ public class UIMatrix : MonoBehaviour {
     [SerializeField] Image outline;
     [SerializeField] Image nameLabelBackground;
     [SerializeField] TextMeshProUGUI nameLabel;
+    [SerializeField] TextMeshProUGUI nameLabelDropShadow;
     [SerializeField] RectTransform fieldArrayParent;
 
     [Header("Settings")]
@@ -20,6 +21,7 @@ public class UIMatrix : MonoBehaviour {
     [SerializeField] float spaceBetweenMatrixFields;
     [SerializeField] int fieldFontSize;
     [SerializeField] TMP_FontAsset fieldFont;
+    [SerializeField] Sprite fieldBackgroundTexture;
 
     bool initialized = false;
     string[] stringFieldValues = new string[16];
@@ -86,6 +88,8 @@ public class UIMatrix : MonoBehaviour {
                 newFieldBGRT.SetParent(newFieldRT, false);
                 newFieldBGRT.SetToFillWithMargins(spaceBetweenMatrixFields);
                 var newFieldBG = newFieldBGRT.GetComponent<Image>();
+                newFieldBG.sprite = fieldBackgroundTexture;
+                newFieldBG.type = Image.Type.Sliced;
                 fieldBackgrounds[i] = newFieldBG;
                 // generate textfield
                 var newTMPRT = new GameObject("TMP Textfield", typeof(RectTransform), typeof(TextMeshProUGUI), typeof(ClickableTextMeshPro)).GetComponent<RectTransform>();
@@ -111,6 +115,7 @@ public class UIMatrix : MonoBehaviour {
         background.color = cs.UiMatrixBackground;
         outline.color = cs.UiMatrixOutline;
         nameLabel.color = cs.UiMatrixLabel;
+        nameLabelDropShadow.color = cs.UiMatrixLabelDropShadow;
         nameLabelBackground.color = cs.UiMatrixHeaders.Random();    // TODO index from name hash i guess?
         for(int i=0; i<fieldBackgrounds.Length; i++){
             // if(fieldBackgrounds[i] != null)
@@ -175,6 +180,8 @@ public class UIMatrix : MonoBehaviour {
         }
         calculatedMatrixUpToDate = true;
     }
+
+    // TODO instead of the textmeshes, make the images change color. also make the textmeshes non-raycasttargets
 
     private class ClickableTextMeshPro : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler {
 

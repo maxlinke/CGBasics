@@ -104,6 +104,7 @@ public class ColorScheme : ScriptableObject {
     [SerializeField] Color uiMatrixBackground;
     [SerializeField] Color uiMatrixOutline;
     [SerializeField] Color uiMatrixLabel;
+    [SerializeField] Color uiMatrixLabelDropShadow;
     [SerializeField] Color uiMatrixFieldBackground;
     [SerializeField] Color uiMatrixFieldText;
 
@@ -111,6 +112,7 @@ public class ColorScheme : ScriptableObject {
     public Color UiMatrixBackground => uiMatrixBackground;
     public Color UiMatrixOutline => uiMatrixOutline;
     public Color UiMatrixLabel => uiMatrixLabel;
+    public Color UiMatrixLabelDropShadow => uiMatrixLabelDropShadow;
     public Color UiMatrixFieldBackground => uiMatrixFieldBackground;
     public Color UiMatrixFieldText => uiMatrixFieldText;
 

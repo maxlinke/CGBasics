@@ -34,7 +34,7 @@ public class UIMatrix : MonoBehaviour {
     bool initialized = false;
     string[] stringFieldValues = new string[16];
     TextMeshProUGUI[] fieldTextMeshes = new TextMeshProUGUI[16];
-    Image[] fieldBackgrounds = new Image[16];
+    Button[] fieldButtons = new Button[16];
     Matrix4x4 calculatedMatrix;
     bool calculatedMatrixUpToDate;      // TODO if ANY modification, set this to false!!!
     Button[] headerButtons;
@@ -72,17 +72,24 @@ public class UIMatrix : MonoBehaviour {
         if(!initialized){
             SelfInit();
         }
+        Debug.Log(new Matrix4x4(
+            new Vector4(1, 0, 0, 0),
+            new Vector4(0, 1, 0, 0),
+            new Vector4(0, 0, 0, 0),
+            new Vector4(0, 0, 0, 1)
+        ).inverse);
     }
 
     void SelfInit () {
         Initialize(new string[]{
             "2", "0", "0", "200", 
             "0", "1", "0", "-200",
-            "0", "0", "1", "0",
+            "0", "0", "1", "-30000",
             "0", "0", "0", "1"
         }, true);
     }
 
+    // NO COLOURS!!! that's all done in LoadColors!
     public void Initialize (string[] fieldInitializers, bool shouldBeEditable) {
         if(initialized){
             Debug.LogError($"Call to initialize although {nameof(UIMatrix)} is already initialized. Aborting.");
@@ -114,19 +121,16 @@ public class UIMatrix : MonoBehaviour {
                 newFieldRT.anchorMax = new Vector2((x+1) / 4f, (3-y+1) / 4f);
                 newFieldRT.sizeDelta = Vector2.zero;
                 // generate background
-                var newFieldBGRT = new GameObject("Field BG Image", typeof(RectTransform), typeof(Image), typeof(HoverAndClickable)).GetComponent<RectTransform>();
+                var newFieldBGRT = new GameObject("Field BG Image", typeof(RectTransform), typeof(Image), typeof(Button)).GetComponent<RectTransform>();
                 newFieldBGRT.SetParent(newFieldRT, false);
                 newFieldBGRT.SetToFillWithMargins(spaceBetweenMatrixFields);
                 var newFieldBG = newFieldBGRT.GetComponent<Image>();
                 newFieldBG.sprite = fieldBackgroundTexture;
                 newFieldBG.type = Image.Type.Sliced;
-                fieldBackgrounds[i] = newFieldBG;
-                var clickable = newFieldBGRT.GetComponent<HoverAndClickable>();     // TODO just make it a button...
-                clickable.Initialize(
-                    onClick: (ped) => {Debug.Log("ASDF");},
-                    onPointerEnter: (ped) => {newFieldBG.color = ColorScheme.current.UiMatrixFieldBackgroundHighlighted;},      // TODO does this work properly when the current colorscheme changes?
-                    onPointerExit: (ped) => {newFieldBG.color = ColorScheme.current.UiMatrixFieldBackground;}
-                );
+                var newFieldBGButton = newFieldBGRT.GetComponent<Button>();
+                int btnIndex = i;                                                                                                       // just using i is a trap!
+                newFieldBGButton.onClick.AddListener(() => {Debug.Log($"{btnIndex} was clicked! Do something with that info!");});      // TODO proper onclick
+                fieldButtons[i] = newFieldBGButton;
                 // generate textfield
                 var newTMPRT = new GameObject("TMP Textfield", typeof(RectTransform), typeof(TextMeshProUGUI)).GetComponent<RectTransform>();
                 newTMPRT.SetParent(newFieldRT, false);
@@ -136,6 +140,7 @@ public class UIMatrix : MonoBehaviour {
                 newTMP.alignment = TextAlignmentOptions.Center;
                 newTMP.font = fieldFont;
                 newTMP.fontSize = fieldFontSize;
+                newTMP.enableWordWrapping = false;
                 newTMP.overflowMode = TextOverflowModes.Ellipsis;
                 fieldTextMeshes[i] = newTMP;
             }
@@ -187,7 +192,7 @@ public class UIMatrix : MonoBehaviour {
                 newlyCreatedButtonMainImage.raycastTarget = false;
                 newlyCreatedButtonMainImage.sprite = newButtonMainImage;
                 newlyCreatedButtonMainImage.type = Image.Type.Simple;
-                
+                // putting it into the arrays
                 targetButtonArray[arrayIndex] = newlyCreatedButton;
                 targetImageArray[arrayIndex] = newlyCreatedButtonMainImage;
             }            
@@ -207,8 +212,8 @@ public class UIMatrix : MonoBehaviour {
         nameLabelDropShadow.color = cs.UiMatrixLabelDropShadow;
         nameLabelBackground.color = cs.UiMatrixHeaders.Random();    // TODO index from name hash i guess?
         controlsBackground.color = cs.UiMatrixControlsBackground;
-        for(int i=0; i<fieldBackgrounds.Length; i++){
-            fieldBackgrounds[i].color = cs.UiMatrixFieldBackground;
+        for(int i=0; i<fieldButtons.Length; i++){
+            fieldButtons[i].SetFadeTransition(0, cs.UiMatrixFieldBackground, cs.UiMatrixFieldBackgroundHighlighted, cs.UiMatrixFieldBackgroundClicked, cs.UiMatrixFieldBackgroundDisabled);
         }
         for(int i=0; i<fieldTextMeshes.Length; i++){
             fieldTextMeshes[i].color = cs.UiMatrixFieldText;

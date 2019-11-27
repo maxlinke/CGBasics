@@ -108,6 +108,8 @@ public class ColorScheme : ScriptableObject {
     [SerializeField] Color uiMatrixLabelDropShadow;
     [SerializeField] Color uiMatrixFieldBackground;
     [SerializeField] Color uiMatrixFieldBackgroundHighlighted;
+    [SerializeField] Color uiMatrixFieldBackgroundClicked;
+    [SerializeField] Color uiMatrixFieldBackgroundDisabled;
     [SerializeField] Color uiMatrixFieldText;
 
     public Color[] UiMatrixHeaders => uiMatrixHeaders;
@@ -118,6 +120,8 @@ public class ColorScheme : ScriptableObject {
     public Color UiMatrixLabelDropShadow => uiMatrixLabelDropShadow;
     public Color UiMatrixFieldBackground => uiMatrixFieldBackground;
     public Color UiMatrixFieldBackgroundHighlighted => uiMatrixFieldBackgroundHighlighted;
+    public Color UiMatrixFieldBackgroundClicked => uiMatrixFieldBackgroundClicked;
+    public Color UiMatrixFieldBackgroundDisabled => uiMatrixFieldBackgroundDisabled;
     public Color UiMatrixFieldText => uiMatrixFieldText;
 
     [Header("UI Matrix Buttons")]

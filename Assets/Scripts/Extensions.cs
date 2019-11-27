@@ -76,8 +76,8 @@ public static class Extensions {
         SetToFillWithMargins(rt, margins.x, margins.y, margins.z, margins.w);
     }
 
-    public static void SetFadeTransition (this Button button, float fadeDuration, Color defaultColor, Color hoverColor, Color clickColor, Color disabledColor) {
-        button.transition = Selectable.Transition.ColorTint;
+    public static void SetFadeTransition (this Selectable selectable, float fadeDuration, Color defaultColor, Color hoverColor, Color clickColor, Color disabledColor) {
+        selectable.transition = Selectable.Transition.ColorTint;
         var colorBlock = new ColorBlock();
         colorBlock.fadeDuration = fadeDuration;
         colorBlock.colorMultiplier = 1f;
@@ -85,7 +85,7 @@ public static class Extensions {
         colorBlock.highlightedColor = hoverColor;
         colorBlock.pressedColor = clickColor;
         colorBlock.disabledColor = disabledColor;
-        button.colors = colorBlock;
+        selectable.colors = colorBlock;
     }
 	
 }

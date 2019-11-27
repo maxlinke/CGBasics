@@ -11,7 +11,7 @@ public class ColorScheme : ScriptableObject {
     public static ColorScheme current {
         get {
             if(m_current == null){
-                var first = Resources.FindObjectsOfTypeAll<ColorScheme>()[0];
+                var first = Resources.FindObjectsOfTypeAll<ColorScheme>()[0];   // this gave me an indexoutofrangeexception before i messed with the actual scriptable object... huh...
                 m_current = first;
             }
             return m_current;

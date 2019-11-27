@@ -71,23 +71,20 @@ public class UIMatrix : MonoBehaviour {
             actualParent.SetToFillWithMargins(fieldArrayMargins);
             // fill it
             for(int i=0; i<16; i++){
-                int intX = i % 4;
-                int intY = i / 4;
+                float x = i % 4;
+                float y = i / 4;
                 // generate container
-                var newFieldRT = new GameObject($"Field {i} (x: {intX}, y: {intY})", typeof(RectTransform)).GetComponent<RectTransform>();
+                var newFieldRT = new GameObject($"Field {i} (x: {x}, y: {y})", typeof(RectTransform)).GetComponent<RectTransform>();
                 newFieldRT.SetParent(actualParent, false);
                 newFieldRT.anchoredPosition = Vector2.zero;
                 newFieldRT.pivot = 0.5f * Vector2.one;
-                newFieldRT.anchorMin = CalcAnchor(intX, 3 - intY);
-                newFieldRT.anchorMax = CalcAnchor(intX + 1, 3 - intY + 1);
+                newFieldRT.anchorMin = new Vector2(x / 4f, (3-y) / 4f);
+                newFieldRT.anchorMax = new Vector2((x+1) / 4f, (3-y+1) / 4f);
                 newFieldRT.sizeDelta = Vector2.zero;
                 // generate background
                 var newFieldBGRT = new GameObject("Field BG Image", typeof(RectTransform), typeof(Image)).GetComponent<RectTransform>();
                 newFieldBGRT.SetParent(newFieldRT, false);
                 newFieldBGRT.SetToFillWithMargins(spaceBetweenMatrixFields);
-                // newFieldBGRT.SetToFill();
-                // newFieldBGRT.sizeDelta = -fieldArrayMargins * Vector2.one;
-
                 var newFieldBG = newFieldBGRT.GetComponent<Image>();
                 fieldBackgrounds[i] = newFieldBG;
                 // generate textfield
@@ -101,10 +98,6 @@ public class UIMatrix : MonoBehaviour {
                 newTMP.alignment = TextAlignmentOptions.Center;
                 newTMP.font = fieldFont;
                 newTMP.fontSize = fieldFontSize;
-
-                Vector2 CalcAnchor (int inputX, int inputY) {
-                    return new Vector2((float)inputX / 4.0f , (float)inputY / 4.0f);
-                }
             }
         }
     }

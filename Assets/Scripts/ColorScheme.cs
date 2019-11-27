@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Collections.Generic;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -7,16 +8,48 @@ using UnityEditor;
 [CreateAssetMenu(menuName = "Color Scheme", fileName = "new Color Scheme")]
 public class ColorScheme : ScriptableObject {
 
+    public enum EnumName {
+        DefaultDark,
+        DefaultLight    // TODO make this one
+    }
+
     private static ColorScheme m_current;
+    private static Dictionary<EnumName, ColorScheme> map;
+    
     public static ColorScheme current {
         get {
-            if(m_current == null){
-                var first = Resources.FindObjectsOfTypeAll<ColorScheme>()[0];   // this gave me an indexoutofrangeexception before i messed with the actual scriptable object... huh...
-                m_current = first;
-            }
+            EnsureEverythingLoaded();
             return m_current;
         }
     }
+
+    public static ColorScheme Get (EnumName enumName) {
+        EnsureEverythingLoaded();
+        if(map.ContainsKey(enumName)){
+            return map[enumName];
+        }
+        Debug.LogError($"Didn't find a {nameof(ColorScheme)} in the map for key \"{enumName}\"! That's a problem!");
+        return current;
+    }
+
+    private static void EnsureEverythingLoaded () {
+        if(map == null){
+            map = new Dictionary<EnumName, ColorScheme>();
+            var inRAM = Resources.FindObjectsOfTypeAll<ColorScheme>();
+            foreach(var cs in inRAM){
+                if(!map.ContainsKey(cs.enumName)){
+                    map.Add(cs.enumName, cs);
+                }else{
+                    Debug.LogError($"Duplicate enum name. Key of {cs.name} is already in map!");
+                }
+            }
+        }
+        if(m_current == null){
+            m_current = map[ColorScheme.EnumName.DefaultDark];      // TODO in future, load the key from the playerprefs or whatever so the colourscheme can stick around and only load default dark in case of an error
+        }
+    }
+
+
 
     public static void SwitchTo (ColorScheme newColorScheme) {
         m_current = newColorScheme;
@@ -24,6 +57,9 @@ public class ColorScheme : ScriptableObject {
     }
 
     public static event System.Action<ColorScheme> onChange = delegate {};
+
+    [SerializeField] EnumName m_enumName;
+    public EnumName enumName => m_enumName;
 
     [Header("Vert Render View")]
     [SerializeField] Color vertRenderBackground;

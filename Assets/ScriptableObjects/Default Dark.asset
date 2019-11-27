@@ -42,9 +42,10 @@ MonoBehaviour:
   - {r: 0.35870484, g: 0.24417052, b: 0.5566038, a: 1}
   - {r: 0.5067523, g: 0.24313726, b: 0.5568628, a: 1}
   - {r: 0.5568628, g: 0.24313726, b: 0.428802, a: 1}
-  uiMatrixBackground: {r: 0.2, g: 0.2, b: 0.2, a: 1}
+  uiMatrixBackground: {r: 0.25, g: 0.25, b: 0.25, a: 1}
   uiMatrixOutline: {r: 0.9, g: 0.9, b: 0.9, a: 1}
   uiMatrixLabel: {r: 1, g: 1, b: 1, a: 1}
   uiMatrixLabelDropShadow: {r: 0, g: 0, b: 0, a: 0.5019608}
-  uiMatrixFieldBackground: {r: 0, g: 0, b: 0, a: 0.2}
+  uiMatrixFieldBackground: {r: 0, g: 0, b: 0, a: 0.4}
+  uiMatrixFieldBackgroundHighlighted: {r: 1, g: 1, b: 1, a: 0.2}
   uiMatrixFieldText: {r: 1, g: 1, b: 1, a: 1}

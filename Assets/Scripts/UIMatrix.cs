@@ -84,31 +84,37 @@ public class UIMatrix : MonoBehaviour {
                 newFieldRT.anchorMax = new Vector2((x+1) / 4f, (3-y+1) / 4f);
                 newFieldRT.sizeDelta = Vector2.zero;
                 // generate background
-                var newFieldBGRT = new GameObject("Field BG Image", typeof(RectTransform), typeof(Image)).GetComponent<RectTransform>();
+                var newFieldBGRT = new GameObject("Field BG Image", typeof(RectTransform), typeof(Image), typeof(HoverAndClickable)).GetComponent<RectTransform>();
                 newFieldBGRT.SetParent(newFieldRT, false);
                 newFieldBGRT.SetToFillWithMargins(spaceBetweenMatrixFields);
                 var newFieldBG = newFieldBGRT.GetComponent<Image>();
                 newFieldBG.sprite = fieldBackgroundTexture;
                 newFieldBG.type = Image.Type.Sliced;
                 fieldBackgrounds[i] = newFieldBG;
+                var clickable = newFieldBGRT.GetComponent<HoverAndClickable>();
+                clickable.Initialize(
+                    onClick: (ped) => {Debug.Log("ASDF");},
+                    onPointerEnter: (ped) => {newFieldBG.color = ColorScheme.current.UiMatrixFieldBackgroundHighlighted;},      // TODO does this work properly when the current colorscheme changes?
+                    onPointerExit: (ped) => {newFieldBG.color = ColorScheme.current.UiMatrixFieldBackground;}
+                );
                 // generate textfield
-                var newTMPRT = new GameObject("TMP Textfield", typeof(RectTransform), typeof(TextMeshProUGUI), typeof(ClickableTextMeshPro)).GetComponent<RectTransform>();
+                var newTMPRT = new GameObject("TMP Textfield", typeof(RectTransform), typeof(TextMeshProUGUI)).GetComponent<RectTransform>();
                 newTMPRT.SetParent(newFieldRT, false);
                 newTMPRT.SetToFill();
                 var newTMP = newTMPRT.GetComponent<TextMeshProUGUI>();
-                fieldTextMeshes[i] = newTMP;
-                var TMPclick = newTMP.gameObject.GetComponent<ClickableTextMeshPro>();
-                TMPclick.Initialize((ped) => { Debug.Log("INIT ME PROPERLY!!!"); });   // TODO proper init
+                newTMP.raycastTarget = false;
                 newTMP.alignment = TextAlignmentOptions.Center;
                 newTMP.font = fieldFont;
                 newTMP.fontSize = fieldFontSize;
+                fieldTextMeshes[i] = newTMP;
             }
         }
     }
 
-    public void SetName (string name) {
-        this.gameObject.name = name;
-        nameLabel.text = name;          // TODO if transposed...
+    public void SetName (string newName) {
+        this.gameObject.name = newName;
+        nameLabel.text = newName;          // TODO if transposed...
+        nameLabelDropShadow.text = newName;
     }
 
     void LoadColors (ColorScheme cs) {
@@ -179,47 +185,6 @@ public class UIMatrix : MonoBehaviour {
             calculatedMatrix = Matrix4x4.identity;
         }
         calculatedMatrixUpToDate = true;
-    }
-
-    // TODO instead of the textmeshes, make the images change color. also make the textmeshes non-raycasttargets
-
-    private class ClickableTextMeshPro : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler {
-
-        TextMeshProUGUI tm;
-        System.Action<PointerEventData> onClick;
-        // System.Action<PointerEventData> onPointerEnter;
-        // System.Action<PointerEventData> onPointerExit;
-
-        // public void Initialize (System.Action<PointerEventData> onClick, System.Action<PointerEventData> onPointerEnter, System.Action<PointerEventData> onPointerExit) {
-        public void Initialize (System.Action<PointerEventData> onClick) {
-            tm = GetComponent<TextMeshProUGUI>();
-            if(tm == null){
-                throw new System.NullReferenceException($"No {nameof(TextMeshProUGUI)} on {gameObject.name}!");
-            }
-            this.onClick = onClick;
-            // this.onPointerEnter = onPointerEnter;
-            // this.onPointerExit = onPointerExit;
-        }
-
-        public void OnPointerClick (PointerEventData eventData) {
-            onClick(eventData);
-        }
-
-        public void OnPointerEnter (PointerEventData eventData) {
-            var temp = tm.text;
-            temp = $"<u>{temp}</u>";
-            tm.text = temp;
-        }
-
-        public void OnPointerExit (PointerEventData eventData) {
-            RemoveAllUnderlineTags();
-        }
-
-        void RemoveAllUnderlineTags () {
-            var temp = tm.text.Replace("<u>", "");
-            temp = temp.Replace("</u>", "");
-            tm.text = temp;
-        }
     }
 
 }

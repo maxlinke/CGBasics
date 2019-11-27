@@ -63,6 +63,21 @@ public class ColorScheme : ScriptableObject {
     public Color VertRenderAmbientLight => vertRenderAmbientLight;
     public Color VertRenderClippingOverlay => vertRenderClippingOverlay;
 
+    [Header("Matrix Window")]
+    [SerializeField] Color[] uiMatrixHeaders;
+    [SerializeField] Color uiMatrixBackground;
+    [SerializeField] Color uiMatrixOutline;
+    [SerializeField] Color uiMatrixLabel;
+    [SerializeField] Color uiMatrixFieldBackground;
+    [SerializeField] Color uiMatrixFieldText;
+
+    public Color[] UiMatrixHeaders => uiMatrixHeaders;
+    public Color UiMatrixBackground => uiMatrixBackground;
+    public Color UiMatrixOutline => uiMatrixOutline;
+    public Color UiMatrixLabel => uiMatrixLabel;
+    public Color UiMatrixFieldBackground => uiMatrixFieldBackground;
+    public Color UiMatrixFieldText => uiMatrixFieldText;
+
 }
 
 #if UNITY_EDITOR

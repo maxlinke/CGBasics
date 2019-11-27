@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using UnityEngine;
 using RNG = UnityEngine.Random;
 
 public static class Extensions {
@@ -35,6 +36,31 @@ public static class Extensions {
             i++;
         }
         throw new System.NotImplementedException("This is a programmer error!");
+    }
+
+    public static void SetToFill (this RectTransform rt) {
+        rt.anchorMin = Vector2.zero;
+        rt.anchorMax = Vector2.one;
+        rt.sizeDelta = Vector2.zero;
+        rt.anchoredPosition = Vector2.zero;
+        rt.pivot = Vector2.one * 0.5f;
+    }
+
+    public static void SetToFillWithMargins (this RectTransform rt, float marginTop, float marginRight, float marginBottom, float marginLeft) {
+        rt.anchorMin = Vector2.zero;
+        rt.anchorMax = Vector2.one;
+        rt.sizeDelta = new Vector2(-marginRight-marginLeft, -marginTop-marginBottom);
+        rt.anchoredPosition = new Vector2(marginLeft-marginRight, marginBottom-marginTop);
+        rt.pivot = 0.5f * Vector2.one;
+    }
+
+    public static void SetToFillWithMargins (this RectTransform rt, float margin) {
+        SetToFillWithMargins(rt, margin, margin, margin, margin);
+    }
+
+    ///<summary>Top, right, bottom, left</summary>
+    public static void SetToFillWithMargins (this RectTransform rt, Vector4 margins) {
+        SetToFillWithMargins(rt, margins.x, margins.y, margins.z, margins.w);
     }
 	
 }

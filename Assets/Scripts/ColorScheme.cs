@@ -99,9 +99,10 @@ public class ColorScheme : ScriptableObject {
     public Color VertRenderAmbientLight => vertRenderAmbientLight;
     public Color VertRenderClippingOverlay => vertRenderClippingOverlay;
 
-    [Header("Matrix Window")]
+    [Header("UI Matrix")]
     [SerializeField] Color[] uiMatrixHeaders;
     [SerializeField] Color uiMatrixBackground;
+    [SerializeField] Color uiMatrixControlsBackground;
     [SerializeField] Color uiMatrixOutline;
     [SerializeField] Color uiMatrixLabel;
     [SerializeField] Color uiMatrixLabelDropShadow;
@@ -111,12 +112,36 @@ public class ColorScheme : ScriptableObject {
 
     public Color[] UiMatrixHeaders => uiMatrixHeaders;
     public Color UiMatrixBackground => uiMatrixBackground;
+    public Color UiMatrixControlsBackground => uiMatrixControlsBackground;
     public Color UiMatrixOutline => uiMatrixOutline;
     public Color UiMatrixLabel => uiMatrixLabel;
     public Color UiMatrixLabelDropShadow => uiMatrixLabelDropShadow;
     public Color UiMatrixFieldBackground => uiMatrixFieldBackground;
     public Color UiMatrixFieldBackgroundHighlighted => uiMatrixFieldBackgroundHighlighted;
     public Color UiMatrixFieldText => uiMatrixFieldText;
+
+    [Header("UI Matrix Buttons")]
+    [SerializeField] Color uiMatrixHeaderButtonBackgroundDefault;
+    [SerializeField] Color uiMatrixHeaderButtonBackgroundHover;
+    [SerializeField] Color uiMatrixHeaderButtonBackgroundClick;
+    [SerializeField] Color uiMatrixHeaderButtonBackgroundDisabled;
+    [SerializeField] Color uiMatrixHeaderButtonElement;
+    [SerializeField] Color uiMatrixControlsButtonBackgroundDefault;
+    [SerializeField] Color uiMatrixControlsButtonBackgroundHover;
+    [SerializeField] Color uiMatrixControlsButtonBackgroundClick;
+    [SerializeField] Color uiMatrixControlsButtonBackgroundDisabled;
+    [SerializeField] Color uiMatrixControlsButtonElement;
+
+    public Color UiMatrixHeaderButtonBackgroundDefault => uiMatrixHeaderButtonBackgroundDefault;
+    public Color UiMatrixHeaderButtonBackgroundHover => uiMatrixHeaderButtonBackgroundHover;
+    public Color UiMatrixHeaderButtonBackgroundClick => uiMatrixHeaderButtonBackgroundClick;
+    public Color UiMatrixHeaderButtonBackgroundDisabled => uiMatrixHeaderButtonBackgroundDisabled;
+    public Color UiMatrixHeaderButtonElement => uiMatrixHeaderButtonElement;
+    public Color UiMatrixControlsButtonBackgroundDefault => uiMatrixControlsButtonBackgroundDefault;
+    public Color UiMatrixControlsButtonBackgroundHover => uiMatrixControlsButtonBackgroundHover;
+    public Color UiMatrixControlsButtonBackgroundClick => uiMatrixControlsButtonBackgroundClick;
+    public Color UiMatrixControlsButtonBackgroundDisabled => uiMatrixControlsButtonBackgroundDisabled;
+    public Color UiMatrixControlsButtonElement => uiMatrixControlsButtonElement;
 
 }
 

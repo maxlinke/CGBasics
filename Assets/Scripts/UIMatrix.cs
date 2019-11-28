@@ -53,6 +53,7 @@ public class UIMatrix : MonoBehaviour {
             foreach(var b in controlsButtons){
                 b.interactable = value;
             }
+            SetButtonImageColorAlpha(value);
             m_editable = value;
         }
     }
@@ -72,12 +73,6 @@ public class UIMatrix : MonoBehaviour {
         if(!initialized){
             SelfInit();
         }
-        Debug.Log(new Matrix4x4(
-            new Vector4(1, 0, 0, 0),
-            new Vector4(0, 1, 0, 0),
-            new Vector4(0, 0, 0, 0),
-            new Vector4(0, 0, 0, 1)
-        ).inverse);
     }
 
     void SelfInit () {
@@ -85,7 +80,7 @@ public class UIMatrix : MonoBehaviour {
             "2", "0", "0", "200", 
             "0", "1", "0", "-200",
             "0", "0", "1", "-30000",
-            "0", "0", "0", "1"
+            "asdf", "0", "0", "1"
         }, true);
     }
 
@@ -146,22 +141,21 @@ public class UIMatrix : MonoBehaviour {
             }
         }
 
-        // TODO assign actions
         void CreateButtons () {
             headerButtons = new Button[2];
             headerButtonImages = new Image[2];
-            CreateButton(headerArea, "Left", TEMPBUTTONBACKGROUND, UISprites.GetSprite(UISprites.ID.MatrixLeft), true, 0, headerButtons, headerButtonImages, 0);
-            CreateButton(headerArea, "Right", TEMPBUTTONBACKGROUND, UISprites.GetSprite(UISprites.ID.MatrixRight), false, 0, headerButtons, headerButtonImages, 1);
+            CreateButton(headerArea, "Left", TEMPBUTTONBACKGROUND, UISprites.GetSprite(UISprites.ID.MatrixLeft), true, 0, headerButtons, headerButtonImages, 0, null);
+            CreateButton(headerArea, "Right", TEMPBUTTONBACKGROUND, UISprites.GetSprite(UISprites.ID.MatrixRight), false, 0, headerButtons, headerButtonImages, 1, null);
             controlsButtons = new Button[6];
             controlsButtonImages = new Image[6];
-            CreateButton(controlsArea, "Add/Duplicate", TEMPBUTTONBACKGROUND, UISprites.GetSprite(UISprites.ID.MatrixAdd), true, 0, controlsButtons, controlsButtonImages, 0);
-            CreateButton(controlsArea, "Rename", TEMPBUTTONBACKGROUND, UISprites.GetSprite(UISprites.ID.MatrixRename), true, 1, controlsButtons, controlsButtonImages, 1);
-            CreateButton(controlsArea, "Delete", TEMPBUTTONBACKGROUND, UISprites.GetSprite(UISprites.ID.MatrixDelete), true, 2, controlsButtons, controlsButtonImages, 2);
-            CreateButton(controlsArea, "Set Identity", TEMPBUTTONBACKGROUND, UISprites.GetSprite(UISprites.ID.MatrixIdentity), false, 0, controlsButtons, controlsButtonImages, 3);
-            CreateButton(controlsArea, "Invert", TEMPBUTTONBACKGROUND, UISprites.GetSprite(UISprites.ID.MatrixInvert), false, 1, controlsButtons, controlsButtonImages, 4);
-            CreateButton(controlsArea, "Transpose", TEMPBUTTONBACKGROUND, UISprites.GetSprite(UISprites.ID.MatrixTranspose), false, 2, controlsButtons, controlsButtonImages, 5);
+            CreateButton(controlsArea, "Add/Duplicate", TEMPBUTTONBACKGROUND, UISprites.GetSprite(UISprites.ID.MatrixAdd), true, 0, controlsButtons, controlsButtonImages, 0, null);
+            CreateButton(controlsArea, "Rename", TEMPBUTTONBACKGROUND, UISprites.GetSprite(UISprites.ID.MatrixRename), true, 1, controlsButtons, controlsButtonImages, 1, null);
+            CreateButton(controlsArea, "Delete", TEMPBUTTONBACKGROUND, UISprites.GetSprite(UISprites.ID.MatrixDelete), true, 2, controlsButtons, controlsButtonImages, 2, null);
+            CreateButton(controlsArea, "Set Identity", TEMPBUTTONBACKGROUND, UISprites.GetSprite(UISprites.ID.MatrixIdentity), false, 0, controlsButtons, controlsButtonImages, 3, null);
+            CreateButton(controlsArea, "Invert", TEMPBUTTONBACKGROUND, UISprites.GetSprite(UISprites.ID.MatrixInvert), false, 1, controlsButtons, controlsButtonImages, 4, null);
+            CreateButton(controlsArea, "Transpose", TEMPBUTTONBACKGROUND, UISprites.GetSprite(UISprites.ID.MatrixTranspose), false, 2, controlsButtons, controlsButtonImages, 5, Transpose);
 
-            void CreateButton (RectTransform parent, string newButtonName, Sprite newButtonBackgroundImage, Sprite newButtonMainImage, bool leftBound, int displayIndex, Button[] targetButtonArray, Image[] targetImageArray, int arrayIndex) {
+            void CreateButton (RectTransform parent, string newButtonName, Sprite newButtonBackgroundImage, Sprite newButtonMainImage, bool leftBound, int displayIndex, Button[] targetButtonArray, Image[] targetImageArray, int arrayIndex, System.Action onClickAction) {
                 var newlyCreatedButtonRT = new GameObject(newButtonName, typeof(RectTransform), typeof(Image), typeof(Button)).GetComponent<RectTransform>();
                 newlyCreatedButtonRT.SetParent(parent, false);
                 // the actual layout here
@@ -184,6 +178,7 @@ public class UIMatrix : MonoBehaviour {
                 // the button
                 var newlyCreatedButton = newlyCreatedButtonRT.gameObject.GetComponent<Button>();
                 newlyCreatedButton.targetGraphic = newlyCreatedButtonBG;
+                newlyCreatedButton.onClick.AddListener(() => { onClickAction?.Invoke(); });
                 // the foreground image
                 var newlyCreatedButtonMainImageRT = new GameObject($"{newButtonBackgroundImage} Image", typeof(RectTransform), typeof(Image)).GetComponent<RectTransform>();
                 newlyCreatedButtonMainImageRT.SetParent(newlyCreatedButtonRT, false);
@@ -203,6 +198,24 @@ public class UIMatrix : MonoBehaviour {
         this.gameObject.name = newName;
         nameLabel.text = newName;
         nameLabelDropShadow.text = newName;
+    }
+
+    public void Transpose () {
+        for(int y=0; y<3; y++){
+            for(int x = y+1; x<4; x++){
+                int src = 4 * y + x;
+                int dst = 4 * x + y;
+                var dstCache = stringFieldValues[dst];
+                stringFieldValues[dst] = stringFieldValues[src];
+                stringFieldValues[src] = dstCache;
+            }
+        }
+        calculatedMatrixUpToDate = false;
+        UpdateMatrixAndUI();
+    }
+
+    public void Invert () {
+        // TODO invert the calculated matrix, remove the variables, insert the calculated floats into the string-matrix
     }
 
     void LoadColors (ColorScheme cs) {
@@ -229,7 +242,17 @@ public class UIMatrix : MonoBehaviour {
         }
         foreach(var img in controlsButtonImages){
             img.color = cs.UiMatrixControlsButtonElement;
-        }        
+        }
+        SetButtonImageColorAlpha(this.editable);    
+    }
+
+    void SetButtonImageColorAlpha (bool editableValue) {
+        foreach(var i in headerButtonImages){
+            i.color = new Color(i.color.r, i.color.g, i.color.b, (editableValue ? 1f : 0.5f));
+        }
+        foreach(var i in controlsButtonImages){
+            i.color = new Color(i.color.r, i.color.g, i.color.b, (editableValue ? 1f : 0.5f));
+        }
     }
 
     void OnEnable () {
@@ -262,20 +285,24 @@ public class UIMatrix : MonoBehaviour {
                 var parsed = StringExpressions.ParseExpression(stringFieldValues[i], null);  // TODO variables
                 if(float.IsNaN(parsed)){
                     matrixValid = false;
-                    fieldTextMeshes[i].text = "NaN";
+                    fieldTextMeshes[i].text = InvalidColors("NaN");
                 }else if(float.IsPositiveInfinity(parsed)){
                     matrixValid = false;
-                    fieldTextMeshes[i].text = "+Inf";
+                    fieldTextMeshes[i].text = InvalidColors("+Inf");
                 }else if(float.IsNegativeInfinity(parsed)){
                     matrixValid = false;
-                    fieldTextMeshes[i].text = "-Inf";
+                    fieldTextMeshes[i].text = InvalidColors("-Inf");
                 }else{
                     newMatrix[i] = parsed;
                     if(fieldTextMeshes[i] != null) fieldTextMeshes[i].text = $"{parsed:F2}";   // TODO remove the nullcheck
                 }
             }catch(System.Exception){
                 matrixValid = false;
-                fieldTextMeshes[i].text = "ERR";
+                fieldTextMeshes[i].text = InvalidColors("ERR");
+            }
+
+            string InvalidColors (string actualStringValue) {
+                return $"<color=red>{actualStringValue}</color>";
             }
         }
         if(matrixValid){

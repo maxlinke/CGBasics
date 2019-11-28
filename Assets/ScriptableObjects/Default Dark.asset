@@ -55,10 +55,10 @@ MonoBehaviour:
   uiMatrixHeaderButtonBackgroundDefault: {r: 0, g: 0, b: 0, a: 0.29803923}
   uiMatrixHeaderButtonBackgroundHover: {r: 1, g: 1, b: 1, a: 0.2509804}
   uiMatrixHeaderButtonBackgroundClick: {r: 1, g: 1, b: 1, a: 0.101960786}
-  uiMatrixHeaderButtonBackgroundDisabled: {r: 0.7, g: 0.7, b: 0.7, a: 1}
+  uiMatrixHeaderButtonBackgroundDisabled: {r: 0, g: 0, b: 0, a: 0}
   uiMatrixHeaderButtonElement: {r: 0.8, g: 0.8, b: 0.8, a: 1}
   uiMatrixControlsButtonBackgroundDefault: {r: 0, g: 0, b: 0, a: 0.29803923}
   uiMatrixControlsButtonBackgroundHover: {r: 1, g: 1, b: 1, a: 0.2509804}
   uiMatrixControlsButtonBackgroundClick: {r: 1, g: 1, b: 1, a: 0.101960786}
-  uiMatrixControlsButtonBackgroundDisabled: {r: 0.7, g: 0.7, b: 0.7, a: 1}
+  uiMatrixControlsButtonBackgroundDisabled: {r: 0, g: 0, b: 0, a: 0}
   uiMatrixControlsButtonElement: {r: 0.8, g: 0.8, b: 0.8, a: 1}

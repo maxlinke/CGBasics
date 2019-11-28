@@ -150,16 +150,16 @@ public class UIMatrix : MonoBehaviour {
         void CreateButtons () {
             headerButtons = new Button[2];
             headerButtonImages = new Image[2];
-            CreateButton(headerArea, "Left", TEMPBUTTONBACKGROUND, TEMPBUTTONMAINIMAGE, true, 0, headerButtons, headerButtonImages, 0);
-            CreateButton(headerArea, "Right", TEMPBUTTONBACKGROUND, TEMPBUTTONMAINIMAGE, false, 0, headerButtons, headerButtonImages, 1);
+            CreateButton(headerArea, "Left", TEMPBUTTONBACKGROUND, UISprites.GetSprite(UISprites.ID.MatrixLeft), true, 0, headerButtons, headerButtonImages, 0);
+            CreateButton(headerArea, "Right", TEMPBUTTONBACKGROUND, UISprites.GetSprite(UISprites.ID.MatrixRight), false, 0, headerButtons, headerButtonImages, 1);
             controlsButtons = new Button[6];
             controlsButtonImages = new Image[6];
-            CreateButton(controlsArea, "Add/Duplicate", TEMPBUTTONBACKGROUND, TEMPBUTTONMAINIMAGE, true, 0, controlsButtons, controlsButtonImages, 0);
-            CreateButton(controlsArea, "Rename", TEMPBUTTONBACKGROUND, TEMPBUTTONMAINIMAGE, true, 1, controlsButtons, controlsButtonImages, 1);
-            CreateButton(controlsArea, "Delete", TEMPBUTTONBACKGROUND, TEMPBUTTONMAINIMAGE, true, 2, controlsButtons, controlsButtonImages, 2);
-            CreateButton(controlsArea, "Set Identity", TEMPBUTTONBACKGROUND, TEMPBUTTONMAINIMAGE, false, 0, controlsButtons, controlsButtonImages, 3);
-            CreateButton(controlsArea, "Invert", TEMPBUTTONBACKGROUND, TEMPBUTTONMAINIMAGE, false, 1, controlsButtons, controlsButtonImages, 4);
-            CreateButton(controlsArea, "Transpose", TEMPBUTTONBACKGROUND, TEMPBUTTONMAINIMAGE, false, 2, controlsButtons, controlsButtonImages, 5);
+            CreateButton(controlsArea, "Add/Duplicate", TEMPBUTTONBACKGROUND, UISprites.GetSprite(UISprites.ID.MatrixAdd), true, 0, controlsButtons, controlsButtonImages, 0);
+            CreateButton(controlsArea, "Rename", TEMPBUTTONBACKGROUND, UISprites.GetSprite(UISprites.ID.MatrixRename), true, 1, controlsButtons, controlsButtonImages, 1);
+            CreateButton(controlsArea, "Delete", TEMPBUTTONBACKGROUND, UISprites.GetSprite(UISprites.ID.MatrixDelete), true, 2, controlsButtons, controlsButtonImages, 2);
+            CreateButton(controlsArea, "Set Identity", TEMPBUTTONBACKGROUND, UISprites.GetSprite(UISprites.ID.MatrixIdentity), false, 0, controlsButtons, controlsButtonImages, 3);
+            CreateButton(controlsArea, "Invert", TEMPBUTTONBACKGROUND, UISprites.GetSprite(UISprites.ID.MatrixInvert), false, 1, controlsButtons, controlsButtonImages, 4);
+            CreateButton(controlsArea, "Transpose", TEMPBUTTONBACKGROUND, UISprites.GetSprite(UISprites.ID.MatrixTranspose), false, 2, controlsButtons, controlsButtonImages, 5);
 
             void CreateButton (RectTransform parent, string newButtonName, Sprite newButtonBackgroundImage, Sprite newButtonMainImage, bool leftBound, int displayIndex, Button[] targetButtonArray, Image[] targetImageArray, int arrayIndex) {
                 var newlyCreatedButtonRT = new GameObject(newButtonName, typeof(RectTransform), typeof(Image), typeof(Button)).GetComponent<RectTransform>();

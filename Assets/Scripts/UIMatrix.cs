@@ -151,8 +151,8 @@ public class UIMatrix : MonoBehaviour {
             CreateButton(controlsArea, "Add/Duplicate", TEMPBUTTONBACKGROUND, UISprites.GetSprite(UISprites.ID.MatrixAdd), true, 0, controlsButtons, controlsButtonImages, 0, null);
             CreateButton(controlsArea, "Rename", TEMPBUTTONBACKGROUND, UISprites.GetSprite(UISprites.ID.MatrixRename), true, 1, controlsButtons, controlsButtonImages, 1, null);
             CreateButton(controlsArea, "Delete", TEMPBUTTONBACKGROUND, UISprites.GetSprite(UISprites.ID.MatrixDelete), true, 2, controlsButtons, controlsButtonImages, 2, null);
-            CreateButton(controlsArea, "Set Identity", TEMPBUTTONBACKGROUND, UISprites.GetSprite(UISprites.ID.MatrixIdentity), false, 0, controlsButtons, controlsButtonImages, 3, null);
-            CreateButton(controlsArea, "Invert", TEMPBUTTONBACKGROUND, UISprites.GetSprite(UISprites.ID.MatrixInvert), false, 1, controlsButtons, controlsButtonImages, 4, null);
+            CreateButton(controlsArea, "Set Identity", TEMPBUTTONBACKGROUND, UISprites.GetSprite(UISprites.ID.MatrixIdentity), false, 0, controlsButtons, controlsButtonImages, 3, SetIdentity);
+            CreateButton(controlsArea, "Invert", TEMPBUTTONBACKGROUND, UISprites.GetSprite(UISprites.ID.MatrixInvert), false, 1, controlsButtons, controlsButtonImages, 4, Invert);
             CreateButton(controlsArea, "Transpose", TEMPBUTTONBACKGROUND, UISprites.GetSprite(UISprites.ID.MatrixTranspose), false, 2, controlsButtons, controlsButtonImages, 5, Transpose);
 
             void CreateButton (RectTransform parent, string newButtonName, Sprite newButtonBackgroundImage, Sprite newButtonMainImage, bool leftBound, int displayIndex, Button[] targetButtonArray, Image[] targetImageArray, int arrayIndex, System.Action onClickAction) {
@@ -163,12 +163,7 @@ public class UIMatrix : MonoBehaviour {
                 float parentWidth = parent.rect.width;
                 newlyCreatedButtonRT.SetToPoint();
                 newlyCreatedButtonRT.sizeDelta = Vector2.one * parentHeight;    // i'm just assuming that we want the buttons to fill the height...
-                float xPos;
-                if(leftBound){
-                    xPos = -(parentWidth / 2) + ((0.5f + displayIndex) * parentHeight) + (displayIndex * buttonHorizontalOffset);
-                }else{
-                    xPos = (parentWidth / 2) - ((0.5f + displayIndex) * parentHeight) - (displayIndex * buttonHorizontalOffset);
-                }
+                float xPos = (leftBound ? -1 : 1) * ((parentWidth / 2) - ((0.5f + displayIndex) * parentHeight) - (displayIndex * buttonHorizontalOffset));
                 newlyCreatedButtonRT.anchoredPosition = new Vector2(xPos, 0);
                 newlyCreatedButtonRT.localScale = Vector3.one * buttonSize;
                 // the background image
@@ -200,6 +195,11 @@ public class UIMatrix : MonoBehaviour {
         nameLabelDropShadow.text = newName;
     }
 
+    public void RemoveVariables () {
+        // TODO remove vars
+        Debug.Log("TODO remove variables");
+    }
+
     public void Transpose () {
         for(int y=0; y<3; y++){
             for(int x = y+1; x<4; x++){
@@ -214,7 +214,23 @@ public class UIMatrix : MonoBehaviour {
         UpdateMatrixAndUI();
     }
 
+    public void SetIdentity () {
+        RemoveVariables();
+        stringFieldValues = new string[]{
+            "1", "0", "0", "0",
+            "0", "1", "0", "0",
+            "0", "0", "1", "0",
+            "0", "0", "0", "1"
+        };
+        UpdateMatrixAndUI();
+    }
+
     public void Invert () {
+        if(!IsInvertible){
+            // TODO put a debug message into the message thingy
+            return;
+        }
+        var temp = calculatedMatrix.inverse;
         // TODO invert the calculated matrix, remove the variables, insert the calculated floats into the string-matrix
     }
 
@@ -294,7 +310,14 @@ public class UIMatrix : MonoBehaviour {
                     fieldTextMeshes[i].text = InvalidColors("-Inf");
                 }else{
                     newMatrix[i] = parsed;
-                    if(fieldTextMeshes[i] != null) fieldTextMeshes[i].text = $"{parsed:F2}";   // TODO remove the nullcheck
+                    var showVal = $"{parsed:F2}";
+                    if(showVal.Contains(".")){
+                        while(showVal[showVal.Length-1] == '0'){
+                            showVal = showVal.Substring(0, showVal.Length - 1);
+                        }
+                        showVal = showVal.Substring(0, showVal.Length - 1);
+                    }
+                    fieldTextMeshes[i].text = showVal;
                 }
             }catch(System.Exception){
                 matrixValid = false;

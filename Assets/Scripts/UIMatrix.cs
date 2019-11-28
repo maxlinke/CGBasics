@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System.Collections.Generic;
 
 public class UIMatrix : MonoBehaviour {
 
@@ -35,6 +36,8 @@ public class UIMatrix : MonoBehaviour {
     string[] stringFieldValues = new string[16];
     TextMeshProUGUI[] fieldTextMeshes = new TextMeshProUGUI[16];
     Button[] fieldButtons = new Button[16];
+    List<Variable> variables = new List<Variable>();
+    
     Matrix4x4 calculatedMatrix;
     bool calculatedMatrixUpToDate;      // TODO if ANY modification, set this to false!!!
     Button[] headerButtons;
@@ -76,11 +79,17 @@ public class UIMatrix : MonoBehaviour {
     }
 
     void SelfInit () {
+        // Initialize(new string[]{
+        //     "2", "0", "0", "200", 
+        //     "0", "1", "0", "-200",
+        //     "0", "0", "1", "-30000",
+        //     "asdf", "0", "0", "1"
+        // }, true);
         Initialize(new string[]{
-            "2", "0", "0", "200", 
-            "0", "1", "0", "-200",
-            "0", "0", "1", "-30000",
-            "asdf", "0", "0", "1"
+            "1", "0", "0", "0", 
+            "0", "1", "0", "0",
+            "0", "0", "1", "0",
+            "1", "1", "1", "1"
         }, true);
     }
 
@@ -144,12 +153,12 @@ public class UIMatrix : MonoBehaviour {
         void CreateButtons () {
             headerButtons = new Button[2];
             headerButtonImages = new Image[2];
-            CreateButton(headerArea, "Left", TEMPBUTTONBACKGROUND, UISprites.GetSprite(UISprites.ID.MatrixLeft), true, 0, headerButtons, headerButtonImages, 0, null);
+            CreateButton(headerArea, "Left", TEMPBUTTONBACKGROUND, UISprites.GetSprite(UISprites.ID.MatrixLeft), true, 0, headerButtons, headerButtonImages, 0, null);                  // TODO these all call the vertex-menu to do things...
             CreateButton(headerArea, "Right", TEMPBUTTONBACKGROUND, UISprites.GetSprite(UISprites.ID.MatrixRight), false, 0, headerButtons, headerButtonImages, 1, null);
             controlsButtons = new Button[6];
             controlsButtonImages = new Image[6];
             CreateButton(controlsArea, "Add/Duplicate", TEMPBUTTONBACKGROUND, UISprites.GetSprite(UISprites.ID.MatrixAdd), true, 0, controlsButtons, controlsButtonImages, 0, null);
-            CreateButton(controlsArea, "Rename", TEMPBUTTONBACKGROUND, UISprites.GetSprite(UISprites.ID.MatrixRename), true, 1, controlsButtons, controlsButtonImages, 1, null);
+            CreateButton(controlsArea, "Rename", TEMPBUTTONBACKGROUND, UISprites.GetSprite(UISprites.ID.MatrixRename), true, 1, controlsButtons, controlsButtonImages, 1, null);        // except for this one. this one opens the rename thingy.
             CreateButton(controlsArea, "Delete", TEMPBUTTONBACKGROUND, UISprites.GetSprite(UISprites.ID.MatrixDelete), true, 2, controlsButtons, controlsButtonImages, 2, null);
             CreateButton(controlsArea, "Set Identity", TEMPBUTTONBACKGROUND, UISprites.GetSprite(UISprites.ID.MatrixIdentity), false, 0, controlsButtons, controlsButtonImages, 3, SetIdentity);
             CreateButton(controlsArea, "Invert", TEMPBUTTONBACKGROUND, UISprites.GetSprite(UISprites.ID.MatrixInvert), false, 1, controlsButtons, controlsButtonImages, 4, Invert);
@@ -195,9 +204,60 @@ public class UIMatrix : MonoBehaviour {
         nameLabelDropShadow.text = newName;
     }
 
-    public void RemoveVariables () {
-        // TODO remove vars
-        Debug.Log("TODO remove variables");
+    public void AddVariable (string varName, float varValue, bool updateEverything = true) {
+        if(TryGetVariable(varName, out _)){
+            Debug.LogWarning("TODO also do a user-warning!");   // TODO also do a user-warning!
+            return;
+        }
+        variables.Add(new Variable(varName, varValue));
+        if(updateEverything){
+            UpdateMatrixAndUI();
+        }
+    }
+
+    public void EditVariable (string oldName, string newName, float newValue, bool updateEverything = true) {
+        if(TryGetVariable(oldName, out var foundVar)){
+            foundVar.name = newName;
+            foundVar.floatValue = newValue;
+            if(updateEverything){
+                UpdateMatrixAndUI();
+            }
+        }else{
+            ThrowVarNotFoundException(oldName);
+        }
+    }
+
+    public void RemoveVariable (string varName, bool updateEverything = true) {
+        if(TryGetVariable(varName, out var foundVar)){
+            variables.Remove(foundVar);
+            if(updateEverything){
+                UpdateMatrixAndUI();
+            }
+        }else{
+            ThrowVarNotFoundException(varName);
+        }
+    }
+
+    void ThrowVarNotFoundException (string varName) {
+        throw new System.IndexOutOfRangeException($"Couldn't find variable \"{varName}\"!");
+    }
+
+    public bool TryGetVariable (string varName, out Variable outputVariable) {
+        foreach(var variable in variables){
+            if(variable.name.Equals(varName)){
+                outputVariable = variable;
+                return true;
+            }
+        }
+        outputVariable = null;
+        return false;
+    }   
+
+    public void RemoveAllVariables (bool updateEverything = true) {
+        variables.Clear();
+        if(updateEverything){
+            UpdateMatrixAndUI();
+        }
     }
 
     public void Transpose () {
@@ -215,7 +275,7 @@ public class UIMatrix : MonoBehaviour {
     }
 
     public void SetIdentity () {
-        RemoveVariables();
+        RemoveAllVariables(false);
         stringFieldValues = new string[]{
             "1", "0", "0", "0",
             "0", "1", "0", "0",
@@ -227,11 +287,15 @@ public class UIMatrix : MonoBehaviour {
 
     public void Invert () {
         if(!IsInvertible){
-            // TODO put a debug message into the message thingy
+            Debug.LogWarning("TODO put a debug message into the message thingy");   // TODO put a debug message into the message thingy
             return;
         }
         var temp = calculatedMatrix.inverse;
-        // TODO invert the calculated matrix, remove the variables, insert the calculated floats into the string-matrix
+        RemoveAllVariables(false);
+        for(int i=0; i<16; i++){
+            stringFieldValues[i] = temp[i].ToString();
+        }
+        UpdateMatrixAndUI();
     }
 
     void LoadColors (ColorScheme cs) {
@@ -239,7 +303,8 @@ public class UIMatrix : MonoBehaviour {
         outline.color = cs.UiMatrixOutline;
         nameLabel.color = cs.UiMatrixLabel;
         nameLabelDropShadow.color = cs.UiMatrixLabelDropShadow;
-        nameLabelBackground.color = cs.UiMatrixHeaders.Random();    // TODO index from name hash i guess?
+        int nameHash = System.Math.Abs(this.nameLabel.text.GetHashCode());
+        nameLabelBackground.color = cs.UiMatrixHeaders[nameHash % cs.UiMatrixHeaders.Length];
         controlsBackground.color = cs.UiMatrixControlsBackground;
         for(int i=0; i<fieldButtons.Length; i++){
             fieldButtons[i].SetFadeTransition(0, cs.UiMatrixFieldBackground, cs.UiMatrixFieldBackgroundHighlighted, cs.UiMatrixFieldBackgroundClicked, cs.UiMatrixFieldBackgroundDisabled);
@@ -325,7 +390,7 @@ public class UIMatrix : MonoBehaviour {
             }
 
             string InvalidColors (string actualStringValue) {
-                return $"<color=red>{actualStringValue}</color>";
+                return $"<color=red>{actualStringValue}</color>";       // TODO from colorscheme (and some color to hex (mesmer?))
             }
         }
         if(matrixValid){
@@ -334,6 +399,29 @@ public class UIMatrix : MonoBehaviour {
             calculatedMatrix = Matrix4x4.identity;
         }
         calculatedMatrixUpToDate = true;
+    }
+
+    public class Variable {
+
+        public string name;
+        public float floatValue;
+
+        public Variable (string inputName, float inputValue) {
+            if(inputName == null){
+                throw new System.NullReferenceException("Name can't be null!");
+            }
+            if(inputName.Length == 0){
+                throw new System.ArgumentException("Name can't be empty!");
+            }
+            var ch = inputName[0];
+            bool validFirstChar = (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z');
+            if(!validFirstChar){
+                throw new System.ArgumentException("Name MUST start with a letter!");
+            }
+            this.name = inputName;
+            this.floatValue = inputValue;
+        }
+
     }
 
 }

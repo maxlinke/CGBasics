@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using UnityEditor;
 #endif
 
-[CreateAssetMenu(menuName = "Color Scheme", fileName = "new Color Scheme")]
+[CreateAssetMenu(menuName = "Color Scheme", fileName = "New Color Scheme")]
 public class ColorScheme : ScriptableObject {
 
     public enum EnumName {

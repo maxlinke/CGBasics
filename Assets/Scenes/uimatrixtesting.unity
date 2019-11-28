@@ -395,6 +395,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   scriptableObjectsToLoad:
+  - {fileID: 11400000, guid: 84b0a283730fc1e428038a2cfbc11e2a, type: 2}
   - {fileID: 11400000, guid: 51275ef2c95c5214aaf46e3e76175e7d, type: 2}
 --- !u!4 &1856298083
 Transform:

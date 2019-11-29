@@ -52,6 +52,7 @@ MonoBehaviour:
   uiMatrixFieldBackgroundClicked: {r: 1, g: 1, b: 1, a: 0.101960786}
   uiMatrixFieldBackgroundDisabled: {r: 1, g: 0, b: 1, a: 1}
   uiMatrixFieldText: {r: 1, g: 1, b: 1, a: 1}
+  uiMatrixFieldTextInvalid: {r: 0.85, g: 0.2, b: 0.2, a: 1}
   uiMatrixHeaderButtonBackgroundDefault: {r: 0, g: 0, b: 0, a: 0.29803923}
   uiMatrixHeaderButtonBackgroundHover: {r: 1, g: 1, b: 1, a: 0.2509804}
   uiMatrixHeaderButtonBackgroundClick: {r: 1, g: 1, b: 1, a: 0.101960786}
@@ -62,3 +63,11 @@ MonoBehaviour:
   uiMatrixControlsButtonBackgroundClick: {r: 1, g: 1, b: 1, a: 0.101960786}
   uiMatrixControlsButtonBackgroundDisabled: {r: 0, g: 0, b: 0, a: 0}
   uiMatrixControlsButtonElement: {r: 0.8, g: 0.8, b: 0.8, a: 1}
+  uiMatrixVariablesBackground: {r: 0.35, g: 0.35, b: 0.35, a: 1}
+  uiMatrixVariablesLabelAndIcons: {r: 0.8, g: 0.8, b: 0.8, a: 1}
+  uiMatrixVariablesFieldBackground: {r: 0, g: 0, b: 0, a: 0.29803923}
+  uiMatrixVariablesFieldBackgroundHover: {r: 1, g: 1, b: 1, a: 0.2509804}
+  uiMatrixVariablesFieldBackgroundClick: {r: 1, g: 1, b: 1, a: 0.101960786}
+  uiMatrixVariablesFieldBackgroundDisabled: {r: 0, g: 0, b: 0, a: 0}
+  uiMatrixVariablesFieldElement: {r: 0.6, g: 0.6, b: 0.6, a: 1}
+  uiMatrixVariablesFieldElementInvalid: {r: 0.85, g: 0.2, b: 0.2, a: 1}

@@ -111,6 +111,7 @@ public class ColorScheme : ScriptableObject {
     [SerializeField] Color uiMatrixFieldBackgroundClicked;
     [SerializeField] Color uiMatrixFieldBackgroundDisabled;
     [SerializeField] Color uiMatrixFieldText;
+    [SerializeField] Color uiMatrixFieldTextInvalid;
 
     public Color[] UiMatrixHeaders => uiMatrixHeaders;
     public Color UiMatrixBackground => uiMatrixBackground;
@@ -123,6 +124,7 @@ public class ColorScheme : ScriptableObject {
     public Color UiMatrixFieldBackgroundClicked => uiMatrixFieldBackgroundClicked;
     public Color UiMatrixFieldBackgroundDisabled => uiMatrixFieldBackgroundDisabled;
     public Color UiMatrixFieldText => uiMatrixFieldText;
+    public Color UiMatrixFieldTextInvalid => uiMatrixFieldTextInvalid;
 
     [Header("UI Matrix Buttons")]
     [SerializeField] Color uiMatrixHeaderButtonBackgroundDefault;
@@ -146,6 +148,26 @@ public class ColorScheme : ScriptableObject {
     public Color UiMatrixControlsButtonBackgroundClick => uiMatrixControlsButtonBackgroundClick;
     public Color UiMatrixControlsButtonBackgroundDisabled => uiMatrixControlsButtonBackgroundDisabled;
     public Color UiMatrixControlsButtonElement => uiMatrixControlsButtonElement;
+
+    [Header("UI Matrix Variables")]
+    [SerializeField] Color uiMatrixVariablesBackground;
+    [SerializeField] Color uiMatrixVariablesLabelAndIcons;
+    [SerializeField] Color uiMatrixVariablesFieldBackground;
+    [SerializeField] Color uiMatrixVariablesFieldBackgroundHover;
+    [SerializeField] Color uiMatrixVariablesFieldBackgroundClick;
+    [SerializeField] Color uiMatrixVariablesFieldBackgroundDisabled; 
+    [SerializeField] Color uiMatrixVariablesFieldElement;
+    [SerializeField] Color uiMatrixVariablesFieldElementInvalid;
+
+    public Color UiMatrixVariablesBackground => uiMatrixVariablesBackground;
+    public Color UiMatrixVariablesLabelAndIcons => uiMatrixVariablesLabelAndIcons;
+    public Color UiMatrixVariablesFieldBackground => uiMatrixVariablesFieldBackground;
+    public Color UiMatrixVariablesFieldBackgroundHover => uiMatrixVariablesFieldBackgroundHover;
+    public Color UiMatrixVariablesFieldBackgroundClick => uiMatrixVariablesFieldBackgroundClick;
+    public Color UiMatrixVariablesFieldBackgroundDisabled => uiMatrixVariablesFieldBackgroundDisabled; 
+    public Color UiMatrixVariablesFieldElement => uiMatrixVariablesFieldElement;
+    public Color UiMatrixVariablesFieldElementInvalid => uiMatrixVariablesFieldElementInvalid;
+    
 
 }
 

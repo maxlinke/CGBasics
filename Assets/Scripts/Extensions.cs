@@ -87,5 +87,13 @@ public static class Extensions {
         colorBlock.disabledColor = disabledColor;
         selectable.colors = colorBlock;
     }
+
+    public static void SetFadeTransition (this Selectable selectable, Color color) {
+        selectable.SetFadeTransition(0f, color, color, color, color);
+    }
+
+    public static void SetFadeTransitionDefaultAndDisabled (this Selectable selectable, Color defaultColor, Color disabledColor) {
+        selectable.SetFadeTransition(0f, defaultColor, defaultColor, defaultColor, disabledColor);
+    }
 	
 }

@@ -3,9 +3,12 @@
 // [CreateAssetMenu(menuName = "UISprite Collection", fileName = "New UISprite Collection")]
 public class UISprites : ScriptableObject {
 
+    // DO NOT MEDDLE AROUND IN THE MIDDLE! ONLY ADD NEW ONES AT THE END, OTHERWISE EVERYTHING GETS BROKEN!!!
     public enum ID {
         MatrixLeft,
         MatrixRight,
+        MatrixUp,
+        MatrixDown,
         MatrixAdd,
         MatrixDelete,
         MatrixRename,

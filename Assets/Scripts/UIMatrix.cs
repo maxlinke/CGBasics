@@ -8,9 +8,8 @@ public class UIMatrix : MonoBehaviour {
     // TODO only calculate the matrix IF NEEDED!!!
     // maybe set a flag when it gets updated in some capacity and then if someone wants the actual matrix, recalculate it AND RESET THE FLAG
 
-    // TODO UISprites scriptable object so i can do "UISprites.Get(UISprites.MOVELEFT)"
-
     [Header("Components")]
+    [SerializeField] UIMatrixVariableContainer variableContainer;
     [SerializeField] Image background;
     [SerializeField] Image outline;                 // what do i even need this for?
     [SerializeField] Image nameLabelBackground;
@@ -36,7 +35,6 @@ public class UIMatrix : MonoBehaviour {
     string[] stringFieldValues = new string[16];
     TextMeshProUGUI[] fieldTextMeshes = new TextMeshProUGUI[16];
     Button[] fieldButtons = new Button[16];
-    List<Variable> variables = new List<Variable>();
     
     Matrix4x4 calculatedMatrix;
     bool calculatedMatrixUpToDate;      // TODO if ANY modification, set this to false!!!
@@ -44,6 +42,7 @@ public class UIMatrix : MonoBehaviour {
     Image[] headerButtonImages;
     Button[] controlsButtons;
     Image[] controlsButtonImages;
+    Color stringFieldInvalidColor;
 
     bool m_editable;
     public bool editable {
@@ -64,13 +63,14 @@ public class UIMatrix : MonoBehaviour {
     public Matrix4x4 MatrixValue {
         get {
             if(!calculatedMatrixUpToDate){
-                UpdateMatrixAndUI();
+                UpdateMatrixAndGridView();
             }
             return calculatedMatrix;
         }
     }
 
     public bool IsInvertible => (MatrixValue.determinant != 0);
+    public UIMatrixVariableContainer VariableContainer => variableContainer;        // spoken to by the camera i guess.
 
     void Awake () {
         if(!initialized){
@@ -79,18 +79,18 @@ public class UIMatrix : MonoBehaviour {
     }
 
     void SelfInit () {
-        // Initialize(new string[]{
-        //     "2", "0", "0", "200", 
-        //     "0", "1", "0", "-200",
-        //     "0", "0", "1", "-30000",
-        //     "asdf", "0", "0", "1"
-        // }, true);
         Initialize(new string[]{
-            "1", "0", "0", "0", 
-            "0", "1", "0", "0",
-            "0", "0", "1", "0",
-            "1", "1", "1", "1"
+            "2", "0", "0", "200", 
+            "0", "1", "0", "-200",
+            "0", "0", "1", "-30000",
+            "asdf", "0", "0", "1"
         }, true);
+        // Initialize(new string[]{
+        //     "1", "0", "0", "0", 
+        //     "0", "1", "0", "0",
+        //     "0", "0", "1", "0",
+        //     "1", "1", "1", "1"
+        // }, true);
     }
 
     // NO COLOURS!!! that's all done in LoadColors!
@@ -101,7 +101,7 @@ public class UIMatrix : MonoBehaviour {
         CreateUIFieldArray();
         CreateButtons();
         UpdateFieldStrings(fieldInitializers);
-        UpdateMatrixAndUI();
+        UpdateMatrixAndGridView();
         outline.SetGOActive(false);
 
         this.editable = shouldBeEditable;
@@ -204,61 +204,7 @@ public class UIMatrix : MonoBehaviour {
         nameLabelDropShadow.text = newName;
     }
 
-    public void AddVariable (string varName, float varValue, bool updateEverything = true) {
-        if(TryGetVariable(varName, out _)){
-            Debug.LogWarning("TODO also do a user-warning!");   // TODO also do a user-warning!
-            return;
-        }
-        variables.Add(new Variable(varName, varValue));
-        if(updateEverything){
-            UpdateMatrixAndUI();
-        }
-    }
-
-    public void EditVariable (string oldName, string newName, float newValue, bool updateEverything = true) {
-        if(TryGetVariable(oldName, out var foundVar)){
-            foundVar.name = newName;
-            foundVar.floatValue = newValue;
-            if(updateEverything){
-                UpdateMatrixAndUI();
-            }
-        }else{
-            ThrowVarNotFoundException(oldName);
-        }
-    }
-
-    public void RemoveVariable (string varName, bool updateEverything = true) {
-        if(TryGetVariable(varName, out var foundVar)){
-            variables.Remove(foundVar);
-            if(updateEverything){
-                UpdateMatrixAndUI();
-            }
-        }else{
-            ThrowVarNotFoundException(varName);
-        }
-    }
-
-    void ThrowVarNotFoundException (string varName) {
-        throw new System.IndexOutOfRangeException($"Couldn't find variable \"{varName}\"!");
-    }
-
-    public bool TryGetVariable (string varName, out Variable outputVariable) {
-        foreach(var variable in variables){
-            if(variable.name.Equals(varName)){
-                outputVariable = variable;
-                return true;
-            }
-        }
-        outputVariable = null;
-        return false;
-    }   
-
-    public void RemoveAllVariables (bool updateEverything = true) {
-        variables.Clear();
-        if(updateEverything){
-            UpdateMatrixAndUI();
-        }
-    }
+    
 
     public void Transpose () {
         for(int y=0; y<3; y++){
@@ -271,34 +217,34 @@ public class UIMatrix : MonoBehaviour {
             }
         }
         calculatedMatrixUpToDate = false;
-        UpdateMatrixAndUI();
+        UpdateMatrixAndGridView();
     }
 
     public void SetIdentity () {
-        RemoveAllVariables(false);
+        VariableContainer.RemoveAllVariables(false);
         stringFieldValues = new string[]{
             "1", "0", "0", "0",
             "0", "1", "0", "0",
             "0", "0", "1", "0",
             "0", "0", "0", "1"
         };
-        UpdateMatrixAndUI();
+        UpdateMatrixAndGridView();
     }
 
     public void Invert () {
         if(!IsInvertible){
             Debug.LogWarning("TODO put a debug message into the message thingy");   // TODO put a debug message into the message thingy
-            return;
+            return;                                                                 // or simply disable the invert button everytime the matrix is updated and non invertible... (sounds better and simpler)
         }
         var temp = calculatedMatrix.inverse;
-        RemoveAllVariables(false);
+        VariableContainer.RemoveAllVariables(false);
         for(int i=0; i<16; i++){
             stringFieldValues[i] = temp[i].ToString();
         }
-        UpdateMatrixAndUI();
+        UpdateMatrixAndGridView();
     }
 
-    void LoadColors (ColorScheme cs) {
+    void LoadColorsAndUpdateEverything (ColorScheme cs) {
         background.color = cs.UiMatrixBackground;
         outline.color = cs.UiMatrixOutline;
         nameLabel.color = cs.UiMatrixLabel;
@@ -306,6 +252,7 @@ public class UIMatrix : MonoBehaviour {
         int nameHash = System.Math.Abs(this.nameLabel.text.GetHashCode());
         nameLabelBackground.color = cs.UiMatrixHeaders[nameHash % cs.UiMatrixHeaders.Length];
         controlsBackground.color = cs.UiMatrixControlsBackground;
+        stringFieldInvalidColor = cs.UiMatrixFieldTextInvalid;
         for(int i=0; i<fieldButtons.Length; i++){
             fieldButtons[i].SetFadeTransition(0, cs.UiMatrixFieldBackground, cs.UiMatrixFieldBackgroundHighlighted, cs.UiMatrixFieldBackgroundClicked, cs.UiMatrixFieldBackgroundDisabled);
         }
@@ -324,7 +271,9 @@ public class UIMatrix : MonoBehaviour {
         foreach(var img in controlsButtonImages){
             img.color = cs.UiMatrixControlsButtonElement;
         }
-        SetButtonImageColorAlpha(this.editable);    
+        SetButtonImageColorAlpha(this.editable);
+        variableContainer.LoadColors(cs);
+        UpdateMatrixAndGridView();
     }
 
     void SetButtonImageColorAlpha (bool editableValue) {
@@ -340,12 +289,12 @@ public class UIMatrix : MonoBehaviour {
         if(!initialized){
             SelfInit();
         }
-        LoadColors(ColorScheme.current);
-        ColorScheme.onChange += LoadColors;
+        LoadColorsAndUpdateEverything(ColorScheme.current);
+        ColorScheme.onChange += LoadColorsAndUpdateEverything;
     }
 
     void OnDisable () {
-        ColorScheme.onChange -= LoadColors;
+        ColorScheme.onChange -= LoadColorsAndUpdateEverything;
     }
 
     public void UpdateFieldStrings (string[] fieldStrings) {
@@ -358,7 +307,7 @@ public class UIMatrix : MonoBehaviour {
         fieldStrings.CopyTo(stringFieldValues, 0);       // copy because i don't want anyone (especially me) creating a mess by doing whatever with the original input array
     }
 
-    void UpdateMatrixAndUI () {
+    public void UpdateMatrixAndGridView () {
         bool matrixValid = true;
         var newMatrix = Matrix4x4.identity;
         for(int i=0; i<16; i++){
@@ -390,7 +339,8 @@ public class UIMatrix : MonoBehaviour {
             }
 
             string InvalidColors (string actualStringValue) {
-                return $"<color=red>{actualStringValue}</color>";       // TODO from colorscheme (and some color to hex (mesmer?))
+                string hex = ColorUtility.ToHtmlStringRGBA(stringFieldInvalidColor);
+                return $"<color=#{hex}>{actualStringValue}</color>";                    // TODO it would be nice if i wouldn't have to call update colors together with all that
             }
         }
         if(matrixValid){
@@ -401,27 +351,8 @@ public class UIMatrix : MonoBehaviour {
         calculatedMatrixUpToDate = true;
     }
 
-    public class Variable {
-
-        public string name;
-        public float floatValue;
-
-        public Variable (string inputName, float inputValue) {
-            if(inputName == null){
-                throw new System.NullReferenceException("Name can't be null!");
-            }
-            if(inputName.Length == 0){
-                throw new System.ArgumentException("Name can't be empty!");
-            }
-            var ch = inputName[0];
-            bool validFirstChar = (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z');
-            if(!validFirstChar){
-                throw new System.ArgumentException("Name MUST start with a letter!");
-            }
-            this.name = inputName;
-            this.floatValue = inputValue;
-        }
-
-    }
+    public void SetMatrixNotUpToDate () {
+        calculatedMatrixUpToDate = false;
+    }    
 
 }

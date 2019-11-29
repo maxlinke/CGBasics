@@ -36,15 +36,15 @@ public class UIMatrixVariableContainer : MonoBehaviour {
             Debug.LogError("Duplicate Init call, aborting!");
             return;
         }
-        // TODO some important stuff here i guess
         varFieldTemplate.SetGOActive(false);
         if(startExpanded){
             Expand();
         }else{
             Retract();
         }
-        // addButton.onClick.AddListener(() => {AddVariable(true);});
-        addButton.onClick.AddListener(() => {AddVariable("asdf", 5.25f);});
+        UpdateLabel();
+        addButton.onClick.AddListener(() => {AddVariable(true);});
+        // addButton.onClick.AddListener(() => {AddVariable("asdf", (2 * Random.value - 1) * 10f, true);});
         expandButton.onClick.AddListener(() => {ToggleExpand();});
         m_initialized = true;
     }
@@ -80,6 +80,10 @@ public class UIMatrixVariableContainer : MonoBehaviour {
         varFieldArea.SetSizeDeltaY(Mathf.Abs(y));
     }
 
+    void UpdateLabel () {
+        label.text = $"Variables ({variableFields.Count})";
+    }
+
     public void Retract () {
         varFieldArea.SetGOActive(false);
         footerArea.SetGOActive(false);
@@ -91,9 +95,11 @@ public class UIMatrixVariableContainer : MonoBehaviour {
 
     public void LoadColors (ColorScheme cs) {
         backgroundImage.color = cs.UiMatrixVariablesBackground;
-        label.color = cs.UiMatrixVariablesLabelAndIcons;            // TODO text = "Variables (numberOfFields)"
+        label.color = cs.UiMatrixVariablesLabelAndIcons;
         expandArrow.color = cs.UiMatrixVariablesLabelAndIcons;
         varFieldTemplate.LoadColors(cs);
+        varFieldTemplate.UpdateNameFieldColor(true);
+        varFieldTemplate.UpdateValueFieldColor(true);
         foreach(var vf in variableFields){
             vf.LoadColors(cs);
         }
@@ -118,6 +124,10 @@ public class UIMatrixVariableContainer : MonoBehaviour {
         foreach(var varField in variableFields){
             bool validName = VariableNameIsValid(varField.enteredName, varField);
             bool validValue = float.TryParse(varField.enteredValue, out float parsedValue);
+            if(varField.enteredValue == null || varField.enteredValue.Length < 1){
+                validValue = true;
+                parsedValue = 0;
+            }
             if(validName && validValue){
                 output.Add(varField.enteredName, parsedValue);
             }
@@ -155,6 +165,7 @@ public class UIMatrixVariableContainer : MonoBehaviour {
         newVar.rectTransform.SetParent(varFieldArea, false);
         newVar.LoadColors(ColorScheme.current);
         UpdateAddButtonInteractability();
+        UpdateLabel();
         Expand();       // does all the resizing. and since variables can't be created when retracted, this isn't an issue
         return newVar;
     }
@@ -185,6 +196,8 @@ public class UIMatrixVariableContainer : MonoBehaviour {
         if(variableFields.Contains(field)){
             variableFields.Remove(field);
             Destroy(field.gameObject);
+            UpdateLabel();
+            Expand();       // takes care of resizing
             UpdateOrSetDirty(updateEverything);
             return;
         }
@@ -196,6 +209,8 @@ public class UIMatrixVariableContainer : MonoBehaviour {
             Destroy(variableFields[i].gameObject);
         }
         variableFields.Clear();
+        UpdateLabel();
+        Expand();           // takes care of resizing
         UpdateOrSetDirty(updateEverything);
     }
 

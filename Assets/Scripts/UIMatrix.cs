@@ -88,10 +88,10 @@ public class UIMatrix : MonoBehaviour {
     }
 
     void Update () {
-        if(Input.GetKeyDown(KeyCode.E)){
+        if(Input.GetKeyDown(KeyCode.Keypad0)){
             this.editable = !this.editable;
         }
-        if(Input.GetKeyDown(KeyCode.Alpha1)){
+        if(Input.GetKeyDown(KeyCode.Keypad1)){
             UpdateFieldStrings(new string[]{
                 "2", "0", "0", "200", 
                 "0", "1", "0", "-200",
@@ -99,7 +99,7 @@ public class UIMatrix : MonoBehaviour {
                 "asdf", "0", "0", "1"
             });
             UpdateMatrixAndGridView();
-        }else if(Input.GetKeyDown(KeyCode.Alpha2)){
+        }else if(Input.GetKeyDown(KeyCode.Keypad2)){
             UpdateFieldStrings(new string[]{
                 "1", "0", "0", "0", 
                 "0", "1", "0", "0",

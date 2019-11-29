@@ -152,6 +152,7 @@ public class ColorScheme : ScriptableObject {
     [Header("UI Matrix Variables")]
     [SerializeField] Color uiMatrixVariablesBackground;
     [SerializeField] Color uiMatrixVariablesLabelAndIcons;
+    [SerializeField] Color uiMatrixVariablesLabelAndIconsDisabled;
     [SerializeField] Color uiMatrixVariablesFieldBackground;
     [SerializeField] Color uiMatrixVariablesFieldBackgroundHover;
     [SerializeField] Color uiMatrixVariablesFieldBackgroundClick;
@@ -161,6 +162,7 @@ public class ColorScheme : ScriptableObject {
 
     public Color UiMatrixVariablesBackground => uiMatrixVariablesBackground;
     public Color UiMatrixVariablesLabelAndIcons => uiMatrixVariablesLabelAndIcons;
+    public Color UiMatrixVariablesLabelAndIconsDisabled => uiMatrixVariablesLabelAndIconsDisabled;
     public Color UiMatrixVariablesFieldBackground => uiMatrixVariablesFieldBackground;
     public Color UiMatrixVariablesFieldBackgroundHover => uiMatrixVariablesFieldBackgroundHover;
     public Color UiMatrixVariablesFieldBackgroundClick => uiMatrixVariablesFieldBackgroundClick;

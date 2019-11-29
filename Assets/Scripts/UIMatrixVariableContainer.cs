@@ -5,20 +5,46 @@ using TMPro;
 
 public class UIMatrixVariableContainer : MonoBehaviour {
 
+    private const int MAX_VARIABLE_COUNT = 10;
+
     [SerializeField] UIMatrix parentMatrix;
 
     [Header("Components")]
+    [SerializeField] RectTransform m_rectTransform;
+    [SerializeField] RectTransform headerArea;
     [SerializeField] Image backgroundImage;
     [SerializeField] Button expandButton;
     [SerializeField] TextMeshProUGUI label;
+    [SerializeField, Tooltip("Should be facing down in standard rotation!")] Image expandArrow;
+    [SerializeField] RectTransform varFieldArea;
+    [SerializeField] RectTransform footerArea;
+    [SerializeField] Button addButton;
 
-    List<Variable> variables = new List<Variable>();
+    [Header("Var Field Template")]
+    [SerializeField] UIMatrixVariableField varFieldTemplate;
+
+    List<UIMatrixVariableField> variableFields = new List<UIMatrixVariableField>();
 
     bool m_expanded;
     bool m_editable;
+    bool m_initialized;
 
-    void Awake () {
+    public RectTransform rectTransform => m_rectTransform;
 
+    public void Initialize (bool startExpanded) {
+        if(m_initialized){
+            Debug.LogError("Duplicate Init call, aborting!");
+            return;
+        }
+        // TODO some important stuff here i guess
+        varFieldTemplate.SetGOActive(false);
+        if(startExpanded){
+            Expand();
+        }else{
+            Retract();
+        }
+        expandButton.onClick.AddListener(() => {ToggleExpand();});
+        m_initialized = true;
     }
 
     public void ToggleExpand () {
@@ -30,59 +56,100 @@ public class UIMatrixVariableContainer : MonoBehaviour {
     }
 
     public void Expand () {
-        // also has to message the parent to resize itself
+        varFieldArea.SetGOActive(true);
+        UpdateVarFieldArea();
+        footerArea.SetGOActive(true);
+        expandArrow.transform.localEulerAngles = new Vector3(0, 0, 0);
+        float totalHeight = 0;
+        totalHeight += headerArea.rect.height;
+        totalHeight += varFieldArea.rect.height;
+        totalHeight += footerArea.rect.height;
+        rectTransform.SetSizeDeltaY(totalHeight);
+        m_expanded = true;
+        parentMatrix.AutoResize();
+    }
+
+    void UpdateVarFieldArea () {
+        float y = 0;
+        foreach(var varField in variableFields){
+            varField.rectTransform.anchoredPosition = new Vector2(0, y);
+            y+=varField.rectTransform.rect.height;
+        }
+        varFieldArea.SetSizeDeltaY(y);
     }
 
     public void Retract () {
-        // also has to message the parent to resize itself
+        varFieldArea.SetGOActive(false);
+        footerArea.SetGOActive(false);
+        rectTransform.SetSizeDeltaY(headerArea.rect.height);
+        expandArrow.transform.localEulerAngles = new Vector3(0, 0, 90);
+        m_expanded = false;
+        parentMatrix.AutoResize();
     }
 
     public void LoadColors (ColorScheme cs) {
         backgroundImage.color = cs.UiMatrixVariablesBackground;
-        expandButton.SetFadeTransitionDefaultAndDisabled(cs.UiMatrixVariablesLabelAndIcons, Color.magenta);     // should NEVER be disabled!
-        // the add-button can be disabled tho. the usual half alpha i guess.
-        label.color = cs.UiMatrixVariablesLabelAndIcons;
+        label.color = cs.UiMatrixVariablesLabelAndIcons;            // TODO text = "Variables (numberOfFields)"
+        expandArrow.color = cs.UiMatrixVariablesLabelAndIcons;
+        varFieldTemplate.LoadColors(cs);
+        foreach(var vf in variableFields){
+            vf.LoadColors(cs);
+        }
+        addButton.SetFadeTransitionDefaultAndDisabled(cs.UiMatrixVariablesLabelAndIcons, cs.UiMatrixVariablesLabelAndIconsDisabled);
     }
 
     public void UpdateEditability () {
         this.m_editable = parentMatrix.editable;
-        if(m_editable){
+        foreach(var varField in variableFields){
+            varField.interactable = m_editable;
+        }
+        UpdateAddButtonInteractability();
+    }
 
-        }else{
-
-        }   
+    void UpdateAddButtonInteractability () {
+        addButton.interactable = m_editable && (variableFields.Count < MAX_VARIABLE_COUNT);
     }
 
     public Dictionary<string, float> GetVariableMap () {
-        return null;
+        return new Dictionary<string, float>();
     }
 
     public void AddVariable (string varName, float varValue, bool updateEverything = true) {
-        if(TryGetVariable(varName, out _)){
-            Debug.LogWarning("TODO also do a user-warning!");   // TODO also do a user-warning!
-            return;
-        }
-        variables.Add(new Variable(varName, varValue));
-        UpdateOrSetDirty(updateEverything);
+        // if(TryGetVariable(varName, out _)){
+        //     Debug.LogWarning("TODO also do a user-warning!");   // TODO also do a user-warning!
+        //     return;
+        // }
+        // // variables.Add(new Variable(varName, varValue));
+        // UpdateOrSetDirty(updateEverything);
     }
 
     public void EditVariable (string oldName, string newName, float newValue, bool updateEverything = true) {
-        if(TryGetVariable(oldName, out var foundVar)){
-            foundVar.name = newName;
-            foundVar.floatValue = newValue;
+        // if(TryGetVariable(oldName, out var foundVar)){
+        //     foundVar.name = newName;
+        //     foundVar.floatValue = newValue;
+        //     UpdateOrSetDirty(updateEverything);
+        // }else{
+        //     ThrowVarNotFoundException(oldName);
+        // }
+    }
+
+    public void RemoveVariable (UIMatrixVariableField field, bool updateEverything = true) {
+        if(variableFields.Contains(field)){
+            variableFields.Remove(field);
+            Destroy(field.gameObject);
             UpdateOrSetDirty(updateEverything);
-        }else{
-            ThrowVarNotFoundException(oldName);
+            return;
         }
+        Debug.LogError($"Asked to delete an untracked {nameof(UIMatrixVariableField)} ({field.name})! This is an issue!");
     }
 
     public void RemoveVariable (string varName, bool updateEverything = true) {
-        if(TryGetVariable(varName, out var foundVar)){
-            variables.Remove(foundVar);
-            UpdateOrSetDirty(updateEverything);
-        }else{
-            ThrowVarNotFoundException(varName);
-        }
+        // if(TryGetVariable(varName, out var foundVar)){
+        //     // variables.Remove(foundVar);
+        //     UpdateOrSetDirty(updateEverything);
+        // }else{
+        //     ThrowVarNotFoundException(varName);
+        // }
     }
 
     void ThrowVarNotFoundException (string varName) {
@@ -97,44 +164,34 @@ public class UIMatrixVariableContainer : MonoBehaviour {
         }
     }
 
-    public bool TryGetVariable (string varName, out Variable outputVariable) {
-        foreach(var variable in variables){
-            if(variable.name.Equals(varName)){
-                outputVariable = variable;
-                return true;
+    public bool VariableNameIsValid (string potentialVarName, UIMatrixVariableField askingField) {
+        if(potentialVarName == null){
+            return false;
+        }
+        if(potentialVarName.Length < 1){
+            return false;
+        }
+        var fc = potentialVarName[0];
+        bool validFirstChar = (fc >= 'a' && fc <= 'z') || (fc >= 'A' && fc <= 'Z');
+        if(!validFirstChar){
+            return false;
+        }
+        foreach(var ch in potentialVarName){
+            if(!(ch >= 'a' &&  ch <= 'z') || !(ch >= 'A' && ch <= 'Z') || !(ch >= '0' && ch <= '9')){
+                return false;
             }
         }
-        outputVariable = null;
-        return false;
+        foreach(var field in variableFields){
+            if(field != askingField && field.enteredName == potentialVarName){
+                return false;
+            }
+        }
+        return true;
     }   
 
     public void RemoveAllVariables (bool updateEverything = true) {
-        variables.Clear();
+        // variables.Clear();
         UpdateOrSetDirty(updateEverything);
-    }
-
-    // instead of this, just reference the tmps?
-    public class Variable {
-
-        public string name;
-        public float floatValue;
-
-        public Variable (string inputName, float inputValue) {
-            if(inputName == null){
-                throw new System.NullReferenceException("Name can't be null!");
-            }
-            if(inputName.Length == 0){
-                throw new System.ArgumentException("Name can't be empty!");
-            }
-            var ch = inputName[0];
-            bool validFirstChar = (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z');
-            if(!validFirstChar){
-                throw new System.ArgumentException("Name MUST start with a letter!");
-            }
-            this.name = inputName;
-            this.floatValue = inputValue;
-        }
-
     }
 	
 }

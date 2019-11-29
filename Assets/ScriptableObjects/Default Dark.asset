@@ -65,6 +65,7 @@ MonoBehaviour:
   uiMatrixControlsButtonElement: {r: 0.8, g: 0.8, b: 0.8, a: 1}
   uiMatrixVariablesBackground: {r: 0.35, g: 0.35, b: 0.35, a: 1}
   uiMatrixVariablesLabelAndIcons: {r: 0.8, g: 0.8, b: 0.8, a: 1}
+  uiMatrixVariablesLabelAndIconsDisabled: {r: 0.8, g: 0.8, b: 0.8, a: 0.29803923}
   uiMatrixVariablesFieldBackground: {r: 0, g: 0, b: 0, a: 0.29803923}
   uiMatrixVariablesFieldBackgroundHover: {r: 1, g: 1, b: 1, a: 0.2509804}
   uiMatrixVariablesFieldBackgroundClick: {r: 1, g: 1, b: 1, a: 0.101960786}

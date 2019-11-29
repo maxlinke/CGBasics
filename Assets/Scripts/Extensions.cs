@@ -76,6 +76,18 @@ public static class Extensions {
         SetToFillWithMargins(rt, margins.x, margins.y, margins.z, margins.w);
     }
 
+    public static void SetSizeDelta (this RectTransform rt, float x, float y) {
+        rt.sizeDelta = new Vector2(x, y);
+    }
+
+    public static void SetSizeDeltaX (this RectTransform rt, float x) {
+        rt.SetSizeDelta(x, rt.sizeDelta.y);
+    }
+
+    public static void SetSizeDeltaY (this RectTransform rt, float y) {
+        rt.SetSizeDelta(rt.sizeDelta.x, y);
+    }
+
     public static void SetFadeTransition (this Selectable selectable, float fadeDuration, Color defaultColor, Color hoverColor, Color clickColor, Color disabledColor) {
         selectable.transition = Selectable.Transition.ColorTint;
         var colorBlock = new ColorBlock();
@@ -94,6 +106,10 @@ public static class Extensions {
 
     public static void SetFadeTransitionDefaultAndDisabled (this Selectable selectable, Color defaultColor, Color disabledColor) {
         selectable.SetFadeTransition(0f, defaultColor, defaultColor, defaultColor, disabledColor);
+    }
+
+    public static Color WithHalfAlpha (this Color col) {
+        return new Color(col.r, col.g, col.b, col.a * 0.5f);
     }
 	
 }

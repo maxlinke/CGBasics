@@ -9,6 +9,7 @@ public class UIMatrix : MonoBehaviour {
     // maybe set a flag when it gets updated in some capacity and then if someone wants the actual matrix, recalculate it AND RESET THE FLAG
 
     [Header("Components")]
+    [SerializeField] RectTransform m_rectTransform;
     [SerializeField] UIMatrixVariableContainer variableContainer;
     [SerializeField] Image background;
     [SerializeField] Image outline;                 // what do i even need this for?
@@ -38,11 +39,13 @@ public class UIMatrix : MonoBehaviour {
     
     Matrix4x4 calculatedMatrix;
     bool calculatedMatrixUpToDate;      // TODO if ANY modification, set this to false!!!
+    bool calculatedMatrixIsDisplayedMatrix;
     Button[] headerButtons;
     Image[] headerButtonImages;
     Button[] controlsButtons;
     Image[] controlsButtonImages;
     Color stringFieldInvalidColor;
+    Button matrixInvertButton;
 
     bool m_editable;
     public bool editable {
@@ -53,10 +56,15 @@ public class UIMatrix : MonoBehaviour {
                 b.interactable = value;
             }
             foreach(var b in controlsButtons){
-                b.interactable = value;
+                if(b == matrixInvertButton){
+                    b.interactable = value && IsInvertible;
+                }else{
+                    b.interactable = value;
+                }
             }
             SetButtonImageColorAlpha(value);
             m_editable = value;
+            VariableContainer.UpdateEditability();
         }
     }
 
@@ -69,12 +77,36 @@ public class UIMatrix : MonoBehaviour {
         }
     }
 
-    public bool IsInvertible => (MatrixValue.determinant != 0);
+    public bool IsInvertible => (MatrixValue.determinant != 0 && calculatedMatrixIsDisplayedMatrix);
     public UIMatrixVariableContainer VariableContainer => variableContainer;        // spoken to by the camera i guess.
+    public RectTransform rectTransform => m_rectTransform;
 
     void Awake () {
         if(!initialized){
             SelfInit();
+        }
+    }
+
+    void Update () {
+        if(Input.GetKeyDown(KeyCode.E)){
+            this.editable = !this.editable;
+        }
+        if(Input.GetKeyDown(KeyCode.Alpha1)){
+            UpdateFieldStrings(new string[]{
+                "2", "0", "0", "200", 
+                "0", "1", "0", "-200",
+                "0", "0", "1", "-30000",
+                "asdf", "0", "0", "1"
+            });
+            UpdateMatrixAndGridView();
+        }else if(Input.GetKeyDown(KeyCode.Alpha2)){
+            UpdateFieldStrings(new string[]{
+                "1", "0", "0", "0", 
+                "0", "1", "0", "0",
+                "0", "0", "1", "0",
+                "1", "1", "1", "1"
+            });
+            UpdateMatrixAndGridView();
         }
     }
 
@@ -103,6 +135,7 @@ public class UIMatrix : MonoBehaviour {
         UpdateFieldStrings(fieldInitializers);
         UpdateMatrixAndGridView();
         outline.SetGOActive(false);
+        VariableContainer.Initialize(true);
 
         this.editable = shouldBeEditable;
         initialized = true;
@@ -161,10 +194,10 @@ public class UIMatrix : MonoBehaviour {
             CreateButton(controlsArea, "Rename", TEMPBUTTONBACKGROUND, UISprites.GetSprite(UISprites.ID.MatrixRename), true, 1, controlsButtons, controlsButtonImages, 1, null);        // except for this one. this one opens the rename thingy.
             CreateButton(controlsArea, "Delete", TEMPBUTTONBACKGROUND, UISprites.GetSprite(UISprites.ID.MatrixDelete), true, 2, controlsButtons, controlsButtonImages, 2, null);
             CreateButton(controlsArea, "Set Identity", TEMPBUTTONBACKGROUND, UISprites.GetSprite(UISprites.ID.MatrixIdentity), false, 0, controlsButtons, controlsButtonImages, 3, SetIdentity);
-            CreateButton(controlsArea, "Invert", TEMPBUTTONBACKGROUND, UISprites.GetSprite(UISprites.ID.MatrixInvert), false, 1, controlsButtons, controlsButtonImages, 4, Invert);
+            matrixInvertButton = CreateButton(controlsArea, "Invert", TEMPBUTTONBACKGROUND, UISprites.GetSprite(UISprites.ID.MatrixInvert), false, 1, controlsButtons, controlsButtonImages, 4, Invert);
             CreateButton(controlsArea, "Transpose", TEMPBUTTONBACKGROUND, UISprites.GetSprite(UISprites.ID.MatrixTranspose), false, 2, controlsButtons, controlsButtonImages, 5, Transpose);
 
-            void CreateButton (RectTransform parent, string newButtonName, Sprite newButtonBackgroundImage, Sprite newButtonMainImage, bool leftBound, int displayIndex, Button[] targetButtonArray, Image[] targetImageArray, int arrayIndex, System.Action onClickAction) {
+            Button CreateButton (RectTransform parent, string newButtonName, Sprite newButtonBackgroundImage, Sprite newButtonMainImage, bool leftBound, int displayIndex, Button[] targetButtonArray, Image[] targetImageArray, int arrayIndex, System.Action onClickAction) {
                 var newlyCreatedButtonRT = new GameObject(newButtonName, typeof(RectTransform), typeof(Image), typeof(Button)).GetComponent<RectTransform>();
                 newlyCreatedButtonRT.SetParent(parent, false);
                 // the actual layout here
@@ -194,17 +227,32 @@ public class UIMatrix : MonoBehaviour {
                 // putting it into the arrays
                 targetButtonArray[arrayIndex] = newlyCreatedButton;
                 targetImageArray[arrayIndex] = newlyCreatedButtonMainImage;
+                return newlyCreatedButton;
             }            
         }
+    }
+
+    public void AutoResize () {
+        float totalHeight = 0;
+        totalHeight += headerArea.rect.height;
+        totalHeight += controlsArea.rect.height;
+        totalHeight += matrixArea.rect.height;
+        totalHeight += VariableContainer.rectTransform.rect.height;
+        rectTransform.SetSizeDeltaY(totalHeight);
     }
 
     public void SetName (string newName) {
         this.gameObject.name = newName;
         nameLabel.text = newName;
         nameLabelDropShadow.text = newName;
+        SetNameLabelColorBasedOnNameHash(ColorScheme.current);
     }
 
-    
+    void SetStringFieldValuesFromMatrix (Matrix4x4 fromMatrix) {
+        for(int i=0; i<16; i++){
+            stringFieldValues[i] = fromMatrix[i].ToString();
+        }
+    }
 
     public void Transpose () {
         for(int y=0; y<3; y++){
@@ -222,12 +270,7 @@ public class UIMatrix : MonoBehaviour {
 
     public void SetIdentity () {
         VariableContainer.RemoveAllVariables(false);
-        stringFieldValues = new string[]{
-            "1", "0", "0", "0",
-            "0", "1", "0", "0",
-            "0", "0", "1", "0",
-            "0", "0", "0", "1"
-        };
+        SetStringFieldValuesFromMatrix(Matrix4x4.identity);
         UpdateMatrixAndGridView();
     }
 
@@ -236,12 +279,15 @@ public class UIMatrix : MonoBehaviour {
             Debug.LogWarning("TODO put a debug message into the message thingy");   // TODO put a debug message into the message thingy
             return;                                                                 // or simply disable the invert button everytime the matrix is updated and non invertible... (sounds better and simpler)
         }
-        var temp = calculatedMatrix.inverse;
+        var inv = calculatedMatrix.inverse;
         VariableContainer.RemoveAllVariables(false);
-        for(int i=0; i<16; i++){
-            stringFieldValues[i] = temp[i].ToString();
-        }
+        SetStringFieldValuesFromMatrix(inv);
         UpdateMatrixAndGridView();
+    }
+
+    void SetNameLabelColorBasedOnNameHash (ColorScheme cs) {
+        int nameHash = System.Math.Abs(this.nameLabel.text.GetHashCode());
+        nameLabelBackground.color = cs.UiMatrixHeaders[nameHash % cs.UiMatrixHeaders.Length];
     }
 
     void LoadColorsAndUpdateEverything (ColorScheme cs) {
@@ -249,8 +295,7 @@ public class UIMatrix : MonoBehaviour {
         outline.color = cs.UiMatrixOutline;
         nameLabel.color = cs.UiMatrixLabel;
         nameLabelDropShadow.color = cs.UiMatrixLabelDropShadow;
-        int nameHash = System.Math.Abs(this.nameLabel.text.GetHashCode());
-        nameLabelBackground.color = cs.UiMatrixHeaders[nameHash % cs.UiMatrixHeaders.Length];
+        SetNameLabelColorBasedOnNameHash(cs);
         controlsBackground.color = cs.UiMatrixControlsBackground;
         stringFieldInvalidColor = cs.UiMatrixFieldTextInvalid;
         for(int i=0; i<fieldButtons.Length; i++){
@@ -312,7 +357,7 @@ public class UIMatrix : MonoBehaviour {
         var newMatrix = Matrix4x4.identity;
         for(int i=0; i<16; i++){
             try{
-                var parsed = StringExpressions.ParseExpression(stringFieldValues[i], null);  // TODO variables
+                var parsed = StringExpressions.ParseExpression(stringFieldValues[i], variableContainer.GetVariableMap());  // TODO variables
                 if(float.IsNaN(parsed)){
                     matrixValid = false;
                     fieldTextMeshes[i].text = InvalidColors("NaN");
@@ -345,8 +390,12 @@ public class UIMatrix : MonoBehaviour {
         }
         if(matrixValid){
             calculatedMatrix = newMatrix;
+            calculatedMatrixIsDisplayedMatrix = true;
+            matrixInvertButton.interactable = editable;
         }else{
             calculatedMatrix = Matrix4x4.identity;
+            calculatedMatrixIsDisplayedMatrix = false;
+            matrixInvertButton.interactable = false;
         }
         calculatedMatrixUpToDate = true;
     }

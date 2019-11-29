@@ -43,6 +43,8 @@ public class UIMatrixVariableContainer : MonoBehaviour {
         }else{
             Retract();
         }
+        // addButton.onClick.AddListener(() => {AddVariable(true);});
+        addButton.onClick.AddListener(() => {AddVariable("asdf", 5.25f);});
         expandButton.onClick.AddListener(() => {ToggleExpand();});
         m_initialized = true;
     }
@@ -73,9 +75,9 @@ public class UIMatrixVariableContainer : MonoBehaviour {
         float y = 0;
         foreach(var varField in variableFields){
             varField.rectTransform.anchoredPosition = new Vector2(0, y);
-            y+=varField.rectTransform.rect.height;
+            y-=varField.rectTransform.rect.height;
         }
-        varFieldArea.SetSizeDeltaY(y);
+        varFieldArea.SetSizeDeltaY(Mathf.Abs(y));
     }
 
     public void Retract () {
@@ -95,6 +97,7 @@ public class UIMatrixVariableContainer : MonoBehaviour {
         foreach(var vf in variableFields){
             vf.LoadColors(cs);
         }
+        UpdateFieldColors();
         addButton.SetFadeTransitionDefaultAndDisabled(cs.UiMatrixVariablesLabelAndIcons, cs.UiMatrixVariablesLabelAndIconsDisabled);
     }
 
@@ -111,19 +114,64 @@ public class UIMatrixVariableContainer : MonoBehaviour {
     }
 
     public Dictionary<string, float> GetVariableMap () {
-        return new Dictionary<string, float>();
+        var output = new Dictionary<string, float>();
+        foreach(var varField in variableFields){
+            bool validName = VariableNameIsValid(varField.enteredName, varField);
+            bool validValue = float.TryParse(varField.enteredValue, out float parsedValue);
+            if(validName && validValue){
+                output.Add(varField.enteredName, parsedValue);
+            }
+        }
+        return output;
     }
 
-    public void AddVariable (string varName, float varValue, bool updateEverything = true) {
-        // if(TryGetVariable(varName, out _)){
-        //     Debug.LogWarning("TODO also do a user-warning!");   // TODO also do a user-warning!
-        //     return;
-        // }
-        // // variables.Add(new Variable(varName, varValue));
-        // UpdateOrSetDirty(updateEverything);
+    public UIMatrixVariableField AddVariable (bool updateEverything = true) {
+        if(!CheckIfVariableCanBeAdded()){
+            return null;
+        }
+        var newVar = CreateNewVariableField();
+        newVar.Initialize(this, false);
+        UpdateOrSetDirty(updateEverything);
+        return newVar;
     }
 
-    public void EditVariable (string oldName, string newName, float newValue, bool updateEverything = true) {
+    public UIMatrixVariableField AddVariable (string varName, float varValue, bool updateEverything = true) {
+        if(!CheckIfVariableCanBeAdded()){
+            return null;
+        }
+        var newVar = CreateNewVariableField();
+        newVar.Initialize(this, true, varName, varValue);
+        UpdateOrSetDirty(updateEverything);
+        return newVar;
+    }
+
+    private UIMatrixVariableField CreateNewVariableField () {
+        if(!CheckIfVariableCanBeAdded()){
+            throw new System.AccessViolationException("WHAT?!?!?!?!");
+        }
+        var newVar = Instantiate(varFieldTemplate);
+        variableFields.Add(newVar);
+        newVar.SetGOActive(true);
+        newVar.rectTransform.SetParent(varFieldArea, false);
+        newVar.LoadColors(ColorScheme.current);
+        UpdateAddButtonInteractability();
+        Expand();       // does all the resizing. and since variables can't be created when retracted, this isn't an issue
+        return newVar;
+    }
+
+    bool CheckIfVariableCanBeAdded () {
+        if(variableFields.Count >= MAX_VARIABLE_COUNT){
+            Debug.LogError("Asked to create an additional variable, even though we're already at max number, this shouldn't happen! Aborting.");
+            return false;
+        }
+        if(!m_expanded){
+            Debug.LogError("Asked to add variable while not expanded, this is not allowed! Aborting.");
+            return false;
+        }
+        return true;
+    }
+
+    public void EditVariable (string varName, float newValue, bool updateEverything = true) {
         // if(TryGetVariable(oldName, out var foundVar)){
         //     foundVar.name = newName;
         //     foundVar.floatValue = newValue;
@@ -140,16 +188,27 @@ public class UIMatrixVariableContainer : MonoBehaviour {
             UpdateOrSetDirty(updateEverything);
             return;
         }
-        Debug.LogError($"Asked to delete an untracked {nameof(UIMatrixVariableField)} ({field.name})! This is an issue!");
+        ThrowVarNotFoundException(field.gameObject.name);
+    }
+    
+    public void RemoveAllVariables (bool updateEverything = true) {
+        for(int i=0; i<variableFields.Count; i++){
+            Destroy(variableFields[i].gameObject);
+        }
+        variableFields.Clear();
+        UpdateOrSetDirty(updateEverything);
     }
 
-    public void RemoveVariable (string varName, bool updateEverything = true) {
-        // if(TryGetVariable(varName, out var foundVar)){
-        //     // variables.Remove(foundVar);
-        //     UpdateOrSetDirty(updateEverything);
-        // }else{
-        //     ThrowVarNotFoundException(varName);
-        // }
+    public void VariableUpdated (UIMatrixVariableField field, bool updateEverything = true) {
+        UpdateFieldColors();
+        UpdateOrSetDirty(updateEverything);
+    }
+
+    void UpdateFieldColors () {
+        foreach(var field in variableFields){
+            field.UpdateNameFieldColor(VariableNameIsValid(field.enteredName, field) || field.enteredName == null || field.enteredName.Length < 1);
+            field.UpdateValueFieldColor(float.TryParse(field.enteredValue, out _) || field.enteredValue == null || field.enteredValue.Length < 1);
+        }
     }
 
     void ThrowVarNotFoundException (string varName) {
@@ -177,21 +236,20 @@ public class UIMatrixVariableContainer : MonoBehaviour {
             return false;
         }
         foreach(var ch in potentialVarName){
-            if(!(ch >= 'a' &&  ch <= 'z') || !(ch >= 'A' && ch <= 'Z') || !(ch >= '0' && ch <= '9')){
+            if(!(ch >= 'a' &&  ch <= 'z') && !(ch >= 'A' && ch <= 'Z') && !(ch >= '0' && ch <= '9')){
                 return false;
             }
         }
-        foreach(var field in variableFields){
-            if(field != askingField && field.enteredName == potentialVarName){
-                return false;
+        List<string> nameCache = new List<string>();
+        for(int i=0; i<variableFields.Count; i++){
+            var field = variableFields[i];
+            if(field == askingField){
+                return !nameCache.Contains(potentialVarName);
             }
+            nameCache.Add(field.enteredName);
         }
-        return true;
-    }   
-
-    public void RemoveAllVariables (bool updateEverything = true) {
-        // variables.Clear();
-        UpdateOrSetDirty(updateEverything);
+        Debug.LogError("Iterated over entire collection and didn't find object ONCE! This is an issue!", askingField.gameObject);
+        return false;
     }
 	
 }

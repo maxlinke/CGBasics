@@ -369,12 +369,14 @@ public class UIMatrix : MonoBehaviour {
                     fieldTextMeshes[i].text = InvalidColors("-Inf");
                 }else{
                     newMatrix[i] = parsed;
-                    var showVal = $"{parsed:F2}";
+                    var showVal = $"{parsed:F3}";
                     if(showVal.Contains(".")){
                         while(showVal[showVal.Length-1] == '0'){
                             showVal = showVal.Substring(0, showVal.Length - 1);
                         }
-                        showVal = showVal.Substring(0, showVal.Length - 1);
+                        if(showVal[showVal.Length-1] == '.'){
+                            showVal = showVal.Substring(0, showVal.Length - 1);
+                        }
                     }
                     fieldTextMeshes[i].text = showVal;
                 }

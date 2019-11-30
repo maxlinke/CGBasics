@@ -18,14 +18,6 @@ public class UIMatrixVariableField : MonoBehaviour {
     public string enteredName => varNameField.text;
     public string enteredValue => varValueField.text;
 
-    public bool interactable {
-        set {
-            varNameField.interactable = value;
-            varValueField.interactable = value;
-            deleteButton.interactable = value;
-        }
-    }
-
     public void Initialize (UIMatrixVariableContainer parentContainer, bool initWithValues = false, string initialName = "", float initialValue = 0) {
         if(m_initialized){
             Debug.LogWarning("Duplicate initialization call! Aborting...");
@@ -64,6 +56,28 @@ public class UIMatrixVariableField : MonoBehaviour {
         varValueField.text = newValue.ToString();
         if(updateEverything){
             varValueField.onEndEdit.Invoke(varValueField.text);
+        }
+    }
+
+    public void SetEditability (UIMatrix.Editability editability) {
+        switch(editability){
+            case UIMatrix.Editability.FULL:
+                varNameField.interactable = true;
+                varValueField.interactable = true;
+                deleteButton.interactable = true;
+                return;
+            case UIMatrix.Editability.VARIABLE_VALUES_ONLY:
+                varNameField.interactable = false;
+                varValueField.interactable = true;
+                deleteButton.interactable = false;
+                return;
+            case UIMatrix.Editability.NONE:
+                varNameField.interactable = false;
+                varValueField.interactable = false;
+                deleteButton.interactable = false;
+                return;
+            default: 
+                throw new System.ArgumentException($"Unknown {nameof(UIMatrix.Editability)} \"{editability}\"!");
         }
     }
 

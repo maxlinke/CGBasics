@@ -25,8 +25,8 @@ public class UIMatrixVariableContainer : MonoBehaviour {
 
     List<UIMatrixVariableField> variableFields = new List<UIMatrixVariableField>();
 
+    UIMatrix.Editability m_editability;
     bool m_expanded;
-    bool m_editable;
     bool m_initialized;
 
     public RectTransform rectTransform => m_rectTransform;
@@ -107,15 +107,15 @@ public class UIMatrixVariableContainer : MonoBehaviour {
     }
 
     public void UpdateEditability () {
-        this.m_editable = parentMatrix.editable;
+        this.m_editability = parentMatrix.editability;
         foreach(var varField in variableFields){
-            varField.interactable = m_editable;
+            varField.SetEditability(m_editability);
         }
         UpdateAddButtonInteractability();
     }
 
     void UpdateAddButtonInteractability () {
-        addButton.interactable = m_editable && (variableFields.Count < MAX_VARIABLE_COUNT);
+        addButton.interactable = (m_editability == UIMatrix.Editability.FULL) && (variableFields.Count < MAX_VARIABLE_COUNT);
     }
 
     public Dictionary<string, float> GetVariableMap () {
@@ -163,7 +163,7 @@ public class UIMatrixVariableContainer : MonoBehaviour {
         newVar.SetGOActive(true);
         newVar.rectTransform.SetParent(varFieldArea, false);
         newVar.LoadColors(ColorScheme.current);
-        newVar.interactable = m_editable;
+        newVar.SetEditability(m_editability);
         UpdateAddButtonInteractability();
         UpdateLabel();
         Expand();       // does all the resizing. and since variables can't be created when retracted, this isn't an issue

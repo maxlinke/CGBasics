@@ -8,6 +8,12 @@ public class UIMatrix : MonoBehaviour {
     // TODO only calculate the matrix IF NEEDED!!!
     // maybe set a flag when it gets updated in some capacity and then if someone wants the actual matrix, recalculate it AND RESET THE FLAG
 
+    public enum Editability {
+        FULL,
+        VARIABLE_VALUES_ONLY,
+        NONE
+    }
+
     [Header("Components")]
     [SerializeField] RectTransform m_rectTransform;
     [SerializeField] UIMatrixVariableContainer variableContainer;
@@ -47,23 +53,45 @@ public class UIMatrix : MonoBehaviour {
     Color stringFieldInvalidColor;
     Button matrixInvertButton;
 
-    bool m_editable;
-    public bool editable {
+    // bool m_editable;
+    // public bool editable {
+    //     get {
+    //         return m_editable;
+    //     } set {
+    //         foreach(var b in headerButtons){
+    //             b.interactable = value;
+    //         }
+    //         foreach(var b in controlsButtons){
+    //             if(b == matrixInvertButton){
+    //                 b.interactable = value && IsInvertible;
+    //             }else{
+    //                 b.interactable = value;
+    //             }
+    //         }
+    //         SetButtonImageColorAlpha(value);
+    //         m_editable = value;
+    //         VariableContainer.UpdateEditability();
+    //     }
+    // }
+
+    Editability m_editability;
+    public Editability editability {
         get {
-            return m_editable;
+            return m_editability;
         } set {
+            bool buttonsInteractable = (value == Editability.FULL);
             foreach(var b in headerButtons){
-                b.interactable = value;
+                b.interactable = buttonsInteractable;
             }
             foreach(var b in controlsButtons){
                 if(b == matrixInvertButton){
-                    b.interactable = value && IsInvertible;
+                    b.interactable = buttonsInteractable && IsInvertible;
                 }else{
-                    b.interactable = value;
+                    b.interactable = buttonsInteractable;
                 }
             }
-            SetButtonImageColorAlpha(value);
-            m_editable = value;
+            SetButtonImageColorAlpha(buttonsInteractable);
+            this.m_editability = value;
             VariableContainer.UpdateEditability();
         }
     }
@@ -89,7 +117,11 @@ public class UIMatrix : MonoBehaviour {
 
     void Update () {
         if(Input.GetKeyDown(KeyCode.Keypad0)){
-            this.editable = !this.editable;
+            var asInt = (int)(this.editability);
+            var enumValues = System.Enum.GetValues(typeof(Editability));
+            asInt = (asInt + 1) % enumValues.Length;
+            this.editability = (Editability)asInt;
+            Debug.Log($"Now: {this.editability} ({Time.frameCount})");
         }
         if(Input.GetKeyDown(KeyCode.Keypad1)){
             UpdateFieldStrings(new string[]{
@@ -124,7 +156,7 @@ public class UIMatrix : MonoBehaviour {
             "0", "1", "0", "-200",
             "0", "0", "1", "-30000",
             "asdf", "0", "0", "1"
-        }, true);
+        }, Editability.FULL);
         // Initialize(new string[]{
         //     "1", "0", "0", "0", 
         //     "0", "1", "0", "0",
@@ -134,7 +166,7 @@ public class UIMatrix : MonoBehaviour {
     }
 
     // NO COLOURS!!! that's all done in LoadColors!
-    public void Initialize (string[] fieldInitializers, bool shouldBeEditable) {
+    public void Initialize (string[] fieldInitializers, Editability initialEditability) {
         if(initialized){
             Debug.LogError($"Call to initialize although {nameof(UIMatrix)} is already initialized. Aborting.");
         }
@@ -145,7 +177,7 @@ public class UIMatrix : MonoBehaviour {
         outline.SetGOActive(false);
         VariableContainer.Initialize(true);
 
-        this.editable = shouldBeEditable;
+        this.editability = initialEditability;
         initialized = true;
 
         void CreateUIFieldArray () {
@@ -324,7 +356,7 @@ public class UIMatrix : MonoBehaviour {
         foreach(var img in controlsButtonImages){
             img.color = cs.UiMatrixControlsButtonElement;
         }
-        SetButtonImageColorAlpha(this.editable);
+        SetButtonImageColorAlpha(this.editability == Editability.FULL);
         variableContainer.LoadColors(cs);
         UpdateMatrixAndGridView();
     }
@@ -401,7 +433,7 @@ public class UIMatrix : MonoBehaviour {
         if(matrixValid){
             calculatedMatrix = newMatrix;
             calculatedMatrixIsDisplayedMatrix = true;
-            matrixInvertButton.interactable = editable;
+            matrixInvertButton.interactable = (this.editability == Editability.FULL);
         }else{
             calculatedMatrix = Matrix4x4.identity;
             calculatedMatrixIsDisplayedMatrix = false;

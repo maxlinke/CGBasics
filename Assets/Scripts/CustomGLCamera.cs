@@ -30,7 +30,7 @@ public class CustomGLCamera : MonoBehaviour {
         set { attachedUnityCam.aspect = value; }
     }
 
-    [System.NonSerialized] public VertexMain vertexScreen;
+    [System.NonSerialized] public MatrixScreen matrixScreen;
     [System.NonSerialized] public bool drawPivot;
     [System.NonSerialized] public Vector3 pivotPointToDraw;
     [System.NonSerialized] public bool drawSeeThrough;
@@ -188,8 +188,8 @@ public class CustomGLCamera : MonoBehaviour {
         GL.MultMatrix(currentViewMatrix);
 
         // TODO change to get weighted matrices or something like that (only for the render cam)
-        if(vertexScreen != null){
-            vertexScreen.GetCurrentMeshAndModelMatrix(out Mesh meshToDraw, out Matrix4x4 modelMatrix);
+        if(matrixScreen != null){
+            matrixScreen.GetCurrentMeshAndWeightedMatrices(out Mesh meshToDraw, out Matrix4x4 modelMatrix, out _);  // TODO use cam matrix
             if(meshToDraw != null){
                 DrawObject(meshToDraw, modelMatrix);
             }

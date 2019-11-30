@@ -30,6 +30,7 @@ public class UIMatrixVariableContainer : MonoBehaviour {
     bool m_initialized;
 
     public RectTransform rectTransform => m_rectTransform;
+    public float minHeight => headerArea.rect.height;
 
     public void Initialize (bool startExpanded) {
         if(m_initialized){

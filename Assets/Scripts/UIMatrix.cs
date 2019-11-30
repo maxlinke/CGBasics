@@ -11,6 +11,8 @@ public class UIMatrix : MonoBehaviour {
         NONE
     }
 
+    [SerializeField] bool shouldSelfInit;
+
     [Header("Components")]
     [SerializeField] RectTransform m_rectTransform;
     [SerializeField] UIMatrixVariableContainer variableContainer;
@@ -85,9 +87,10 @@ public class UIMatrix : MonoBehaviour {
     public bool IsInvertible => (MatrixValue.determinant != 0 && calculatedMatrixIsDisplayedMatrix);
     public UIMatrixVariableContainer VariableContainer => variableContainer;        // spoken to by the camera i guess.
     public RectTransform rectTransform => m_rectTransform;
+    public float minHeight => headerArea.rect.height + controlsArea.rect.height + matrixArea.rect.height + variableContainer.minHeight;
 
     void Awake () {
-        if(!initialized){
+        if(!initialized && shouldSelfInit){
             SelfInit();
         }
     }
@@ -134,12 +137,6 @@ public class UIMatrix : MonoBehaviour {
             "0", "0", "1", "-30000",
             "asdf", "0", "0", "1"
         }, Editability.FULL);
-        // Initialize(new string[]{
-        //     "1", "0", "0", "0", 
-        //     "0", "1", "0", "0",
-        //     "0", "0", "1", "0",
-        //     "1", "1", "1", "1"
-        // }, true);
     }
 
     // NO COLOURS!!! that's all done in LoadColors!
@@ -441,6 +438,7 @@ public class UIMatrix : MonoBehaviour {
             calculatedMatrixIsDisplayedMatrix = false;
             matrixInvertButton.interactable = false;
         }
+        Debug.Log(calculatedMatrix);
         calculatedMatrixUpToDate = true;
     }
 

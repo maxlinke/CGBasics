@@ -44,7 +44,6 @@ public class UIMatrixVariableContainer : MonoBehaviour {
         }
         UpdateLabel();
         addButton.onClick.AddListener(() => {AddVariable(true);});
-        // addButton.onClick.AddListener(() => {AddVariable("asdf", (2 * Random.value - 1) * 10f, true);});
         expandButton.onClick.AddListener(() => {ToggleExpand();});
         m_initialized = true;
     }
@@ -164,6 +163,7 @@ public class UIMatrixVariableContainer : MonoBehaviour {
         newVar.SetGOActive(true);
         newVar.rectTransform.SetParent(varFieldArea, false);
         newVar.LoadColors(ColorScheme.current);
+        newVar.interactable = m_editable;
         UpdateAddButtonInteractability();
         UpdateLabel();
         Expand();       // does all the resizing. and since variables can't be created when retracted, this isn't an issue
@@ -183,13 +183,21 @@ public class UIMatrixVariableContainer : MonoBehaviour {
     }
 
     public void EditVariable (string varName, float newValue, bool updateEverything = true) {
-        // if(TryGetVariable(oldName, out var foundVar)){
-        //     foundVar.name = newName;
-        //     foundVar.floatValue = newValue;
-        //     UpdateOrSetDirty(updateEverything);
-        // }else{
-        //     ThrowVarNotFoundException(oldName);
-        // }
+        bool done = false;
+        foreach(var varField in variableFields){
+            if(varField.enteredName == varName){
+                if(!done){
+                    varField.SetFloatValue(newValue, updateEverything);
+                    done = true;
+                }else{
+                    Debug.LogError($"Duplicate variable \"{varName}\"!");
+                }
+            }
+        }
+        UpdateOrSetDirty(updateEverything);
+        if(!done){
+            ThrowVarNotFoundException(varName);
+        }
     }
 
     public void RemoveVariable (UIMatrixVariableField field, bool updateEverything = true) {

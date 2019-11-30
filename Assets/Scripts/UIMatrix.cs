@@ -107,6 +107,14 @@ public class UIMatrix : MonoBehaviour {
                 "1", "1", "1", "1"
             });
             UpdateMatrixAndGridView();
+        }else if(Input.GetKeyDown(KeyCode.Keypad3)){
+            VariableContainer.EditVariable("asdf", (2 * Random.value - 1) * 10, false);
+        }else if(Input.GetKeyDown(KeyCode.Keypad4)){
+            VariableContainer.EditVariable("asdf", (2 * Random.value - 1) * 10, true);
+        }else if(Input.GetKeyDown(KeyCode.Keypad5)){
+            VariableContainer.AddVariable("asdf", Mathf.PI);   
+        }else if(Input.GetKeyDown(KeyCode.Keypad9)){
+            UpdateMatrixAndGridView();
         }
     }
 

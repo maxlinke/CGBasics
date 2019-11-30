@@ -15,10 +15,8 @@ public class UIMatrixVariableField : MonoBehaviour {
     bool m_initialized;
 
     public RectTransform rectTransform => m_rectTransform;
-    private string m_enteredName;
-    public string enteredName => m_enteredName;
-    private string m_enteredValue;
-    public string enteredValue => m_enteredValue;
+    public string enteredName => varNameField.text;
+    public string enteredValue => varValueField.text;
 
     public bool interactable {
         set {
@@ -36,11 +34,9 @@ public class UIMatrixVariableField : MonoBehaviour {
         this.parentContainer = parentContainer;
         
         varNameField.onEndEdit.AddListener((input) => {
-            m_enteredName = input;
             parentContainer.VariableUpdated(this, true);
         });
         varValueField.onEndEdit.AddListener((input) => {
-            m_enteredValue = input;
             parentContainer.VariableUpdated(this, true);
         });
         deleteButton.onClick.AddListener(() => {
@@ -55,6 +51,20 @@ public class UIMatrixVariableField : MonoBehaviour {
         }
 
         this.m_initialized = true;
+    }
+
+    public void SetNameValue (string newValue, bool updateEverything = true) {
+        varNameField.text = newValue;
+        if(updateEverything){
+            varNameField.onEndEdit.Invoke(varNameField.text);
+        }
+    }
+
+    public void SetFloatValue (float newValue, bool updateEverything = true) {
+        varValueField.text = newValue.ToString();
+        if(updateEverything){
+            varValueField.onEndEdit.Invoke(varValueField.text);
+        }
     }
 
     public void UpdateNameFieldColor (bool isValid) {

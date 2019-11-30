@@ -316,8 +316,8 @@ public class UIMatrix : MonoBehaviour {
 
     public void Invert () {
         if(!IsInvertible){
-            Debug.LogWarning("TODO put a debug message into the message thingy");   // TODO put a debug message into the message thingy
-            return;                                                                 // or simply disable the invert button everytime the matrix is updated and non invertible... (sounds better and simpler)
+            Debug.LogError("Call for inversion was received even though matrix is not invertible! This should NOT happen!");
+            return;
         }
         var inv = calculatedMatrix.inverse;
         VariableContainer.RemoveAllVariables(false);
@@ -399,7 +399,7 @@ public class UIMatrix : MonoBehaviour {
         var newMatrix = Matrix4x4.identity;
         for(int i=0; i<16; i++){
             try{
-                var parsed = StringExpressions.ParseExpression(stringFieldValues[i], variableContainer.GetVariableMap());  // TODO variables
+                var parsed = StringExpressions.ParseExpression(stringFieldValues[i], variableContainer.GetVariableMap());
                 if(float.IsNaN(parsed)){
                     matrixValid = false;
                     fieldTextMeshes[i].text = InvalidColors("NaN");
@@ -429,7 +429,7 @@ public class UIMatrix : MonoBehaviour {
 
             string InvalidColors (string actualStringValue) {
                 string hex = ColorUtility.ToHtmlStringRGBA(stringFieldInvalidColor);
-                return $"<color=#{hex}>{actualStringValue}</color>";                    // TODO it would be nice if i wouldn't have to call update colors together with all that
+                return $"<color=#{hex}>{actualStringValue}</color>";
             }
         }
         if(matrixValid){

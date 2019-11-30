@@ -174,7 +174,6 @@ public class ColorScheme : ScriptableObject {
     public Color UiMatrixVariablesFieldElementInvalid => uiMatrixVariablesFieldElementInvalid;
     public Color UiMatrixVariablesFieldSelection => uiMatrixVariablesFieldSelection;
     
-
 }
 
 #if UNITY_EDITOR

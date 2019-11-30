@@ -5,9 +5,6 @@ using System.Collections.Generic;
 
 public class UIMatrix : MonoBehaviour {
 
-    // TODO only calculate the matrix IF NEEDED!!!
-    // maybe set a flag when it gets updated in some capacity and then if someone wants the actual matrix, recalculate it AND RESET THE FLAG
-
     public enum Editability {
         FULL,
         VARIABLE_VALUES_ONLY,
@@ -23,6 +20,7 @@ public class UIMatrix : MonoBehaviour {
     [SerializeField] Image controlsBackground;
     [SerializeField] TextMeshProUGUI nameLabel;
     [SerializeField] TextMeshProUGUI nameLabelDropShadow;
+    [SerializeField] TMP_InputField nameLabelInputField;
     [SerializeField] RectTransform headerArea;
     [SerializeField] RectTransform controlsArea;
     [SerializeField] RectTransform matrixArea;
@@ -44,7 +42,7 @@ public class UIMatrix : MonoBehaviour {
     Button[] fieldButtons = new Button[16];
     
     Matrix4x4 calculatedMatrix;
-    bool calculatedMatrixUpToDate;      // TODO if ANY modification, set this to false!!!
+    bool calculatedMatrixUpToDate;
     bool calculatedMatrixIsDisplayedMatrix;
     Button[] headerButtons;
     Image[] headerButtonImages;
@@ -52,27 +50,6 @@ public class UIMatrix : MonoBehaviour {
     Image[] controlsButtonImages;
     Color stringFieldInvalidColor;
     Button matrixInvertButton;
-
-    // bool m_editable;
-    // public bool editable {
-    //     get {
-    //         return m_editable;
-    //     } set {
-    //         foreach(var b in headerButtons){
-    //             b.interactable = value;
-    //         }
-    //         foreach(var b in controlsButtons){
-    //             if(b == matrixInvertButton){
-    //                 b.interactable = value && IsInvertible;
-    //             }else{
-    //                 b.interactable = value;
-    //             }
-    //         }
-    //         SetButtonImageColorAlpha(value);
-    //         m_editable = value;
-    //         VariableContainer.UpdateEditability();
-    //     }
-    // }
 
     Editability m_editability;
     public Editability editability {
@@ -175,6 +152,20 @@ public class UIMatrix : MonoBehaviour {
         UpdateFieldStrings(fieldInitializers);
         UpdateMatrixAndGridView();
         outline.SetGOActive(false);
+        nameLabelInputField.SetGOActive(false);
+        nameLabelInputField.onEndEdit.AddListener((enteredName) => {
+            if(enteredName == null){
+                return;
+            }
+            enteredName = enteredName.Trim();
+            if(enteredName.Length < 1){
+                return;
+            }
+            SetName(enteredName);
+            nameLabel.SetGOActive(true);
+            nameLabelDropShadow.SetGOActive(true);
+            nameLabelInputField.SetGOActive(false);
+        });
         VariableContainer.Initialize(true);
 
         this.editability = initialEditability;
@@ -231,7 +222,7 @@ public class UIMatrix : MonoBehaviour {
             controlsButtons = new Button[6];
             controlsButtonImages = new Image[6];
             CreateButton(controlsArea, "Add/Duplicate", TEMPBUTTONBACKGROUND, UISprites.MatrixAdd, true, 0, controlsButtons, controlsButtonImages, 0, null);
-            CreateButton(controlsArea, "Rename", TEMPBUTTONBACKGROUND, UISprites.MatrixRename, true, 1, controlsButtons, controlsButtonImages, 1, null);        // except for this one. this one opens the rename thingy.
+            CreateButton(controlsArea, "Rename", TEMPBUTTONBACKGROUND, UISprites.MatrixRename, true, 1, controlsButtons, controlsButtonImages, 1, RenameButtonPressed);        // except for this one. this one opens the rename thingy.
             CreateButton(controlsArea, "Delete", TEMPBUTTONBACKGROUND, UISprites.MatrixDelete, true, 2, controlsButtons, controlsButtonImages, 2, null);
             CreateButton(controlsArea, "Set Identity", TEMPBUTTONBACKGROUND, UISprites.MatrixIdentity, false, 0, controlsButtons, controlsButtonImages, 3, SetIdentity);
             matrixInvertButton = CreateButton(controlsArea, "Invert", TEMPBUTTONBACKGROUND, UISprites.MatrixInvert, false, 1, controlsButtons, controlsButtonImages, 4, Invert);
@@ -279,6 +270,15 @@ public class UIMatrix : MonoBehaviour {
         totalHeight += matrixArea.rect.height;
         totalHeight += VariableContainer.rectTransform.rect.height;
         rectTransform.SetSizeDeltaY(totalHeight);
+    }
+
+    void RenameButtonPressed () {
+        nameLabel.SetGOActive(false);
+        nameLabelDropShadow.SetGOActive(false);
+        nameLabelInputField.SetGOActive(true);
+        nameLabelInputField.text = nameLabel.text;
+        var es = UnityEngine.EventSystems.EventSystem.current;
+        es.SetSelectedGameObject(nameLabelInputField.gameObject);
     }
 
     public void SetName (string newName) {
@@ -335,6 +335,8 @@ public class UIMatrix : MonoBehaviour {
         outline.color = cs.UiMatrixOutline;
         nameLabel.color = cs.UiMatrixLabel;
         nameLabelDropShadow.color = cs.UiMatrixLabelDropShadow;
+        nameLabelInputField.textComponent.color = cs.UiMatrixLabel;
+        nameLabelInputField.selectionColor = cs.UiMatrixNameLabelInputFieldSelection;
         SetNameLabelColorBasedOnNameHash(cs);
         controlsBackground.color = cs.UiMatrixControlsBackground;
         stringFieldInvalidColor = cs.UiMatrixFieldTextInvalid;

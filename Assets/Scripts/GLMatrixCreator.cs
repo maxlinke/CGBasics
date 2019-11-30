@@ -2,6 +2,9 @@
 
 public static class GLMatrixCreator {
 
+    // a Matrix4x4 constructed from Vector4s takes the vectors as COLUMNS, not rows.
+    // so the costructors you see here have to be transposed to see the REAL matrix...
+
     public static Matrix4x4 GetTranslationMatrix (Vector3 position) {
         return new Matrix4x4(
             new Vector4(1, 0, 0, 0),

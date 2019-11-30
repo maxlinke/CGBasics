@@ -7,6 +7,8 @@ public static partial class StringExpressions {
 
         static Dictionary<string, Function> functions;
 
+        // IMPORTANT! DO NOT CHANGE THE NAMES! IF YOU DO, THINGS WILL BREAK!
+
         static Functions () {
             functions = new Dictionary<string, Function>();
             AddFunc(new Function0("pi", "Shorthand for 3.1415...", () => Mathf.PI));

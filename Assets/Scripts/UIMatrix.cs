@@ -93,6 +93,19 @@ public class UIMatrix : MonoBehaviour {
         if(!initialized && shouldSelfInit){
             SelfInit();
         }
+        // var a = new Matrix4x4(
+        //     new Vector4(2, 0, 0, 0),
+        //     new Vector4(0, 1, 0, 0),
+        //     new Vector4(0, 0, 1, 0),
+        //     new Vector4(0, 0, 0, 1)
+        // );
+        // var b = new Matrix4x4(
+        //     new Vector4(1, 0, 0, 5),
+        //     new Vector4(0, 1, 0, 2),
+        //     new Vector4(0, 0, 1, -1),
+        //     new Vector4(0, 0, 0, 1)
+        // );
+        // Debug.Log($"A:\n{a}\nB:\n{b}\nA*B:\n{a*b}B*A:\n{b*a}");
     }
 
     void Update () {
@@ -137,6 +150,7 @@ public class UIMatrix : MonoBehaviour {
             "0", "0", "1", "-30000",
             "asdf", "0", "0", "1"
         }, Editability.FULL);
+        // SetStringFieldValuesFromMatrix(GLMatrixCreator.GetTranslationMatrix(Vector3.one), true);
     }
 
     // NO COLOURS!!! that's all done in LoadColors!
@@ -175,8 +189,8 @@ public class UIMatrix : MonoBehaviour {
             actualParent.SetToFillWithMargins(fieldArrayMargins);
             // fill it
             for(int i=0; i<16; i++){
-                float x = i / 4;
-                float y = i % 4;
+                float x = i % 4;
+                float y = i / 4;
                 // generate container
                 var newFieldRT = new GameObject($"Field {i} (x: {x}, y: {y})", typeof(RectTransform)).GetComponent<RectTransform>();
                 newFieldRT.SetParent(actualParent, false);
@@ -285,9 +299,13 @@ public class UIMatrix : MonoBehaviour {
         SetNameLabelColorBasedOnNameHash(ColorScheme.current);
     }
 
-    void SetStringFieldValuesFromMatrix (Matrix4x4 fromMatrix) {
+    void SetStringFieldValuesFromMatrix (Matrix4x4 sourceMatrix, bool updateEverything = true) {
+        var correctedSource = sourceMatrix.transpose;   // Matrix4x4 consists of column vectors, so this is necessary
         for(int i=0; i<16; i++){
-            stringFieldValues[i] = fromMatrix[i].ToString();
+            stringFieldValues[i] = correctedSource[i].ToString();
+        }
+        if(updateEverything){
+            UpdateMatrixAndGridView();
         }
     }
 
@@ -307,8 +325,7 @@ public class UIMatrix : MonoBehaviour {
 
     public void SetIdentity () {
         VariableContainer.RemoveAllVariables(false);
-        SetStringFieldValuesFromMatrix(Matrix4x4.identity);
-        UpdateMatrixAndGridView();
+        SetStringFieldValuesFromMatrix(Matrix4x4.identity, true);
     }
 
     public void Invert () {
@@ -316,10 +333,13 @@ public class UIMatrix : MonoBehaviour {
             Debug.LogError("Call for inversion was received even though matrix is not invertible! This should NOT happen!");
             return;
         }
+        if(!calculatedMatrixUpToDate){
+            Debug.LogError("This case should never happen, so this SHOULD be pointless. But since you're reading this, what went wrong?");
+            UpdateMatrixAndGridView();
+        }
         var inv = calculatedMatrix.inverse;
         VariableContainer.RemoveAllVariables(false);
-        SetStringFieldValuesFromMatrix(inv);
-        UpdateMatrixAndGridView();
+        SetStringFieldValuesFromMatrix(inv, true);
     }
 
     void SetNameLabelColorBasedOnNameHash (ColorScheme cs) {
@@ -430,7 +450,7 @@ public class UIMatrix : MonoBehaviour {
             }
         }
         if(matrixValid){
-            calculatedMatrix = newMatrix;
+            calculatedMatrix = newMatrix.transpose;     // Matrix4x4 consists of column vectors, so this is the correction
             calculatedMatrixIsDisplayedMatrix = true;
             matrixInvertButton.interactable = (this.editability == Editability.FULL);
         }else{
@@ -438,7 +458,7 @@ public class UIMatrix : MonoBehaviour {
             calculatedMatrixIsDisplayedMatrix = false;
             matrixInvertButton.interactable = false;
         }
-        // Debug.Log(calculatedMatrix);
+        Debug.Log(calculatedMatrix);
         calculatedMatrixUpToDate = true;
     }
 

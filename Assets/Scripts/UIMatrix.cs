@@ -175,8 +175,8 @@ public class UIMatrix : MonoBehaviour {
             actualParent.SetToFillWithMargins(fieldArrayMargins);
             // fill it
             for(int i=0; i<16; i++){
-                float x = i % 4;
-                float y = i / 4;
+                float x = i / 4;
+                float y = i % 4;
                 // generate container
                 var newFieldRT = new GameObject($"Field {i} (x: {x}, y: {y})", typeof(RectTransform)).GetComponent<RectTransform>();
                 newFieldRT.SetParent(actualParent, false);
@@ -438,7 +438,7 @@ public class UIMatrix : MonoBehaviour {
             calculatedMatrixIsDisplayedMatrix = false;
             matrixInvertButton.interactable = false;
         }
-        Debug.Log(calculatedMatrix);
+        // Debug.Log(calculatedMatrix);
         calculatedMatrixUpToDate = true;
     }
 

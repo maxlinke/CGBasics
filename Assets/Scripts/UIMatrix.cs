@@ -150,7 +150,7 @@ public class UIMatrix : MonoBehaviour {
         //     initialVariables: null,
         //     initialEditability: Editability.FULL
         // );
-        Initialize(UIMatrixConfig.translationConfig, Editability.VARIABLE_VALUES_ONLY, false);
+        Initialize(UIMatrixConfig.translationConfig, Editability.FULL, true);
         // SetStringFieldValuesFromMatrix(GLMatrixCreator.GetTranslationMatrix(Vector3.one), true);
     }
 

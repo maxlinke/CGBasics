@@ -24,6 +24,7 @@ public abstract class UIMatrixConfig {
     public abstract VarPreset[] defaultVariables { get; }
 
     static UIMatrixConfig () {
+        map = new Dictionary<Type, UIMatrixConfig>();
         m_translationConfig = new TranslationConfig();
         map.Add(Type.Translation, m_translationConfig);
         m_rotationConfig = new RotationConfig();

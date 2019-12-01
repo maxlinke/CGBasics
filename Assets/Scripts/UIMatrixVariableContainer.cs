@@ -32,16 +32,23 @@ public class UIMatrixVariableContainer : MonoBehaviour {
     public RectTransform rectTransform => m_rectTransform;
     public float minHeight => headerArea.rect.height;
 
-    public void Initialize (bool startExpanded) {
+    public void Initialize (IEnumerable<UIMatrixConfig.VarPreset> initialVariables, bool startExpanded) {
         if(m_initialized){
             Debug.LogError("Duplicate Init call, aborting!");
             return;
         }
         varFieldTemplate.SetGOActive(false);
-        if(startExpanded){
-            Expand();
+        m_expanded = true;              // just so that the variable creation doesn't complain that variables can only created when expanded
+        if(initialVariables != null){
+            foreach(var varPreset in initialVariables){
+                var newField = CreateNewVariableField();
+                newField.Initialize(this, true, varPreset.varName, varPreset.varValue);
+            }
+        }
+        if(startExpanded){              // the layout is done in here either way
+            Expand();                   // with the variable fields being arranged properly here
         }else{
-            Retract();
+            Retract();                  // or not mattering here
         }
         UpdateLabel();
         addButton.onClick.AddListener(() => {AddVariable(true);});

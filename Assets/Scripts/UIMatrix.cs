@@ -124,30 +124,43 @@ public class UIMatrix : MonoBehaviour {
         }else if(Input.GetKeyDown(KeyCode.Keypad4)){
             VariableContainer.EditVariable("asdf", (2 * Random.value - 1) * 10, true);
         }else if(Input.GetKeyDown(KeyCode.Keypad5)){
-            VariableContainer.AddVariable("asdf", Mathf.PI);   
+            VariableContainer.AddVariable("asdf", Mathf.PI);
+        }else if(Input.GetKeyDown(KeyCode.Keypad8)){
+            UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(null);
         }else if(Input.GetKeyDown(KeyCode.Keypad9)){
             UpdateMatrixAndGridView();
         }
     }
 
     void SelfInit () {
-        Initialize(new string[]{
-            "2", "0", "0", "200", 
-            "0", "1", "0", "-200",
-            "0", "0", "1", "-30000",
-            "asdf", "0", "0", "1"
-        }, Editability.FULL);
+        // Initialize(
+        //     inputName: nameLabel.text,            
+        //     fieldInitializers: new string[]{
+        //         "2", "0", "0", "200", 
+        //         "0", "1", "0", "-200",
+        //         "0", "0", "1", "-30000",
+        //         "asdf", "0", "0", "1"},
+        //     initialVariables: null,
+        //     initialEditability: Editability.FULL
+        // );
+        Initialize(UIMatrixConfig.translationConfig, Editability.VARIABLE_VALUES_ONLY, false);
         // SetStringFieldValuesFromMatrix(GLMatrixCreator.GetTranslationMatrix(Vector3.one), true);
     }
 
+    public void Initialize (UIMatrixConfig config, Editability initialEditability, bool varContainerExpanded) {
+        Initialize(config.name, config.fieldStrings, config.defaultVariables, initialEditability, varContainerExpanded);
+    }
+
     // NO COLOURS!!! that's all done in LoadColors!
-    public void Initialize (string[] fieldInitializers, Editability initialEditability) {
+    public void Initialize (string inputName, string[] fieldInitializers, IEnumerable<UIMatrixConfig.VarPreset> initialVariables, Editability initialEditability, bool varContainerExpanded) {
         if(initialized){
             Debug.LogError($"Call to initialize although {nameof(UIMatrix)} is already initialized. Aborting.");
         }
         CreateUIFieldArray();
         CreateButtons();
+        VariableContainer.Initialize(initialVariables, varContainerExpanded);
         UpdateFieldStrings(fieldInitializers);
+        SetName(inputName, false);
         UpdateMatrixAndGridView();
         outline.SetGOActive(false);
         nameLabelInputField.SetGOActive(false);
@@ -164,7 +177,6 @@ public class UIMatrix : MonoBehaviour {
             nameLabelDropShadow.SetGOActive(true);
             nameLabelInputField.SetGOActive(false);
         });
-        VariableContainer.Initialize(true);
 
         this.editability = initialEditability;
         initialized = true;
@@ -279,11 +291,13 @@ public class UIMatrix : MonoBehaviour {
         es.SetSelectedGameObject(nameLabelInputField.gameObject);
     }
 
-    public void SetName (string newName) {
+    public void SetName (string newName, bool updateColors = true) {
         this.gameObject.name = newName;
         nameLabel.text = newName;
         nameLabelDropShadow.text = newName;
-        SetNameLabelColorBasedOnNameHash(ColorScheme.current);
+        if(updateColors){
+            SetNameLabelColorBasedOnNameHash(ColorScheme.current);
+        }
     }
 
     void SetStringFieldValuesFromMatrix (Matrix4x4 sourceMatrix, bool updateEverything = true) {

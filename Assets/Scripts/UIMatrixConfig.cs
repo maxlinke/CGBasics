@@ -20,6 +20,7 @@ public abstract class UIMatrixConfig {
     public static ScaleConfig scaleConfig => m_scaleConfig;
 
     public abstract string name { get; }
+    public abstract string description { get; }
     public abstract string[] fieldStrings { get; }
     public abstract VarPreset[] defaultVariables { get; }
 
@@ -71,6 +72,7 @@ public abstract class UIMatrixConfig {
         };
 
         public override string name => "Translation";
+        public override string description => "Moves a vector along all three axes. Only works properly if the vector has 4 dimensions and the fourth component (w) is 1.";
         public override VarPreset[] defaultVariables => varPresets.ToArray();
         public override string[] fieldStrings => matrix.ToArray();
 
@@ -104,6 +106,7 @@ public abstract class UIMatrixConfig {
         };
 
         public override string name => "Rotation";
+        public override string description => "Rotates a vector around the z-, x- and y-Axis (in that order).";
         public override VarPreset[] defaultVariables => varPresets.ToArray();
         public override string[] fieldStrings => matrix.ToArray();
 
@@ -129,6 +132,7 @@ public abstract class UIMatrixConfig {
         };
 
         public override string name => "Scale";
+        public override string description => "Scales a vector in all three axes.";
         public override VarPreset[] defaultVariables => varPresets.ToArray();
         public override string[] fieldStrings => matrix.ToArray();
 

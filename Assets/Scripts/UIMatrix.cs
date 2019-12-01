@@ -227,23 +227,32 @@ public class UIMatrix : MonoBehaviour {
         void CreateButtons () {
             headerButtons = new Button[2];
             headerButtonImages = new Image[2];
-            CreateButton(headerArea, "Left", TEMPBUTTONBACKGROUND, UISprites.MatrixLeft, true, 0, headerButtons, headerButtonImages, 0, null);                  // TODO these all call the vertex-menu to do things...
-            CreateButton(headerArea, "Right", TEMPBUTTONBACKGROUND, UISprites.MatrixRight, false, 0, headerButtons, headerButtonImages, 1, null);
-            controlsButtons = new Button[6];
-            controlsButtonImages = new Image[6];
-            CreateButton(controlsArea, "Add/Duplicate", TEMPBUTTONBACKGROUND, UISprites.MatrixAdd, true, 0, controlsButtons, controlsButtonImages, 0, null);
-            CreateButton(controlsArea, "Rename", TEMPBUTTONBACKGROUND, UISprites.MatrixRename, true, 1, controlsButtons, controlsButtonImages, 1, RenameButtonPressed);        // except for this one. this one opens the rename thingy.
-            CreateButton(controlsArea, "Delete", TEMPBUTTONBACKGROUND, UISprites.MatrixDelete, true, 2, controlsButtons, controlsButtonImages, 2, null);
-            CreateButton(controlsArea, "Set Identity", TEMPBUTTONBACKGROUND, UISprites.MatrixIdentity, false, 0, controlsButtons, controlsButtonImages, 3, SetIdentity);
-            matrixInvertButton = CreateButton(controlsArea, "Invert", TEMPBUTTONBACKGROUND, UISprites.MatrixInvert, false, 1, controlsButtons, controlsButtonImages, 4, Invert);
-            CreateButton(controlsArea, "Transpose", TEMPBUTTONBACKGROUND, UISprites.MatrixTranspose, false, 2, controlsButtons, controlsButtonImages, 5, Transpose);
+            int arrayIndex = 0;
+            var buttonParentRT = headerArea;
+            var buttonArray = headerButtons;
+            var buttonImageArray = headerButtonImages;
+            CreateButton("Left", UISprites.MatrixLeft, true, 0, null);                  // TODO these all call the vertex-menu to do things...
+            CreateButton("Right", UISprites.MatrixRight, false, 0, null);
+            controlsButtons = new Button[7];
+            controlsButtonImages = new Image[7];
+            arrayIndex = 0;
+            buttonParentRT = controlsArea;
+            buttonArray = controlsButtons;
+            buttonImageArray = controlsButtonImages;
+            CreateButton("Add/Duplicate", UISprites.MatrixAdd, true, 0, null);
+            CreateButton("Rename", UISprites.MatrixRename, true, 1, RenameButtonPressed);
+            CreateButton("Delete", UISprites.MatrixDelete, true, 2, null);
+            CreateButton("Set Identity", UISprites.MatrixIdentity, false, 0, SetIdentity);
+            matrixInvertButton = CreateButton("Invert", UISprites.MatrixInvert, false, 1, Invert);
+            CreateButton("Transpose", UISprites.MatrixTranspose, false, 2, Transpose);
+            CreateButton("Load Config", UISprites.MatrixConfig, false, 3, null);
 
-            Button CreateButton (RectTransform parent, string newButtonName, Sprite newButtonBackgroundImage, Sprite newButtonMainImage, bool leftBound, int displayIndex, Button[] targetButtonArray, Image[] targetImageArray, int arrayIndex, System.Action onClickAction) {
+            Button CreateButton (string newButtonName, Sprite newButtonMainImage, bool leftBound, int displayIndex, System.Action onClickAction) {
                 var newlyCreatedButtonRT = new GameObject(newButtonName, typeof(RectTransform), typeof(Image), typeof(Button)).GetComponent<RectTransform>();
-                newlyCreatedButtonRT.SetParent(parent, false);
+                newlyCreatedButtonRT.SetParent(buttonParentRT, false);
                 // the actual layout here
-                float parentHeight = parent.rect.height;
-                float parentWidth = parent.rect.width;
+                float parentHeight = buttonParentRT.rect.height;
+                float parentWidth = buttonParentRT.rect.width;
                 newlyCreatedButtonRT.SetToPoint();
                 newlyCreatedButtonRT.sizeDelta = Vector2.one * parentHeight;    // i'm just assuming that we want the buttons to fill the height...
                 float xPos = (leftBound ? -1 : 1) * ((parentWidth / 2) - ((0.5f + displayIndex) * parentHeight) - (displayIndex * buttonHorizontalOffset));
@@ -251,14 +260,14 @@ public class UIMatrix : MonoBehaviour {
                 newlyCreatedButtonRT.localScale = Vector3.one * buttonSize;
                 // the background image
                 var newlyCreatedButtonBG = newlyCreatedButtonRT.gameObject.GetComponent<Image>();
-                newlyCreatedButtonBG.sprite = newButtonBackgroundImage;
+                newlyCreatedButtonBG.sprite = TEMPBUTTONBACKGROUND;
                 newlyCreatedButtonBG.type = Image.Type.Simple;
                 // the button
                 var newlyCreatedButton = newlyCreatedButtonRT.gameObject.GetComponent<Button>();
                 newlyCreatedButton.targetGraphic = newlyCreatedButtonBG;
                 newlyCreatedButton.onClick.AddListener(() => { onClickAction?.Invoke(); });
                 // the foreground image
-                var newlyCreatedButtonMainImageRT = new GameObject($"{newButtonBackgroundImage} Image", typeof(RectTransform), typeof(Image)).GetComponent<RectTransform>();
+                var newlyCreatedButtonMainImageRT = new GameObject("Image", typeof(RectTransform), typeof(Image)).GetComponent<RectTransform>();
                 newlyCreatedButtonMainImageRT.SetParent(newlyCreatedButtonRT, false);
                 newlyCreatedButtonMainImageRT.SetToFill();
                 var newlyCreatedButtonMainImage = newlyCreatedButtonMainImageRT.gameObject.GetComponent<Image>();
@@ -266,8 +275,9 @@ public class UIMatrix : MonoBehaviour {
                 newlyCreatedButtonMainImage.sprite = newButtonMainImage;
                 newlyCreatedButtonMainImage.type = Image.Type.Simple;
                 // putting it into the arrays
-                targetButtonArray[arrayIndex] = newlyCreatedButton;
-                targetImageArray[arrayIndex] = newlyCreatedButtonMainImage;
+                buttonArray[arrayIndex] = newlyCreatedButton;
+                buttonImageArray[arrayIndex] = newlyCreatedButtonMainImage;
+                arrayIndex++;
                 return newlyCreatedButton;
             }            
         }

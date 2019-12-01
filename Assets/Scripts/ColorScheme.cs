@@ -173,6 +173,19 @@ public class ColorScheme : ScriptableObject {
     public Color UiMatrixVariablesFieldElement => uiMatrixVariablesFieldElement;
     public Color UiMatrixVariablesFieldElementInvalid => uiMatrixVariablesFieldElementInvalid;
     public Color UiMatrixVariablesFieldSelection => uiMatrixVariablesFieldSelection;
+
+    [Header("Bottom Log")]
+    [SerializeField] Color bottomLogBackground;
+    [SerializeField] Color bottomLogExpandedBackground;
+    [SerializeField] Color bottomLogRegularText;
+    [SerializeField] Color bottomLogWarningText;
+    [SerializeField] Color bottomLogErrorText;
+
+    public Color BottomLogBackground => bottomLogBackground;
+    public Color BottomLogExpandedBackground => bottomLogExpandedBackground;
+    public Color BottomLogRegularText => bottomLogRegularText;
+    public Color BottomLogWarningText => bottomLogWarningText;
+    public Color BottomLogErrorText => bottomLogErrorText;
     
 }
 

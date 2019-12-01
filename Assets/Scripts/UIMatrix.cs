@@ -101,7 +101,8 @@ public class UIMatrix : MonoBehaviour {
             var enumValues = System.Enum.GetValues(typeof(Editability));
             asInt = (asInt + 1) % enumValues.Length;
             this.editability = (Editability)asInt;
-            Debug.Log($"Now: {this.editability} ({Time.frameCount})");
+            var logMsg = $"Now: {this.editability} ({Time.frameCount})";
+            Debug.Log(logMsg);
         }
         if(Input.GetKeyDown(KeyCode.Keypad1)){
             UpdateFieldStrings(new string[]{
@@ -125,6 +126,12 @@ public class UIMatrix : MonoBehaviour {
             VariableContainer.EditVariable("asdf", (2 * Random.value - 1) * 10, true);
         }else if(Input.GetKeyDown(KeyCode.Keypad5)){
             VariableContainer.AddVariable("asdf", Mathf.PI);
+        }else if(Input.GetKeyDown(KeyCode.Keypad7)){
+            var logMsg = string.Empty;
+            for(int i='a'; i<='z'; i++){
+                logMsg += (char)i;
+            }
+            BottomLog.DisplayMessage($"{logMsg} ({Time.frameCount})");
         }else if(Input.GetKeyDown(KeyCode.Keypad8)){
             UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(null);
         }else if(Input.GetKeyDown(KeyCode.Keypad9)){

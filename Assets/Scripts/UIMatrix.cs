@@ -151,7 +151,6 @@ public class UIMatrix : MonoBehaviour {
         Initialize(config.name, config.fieldStrings, config.defaultVariables, initialEditability, varContainerExpanded);
     }
 
-    // NO COLOURS!!! that's all done in LoadColors!
     public void Initialize (string inputName, string[] fieldInitializers, IEnumerable<UIMatrixConfig.VarPreset> initialVariables, Editability initialEditability, bool varContainerExpanded) {
         if(initialized){
             Debug.LogError($"Call to initialize although {nameof(UIMatrix)} is already initialized. Aborting.");
@@ -161,18 +160,16 @@ public class UIMatrix : MonoBehaviour {
         VariableContainer.Initialize(initialVariables, varContainerExpanded);
         UpdateFieldStrings(fieldInitializers);
         SetName(inputName, false);
-        UpdateMatrixAndGridView();
+        // UpdateMatrixAndGridView();       // obsolete? since colors are now loaded at the end, which also updates everything?
         outline.SetGOActive(false);
         nameLabelInputField.SetGOActive(false);
         nameLabelInputField.onEndEdit.AddListener((enteredName) => {
-            if(enteredName == null){
-                return;
+            if(enteredName != null){
+                enteredName = enteredName.Trim();
+                if(enteredName.Length > 0){
+                    SetName(enteredName);
+                }
             }
-            enteredName = enteredName.Trim();
-            if(enteredName.Length < 1){
-                return;
-            }
-            SetName(enteredName);
             nameLabel.SetGOActive(true);
             nameLabelDropShadow.SetGOActive(true);
             nameLabelInputField.SetGOActive(false);
@@ -180,6 +177,7 @@ public class UIMatrix : MonoBehaviour {
 
         this.editability = initialEditability;
         initialized = true;
+        LoadColorsAndUpdateEverything(ColorScheme.current);
 
         void CreateUIFieldArray () {
             // create "secondary parent" for easy margins
@@ -245,7 +243,7 @@ public class UIMatrix : MonoBehaviour {
             CreateButton("Set Identity", UISprites.MatrixIdentity, false, 0, SetIdentity);
             matrixInvertButton = CreateButton("Invert", UISprites.MatrixInvert, false, 1, Invert);
             CreateButton("Transpose", UISprites.MatrixTranspose, false, 2, Transpose);
-            CreateButton("Load Config", UISprites.MatrixConfig, false, 3, null);
+            CreateButton("Load Config", UISprites.MatrixConfig, false, 3, () => {UIMatrixConfigPicker.Open(LoadConfig);});
 
             Button CreateButton (string newButtonName, Sprite newButtonMainImage, bool leftBound, int displayIndex, System.Action onClickAction) {
                 var newlyCreatedButtonRT = new GameObject(newButtonName, typeof(RectTransform), typeof(Image), typeof(Button)).GetComponent<RectTransform>();
@@ -290,6 +288,18 @@ public class UIMatrix : MonoBehaviour {
         totalHeight += matrixArea.rect.height;
         totalHeight += VariableContainer.rectTransform.rect.height;
         rectTransform.SetSizeDeltaY(totalHeight);
+    }
+
+    void LoadConfig (UIMatrixConfig configToLoad) {
+        if(configToLoad == null){
+            Debug.Log("Didn't load any config because input was null! This might be intentional!");
+            return;
+        }
+        variableContainer.RemoveAllVariables();
+        variableContainer.LoadConfig(configToLoad.defaultVariables, false, variableContainer.expanded);
+        UpdateFieldStrings(configToLoad.fieldStrings);
+        SetName(configToLoad.name);
+        UpdateMatrixAndGridView();
     }
 
     void RenameButtonPressed () {
@@ -359,6 +369,9 @@ public class UIMatrix : MonoBehaviour {
     }
 
     void LoadColorsAndUpdateEverything (ColorScheme cs) {
+        if(!initialized){
+            return;
+        }
         background.color = cs.UiMatrixBackground;
         outline.color = cs.UiMatrixOutline;
         nameLabel.color = cs.UiMatrixLabel;
@@ -401,9 +414,6 @@ public class UIMatrix : MonoBehaviour {
     }
 
     void OnEnable () {
-        if(!initialized){
-            SelfInit();
-        }
         LoadColorsAndUpdateEverything(ColorScheme.current);
         ColorScheme.onChange += LoadColorsAndUpdateEverything;
     }

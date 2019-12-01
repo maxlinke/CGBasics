@@ -31,6 +31,7 @@ public class UIMatrixVariableContainer : MonoBehaviour {
 
     public RectTransform rectTransform => m_rectTransform;
     public float minHeight => headerArea.rect.height;
+    public bool expanded => m_expanded;
 
     public void Initialize (IEnumerable<UIMatrixConfig.VarPreset> initialVariables, bool startExpanded) {
         if(m_initialized){
@@ -38,22 +39,27 @@ public class UIMatrixVariableContainer : MonoBehaviour {
             return;
         }
         varFieldTemplate.SetGOActive(false);
-        m_expanded = true;              // just so that the variable creation doesn't complain that variables can only created when expanded
-        if(initialVariables != null){
-            foreach(var varPreset in initialVariables){
-                var newField = CreateNewVariableField();
-                newField.Initialize(this, true, varPreset.varName, varPreset.varValue);
-            }
-        }
-        if(startExpanded){              // the layout is done in here either way
-            Expand();                   // with the variable fields being arranged properly here
-        }else{
-            Retract();                  // or not mattering here
-        }
+        LoadConfig(initialVariables, false, startExpanded);
         UpdateLabel();
         addButton.onClick.AddListener(() => {AddVariable(true);});
         expandButton.onClick.AddListener(() => {ToggleExpand();});
         m_initialized = true;
+    }
+
+    public void LoadConfig (IEnumerable<UIMatrixConfig.VarPreset> variablesToLoad, bool updateEverything, bool expandAfterwards) {
+        m_expanded = true;              // just so that the variable creation doesn't complain that variables can only created when expanded
+        if(variablesToLoad != null){
+            foreach(var varPreset in variablesToLoad){
+                var newField = CreateNewVariableField();
+                newField.Initialize(this, true, varPreset.varName, varPreset.varValue);
+            }
+        }
+        UpdateOrSetDirty(updateEverything);
+        if(expandAfterwards){           // the layout is done in here either way
+            Expand();                   // with the variable fields being arranged properly here
+        }else{
+            Retract();                  // or not mattering here
+        }
     }
 
     public void ToggleExpand () {

@@ -16,6 +16,8 @@ public class BottomLog : MonoBehaviour {
     private Color warningColor;
     private Color errorColor;
 
+    float hideTime;
+
     // TODO the expanded log thing, the counters for the actual LOGS, flashing...
 
     void Awake () {
@@ -25,7 +27,15 @@ public class BottomLog : MonoBehaviour {
         }
         instance = this;
         logs = new List<Log>();
+        hideTime = Mathf.Infinity;
         Clear();
+    }
+
+    void Update () {
+        if(Time.time > hideTime){
+            ClearDisplay();
+            hideTime = Mathf.Infinity;
+        }
     }
 
     void OnEnable () {
@@ -44,51 +54,59 @@ public class BottomLog : MonoBehaviour {
         warningColor = cs.BottomLogWarningText;
         errorColor = cs.BottomLogErrorText;
         if(currentlyDisplayedMessage != null){
-            Display(currentlyDisplayedMessage);     // to redo the colors
+            Display(currentlyDisplayedMessage, hideTime - Time.time);     // to redo the colors
         }
     }
 
+    // TODO a timer for the messages
+
     ///<summary>Only displays a message, doesn't add it to the log</summary>
     public static void DisplayMessage (string message) {
-        instance.Display(message, LogType.REGULAR);
+        instance.Display(message, LogType.REGULAR, Mathf.Infinity);
+    }
+
+    ///<summary>Displays a message that automatically disappears after a given time</summary>
+    public static void DisplayMessage (string message, float duration) {
+        instance.Display(message, LogType.REGULAR, duration);
     }
 
     ///<summary>Displays and logs a message</summary>
     public static void LogMessage (string message) {
-        instance.Display(message, LogType.REGULAR);
+        instance.Display(message, LogType.REGULAR, Mathf.Infinity);
         instance.logs.Add(new Log(message, LogType.REGULAR));           // TODO the scrolling display (only update if visible...)
     }
 
     ///<summary>Displays and logs a warning</summary>
     public static void LogWarning (string message) {
-        instance.Display(message, LogType.WARNING);
+        instance.Display(message, LogType.WARNING, Mathf.Infinity);
         instance.logs.Add(new Log(message, LogType.WARNING));
     }
 
     ///<summary>Displays and logs an error</summary>
     public static void LogError (string message) {
-        instance.Display(message, LogType.ERROR);
+        instance.Display(message, LogType.ERROR, Mathf.Infinity);
         instance.logs.Add(new Log(message, LogType.ERROR));
     }
 
     ///<summary>Clears the display and the log</summary>
     public static void Clear () {
-        instance.Display(string.Empty, LogType.REGULAR);
+        ClearDisplay();
         instance.logs.Clear();
     }
 
     ///<summary>Clears the display</summary>
     public static void ClearDisplay () {
-        instance.Display(string.Empty, LogType.REGULAR);
+        instance.Display(string.Empty, LogType.REGULAR, Mathf.Infinity);
     }
 
-    void Display (Log log) {
-        Display(log.message, log.type);
+    void Display (Log log, float duration) {
+        Display(log.message, log.type, duration);
     }
 
-    void Display (string message, LogType logType) {
+    void Display (string message, LogType logType, float duration) {
         bottomTextField.text = GetColoredString(message, logType);
         currentlyDisplayedMessage = new Log(message, logType);
+        hideTime = Time.time + duration;
     }
 
     Color GetColorForLogType (LogType logType) {

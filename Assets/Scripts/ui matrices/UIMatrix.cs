@@ -172,11 +172,17 @@ public class UIMatrix : MonoBehaviour {
         outline.SetGOActive(false);
         nameLabelInputField.SetGOActive(false);
         nameLabelInputField.onEndEdit.AddListener((enteredName) => {
+            bool updateName = false;
             if(enteredName != null){
                 enteredName = enteredName.Trim();
                 if(enteredName.Length > 0){
-                    SetName(enteredName);
+                    updateName = true;
                 }
+            }
+            if(updateName){
+                SetName(enteredName);
+            }else{
+                BottomLog.DisplayMessage("Name cannot be empty", 3f);
             }
             nameLabel.SetGOActive(true);
             nameLabelDropShadow.SetGOActive(true);
@@ -222,6 +228,7 @@ public class UIMatrix : MonoBehaviour {
                 var newFlasherImage = newFlashRT.gameObject.GetComponent<Image>();
                 newFlasherImage.type = Image.Type.Sliced;
                 newFlasherImage.sprite = fieldBackgroundTexture;
+                newFlasherImage.raycastTarget = false;
                 var newFlasher = newFlashRT.GetComponent<FieldFlasher>();
                 newFlasher.Initialize(newFlasherImage);
                 fieldFlashers[i] = newFlasher;
@@ -311,7 +318,7 @@ public class UIMatrix : MonoBehaviour {
 
     void LoadConfig (UIMatrixConfig configToLoad) {
         if(configToLoad == null){
-            Debug.Log("Didn't load any config because input was null! This might be intentional!");
+            BottomLog.DisplayMessage("No config loaded", 3f);
             return;
         }
         variableContainer.RemoveAllVariables();

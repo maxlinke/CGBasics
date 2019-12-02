@@ -250,7 +250,7 @@ public class UIMatrix : MonoBehaviour {
             CreateButton("Set Identity", UISprites.MatrixIdentity, false, 0, SetIdentity);
             matrixInvertButton = CreateButton("Invert", UISprites.MatrixInvert, false, 1, Invert);
             CreateButton("Transpose", UISprites.MatrixTranspose, false, 2, Transpose);
-            CreateButton("Load Config", UISprites.MatrixConfig, false, 3, () => {UIMatrixConfigPicker.Open(LoadConfig);});
+            CreateButton("Load Config", UISprites.MatrixConfig, false, 3, () => {UIMatrixConfigPicker.Open(LoadConfig, 1);});       // TODO zoom level of matrix view as second parameter!
 
             Button CreateButton (string newButtonName, Sprite newButtonMainImage, bool leftBound, int displayIndex, System.Action onClickAction) {
                 var newlyCreatedButtonRT = new GameObject(newButtonName, typeof(RectTransform), typeof(Image), typeof(Button)).GetComponent<RectTransform>();

@@ -174,6 +174,17 @@ public class ColorScheme : ScriptableObject {
     public Color UiMatrixVariablesFieldElementInvalid => uiMatrixVariablesFieldElementInvalid;
     public Color UiMatrixVariablesFieldSelection => uiMatrixVariablesFieldSelection;
 
+    [Header("UI Matrix Config Picker")]
+    [SerializeField] Color[] uiMatrixConfigPickerBackgrounds;
+    [SerializeField] Color uiMatrixConfigPickerBackgroundsHover;
+    [SerializeField] Color uiMatrixConfigPickerBackgroundsClick;
+    [SerializeField] Color uiMatrixConfigPickerText;
+
+    public Color[] UiMatrixConfigPickerBackgrounds => uiMatrixConfigPickerBackgrounds;
+    public Color UiMatrixConfigPickerBackgroundsHover => uiMatrixConfigPickerBackgroundsHover;
+    public Color UiMatrixConfigPickerBackgroundsClick => uiMatrixConfigPickerBackgroundsClick;
+    public Color UiMatrixConfigPickerText => uiMatrixConfigPickerText;
+
     [Header("Bottom Log")]
     [SerializeField] Color bottomLogBackground;
     [SerializeField] Color bottomLogExpandedBackground;

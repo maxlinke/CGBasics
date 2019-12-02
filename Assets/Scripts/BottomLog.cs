@@ -77,6 +77,11 @@ public class BottomLog : MonoBehaviour {
         instance.logs.Clear();
     }
 
+    ///<summary>Clears the display</summary>
+    public static void ClearDisplay () {
+        instance.Display(string.Empty, LogType.REGULAR);
+    }
+
     void Display (Log log) {
         Display(log.message, log.type);
     }

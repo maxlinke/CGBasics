@@ -4,8 +4,11 @@ public abstract class UIMatrixConfig {
 
     public enum Type {
         Translation,
-        Rotation,
-        Scale
+        Scale,
+        RotationZXY,
+        RotationX,
+        RotationY,
+        RotationZ
     }
 
     private static Dictionary<Type, UIMatrixConfig> map;
@@ -13,11 +16,20 @@ public abstract class UIMatrixConfig {
     private static TranslationConfig m_translationConfig;
     public static TranslationConfig translationConfig => m_translationConfig;
 
-    private static RotationConfig m_rotationConfig;
-    public static RotationConfig rotationConfig => m_rotationConfig;
+    private static FullEulerRotationConfig m_fullRotationConfig;
+    public static FullEulerRotationConfig fullRotationConfig => m_fullRotationConfig;
 
     private static ScaleConfig m_scaleConfig;
     public static ScaleConfig scaleConfig => m_scaleConfig;
+
+    private static XRotConfig m_xRotConfig;
+    public static XRotConfig xRotConfig => m_xRotConfig;
+
+    private static YRotConfig m_yRotConfig;
+    public static YRotConfig yRotConfig => m_yRotConfig;
+
+    private static ZRotConfig m_zRotConfig;
+    public static ZRotConfig zRotConfig => m_zRotConfig;
 
     public abstract string name { get; }
     public abstract string description { get; }
@@ -28,10 +40,16 @@ public abstract class UIMatrixConfig {
         map = new Dictionary<Type, UIMatrixConfig>();
         m_translationConfig = new TranslationConfig();
         map.Add(Type.Translation, m_translationConfig);
-        m_rotationConfig = new RotationConfig();
-        map.Add(Type.Rotation, m_rotationConfig);
         m_scaleConfig = new ScaleConfig();
         map.Add(Type.Scale, m_scaleConfig);
+        m_fullRotationConfig = new FullEulerRotationConfig();
+        map.Add(Type.RotationZXY, m_fullRotationConfig);
+        m_xRotConfig = new XRotConfig();
+        map.Add(Type.RotationX, m_xRotConfig);
+        m_yRotConfig = new YRotConfig();
+        map.Add(Type.RotationY, m_yRotConfig);
+        m_zRotConfig = new ZRotConfig();
+        map.Add(Type.RotationZ, m_zRotConfig);
     }
 
     public static UIMatrixConfig GetForType (Type type) {
@@ -78,7 +96,7 @@ public abstract class UIMatrixConfig {
 
     }
 
-    public class RotationConfig : UIMatrixConfig {
+    public class FullEulerRotationConfig : UIMatrixConfig {
 
         public const string xAngle = "xAngle";
         public const string yAngle = "yAngle";
@@ -105,8 +123,8 @@ public abstract class UIMatrixConfig {
             new VarPreset(zAngle, 0)
         };
 
-        public override string name => "Rotation";
-        public override string description => "Rotates a vector around the z-, x- and y-Axis (in that order).";
+        public override string name => "Euler Rotation (ZXY)";
+        public override string description => "Rotates a vector around the z-, x- and y-Axis (in that order) by the degrees given.";
         public override VarPreset[] defaultVariables => varPresets.ToArray();
         public override string[] fieldStrings => matrix.ToArray();
 
@@ -133,6 +151,81 @@ public abstract class UIMatrixConfig {
 
         public override string name => "Scale";
         public override string description => "Scales a vector in all three axes.";
+        public override VarPreset[] defaultVariables => varPresets.ToArray();
+        public override string[] fieldStrings => matrix.ToArray();
+
+    }
+
+    public class XRotConfig : UIMatrixConfig {
+
+        public const string angle = "angle";
+
+        private static string sx => $"sindeg({angle})";
+        private static string cx => $"cosdeg({angle})";
+
+        private List<string> matrix = new List<string>(){
+            "1", "0", "0", "0",
+            "0", cx, sx, "0",
+            "0", $"-{sx}", cx, "0",
+            "0", "0", "0", "1"
+        };
+
+        private List<VarPreset> varPresets = new List<VarPreset>(){
+            new VarPreset(angle, 0)
+        };
+
+        public override string name => "Euler Rotation (X)";
+        public override string description => "Rotates a vector around the x-Axis.";
+        public override VarPreset[] defaultVariables => varPresets.ToArray();
+        public override string[] fieldStrings => matrix.ToArray();
+
+    }
+
+    public class YRotConfig : UIMatrixConfig {
+
+        public const string angle = "angle";
+
+        private static string sx => $"sindeg({angle})";
+        private static string cx => $"cosdeg({angle})";
+
+        private List<string> matrix = new List<string>(){
+            cx, "0", $"-{sx}", "0",
+            "0", "1", "0", "0",
+            sx, "0", cx, "0",
+            "0", "0", "0", "1"
+        };
+
+        private List<VarPreset> varPresets = new List<VarPreset>(){
+            new VarPreset(angle, 0)
+        };
+
+        public override string name => "Euler Rotation (Y)";
+        public override string description => "Rotates a vector around the y-Axis.";
+        public override VarPreset[] defaultVariables => varPresets.ToArray();
+        public override string[] fieldStrings => matrix.ToArray();
+
+    }
+
+    public class ZRotConfig : UIMatrixConfig {
+
+        public const string angle = "angle";
+
+        private static string sx => $"sindeg({angle})";
+        private static string cx => $"cosdeg({angle})";
+
+        private List<string> matrix = new List<string>(){
+            cx, sx, "0", "0",
+            $"-{sx}", cx, "0", "0",
+            "0", "0", "1", "0",
+            "0", "0", "0", "1"
+        };
+
+        private List<VarPreset> varPresets = new List<VarPreset>(){
+            new VarPreset(angle, 0)
+        };
+
+        public override string name => "Euler Rotation (Z)";
+        public override string description => "Rotates a vector around the z-Axis.";
         public override VarPreset[] defaultVariables => varPresets.ToArray();
         public override string[] fieldStrings => matrix.ToArray();
 

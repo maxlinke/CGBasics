@@ -101,7 +101,7 @@ public class UIMatrixConfigPicker : MonoBehaviour {
     }
 
     void Unhide (System.Action<UIMatrixConfig> onConfigPicked, float scale) {
-        EventSystem.current.SetSelectedGameObject(null);    // TODO set the first button selected
+        EventSystem.current.SetSelectedGameObject(null);
         gameObject.SetActive(true);
         configButtonParent.anchoredPosition = Input.mousePosition;
         // TODO check space to all sides and move pivot

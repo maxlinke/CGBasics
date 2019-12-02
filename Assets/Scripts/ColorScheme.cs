@@ -110,6 +110,7 @@ public class ColorScheme : ScriptableObject {
     [SerializeField] Color uiMatrixFieldBackgroundHighlighted;
     [SerializeField] Color uiMatrixFieldBackgroundClicked;
     [SerializeField] Color uiMatrixFieldBackgroundDisabled;
+    [SerializeField] Color uiMatrixFieldFlash;
     [SerializeField] Color uiMatrixFieldText;
     [SerializeField] Color uiMatrixFieldTextInvalid;
     [SerializeField] Color uiMatrixNameLabelInputFieldSelection;
@@ -124,6 +125,7 @@ public class ColorScheme : ScriptableObject {
     public Color UiMatrixFieldBackgroundHighlighted => uiMatrixFieldBackgroundHighlighted;
     public Color UiMatrixFieldBackgroundClicked => uiMatrixFieldBackgroundClicked;
     public Color UiMatrixFieldBackgroundDisabled => uiMatrixFieldBackgroundDisabled;
+    public Color UiMatrixFieldFlash => uiMatrixFieldFlash;
     public Color UiMatrixFieldText => uiMatrixFieldText;
     public Color UiMatrixFieldTextInvalid => uiMatrixFieldTextInvalid;
     public Color UiMatrixNameLabelInputFieldSelection => uiMatrixNameLabelInputFieldSelection;

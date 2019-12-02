@@ -51,6 +51,7 @@ MonoBehaviour:
   uiMatrixFieldBackgroundHighlighted: {r: 1, g: 1, b: 1, a: 0.2}
   uiMatrixFieldBackgroundClicked: {r: 1, g: 1, b: 1, a: 0.101960786}
   uiMatrixFieldBackgroundDisabled: {r: 1, g: 0, b: 1, a: 1}
+  uiMatrixFieldFlash: {r: 1, g: 1, b: 1, a: 0.5019608}
   uiMatrixFieldText: {r: 1, g: 1, b: 1, a: 1}
   uiMatrixFieldTextInvalid: {r: 0.85, g: 0.2, b: 0.2, a: 1}
   uiMatrixNameLabelInputFieldSelection: {r: 0.5, g: 0.667, b: 1, a: 0.7490196}

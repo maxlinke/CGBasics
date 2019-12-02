@@ -42,6 +42,7 @@ public class UIMatrix : MonoBehaviour {
     string[] stringFieldValues = new string[16];
     TextMeshProUGUI[] fieldTextMeshes = new TextMeshProUGUI[16];
     Button[] fieldButtons = new Button[16];
+    FieldFlasher[] fieldFlashers = new FieldFlasher[16];
     
     Matrix4x4 calculatedMatrix;
     bool calculatedMatrixUpToDate;
@@ -214,10 +215,21 @@ public class UIMatrix : MonoBehaviour {
                 int btnIndex = i;                                                                                                       // just using i is a trap!
                 newFieldBGButton.onClick.AddListener(() => {Debug.Log($"{btnIndex} was clicked! Do something with that info!");});      // TODO proper onclick
                 fieldButtons[i] = newFieldBGButton;
+                // generate flash image
+                var newFlashRT = new GameObject("Flash Image", typeof(RectTransform), typeof(Image), typeof(FieldFlasher)).GetComponent<RectTransform>();
+                newFlashRT.SetParent(newFieldRT, false);
+                newFlashRT.SetToFillWithMargins(spaceBetweenMatrixFields);
+                var newFlasherImage = newFlashRT.gameObject.GetComponent<Image>();
+                newFlasherImage.type = Image.Type.Sliced;
+                newFlasherImage.sprite = fieldBackgroundTexture;
+                var newFlasher = newFlashRT.GetComponent<FieldFlasher>();
+                newFlasher.Initialize(newFlasherImage);
+                fieldFlashers[i] = newFlasher;
                 // generate textfield
                 var newTMPRT = new GameObject("TMP Textfield", typeof(RectTransform), typeof(TextMeshProUGUI)).GetComponent<RectTransform>();
                 newTMPRT.SetParent(newFieldRT, false);
                 newTMPRT.SetToFill();
+                newTMPRT.SetAsLastSibling();
                 var newTMP = newTMPRT.GetComponent<TextMeshProUGUI>();
                 newTMP.raycastTarget = false;
                 newTMP.alignment = TextAlignmentOptions.Center;
@@ -406,6 +418,9 @@ public class UIMatrix : MonoBehaviour {
         foreach(var img in controlsButtonImages){
             img.color = cs.UiMatrixControlsButtonElement;
         }
+        foreach(var flasher in fieldFlashers){
+            flasher.UpdateFlashColor(cs.UiMatrixFieldFlash);
+        }
         SetButtonImageColorAlpha(this.editability == Editability.FULL);
         variableContainer.LoadColors(cs);
         UpdateMatrixAndGridView();
@@ -443,17 +458,19 @@ public class UIMatrix : MonoBehaviour {
         bool matrixValid = true;
         var newMatrix = Matrix4x4.identity;
         for(int i=0; i<16; i++){
+            var origText = fieldTextMeshes[i].text;
+            var newText = string.Empty;
             try{
                 var parsed = StringExpressions.ParseExpression(stringFieldValues[i], variableContainer.GetVariableMap());
                 if(float.IsNaN(parsed)){
                     matrixValid = false;
-                    fieldTextMeshes[i].text = InvalidColors("NaN");
+                    newText = InvalidColors("NaN");
                 }else if(float.IsPositiveInfinity(parsed)){
                     matrixValid = false;
-                    fieldTextMeshes[i].text = InvalidColors("+Inf");
+                    newText = InvalidColors("+Inf");
                 }else if(float.IsNegativeInfinity(parsed)){
                     matrixValid = false;
-                    fieldTextMeshes[i].text = InvalidColors("-Inf");
+                    newText = InvalidColors("-Inf");
                 }else{
                     newMatrix[i] = parsed;
                     var showVal = $"{parsed:F3}";
@@ -465,11 +482,16 @@ public class UIMatrix : MonoBehaviour {
                             showVal = showVal.Substring(0, showVal.Length - 1);
                         }
                     }
-                    fieldTextMeshes[i].text = showVal;
+                    newText = showVal;
                 }
             }catch(System.Exception){
                 matrixValid = false;
-                fieldTextMeshes[i].text = InvalidColors("ERR");
+                newText = InvalidColors("ERR");
+            }finally{ 
+                fieldTextMeshes[i].text = newText;
+                if(!newText.Equals(origText)){
+                    fieldFlashers[i].Flash();
+                }
             }
 
             string InvalidColors (string actualStringValue) {
@@ -491,6 +513,41 @@ public class UIMatrix : MonoBehaviour {
 
     public void SetMatrixNotUpToDate () {
         calculatedMatrixUpToDate = false;
-    }    
+    }
+
+    private class FieldFlasher : MonoBehaviour {
+
+        private const float flashDuration = 0.333f;
+
+        private Image image;
+        private Color flashColor;
+        private float currentBlend;
+
+        public void Initialize (Image image) {
+            this.image = image;
+            currentBlend = 0f;
+            gameObject.SetActive(false);
+        }
+
+        public void UpdateFlashColor (Color newFlashColor) {
+            flashColor = newFlashColor;
+        }
+
+        public void Flash () {
+            gameObject.SetActive(true);
+            image.color = flashColor;
+            currentBlend = 1f;
+        }
+
+        void Update () {
+            if(currentBlend <= 0){
+                gameObject.SetActive(false);
+                return;
+            }
+            image.color = Color.Lerp(Color.clear, flashColor, currentBlend);
+            currentBlend -= (Time.deltaTime / flashDuration); 
+        }
+
+    } 
 
 }

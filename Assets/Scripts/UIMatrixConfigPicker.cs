@@ -9,6 +9,7 @@ public class UIMatrixConfigPicker : MonoBehaviour {
 
     [SerializeField] Image backgroundRaycastCatcher;
     [SerializeField] RectTransform configButtonParent;
+    [SerializeField] Image configButtonParentBackground;
     [SerializeField] Button configButtonTemplate;
 
     Button[] buttons;
@@ -29,9 +30,10 @@ public class UIMatrixConfigPicker : MonoBehaviour {
     }
 
     void LoadColors (ColorScheme cs) {
+        configButtonParentBackground.color = cs.UiMatrixConfigPickerBackground;
         for(int i=0; i<buttonLabels.Length; i++){
-            var defaultColor = cs.UiMatrixConfigPickerBackgrounds[i % cs.UiMatrixConfigPickerBackgrounds.Length];
-            buttons[i].SetFadeTransition(0f, defaultColor, cs.UiMatrixConfigPickerBackgroundsHover, cs.UiMatrixConfigPickerBackgroundsClick, Color.magenta);
+            var defaultColor = cs.UiMatrixConfigPickerButtons[i % cs.UiMatrixConfigPickerButtons.Length];
+            buttons[i].SetFadeTransition(0f, defaultColor, cs.UiMatrixConfigPickerButtonsHover, cs.UiMatrixConfigPickerButtonsClick, Color.magenta);
             buttonLabels[i].color = cs.UiMatrixConfigPickerText;
         }
     }

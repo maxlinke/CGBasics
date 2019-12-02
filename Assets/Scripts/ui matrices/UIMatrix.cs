@@ -43,6 +43,8 @@ public class UIMatrix : MonoBehaviour {
     TextMeshProUGUI[] fieldTextMeshes = new TextMeshProUGUI[16];
     Button[] fieldButtons = new Button[16];
     FieldFlasher[] fieldFlashers = new FieldFlasher[16];
+
+    [System.NonSerialized] public MatrixScreen matrixScreen;
     
     Matrix4x4 calculatedMatrix;
     bool calculatedMatrixUpToDate;
@@ -257,21 +259,21 @@ public class UIMatrix : MonoBehaviour {
             var buttonParentRT = headerArea;
             var buttonArray = headerButtons;
             var buttonImageArray = headerButtonImages;
-            CreateButton("Left", "Move matrix left", UISprites.MatrixLeft, true, 0, null);                  // TODO these all call the vertex-menu to do things...
-            CreateButton("Right", "Move matrix right", UISprites.MatrixRight, false, 0, null);
+            CreateButton("Left", "Move matrix left", UISprites.MatrixLeft, true, 0, () => {matrixScreen?.MoveMatrixLeft(this);});
+            CreateButton("Right", "Move matrix right", UISprites.MatrixRight, false, 0, () => {matrixScreen?.MoveMatrixRight(this);});
             controlsButtons = new Button[7];
             controlsButtonImages = new Image[7];
             arrayIndex = 0;
             buttonParentRT = controlsArea;
             buttonArray = controlsButtons;
             buttonImageArray = controlsButtonImages;
-            CreateButton("Add", "Add new matrix after this one", UISprites.MatrixAdd, true, 0, null);                  // TODO bottom log on hover (extract the hover script from the config picker and make it more generic)
-            CreateButton("Rename", "Rename this matrix", UISprites.MatrixRename, true, 1, RenameButtonPressed);       // TODO the language files
-            CreateButton("Delete", "Delete this matrix", UISprites.MatrixDelete, true, 2, null);
+            CreateButton("Add", "Add new matrix after this one", UISprites.MatrixAdd, true, 0, () => {matrixScreen?.AddMatrix(this);});
+            CreateButton("Rename", "Rename this matrix", UISprites.MatrixRename, true, 1, RenameButtonPressed);                                         // TODO the language files
+            CreateButton("Delete", "Delete this matrix", UISprites.MatrixDelete, true, 2, () => {matrixScreen?.DeleteMatrix(this);});
             CreateButton("Set Identity", "Set this matrix to identity (also removes all variables)", UISprites.MatrixIdentity, false, 0, SetIdentity);
             matrixInvertButton = CreateButton("Invert", "Invert this matrix (removes all variables)", UISprites.MatrixInvert, false, 1, Invert);
             CreateButton("Transpose", "Transpose this matrix", UISprites.MatrixTranspose, false, 2, Transpose);
-            CreateButton("Load Config", "Load a matrix configuration", UISprites.MatrixConfig, false, 3, () => {UIMatrixConfigPicker.Open(LoadConfig, 1);});       // TODO zoom level of matrix view as second parameter!
+            CreateButton("Load Config", "Load a matrix configuration", UISprites.MatrixConfig, false, 3, () => {UIMatrixConfigPicker.Open(LoadConfig, (matrixScreen != null ? matrixScreen.matrixZoom : 1f));});
 
             Button CreateButton (string newButtonName, string description, Sprite newButtonMainImage, bool leftBound, int displayIndex, System.Action onClickAction) {
                 var newlyCreatedButtonRT = new GameObject(newButtonName, typeof(RectTransform), typeof(Image), typeof(Button), typeof(UIHoverEventCaller)).GetComponent<RectTransform>();
@@ -308,7 +310,16 @@ public class UIMatrix : MonoBehaviour {
                 buttonImageArray[arrayIndex] = newlyCreatedButtonMainImage;
                 arrayIndex++;
                 return newlyCreatedButton;
-            }            
+            }
+
+            void RenameButtonPressed () {
+                nameLabel.SetGOActive(false);
+                nameLabelDropShadow.SetGOActive(false);
+                nameLabelInputField.SetGOActive(true);
+                nameLabelInputField.text = nameLabel.text;
+                var es = UnityEngine.EventSystems.EventSystem.current;
+                es.SetSelectedGameObject(nameLabelInputField.gameObject);
+            }
         }
     }
 
@@ -323,7 +334,6 @@ public class UIMatrix : MonoBehaviour {
 
     void LoadConfig (UIMatrixConfig configToLoad) {
         if(configToLoad == null){
-            BottomLog.DisplayMessage("No config loaded", 3f);
             return;
         }
         variableContainer.RemoveAllVariables();
@@ -333,14 +343,7 @@ public class UIMatrix : MonoBehaviour {
         UpdateMatrixAndGridView();
     }
 
-    void RenameButtonPressed () {
-        nameLabel.SetGOActive(false);
-        nameLabelDropShadow.SetGOActive(false);
-        nameLabelInputField.SetGOActive(true);
-        nameLabelInputField.text = nameLabel.text;
-        var es = UnityEngine.EventSystems.EventSystem.current;
-        es.SetSelectedGameObject(nameLabelInputField.gameObject);
-    }
+    
 
     public void SetName (string newName, bool updateColors = true) {
         newName = newName.Trim();

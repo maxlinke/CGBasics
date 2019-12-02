@@ -1465,7 +1465,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a0651fe968bb5fa4f9eec52fbf8fc730, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  shouldSelfInit: 1
+  shouldSelfInit: 0
   m_rectTransform: {fileID: 3246265803323440282}
   variableContainer: {fileID: 5850153329629351828}
   background: {fileID: 4836004874333096521}

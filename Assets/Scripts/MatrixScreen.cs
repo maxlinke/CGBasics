@@ -3,24 +3,42 @@ using TMPro;
 
 public class MatrixScreen : MonoBehaviour {
 
+    [Header("Prefabs")]
+    [SerializeField] UIMatrix uiMatrixPrefab;
+
+    [Header("Components")]
     [SerializeField] Camera matrixCam;
     [SerializeField] Camera externalCam;
     [SerializeField] MeshFilter referenceObject;
+    [SerializeField] RectTransform uiMatrixZoomRT;
+    [SerializeField] RectTransform uiMatrixParent;
+
+    public float matrixZoom => uiMatrixZoomRT.UniformLocalScale();
 
     void Awake () {
         matrixCam.GetComponent<CustomGLCamera>().matrixScreen = this;
         externalCam.GetComponent<CustomGLCamera>().matrixScreen = this;
+
+        var newMatrix = Instantiate(uiMatrixPrefab).GetComponent<UIMatrix>();
+        newMatrix.rectTransform.SetParent(uiMatrixParent, false);
+        newMatrix.rectTransform.anchoredPosition = Vector2.zero;
+        newMatrix.Initialize(UIMatrixConfig.identityConfig, UIMatrix.Editability.FULL, true);
+        newMatrix.matrixScreen = this;
     }
 
-    void Start () {
-        
-    }
-
-    void Update () {
+    public void AddMatrix (UIMatrix callingMatrix) {
 
     }
 
-    void LateUpdate () {
+    public void DeleteMatrix (UIMatrix matrixToDelete) {
+
+    }
+
+    public void MoveMatrixLeft (UIMatrix matrixToMove) {
+
+    }
+
+    public void MoveMatrixRight (UIMatrix matrixToMove) {
 
     }
 

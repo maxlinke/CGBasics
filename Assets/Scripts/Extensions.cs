@@ -111,5 +111,15 @@ public static class Extensions {
     public static Color WithHalfAlpha (this Color col) {
         return new Color(col.r, col.g, col.b, col.a * 0.5f);
     }
+
+    public static float UniformLocalScale (this Transform transform) {
+        Vector3 vec = transform.localScale;
+        if(vec.x == vec.y && vec.y == vec.z){
+            return vec.x;
+        }else{
+            Debug.LogWarning("Scale is not uniform even though it was asked for!");
+            return (vec.x + vec.y + vec.z) / 3f;
+        }
+    }
 	
 }

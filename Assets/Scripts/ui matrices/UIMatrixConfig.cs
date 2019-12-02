@@ -3,6 +3,7 @@
 public abstract class UIMatrixConfig {
 
     public enum Type {
+        Identity,
         Translation,
         Scale,
         RotationZXY,
@@ -12,6 +13,9 @@ public abstract class UIMatrixConfig {
     }
 
     private static Dictionary<Type, UIMatrixConfig> map;
+
+    private static IdentityConfig m_identityConfig;
+    public static IdentityConfig identityConfig => m_identityConfig;
 
     private static TranslationConfig m_translationConfig;
     public static TranslationConfig translationConfig => m_translationConfig;
@@ -38,6 +42,8 @@ public abstract class UIMatrixConfig {
 
     static UIMatrixConfig () {
         map = new Dictionary<Type, UIMatrixConfig>();
+        m_identityConfig = new IdentityConfig();
+        map.Add(Type.Identity, m_identityConfig);
         m_translationConfig = new TranslationConfig();
         map.Add(Type.Translation, m_translationConfig);
         m_scaleConfig = new ScaleConfig();
@@ -66,6 +72,24 @@ public abstract class UIMatrixConfig {
             this.varName = varName;
             this.varValue = varValue;
         }
+    }
+
+    public class IdentityConfig : UIMatrixConfig {
+
+        private List<string> matrix = new List<string>(){
+            "1", "0", "0", "0",
+            "0", "1", "0", "0",
+            "0", "0", "1", "0",
+            "0", "0", "0", "1"
+        };
+
+        private List<VarPreset> vars = new List<VarPreset>();
+
+        public override string name => "Identity";
+        public override string description => "An identity matrix, does nothing when multiplied with another matrix or vector.";
+        public override VarPreset[] defaultVariables => vars.ToArray();
+        public override string[] fieldStrings => matrix.ToArray();
+
     }
 
 #region Translation, Rotation, Scale

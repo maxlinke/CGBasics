@@ -62,6 +62,7 @@ public class UIMatrix : MonoBehaviour {
             bool buttonsInteractable = (value == Editability.FULL);
             foreach(var b in headerButtons){
                 b.interactable = buttonsInteractable;
+                b.gameObject.GetComponent<UIHoverEventCaller>().enabled = b.interactable;
             }
             foreach(var b in controlsButtons){
                 if(b == matrixInvertButton){
@@ -69,6 +70,7 @@ public class UIMatrix : MonoBehaviour {
                 }else{
                     b.interactable = buttonsInteractable;
                 }
+                b.gameObject.GetComponent<UIHoverEventCaller>().enabled = b.interactable;
             }
             SetButtonImageColorAlpha(buttonsInteractable);
             this.m_editability = value;
@@ -255,24 +257,24 @@ public class UIMatrix : MonoBehaviour {
             var buttonParentRT = headerArea;
             var buttonArray = headerButtons;
             var buttonImageArray = headerButtonImages;
-            CreateButton("Left", UISprites.MatrixLeft, true, 0, null);                  // TODO these all call the vertex-menu to do things...
-            CreateButton("Right", UISprites.MatrixRight, false, 0, null);
+            CreateButton("Left", "Move matrix left", UISprites.MatrixLeft, true, 0, null);                  // TODO these all call the vertex-menu to do things...
+            CreateButton("Right", "Move matrix right", UISprites.MatrixRight, false, 0, null);
             controlsButtons = new Button[7];
             controlsButtonImages = new Image[7];
             arrayIndex = 0;
             buttonParentRT = controlsArea;
             buttonArray = controlsButtons;
             buttonImageArray = controlsButtonImages;
-            CreateButton("Add/Duplicate", UISprites.MatrixAdd, true, 0, null);
-            CreateButton("Rename", UISprites.MatrixRename, true, 1, RenameButtonPressed);
-            CreateButton("Delete", UISprites.MatrixDelete, true, 2, null);
-            CreateButton("Set Identity", UISprites.MatrixIdentity, false, 0, SetIdentity);
-            matrixInvertButton = CreateButton("Invert", UISprites.MatrixInvert, false, 1, Invert);
-            CreateButton("Transpose", UISprites.MatrixTranspose, false, 2, Transpose);
-            CreateButton("Load Config", UISprites.MatrixConfig, false, 3, () => {UIMatrixConfigPicker.Open(LoadConfig, 1);});       // TODO zoom level of matrix view as second parameter!
+            CreateButton("Add", "Add new matrix after this one", UISprites.MatrixAdd, true, 0, null);                  // TODO bottom log on hover (extract the hover script from the config picker and make it more generic)
+            CreateButton("Rename", "Rename this matrix", UISprites.MatrixRename, true, 1, RenameButtonPressed);       // TODO the language files
+            CreateButton("Delete", "Delete this matrix", UISprites.MatrixDelete, true, 2, null);
+            CreateButton("Set Identity", "Set this matrix to identity (also removes all variables)", UISprites.MatrixIdentity, false, 0, SetIdentity);
+            matrixInvertButton = CreateButton("Invert", "Invert this matrix (removes all variables)", UISprites.MatrixInvert, false, 1, Invert);
+            CreateButton("Transpose", "Transpose this matrix", UISprites.MatrixTranspose, false, 2, Transpose);
+            CreateButton("Load Config", "Load a matrix configuration", UISprites.MatrixConfig, false, 3, () => {UIMatrixConfigPicker.Open(LoadConfig, 1);});       // TODO zoom level of matrix view as second parameter!
 
-            Button CreateButton (string newButtonName, Sprite newButtonMainImage, bool leftBound, int displayIndex, System.Action onClickAction) {
-                var newlyCreatedButtonRT = new GameObject(newButtonName, typeof(RectTransform), typeof(Image), typeof(Button)).GetComponent<RectTransform>();
+            Button CreateButton (string newButtonName, string description, Sprite newButtonMainImage, bool leftBound, int displayIndex, System.Action onClickAction) {
+                var newlyCreatedButtonRT = new GameObject(newButtonName, typeof(RectTransform), typeof(Image), typeof(Button), typeof(UIHoverEventCaller)).GetComponent<RectTransform>();
                 newlyCreatedButtonRT.SetParent(buttonParentRT, false);
                 // the actual layout here
                 float parentHeight = buttonParentRT.rect.height;
@@ -298,6 +300,9 @@ public class UIMatrix : MonoBehaviour {
                 newlyCreatedButtonMainImage.raycastTarget = false;
                 newlyCreatedButtonMainImage.sprite = newButtonMainImage;
                 newlyCreatedButtonMainImage.type = Image.Type.Simple;
+                // setup the hover bottom log thingy
+                var hoverCaller = newlyCreatedButtonRT.gameObject.GetComponent<UIHoverEventCaller>();
+                hoverCaller.SetActions((ped) => {BottomLog.DisplayMessage(description);}, (ped) => {BottomLog.ClearDisplay();});
                 // putting it into the arrays
                 buttonArray[arrayIndex] = newlyCreatedButton;
                 buttonImageArray[arrayIndex] = newlyCreatedButtonMainImage;
@@ -338,6 +343,7 @@ public class UIMatrix : MonoBehaviour {
     }
 
     public void SetName (string newName, bool updateColors = true) {
+        newName = newName.Trim();
         this.gameObject.name = newName;
         nameLabel.text = newName;
         nameLabelDropShadow.text = newName;
@@ -368,11 +374,21 @@ public class UIMatrix : MonoBehaviour {
         }
         calculatedMatrixUpToDate = false;
         UpdateMatrixAndGridView();
+        UpdateNameWithSuffixToggle("(Tranposed)");
+    }
+
+    void UpdateNameWithSuffixToggle (string suffix) {
+        if(nameLabel.text.Contains(suffix)){
+            SetName(nameLabel.text.Replace(suffix, ""));
+        }else{
+            SetName($"{nameLabel.text} {suffix}");
+        }
     }
 
     public void SetIdentity () {
         VariableContainer.RemoveAllVariables(false);
         SetStringFieldValuesFromMatrix(Matrix4x4.identity, true);
+        SetName("New Matrix");
     }
 
     public void Invert () {
@@ -387,6 +403,7 @@ public class UIMatrix : MonoBehaviour {
         var inv = calculatedMatrix.inverse;
         VariableContainer.RemoveAllVariables(false);
         SetStringFieldValuesFromMatrix(inv, true);
+        UpdateNameWithSuffixToggle("(Inverted)");
     }
 
     void SetNameLabelColorBasedOnNameHash (ColorScheme cs) {

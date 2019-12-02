@@ -70,9 +70,9 @@ public class UIMatrixConfigPicker : MonoBehaviour {
             newBtn.onClick.AddListener(() => {
                 ButtonClicked(config);
             });
-            newBtn.gameObject.AddComponent<ButtonHoverCaller>();
-            var hoverCaller = newBtn.GetComponent<ButtonHoverCaller>();
-            hoverCaller.Initialize(this, config);
+            newBtn.gameObject.AddComponent<UIHoverEventCaller>();
+            var hoverCaller = newBtn.GetComponent<UIHoverEventCaller>();
+            hoverCaller.SetActions((ped) => {BottomLog.DisplayMessage(config.description);}, (ped) => {BottomLog.ClearDisplay();});
             var newBtnRT = newBtn.GetComponent<RectTransform>();
             newBtnRT.SetParent(configButtonParent, false);
             newBtnRT.anchoredPosition = new Vector2(0, y);
@@ -120,10 +120,6 @@ public class UIMatrixConfigPicker : MonoBehaviour {
         HideAndReset();
     }
 
-    void ButtonHovered (UIMatrixConfig config) {
-        BottomLog.DisplayMessage(config.description);
-    }
-
     void BackgroundClicked () {
         BottomLog.ClearDisplay();
         currentOnPickAction.Invoke(null);
@@ -137,18 +133,6 @@ public class UIMatrixConfigPicker : MonoBehaviour {
         }
         public void OnPointerClick (PointerEventData eventData) {
             parent.BackgroundClicked();
-        }
-    }
-
-    private class ButtonHoverCaller : MonoBehaviour, IPointerEnterHandler {
-        private UIMatrixConfigPicker parent;
-        private UIMatrixConfig config;
-        public void Initialize (UIMatrixConfigPicker parent, UIMatrixConfig config) {
-            this.parent = parent;
-            this.config = config;
-        }
-        public void OnPointerEnter (PointerEventData eventData) {
-            parent.ButtonHovered(config);
         }
     }
 

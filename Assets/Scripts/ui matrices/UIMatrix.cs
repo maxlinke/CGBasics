@@ -2,6 +2,7 @@
 using UnityEngine.UI;
 using TMPro;
 using System.Collections.Generic;
+using UIMatrices;
 
 public class UIMatrix : MonoBehaviour {
 
@@ -15,7 +16,7 @@ public class UIMatrix : MonoBehaviour {
 
     [Header("Components")]
     [SerializeField] RectTransform m_rectTransform;
-    [SerializeField] UIMatrixVariableContainer variableContainer;
+    [SerializeField] VariableContainer variableContainer;
     [SerializeField] Image background;
     [SerializeField] Image outline;                 // what do i even need this for?
     [SerializeField] Image nameLabelBackground;
@@ -90,7 +91,7 @@ public class UIMatrix : MonoBehaviour {
     }
 
     public bool IsInvertible => (MatrixValue.determinant != 0 && calculatedMatrixIsDisplayedMatrix);
-    public UIMatrixVariableContainer VariableContainer => variableContainer;        // spoken to by the camera i guess.
+    public VariableContainer VariableContainer => variableContainer;        // spoken to by the camera i guess.
     public RectTransform rectTransform => m_rectTransform;
     public float minHeight => headerArea.rect.height + controlsArea.rect.height + matrixArea.rect.height + variableContainer.minHeight;
 
@@ -100,70 +101,15 @@ public class UIMatrix : MonoBehaviour {
         }
     }
 
-    void Update () {
-        // if(Input.GetKeyDown(KeyCode.Keypad0)){
-        //     var asInt = (int)(this.editability);
-        //     var enumValues = System.Enum.GetValues(typeof(Editability));
-        //     asInt = (asInt + 1) % enumValues.Length;
-        //     this.editability = (Editability)asInt;
-        //     var logMsg = $"Now: {this.editability} ({Time.frameCount})";
-        //     Debug.Log(logMsg);
-        // }
-        // if(Input.GetKeyDown(KeyCode.Keypad1)){
-        //     UpdateFieldStrings(new string[]{
-        //         "2", "0", "0", "200", 
-        //         "0", "1", "0", "-200",
-        //         "0", "0", "1", "-30000",
-        //         "asdf", "0", "0", "1"
-        //     });
-        //     UpdateMatrixAndGridView();
-        // }else if(Input.GetKeyDown(KeyCode.Keypad2)){
-        //     UpdateFieldStrings(new string[]{
-        //         "1", "0", "0", "0", 
-        //         "0", "1", "0", "0",
-        //         "0", "0", "1", "0",
-        //         "1", "1", "1", "1"
-        //     });
-        //     UpdateMatrixAndGridView();
-        // }else if(Input.GetKeyDown(KeyCode.Keypad3)){
-        //     VariableContainer.EditVariable("asdf", (2 * Random.value - 1) * 10, false);
-        // }else if(Input.GetKeyDown(KeyCode.Keypad4)){
-        //     VariableContainer.EditVariable("asdf", (2 * Random.value - 1) * 10, true);
-        // }else if(Input.GetKeyDown(KeyCode.Keypad5)){
-        //     VariableContainer.AddVariable("asdf", Mathf.PI);
-        // }else if(Input.GetKeyDown(KeyCode.Keypad7)){
-        //     var logMsg = string.Empty;
-        //     for(int i='a'; i<='z'; i++){
-        //         logMsg += (char)i;
-        //     }
-        //     BottomLog.DisplayMessage($"{logMsg} ({Time.frameCount})");
-        // }else if(Input.GetKeyDown(KeyCode.Keypad8)){
-        //     UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(null);
-        // }else if(Input.GetKeyDown(KeyCode.Keypad9)){
-        //     UpdateMatrixAndGridView();
-        // }
-    }
-
     void SelfInit () {
-        // Initialize(
-        //     inputName: nameLabel.text,            
-        //     fieldInitializers: new string[]{
-        //         "2", "0", "0", "200", 
-        //         "0", "1", "0", "-200",
-        //         "0", "0", "1", "-30000",
-        //         "asdf", "0", "0", "1"},
-        //     initialVariables: null,
-        //     initialEditability: Editability.FULL
-        // );
-        Initialize(UIMatrixConfig.translationConfig, Editability.FULL, true);
-        // SetStringFieldValuesFromMatrix(GLMatrixCreator.GetTranslationMatrix(Vector3.one), true);
+        Initialize(MatrixConfig.translationConfig, Editability.FULL, true);
     }
 
-    public void Initialize (UIMatrixConfig config, Editability initialEditability, bool varContainerExpanded) {
+    public void Initialize (MatrixConfig config, Editability initialEditability, bool varContainerExpanded) {
         Initialize(config.name, config.fieldStrings, config.defaultVariables, initialEditability, varContainerExpanded);
     }
 
-    public void Initialize (string inputName, string[] fieldInitializers, IEnumerable<UIMatrixConfig.VarPreset> initialVariables, Editability initialEditability, bool varContainerExpanded) {
+    public void Initialize (string inputName, string[] fieldInitializers, IEnumerable<MatrixConfig.VarPreset> initialVariables, Editability initialEditability, bool varContainerExpanded) {
         if(initialized){
             Debug.LogError($"Call to initialize although {nameof(UIMatrix)} is already initialized. Aborting.");
         }
@@ -273,7 +219,7 @@ public class UIMatrix : MonoBehaviour {
             CreateButton("Set Identity", "Set this matrix to identity (also removes all variables)", UISprites.MatrixIdentity, false, 0, SetIdentity);
             matrixInvertButton = CreateButton("Invert", "Invert this matrix (removes all variables)", UISprites.MatrixInvert, false, 1, Invert);
             CreateButton("Transpose", "Transpose this matrix", UISprites.MatrixTranspose, false, 2, Transpose);
-            CreateButton("Load Config", "Load a matrix configuration", UISprites.MatrixConfig, false, 3, () => {UIMatrixConfigPicker.Open(LoadConfig, (matrixScreen != null ? matrixScreen.matrixZoom : 1f));});
+            CreateButton("Load Config", "Load a matrix configuration", UISprites.MatrixConfig, false, 3, () => {ConfigPicker.Open(LoadConfig, (matrixScreen != null ? matrixScreen.matrixZoom : 1f));});
 
             Button CreateButton (string newButtonName, string description, Sprite newButtonMainImage, bool leftBound, int displayIndex, System.Action onClickAction) {
                 var newlyCreatedButtonRT = new GameObject(newButtonName, typeof(RectTransform), typeof(Image), typeof(Button), typeof(UIHoverEventCaller)).GetComponent<RectTransform>();
@@ -332,7 +278,7 @@ public class UIMatrix : MonoBehaviour {
         rectTransform.SetSizeDeltaY(totalHeight);
     }
 
-    void LoadConfig (UIMatrixConfig configToLoad) {
+    void LoadConfig (MatrixConfig configToLoad) {
         if(configToLoad == null){
             return;
         }

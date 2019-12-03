@@ -22,7 +22,7 @@ public class MatrixScreen : MonoBehaviour {
         var newMatrix = Instantiate(uiMatrixPrefab).GetComponent<UIMatrix>();
         newMatrix.rectTransform.SetParent(uiMatrixParent, false);
         newMatrix.rectTransform.anchoredPosition = Vector2.zero;
-        newMatrix.Initialize(UIMatrixConfig.identityConfig, UIMatrix.Editability.FULL, true);
+        newMatrix.Initialize(UIMatrices.MatrixConfig.identityConfig, UIMatrix.Editability.FULL, true);
         newMatrix.matrixScreen = this;
     }
 

@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class CustomCameraUIController : MonoBehaviour, IScrollHandler, IPointerDownHandler, IPointerUpHandler {
+public class CustomCameraUIController : ClickDragScrollHandler {
 
     [Header("References")]
     [SerializeField] CustomGLCamera targetCam;
@@ -78,37 +78,21 @@ public class CustomCameraUIController : MonoBehaviour, IScrollHandler, IPointerD
         return Mathf.Max(Mathf.Abs(currentDistToPivot - nearPlaneDist), 0.01f);
     }
 
-    public void OnPointerDown (PointerEventData eventData) {
+    protected override void PointerDown (PointerEventData eventData) {
         if(currentPointerType == PointerType.None){
             currentPointerType = PointerIDToType(eventData.pointerId);
             lastMousePos = Input.mousePosition;
         }
     }
 
-    public void OnPointerUp (PointerEventData eventData) {
+    protected override void PointerUp (PointerEventData eventData) {
         if(PointerIDToType(eventData.pointerId) == currentPointerType){
             currentPointerType = PointerType.None;
         }
     }
 
-    public void OnScroll (PointerEventData eventData) {
+    protected override void Scroll (PointerEventData eventData) {
         Zoom(eventData.scrollDelta.y);
-    }
-
-    PointerType PointerIDToType (int id) {
-        switch(id){
-            case -1: return PointerType.Left;
-            case -2: return PointerType.Right;
-            case -3: return PointerType.Middle;
-            default: return PointerType.None;
-        }
-    }
-
-    enum PointerType {
-        None,
-        Left,
-        Right,
-        Middle
     }
 	
 }

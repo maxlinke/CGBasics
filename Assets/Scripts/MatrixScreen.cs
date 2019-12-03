@@ -10,10 +10,10 @@ public class MatrixScreen : MonoBehaviour {
     [SerializeField] Camera matrixCam;
     [SerializeField] Camera externalCam;
     [SerializeField] MeshFilter referenceObject;
-    [SerializeField] RectTransform uiMatrixZoomRT;
-    [SerializeField] RectTransform uiMatrixParent;
+    [SerializeField] RectTransform uiMatrixParent;                  // TODO matrix groups (object, camera)
+    [SerializeField] MatrixScreenPanAndZoom panAndZoomController;
 
-    public float matrixZoom => uiMatrixZoomRT.UniformLocalScale();
+    public float matrixZoom => panAndZoomController.zoomLevel;
 
     void Awake () {
         matrixCam.GetComponent<CustomGLCamera>().matrixScreen = this;

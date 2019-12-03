@@ -578,8 +578,8 @@ MonoBehaviour:
   matrixCam: {fileID: 0}
   externalCam: {fileID: 0}
   referenceObject: {fileID: 0}
-  uiMatrixZoomRT: {fileID: 7235657237258940056}
   uiMatrixParent: {fileID: 448211681366667359}
+  panAndZoomController: {fileID: 2711445455600250081}
 --- !u!1 &2677544506212248129
 GameObject:
   m_ObjectHideFlags: 0
@@ -718,6 +718,7 @@ GameObject:
   - component: {fileID: 2677544506591979180}
   - component: {fileID: 7559740109442447616}
   - component: {fileID: 8344668593284754150}
+  - component: {fileID: 2711445455600250081}
   m_Layer: 5
   m_Name: Top Half
   m_TagString: Untagged
@@ -794,6 +795,24 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
+--- !u!114 &2711445455600250081
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2677544506591979178}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a412898a5c5e8cf46a3932a990b1cebd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  zoomRT: {fileID: 7235657237258940056}
+  panRT: {fileID: 448211681366667359}
+  zoomSensitivity: 0.2
+  smoothZoomMultiplier: 0.2
+  minZoom: 0.2
+  maxZoom: 5
 --- !u!1 &2677544506744128208
 GameObject:
   m_ObjectHideFlags: 0

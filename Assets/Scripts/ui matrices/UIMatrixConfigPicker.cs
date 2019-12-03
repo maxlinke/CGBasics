@@ -103,8 +103,24 @@ public class UIMatrixConfigPicker : MonoBehaviour {
     void Unhide (System.Action<UIMatrixConfig> onConfigPicked, float scale) {
         EventSystem.current.SetSelectedGameObject(null);
         gameObject.SetActive(true);
+        var scaledDimensions = scale * new Vector2(configButtonParent.rect.width, configButtonParent.rect.height);
+        float leftSpace = Input.mousePosition.x;
+        float bottomSpace = Input.mousePosition.y;
+        float rightSpace = Screen.width - leftSpace;
+        float topSpace = Screen.height - bottomSpace;
+        float pivotX, pivotY;
+        if(rightSpace < scaledDimensions.x && leftSpace >= scaledDimensions.x){
+            pivotX = 1;
+        }else{
+            pivotX = 0;
+        }
+        if(bottomSpace < scaledDimensions.y && topSpace >= scaledDimensions.y){
+            pivotY = 0;
+        }else{
+            pivotY = 1;
+        }
+        configButtonParent.pivot = new Vector2(pivotX, pivotY);
         configButtonParent.anchoredPosition = Input.mousePosition;
-        // TODO check space to all sides and move pivot
         configButtonParent.localScale = Vector3.one * scale;
         currentOnPickAction = onConfigPicked;
     }

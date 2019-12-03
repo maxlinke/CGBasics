@@ -101,47 +101,47 @@ public class UIMatrix : MonoBehaviour {
     }
 
     void Update () {
-        if(Input.GetKeyDown(KeyCode.Keypad0)){
-            var asInt = (int)(this.editability);
-            var enumValues = System.Enum.GetValues(typeof(Editability));
-            asInt = (asInt + 1) % enumValues.Length;
-            this.editability = (Editability)asInt;
-            var logMsg = $"Now: {this.editability} ({Time.frameCount})";
-            Debug.Log(logMsg);
-        }
-        if(Input.GetKeyDown(KeyCode.Keypad1)){
-            UpdateFieldStrings(new string[]{
-                "2", "0", "0", "200", 
-                "0", "1", "0", "-200",
-                "0", "0", "1", "-30000",
-                "asdf", "0", "0", "1"
-            });
-            UpdateMatrixAndGridView();
-        }else if(Input.GetKeyDown(KeyCode.Keypad2)){
-            UpdateFieldStrings(new string[]{
-                "1", "0", "0", "0", 
-                "0", "1", "0", "0",
-                "0", "0", "1", "0",
-                "1", "1", "1", "1"
-            });
-            UpdateMatrixAndGridView();
-        }else if(Input.GetKeyDown(KeyCode.Keypad3)){
-            VariableContainer.EditVariable("asdf", (2 * Random.value - 1) * 10, false);
-        }else if(Input.GetKeyDown(KeyCode.Keypad4)){
-            VariableContainer.EditVariable("asdf", (2 * Random.value - 1) * 10, true);
-        }else if(Input.GetKeyDown(KeyCode.Keypad5)){
-            VariableContainer.AddVariable("asdf", Mathf.PI);
-        }else if(Input.GetKeyDown(KeyCode.Keypad7)){
-            var logMsg = string.Empty;
-            for(int i='a'; i<='z'; i++){
-                logMsg += (char)i;
-            }
-            BottomLog.DisplayMessage($"{logMsg} ({Time.frameCount})");
-        }else if(Input.GetKeyDown(KeyCode.Keypad8)){
-            UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(null);
-        }else if(Input.GetKeyDown(KeyCode.Keypad9)){
-            UpdateMatrixAndGridView();
-        }
+        // if(Input.GetKeyDown(KeyCode.Keypad0)){
+        //     var asInt = (int)(this.editability);
+        //     var enumValues = System.Enum.GetValues(typeof(Editability));
+        //     asInt = (asInt + 1) % enumValues.Length;
+        //     this.editability = (Editability)asInt;
+        //     var logMsg = $"Now: {this.editability} ({Time.frameCount})";
+        //     Debug.Log(logMsg);
+        // }
+        // if(Input.GetKeyDown(KeyCode.Keypad1)){
+        //     UpdateFieldStrings(new string[]{
+        //         "2", "0", "0", "200", 
+        //         "0", "1", "0", "-200",
+        //         "0", "0", "1", "-30000",
+        //         "asdf", "0", "0", "1"
+        //     });
+        //     UpdateMatrixAndGridView();
+        // }else if(Input.GetKeyDown(KeyCode.Keypad2)){
+        //     UpdateFieldStrings(new string[]{
+        //         "1", "0", "0", "0", 
+        //         "0", "1", "0", "0",
+        //         "0", "0", "1", "0",
+        //         "1", "1", "1", "1"
+        //     });
+        //     UpdateMatrixAndGridView();
+        // }else if(Input.GetKeyDown(KeyCode.Keypad3)){
+        //     VariableContainer.EditVariable("asdf", (2 * Random.value - 1) * 10, false);
+        // }else if(Input.GetKeyDown(KeyCode.Keypad4)){
+        //     VariableContainer.EditVariable("asdf", (2 * Random.value - 1) * 10, true);
+        // }else if(Input.GetKeyDown(KeyCode.Keypad5)){
+        //     VariableContainer.AddVariable("asdf", Mathf.PI);
+        // }else if(Input.GetKeyDown(KeyCode.Keypad7)){
+        //     var logMsg = string.Empty;
+        //     for(int i='a'; i<='z'; i++){
+        //         logMsg += (char)i;
+        //     }
+        //     BottomLog.DisplayMessage($"{logMsg} ({Time.frameCount})");
+        // }else if(Input.GetKeyDown(KeyCode.Keypad8)){
+        //     UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(null);
+        // }else if(Input.GetKeyDown(KeyCode.Keypad9)){
+        //     UpdateMatrixAndGridView();
+        // }
     }
 
     void SelfInit () {

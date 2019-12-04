@@ -11,8 +11,12 @@ public class FieldEditor : MonoBehaviour {
     [SerializeField] Button doneButton;
     [SerializeField] TextMeshProUGUI doneButtonText;
     [SerializeField] TMP_InputField expressionInputField;
+    [SerializeField] Image expressionInputFieldBackground;
     [SerializeField] TextMeshProUGUI editingInfo;
-    [SerializeField] RectTransform varAndFuncParent;
+    [SerializeField] ScrollRect varAndFuncScrollView;
+    [SerializeField] RectTransform varAndFuncScrollViewRT;
+    [SerializeField] RectTransform varAndFuncScrollViewContentRT;
+    [SerializeField] RectTransform varAndFuncHeaderParent;
     [SerializeField] TextMeshProUGUI variableHeader;
     [SerializeField] TextMeshProUGUI functionHeader;
     [SerializeField] RectTransform varButtonParent;
@@ -31,6 +35,7 @@ public class FieldEditor : MonoBehaviour {
         editingInfo.text = "Editing is only possible in free mode";
         variableHeader.text = "Variables";
         functionHeader.text = "Functions";
+        ((TextMeshProUGUI)(expressionInputField.placeholder)).text = "Enter an expression here";
         insertButtonTemplate.SetGOActive(false);
         varButtons = new List<InsertButton>();
         funcButtons = new List<InsertButton>();
@@ -38,30 +43,40 @@ public class FieldEditor : MonoBehaviour {
         CreateInsertButtons(allFuncs.Length, funcButtonParent, funcButtons, (ind, btn) => {
             var funcName = allFuncs[ind].functionName;
             var funcDesc = allFuncs[ind].description;
-            btn.Setup(funcName, funcDesc, $"{funcName}(");
+            var funcCall = allFuncs[ind].exampleCall;
+            btn.Setup(funcCall, funcDesc, $"{funcName}(");
         });
     }
 
     public void LoadColors (ColorScheme cs) {
         // done button is already accounted for in the viewer
-        // TODO the rest of the colors
-        variableHeader.color = cs.UiMatrixFieldText;
-        functionHeader.color = cs.UiMatrixFieldText;
+        expressionInputFieldBackground.color = Color.white;
+        expressionInputField.SetFadeTransition(0f, cs.UiMatrixFieldViewerDoneButton, cs.UiMatrixFieldViewerDoneButtonHover, cs.UiMatrixFieldViewerDoneButtonClick, Color.clear);
+        expressionInputField.textComponent.color = cs.UiMatrixFieldViewerDoneButtonText;
+        expressionInputField.placeholder.color = 0.5f * cs.UiMatrixFieldViewerDoneButtonText + 0.5f * cs.UiMatrixFieldViewerDoneButton;
+        editingInfo.color = cs.UiMatrixFieldViewerDoneButtonText;
+        variableHeader.color = cs.UiMatrixFieldViewerDoneButtonText;
+        functionHeader.color = cs.UiMatrixFieldViewerDoneButtonText;
         foreach(var b in varButtons){
             b.LoadColors(cs);
         }
         foreach(var b in funcButtons){
             b.LoadColors(cs);
         }
+        varAndFuncScrollView.verticalScrollbar.GetComponent<Image>().color = cs.UiMatrixBackground.AlphaOver(cs.UiMatrixFieldBackground);
+        varAndFuncScrollView.verticalScrollbar.SetFadeTransition(0f, cs.UiMatrixFieldViewerDoneButton, cs.UiMatrixFieldViewerDoneButtonHover, cs.UiMatrixFieldViewerDoneButtonClick, cs.UiMatrixFieldBackgroundDisabled);
+        varAndFuncScrollView.verticalScrollbar.handleRect.GetComponent<Image>().color = Color.white;
     }
 
     public void Open (string expression, bool editable, Dictionary<string, float> variables, System.Action<string> onDoneEditing) {
         gameObject.SetActive(true);
         expressionInputField.text = expression;
         expressionInputField.interactable = editable;       // TODO onEndEdit check maybe? just red or white?
+        expressionInputFieldBackground.enabled = editable;
         editingInfo.SetGOActive(!editable);
         SetupDoneButton();
-        varAndFuncParent.SetSizeDeltaX(Mathf.Min(Screen.width, maxVarAndFuncAreaWidth));
+        varAndFuncScrollViewRT.SetSizeDeltaX(Mathf.Min(Screen.width, maxVarAndFuncAreaWidth));
+        varAndFuncHeaderParent.SetSizeDeltaX(Mathf.Min(Screen.width, maxVarAndFuncAreaWidth));
         string[] varNames = new string[variables.Count];
         float[] varValues = new float[variables.Count];
         int varIndex = 0;
@@ -75,8 +90,10 @@ public class FieldEditor : MonoBehaviour {
             float varVal = varValues[ind];
             btn.Setup(varName, varVal.ToString(), varName);
         });
+        varAndFuncScrollViewContentRT.SetSizeDeltaY(Mathf.Max(varButtonParent.rect.height, funcButtonParent.rect.height));
         foreach(var b in varButtons){
             b.interactable = editable;
+            b.LoadColors(ColorScheme.current);
         }
         foreach(var b in funcButtons){
             b.interactable = editable;
@@ -118,8 +135,9 @@ public class FieldEditor : MonoBehaviour {
             newButtonRT.anchoredPosition = new Vector2(0, y);
             setupButton(i, newButton);
             list.Add(newButton);
-            y -= newButtonRT.rect.height - buttonVerticalOffset;
+            y -= newButtonRT.rect.height - buttonVerticalOffset;   
         }
+        parentRT.SetSizeDeltaY(Mathf.Abs(y));
     }
 
     private class InsertButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler {
@@ -167,9 +185,9 @@ public class FieldEditor : MonoBehaviour {
 
         // TODO refactor the whole colorscheme so there's fewer overall colors (there's a LOT of overlap...)
         public void LoadColors (ColorScheme cs) {
-            m_backgroundImage.color = cs.UiMatrixBackground;
-            m_button.SetFadeTransition(0f, cs.UiMatrixFieldBackground, cs.UiMatrixFieldBackgroundHighlighted, cs.UiMatrixFieldBackgroundClicked, Color.clear);
-            m_label.color = cs.UiMatrixFieldText;
+            m_backgroundImage.color = Color.white;
+            m_button.SetFadeTransition(0f, cs.UiMatrixFieldViewerDoneButton, cs.UiMatrixFieldViewerDoneButtonHover, cs.UiMatrixFieldViewerDoneButtonClick, Color.clear);
+            m_label.color = cs.UiMatrixFieldViewerDoneButtonText;
         }
 
     }

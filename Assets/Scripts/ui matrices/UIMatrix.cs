@@ -120,7 +120,6 @@ public class UIMatrix : MonoBehaviour {
         VariableContainer.Initialize(initialVariables, varContainerExpanded);
         UpdateFieldStrings(fieldInitializers);
         SetName(inputName, false);
-        // UpdateMatrixAndGridView();       // obsolete? since colors are now loaded at the end, which also updates everything?
         outline.SetGOActive(false);
         nameLabelInputField.SetGOActive(false);
         nameLabelInputField.onEndEdit.AddListener((enteredName) => {
@@ -171,7 +170,6 @@ public class UIMatrix : MonoBehaviour {
                 newFieldBG.type = Image.Type.Sliced;
                 var newFieldBGButton = newFieldBGRT.GetComponent<Button>();
                 int btnIndex = i;                                                                                                       // just using i is a trap!
-                // newFieldBGButton.onClick.AddListener(() => {Debug.Log($"{btnIndex} was clicked! Do something with that info!");});      // TODO proper onclick
                 newFieldBGButton.onClick.AddListener(() => {FieldViewer.Open(this);});
                 fieldButtons[i] = newFieldBGButton;
                 // generate flash image
@@ -463,6 +461,13 @@ public class UIMatrix : MonoBehaviour {
             throw new System.ArgumentException("Field string array must have 16 values!");
         }
         fieldStrings.CopyTo(stringFieldValues, 0);       // copy because i don't want anyone (especially me) creating a mess by doing whatever with the original input array
+    }
+
+    public void UpdateSingleFieldString (int fieldIndex, string newExpression, bool updateEverything = true) {
+        stringFieldValues[fieldIndex] = newExpression;
+        if(updateEverything){
+            UpdateMatrixAndGridView();
+        }
     }
 
     public void UpdateMatrixAndGridView () {

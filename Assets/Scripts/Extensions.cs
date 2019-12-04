@@ -9,6 +9,16 @@ public static class Extensions {
         component.gameObject.SetActive(newActiveState);
     }
 
+    // what? why doesn't this compile?
+    // public static int IndexOf<T> (this T[] array, T element) {
+    //     for(int i=0; i<array.Length; i++){
+    //         if(array[i] == element){
+    //             return i;
+    //         }
+    //     }
+    //     return -1;
+    // }
+
     public static T Random<T> (this T[] array) {
         return array[RNG.Range(0, array.Length)];
     }

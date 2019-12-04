@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
@@ -11,6 +9,8 @@ namespace UIMatrices {
         private static FieldViewer instance;
 
         [Header("Components")]
+        [SerializeField] FieldEditor fieldEditor;
+        [SerializeField] GameObject mainScreen;
         [SerializeField] FieldViewerField fieldTemplate;
         [SerializeField] Image backgroundImage;
         [SerializeField] RectTransform fieldParent;
@@ -24,7 +24,6 @@ namespace UIMatrices {
 
         bool initialized;
         UIMatrix currentCallingMatrix;
-        System.Action<string[]> currentOnEndEditAction;
 
         void OnEnable () {
             if(!initialized){
@@ -44,7 +43,6 @@ namespace UIMatrices {
             }
         }
 
-        // TODO rememember to do settext on the fields!
         void LoadColors (ColorScheme cs) {
             backgroundImage.color = cs.UiMatrixFieldViewerBackground;
             doneButton.SetFadeTransition(0f, cs.UiMatrixFieldViewerDoneButton, cs.UiMatrixFieldViewerDoneButtonHover, cs.UiMatrixFieldViewerDoneButtonClick, cs.UiMatrixFieldViewerDoneButtonDisabled);
@@ -55,6 +53,7 @@ namespace UIMatrices {
             if(currentCallingMatrix != null){
                 UpdateFieldTexts();
             }
+            fieldEditor.LoadColors(cs);
         }
 
         void UpdateFieldTexts () {
@@ -76,10 +75,11 @@ namespace UIMatrices {
                 return;
             }
             instance = this;
-            doneButton.onClick.AddListener(() => {HideAndReset();});
             fieldTemplate.SetGOActive(false);
+            SetupDoneButton();
             CreateIndividualFieldArray();
-
+            fieldEditor.Initialize();
+            fieldEditor.Close();
             initialized = true;
             HideAndReset();
 
@@ -99,7 +99,7 @@ namespace UIMatrices {
                     //actual field thingy
                     var newField = Instantiate(fieldTemplate);
                     newField.SetGOActive(true);
-                    newField.Initialize(this, (currentCallingMatrix != null ? currentCallingMatrix[i] : string.Empty));
+                    newField.Initialize(this, i);
                     newField.rectTransform.SetParent(newFieldRT, false);
                     newField.rectTransform.SetToFillWithMargins(spaceBetweenFields);
                     actualFields[i] = newField;
@@ -118,14 +118,41 @@ namespace UIMatrices {
 
         }
 
+        void SetupDoneButton () {
+            doneButton.onClick.RemoveAllListeners();
+            doneButton.onClick.AddListener(() => {HideAndReset();});
+            doneButtonText.text = "Exit";
+        }
+
+        // void OpenEditor () {
+        //     mainScreen.SetActive(false);
+        //     fieldEditor.Open();
+        // }
+
+        // // TODO update the matrix n shit
+        // void ReturnFromEditor () {
+        //     fieldEditor.Close();
+        //     mainScreen.SetActive(true);
+        // }
+
         void HideAndReset () {
             currentCallingMatrix = null;
-            currentOnEndEditAction = null;
             gameObject.SetActive(false);
         }
 
         public void FieldButtonClicked (FieldViewerField field) {
-            // open the editor with the field's expression (and the matrix' editing privileges)
+            mainScreen.SetActive(false);
+            fieldEditor.Open(
+                expression: field.expression, 
+                editable: currentCallingMatrix.editability == UIMatrix.Editability.FULL, 
+                variables: currentCallingMatrix.VariableContainer.GetVariableMap(),
+                onDoneEditing: (exp) => {
+                    currentCallingMatrix.UpdateSingleFieldString(field.index, exp, true);
+                    mainScreen.SetActive(true);
+                    UpdateFieldTexts();
+                    SetupDoneButton();
+                }
+            );
         }
     
     }

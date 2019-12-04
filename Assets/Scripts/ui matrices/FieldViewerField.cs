@@ -15,6 +15,7 @@ namespace UIMatrices {
         FieldViewer viewer;
         bool initialized;
         string m_expression;
+        int m_index;
         RectTransform m_rectTransform;
 
         public RectTransform rectTransform {
@@ -35,13 +36,16 @@ namespace UIMatrices {
             }
         }
 
-        public void Initialize (FieldViewer viewer, string expression) {
+        public int index => m_index;
+
+        public void Initialize (FieldViewer viewer, int index) {
             if(initialized){
                 Debug.LogWarning("Duplicate init call! Aborting...", this.gameObject);
                 return;
             }
             this.viewer = viewer;
-            this.expression = expression;
+            this.expression = string.Empty;
+            this.m_index = index;
             fieldEditButton.onClick.AddListener(() => {viewer.FieldButtonClicked(this);});
             initialized = true;
         }

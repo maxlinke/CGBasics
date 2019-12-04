@@ -9,13 +9,17 @@ public class GameObjectEnabler : MonoBehaviour {
 
     void Awake () {
         foreach(var go in gameObjectsToActivateOnAwake){
-            go.SetActive(true);
+            if(go != null){
+                go.SetActive(true);
+            }
         }
     }
 
     void Start () {
         foreach(var go in gameObjectsToActivateOnStart){
-            go.SetActive(true);
+            if(go != null){
+                go.SetActive(true);
+            }
         }
     }
 	

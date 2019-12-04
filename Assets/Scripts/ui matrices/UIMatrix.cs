@@ -90,6 +90,8 @@ public class UIMatrix : MonoBehaviour {
         }
     }
 
+    public string this[int i] => stringFieldValues[i];
+
     public bool IsInvertible => (MatrixValue.determinant != 0 && calculatedMatrixIsDisplayedMatrix);
     public VariableContainer VariableContainer => variableContainer;        // spoken to by the camera i guess.
     public RectTransform rectTransform => m_rectTransform;
@@ -169,7 +171,8 @@ public class UIMatrix : MonoBehaviour {
                 newFieldBG.type = Image.Type.Sliced;
                 var newFieldBGButton = newFieldBGRT.GetComponent<Button>();
                 int btnIndex = i;                                                                                                       // just using i is a trap!
-                newFieldBGButton.onClick.AddListener(() => {Debug.Log($"{btnIndex} was clicked! Do something with that info!");});      // TODO proper onclick
+                // newFieldBGButton.onClick.AddListener(() => {Debug.Log($"{btnIndex} was clicked! Do something with that info!");});      // TODO proper onclick
+                newFieldBGButton.onClick.AddListener(() => {FieldViewer.Open(this);});
                 fieldButtons[i] = newFieldBGButton;
                 // generate flash image
                 var newFlashRT = new GameObject("Flash Image", typeof(RectTransform), typeof(Image), typeof(FieldFlasher)).GetComponent<RectTransform>();
@@ -289,7 +292,42 @@ public class UIMatrix : MonoBehaviour {
         UpdateMatrixAndGridView();
     }
 
-    
+    public string FieldExpressionToColoredResult (string inputExpression, out float parsedValue, out bool validValue) {
+        try{
+            parsedValue = StringExpressions.ParseExpression(inputExpression, variableContainer.GetVariableMap());
+            if(float.IsNaN(parsedValue)){
+                validValue = false;
+                return InvalidColors("NaN");
+            }else if(float.IsPositiveInfinity(parsedValue)){
+                validValue = false;
+                return InvalidColors("+Inf");
+            }else if(float.IsNegativeInfinity(parsedValue)){
+                validValue = false;
+                return InvalidColors("-Inf");
+            }else{
+                var showVal = $"{parsedValue:F3}";
+                if(showVal.Contains(".")){
+                    while(showVal[showVal.Length-1] == '0'){
+                        showVal = showVal.Substring(0, showVal.Length - 1);
+                    }
+                    if(showVal[showVal.Length-1] == '.'){
+                        showVal = showVal.Substring(0, showVal.Length - 1);
+                    }
+                }
+                validValue = true;
+                return showVal;
+            }
+        }catch(System.Exception){
+            validValue = false;
+            parsedValue = float.NaN;
+            return InvalidColors("ERR");
+        }
+
+        string InvalidColors (string actualStringValue) {
+            string hex = ColorUtility.ToHtmlStringRGBA(stringFieldInvalidColor);
+            return $"<color=#{hex}>{actualStringValue}</color>";
+        }
+    }
 
     public void SetName (string newName, bool updateColors = true) {
         newName = newName.Trim();
@@ -432,45 +470,16 @@ public class UIMatrix : MonoBehaviour {
         var newMatrix = Matrix4x4.identity;
         for(int i=0; i<16; i++){
             var origText = fieldTextMeshes[i].text;
-            var newText = string.Empty;
-            try{
-                var parsed = StringExpressions.ParseExpression(stringFieldValues[i], variableContainer.GetVariableMap());
-                if(float.IsNaN(parsed)){
-                    matrixValid = false;
-                    newText = InvalidColors("NaN");
-                }else if(float.IsPositiveInfinity(parsed)){
-                    matrixValid = false;
-                    newText = InvalidColors("+Inf");
-                }else if(float.IsNegativeInfinity(parsed)){
-                    matrixValid = false;
-                    newText = InvalidColors("-Inf");
-                }else{
-                    newMatrix[i] = parsed;
-                    var showVal = $"{parsed:F3}";
-                    if(showVal.Contains(".")){
-                        while(showVal[showVal.Length-1] == '0'){
-                            showVal = showVal.Substring(0, showVal.Length - 1);
-                        }
-                        if(showVal[showVal.Length-1] == '.'){
-                            showVal = showVal.Substring(0, showVal.Length - 1);
-                        }
-                    }
-                    newText = showVal;
-                }
-            }catch(System.Exception){
+            var newText = FieldExpressionToColoredResult(stringFieldValues[i], out float parsedValue, out bool validValue);
+            if(!validValue){
                 matrixValid = false;
-                newText = InvalidColors("ERR");
-            }finally{ 
-                fieldTextMeshes[i].text = newText;
-                if(!newText.Equals(origText)){
-                    fieldFlashers[i].Flash();
-                }
+            }else{
+                newMatrix[i] = parsedValue;
             }
-
-            string InvalidColors (string actualStringValue) {
-                string hex = ColorUtility.ToHtmlStringRGBA(stringFieldInvalidColor);
-                return $"<color=#{hex}>{actualStringValue}</color>";
-            }
+            fieldTextMeshes[i].text = newText;
+            if(!newText.Equals(origText)){
+                fieldFlashers[i].Flash();
+            }            
         }
         if(matrixValid){
             calculatedMatrix = newMatrix.transpose;     // Matrix4x4 consists of column vectors, so this is the correction

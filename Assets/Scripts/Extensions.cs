@@ -112,6 +112,14 @@ public static class Extensions {
         return new Color(col.r, col.g, col.b, col.a * 0.5f);
     }
 
+    public static Color AlphaOver (this Color col, Color otherCol) {
+        return new Color(
+            Mathf.Lerp(col.r, otherCol.r, otherCol.a),
+            Mathf.Lerp(col.g, otherCol.g, otherCol.a),
+            Mathf.Lerp(col.b, otherCol.b, otherCol.a),
+            Mathf.Clamp01(col.a + otherCol.a));
+    }
+
     public static float UniformLocalScale (this Transform transform) {
         Vector3 vec = transform.localScale;
         if(vec.x == vec.y && vec.y == vec.z){

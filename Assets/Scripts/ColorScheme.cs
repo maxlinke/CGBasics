@@ -189,6 +189,11 @@ public class ColorScheme : ScriptableObject {
     public Color UiMatrixConfigPickerButtonsClick => uiMatrixConfigPickerButtonsClick;
     public Color UiMatrixConfigPickerText => uiMatrixConfigPickerText;
 
+    [Header("UI Matrix Field Viewer/Editor")]
+    [SerializeField] Color uiMatrixFieldViewerBackground;
+
+    public Color UiMatrixFieldViewerBackground => uiMatrixFieldViewerBackground;
+
     [Header("Bottom Log")]
     [SerializeField] Color bottomLogBackground;
     [SerializeField] Color bottomLogExpandedBackground;

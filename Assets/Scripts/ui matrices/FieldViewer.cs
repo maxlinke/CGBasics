@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 namespace UIMatrices {
 
@@ -14,6 +15,7 @@ namespace UIMatrices {
         [SerializeField] Image backgroundImage;
         [SerializeField] RectTransform fieldParent;
         [SerializeField] Button doneButton;
+        [SerializeField] TextMeshProUGUI doneButtonText;
 
         [Header("Settings")]
         [SerializeField] float spaceBetweenFields;
@@ -45,7 +47,8 @@ namespace UIMatrices {
         // TODO rememember to do settext on the fields!
         void LoadColors (ColorScheme cs) {
             backgroundImage.color = cs.UiMatrixFieldViewerBackground;
-
+            doneButton.SetFadeTransition(0f, cs.UiMatrixFieldViewerDoneButton, cs.UiMatrixFieldViewerDoneButtonHover, cs.UiMatrixFieldViewerDoneButtonClick, cs.UiMatrixFieldViewerDoneButtonDisabled);
+            doneButtonText.color = cs.UiMatrixFieldViewerDoneButtonText;
             foreach(var field in actualFields){
                 field.LoadColors(cs);
             }

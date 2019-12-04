@@ -191,8 +191,18 @@ public class ColorScheme : ScriptableObject {
 
     [Header("UI Matrix Field Viewer/Editor")]
     [SerializeField] Color uiMatrixFieldViewerBackground;
+    [SerializeField] Color uiMatrixFieldViewerDoneButton;
+    [SerializeField] Color uiMatrixFieldViewerDoneButtonHover;
+    [SerializeField] Color uiMatrixFieldViewerDoneButtonClick;
+    [SerializeField] Color uiMatrixFieldViewerDoneButtonDisabled;
+    [SerializeField] Color uiMatrixFieldViewerDoneButtonText;
 
     public Color UiMatrixFieldViewerBackground => uiMatrixFieldViewerBackground;
+    public Color UiMatrixFieldViewerDoneButton => uiMatrixFieldViewerDoneButton;
+    public Color UiMatrixFieldViewerDoneButtonHover => uiMatrixFieldViewerDoneButtonHover;
+    public Color UiMatrixFieldViewerDoneButtonClick => uiMatrixFieldViewerDoneButtonClick;
+    public Color UiMatrixFieldViewerDoneButtonDisabled => uiMatrixFieldViewerDoneButtonDisabled;
+    public Color UiMatrixFieldViewerDoneButtonText => uiMatrixFieldViewerDoneButtonText;
 
     [Header("Bottom Log")]
     [SerializeField] Color bottomLogBackground;

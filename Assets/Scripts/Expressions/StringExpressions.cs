@@ -211,9 +211,11 @@ public static partial class StringExpressions {
             if(IsIdentifierChar(ch) || (charCounter > 1 && IsNumberChar(ch, false))){        // because "atan2" is a valid function name (but "2atan2" isn't..."
                 continue;
             }else{
-                if(ch == '('){
+                var temp = inputString.Substring(charCounter-1).Trim();                                 // this is new
+                var nextCh = temp[0];                                                                   // this is new
+                if(nextCh == '('){                                                                      // this was previously just ch
                     var functionName = inputString.Substring(0, charCounter-1);
-                    inputString = inputString.Remove(0, charCounter-1);
+                    inputString = inputString.Remove(0, charCounter-1).Trim();                          // trim is new
                     inputString = RemoveAndGetFunctionParameters(inputString, out var parameters);
                     outputNumber = ExecuteFunction(functionName, parameters, variables);
                     return inputString;

@@ -47,6 +47,7 @@ public class Foldout : MonoBehaviour {
         backgroundRaycastCatcher.GetComponent<BackgroundRaycastCatcher>().Initialize(this);
         buttonTemplate.SetGOActive(false);
         buttonTemplate.onClick.RemoveAllListeners();
+        HideAndReset();
         initialized = true;
     }
 
@@ -62,7 +63,9 @@ public class Foldout : MonoBehaviour {
     }
 
     void HideAndReset () {
-        BottomLog.ClearDisplay();
+        if(initialized){
+            BottomLog.ClearDisplay();
+        }
         for(int i=buttons.Count-1; i>=0; i--){
             Destroy(buttons[i].gameObject);
         }
@@ -95,6 +98,7 @@ public class Foldout : MonoBehaviour {
         InputSystem.Subscribe(this, new InputSystem.KeyEvent(KeyCode.Escape, onKeyDown: AbortSelection));
         subscribedToInputSystem = true;
         this.onNotSelectAnything = onNotSelectAnything;
+        gameObject.SetActive(true);
 
         void SetupContainer () {
             int i = 0;
@@ -110,7 +114,10 @@ public class Foldout : MonoBehaviour {
                 newBtnLabel.text = setup.buttonName;
                 newBtn.interactable = setup.buttonInteractable;
                 var onClick = setup.buttonClickAction;
-                newBtn.onClick.AddListener(() => {onClick?.Invoke();});
+                newBtn.onClick.AddListener(() => {
+                    HideAndReset();
+                    onClick?.Invoke();
+                });
                 var message = setup.buttonHoverMessage;
                 newBtn.gameObject.AddComponent(typeof(UIHoverEventCaller));
                 newBtn.GetComponent<UIHoverEventCaller>().SetActions((ped) => {BottomLog.DisplayMessage(message);}, (ped) => {BottomLog.ClearDisplay();});

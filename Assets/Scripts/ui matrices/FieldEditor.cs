@@ -70,6 +70,7 @@ public class FieldEditor : MonoBehaviour {
     }
 
     public void Open (string expression, bool editable, Dictionary<string, float> variables, System.Action<string> onDoneEditing) {
+        EventSystem.current.SetSelectedGameObject(null);
         gameObject.SetActive(true);
         expressionInputField.text = expression;
         expressionInputField.interactable = editable;       // TODO onEndEdit check maybe? just red or white?

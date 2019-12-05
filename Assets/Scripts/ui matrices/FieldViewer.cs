@@ -109,15 +109,19 @@ namespace UIMatrices {
         }
 
         // no onendedit, just straight up replace the string field array everytime a change is made..
-        public static void Open (UIMatrix callingMatrix) {
-            instance.Unhide(callingMatrix);
+        public static void Open (UIMatrix callingMatrix, bool directlyEditField = false, int fieldIndex = -1) {
+            instance.Unhide(callingMatrix, directlyEditField, fieldIndex);
         }
 
-        void Unhide (UIMatrix callingMatrix) {
+        void Unhide (UIMatrix callingMatrix, bool directlyEditField, int fieldIndex) {
+            UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(null);
             this.currentCallingMatrix = callingMatrix;
             gameObject.SetActive(true);                 // because activating loads the colors and that updates the fields, the matrix needs to be set before activation!
             InputSystem.Subscribe(this, new InputSystem.KeyEvent(KeyCode.Escape, onKeyDown: HideAndReset));
             subscribedToInputSystem = true;
+            if(directlyEditField){
+                FieldButtonClicked(actualFields[fieldIndex]);
+            }
         }
 
         void SetupDoneButton () {

@@ -176,7 +176,13 @@ public class UIMatrix : MonoBehaviour {
                 newFieldBG.type = Image.Type.Sliced;
                 var newFieldBGButton = newFieldBGRT.GetComponent<Button>();
                 int btnIndex = i;                                                                                                       // just using i is a trap!
-                newFieldBGButton.onClick.AddListener(() => {FieldViewer.Open(this);});
+                newFieldBGButton.onClick.AddListener(() => {
+                    if(Input.GetKey(KeyCode.Mouse1)){                   // TODO this doesn't work as indended. buttons aren't rightclickable
+                        FieldViewer.Open(this, true, btnIndex);
+                    }else{
+                        FieldViewer.Open(this);
+                    }
+                });
                 fieldButtons[i] = newFieldBGButton;
                 // generate flash image
                 var newFlashRT = new GameObject("Flash Image", typeof(RectTransform), typeof(Image), typeof(FieldFlasher)).GetComponent<RectTransform>();

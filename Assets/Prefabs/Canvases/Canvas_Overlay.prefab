@@ -571,7 +571,7 @@ MonoBehaviour:
   varButtonParent: {fileID: 839035061272605320}
   funcButtonParent: {fileID: 2743241801034463389}
   maxVarAndFuncAreaWidth: 520
-  buttonVerticalOffset: -4
+  buttonVerticalOffset: 4
 --- !u!1 &1995545275946634109
 GameObject:
   m_ObjectHideFlags: 0
@@ -3202,7 +3202,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 2990083643178097743}
   m_Direction: 2
   m_Value: 1
-  m_Size: 0.9734042
+  m_Size: 0.9281915
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:

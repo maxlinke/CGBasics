@@ -103,6 +103,12 @@ public class UIMatrix : MonoBehaviour {
         }
     }
 
+    void Update () {
+        if(Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.E)){
+            this.editability = (Editability)(((int)editability + 1) % System.Enum.GetNames(typeof(Editability)).Length);
+        }
+    }
+
     void SelfInit () {
         Initialize(MatrixConfig.translationConfig, Editability.FULL, true);
     }

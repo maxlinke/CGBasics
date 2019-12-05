@@ -30,6 +30,7 @@ public class FieldEditor : MonoBehaviour {
 
     List<InsertButton> varButtons;
     List<InsertButton> funcButtons;
+    bool subscribedToInputSystem;
 
     public void Initialize () {
         editingInfo.text = "Editing is only possible in free mode";
@@ -98,6 +99,8 @@ public class FieldEditor : MonoBehaviour {
         foreach(var b in funcButtons){
             b.interactable = editable;
         }
+        InputSystem.Subscribe(this, new InputSystem.KeyEvent(KeyCode.Escape, onKeyDown: Close));
+        subscribedToInputSystem = true;
         this.onDoneEditing = onDoneEditing;
     }
 
@@ -108,6 +111,10 @@ public class FieldEditor : MonoBehaviour {
         varButtons.Clear();
         EventSystem.current.SetSelectedGameObject(null);    // deselecting the input field. might be unnecessary
         gameObject.SetActive(false);
+        if(subscribedToInputSystem){                        // because this gets called on init basically and we're not subscribed to anything yet there...
+            InputSystem.UnSubscribe(this);
+            subscribedToInputSystem = false;
+        }
         onDoneEditing?.Invoke(expressionInputField.text);
     }
 	
@@ -135,7 +142,7 @@ public class FieldEditor : MonoBehaviour {
             newButtonRT.anchoredPosition = new Vector2(0, y);
             setupButton(i, newButton);
             list.Add(newButton);
-            y -= newButtonRT.rect.height - buttonVerticalOffset;   
+            y -= newButtonRT.rect.height + buttonVerticalOffset;   
         }
         parentRT.SetSizeDeltaY(Mathf.Abs(y));
     }

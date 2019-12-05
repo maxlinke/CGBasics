@@ -23,6 +23,7 @@ namespace UIMatrices {
         FieldViewerField[] actualFields;
 
         bool initialized;
+        bool subscribedToInputSystem;
         UIMatrix currentCallingMatrix;
 
         void OnEnable () {
@@ -115,7 +116,8 @@ namespace UIMatrices {
         void Unhide (UIMatrix callingMatrix) {
             this.currentCallingMatrix = callingMatrix;
             gameObject.SetActive(true);                 // because activating loads the colors and that updates the fields, the matrix needs to be set before activation!
-
+            InputSystem.Subscribe(this, new InputSystem.KeyEvent(KeyCode.Escape, onKeyDown: HideAndReset));
+            subscribedToInputSystem = true;
         }
 
         void SetupDoneButton () {
@@ -124,20 +126,13 @@ namespace UIMatrices {
             doneButtonText.text = "Exit";
         }
 
-        // void OpenEditor () {
-        //     mainScreen.SetActive(false);
-        //     fieldEditor.Open();
-        // }
-
-        // // TODO update the matrix n shit
-        // void ReturnFromEditor () {
-        //     fieldEditor.Close();
-        //     mainScreen.SetActive(true);
-        // }
-
         void HideAndReset () {
             currentCallingMatrix = null;
             gameObject.SetActive(false);
+            if(subscribedToInputSystem){
+                InputSystem.UnSubscribe(this);
+                subscribedToInputSystem = false;
+            }
         }
 
         public void FieldButtonClicked (FieldViewerField field) {

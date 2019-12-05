@@ -127,7 +127,7 @@ public static class Extensions {
             Mathf.Lerp(col.r, otherCol.r, otherCol.a),
             Mathf.Lerp(col.g, otherCol.g, otherCol.a),
             Mathf.Lerp(col.b, otherCol.b, otherCol.a),
-            Mathf.Clamp01(col.a + otherCol.a));
+            Mathf.Clamp01(col.a + otherCol.a * (1f - col.a)));
     }
 
     public static float UniformLocalScale (this Transform transform) {

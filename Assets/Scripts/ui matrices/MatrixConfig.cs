@@ -11,7 +11,9 @@ namespace UIMatrices {
             RotationZXY,
             RotationX,
             RotationY,
-            RotationZ
+            RotationZ,
+            Rebase,
+            PerspProj
         }
 
         private static Dictionary<Type, MatrixConfig> map;
@@ -21,6 +23,9 @@ namespace UIMatrices {
 
         private static TranslationConfig m_translationConfig;
         public static TranslationConfig translationConfig => m_translationConfig;
+
+        private static InverseTranslationConfig m_inverseTranslationConfig;
+        public static InverseTranslationConfig inverseTranslationConfig => m_inverseTranslationConfig;
 
         private static FullEulerRotationConfig m_fullRotationConfig;
         public static FullEulerRotationConfig fullRotationConfig => m_fullRotationConfig;
@@ -36,6 +41,12 @@ namespace UIMatrices {
 
         private static ZRotConfig m_zRotConfig;
         public static ZRotConfig zRotConfig => m_zRotConfig;
+
+        private static RebaseConfig m_rebaseConfig;
+        public static RebaseConfig rebaseConfig => m_rebaseConfig;
+
+        private static PerspectiveProjectionConfig m_perspProjConfig;
+        public static PerspectiveProjectionConfig perspProjConfig => m_perspProjConfig;
 
         public abstract string name { get; }
         public abstract string description { get; }
@@ -58,6 +69,12 @@ namespace UIMatrices {
             map.Add(Type.RotationY, m_yRotConfig);
             m_zRotConfig = new ZRotConfig();
             map.Add(Type.RotationZ, m_zRotConfig);
+            m_rebaseConfig = new RebaseConfig();
+            map.Add(Type.Rebase, m_rebaseConfig);
+            m_perspProjConfig = new PerspectiveProjectionConfig();
+            map.Add(Type.PerspProj, m_perspProjConfig);
+            // the non-enum ones
+            m_inverseTranslationConfig = new InverseTranslationConfig();
         }
 
         public static MatrixConfig GetForType (Type type) {
@@ -76,6 +93,8 @@ namespace UIMatrices {
             }
         }
 
+    #region Identity, Dynamic
+
         public class IdentityConfig : MatrixConfig {
 
             private List<string> matrix = new List<string>(){
@@ -93,6 +112,50 @@ namespace UIMatrices {
             public override string[] fieldStrings => matrix.ToArray();
 
         }
+
+        // not to be found in the list. these are to be created from matrices, in case i want to copy them for instance...
+        public class DynamicConfig : MatrixConfig {
+
+            private List<string> matrix;
+            private List<VarPreset> vars;
+            private string m_name;
+
+            public override string name => m_name;
+            public override string description => null;     // this should hopefully throw a nice exception if it is ever used
+            public override VarPreset[] defaultVariables => vars.ToArray();
+            public override string[] fieldStrings => matrix.ToArray();
+
+            public DynamicConfig (string inputName, string[] inputMatrix, IEnumerable<VarPreset> inputVarPresets) {
+                if(inputMatrix.Length != 16){
+                    throw new System.ArgumentException($"Input string array MUST have 16 values! Input had {inputMatrix.Length}...");
+                }
+                m_name = inputName;
+                matrix = new List<string>();
+                for(int i=0; i<inputMatrix.Length; i++){
+                    matrix.Add(inputMatrix[i]);
+                }
+                vars = new List<VarPreset>();
+                foreach(var preset in inputVarPresets){
+                    vars.Add(preset);
+                }
+            }
+
+            public DynamicConfig (UIMatrix uiMatrix) {
+                m_name = uiMatrix.GetName();
+                matrix = new List<string>();
+                for(int i=0; i<16; i++){
+                    matrix.Add(uiMatrix[i]);
+                }
+                vars = new List<VarPreset>();
+                var varMap = uiMatrix.VariableContainer.GetVariableMap();
+                foreach(var key in varMap.Keys){
+                    vars.Add(new VarPreset(key, varMap[key]));
+                }
+            }
+
+        }
+
+    #endregion
 
     #region Translation, Rotation, Scale
 
@@ -117,6 +180,33 @@ namespace UIMatrices {
 
             public override string name => "Translation";
             public override string description => "Moves a vector along all three axes. Only works properly if the vector has 4 dimensions and the fourth component (w) is 1.";
+            public override VarPreset[] defaultVariables => varPresets.ToArray();
+            public override string[] fieldStrings => matrix.ToArray();
+
+        }
+
+        // no enum for this one! this one's only for scripts to access!
+        public class InverseTranslationConfig : MatrixConfig {
+
+            public const string xPos = "xPos";
+            public const string yPos = "yPos";
+            public const string zPos = "zPos";
+
+            private List<string> matrix = new List<string>(){
+                "1", "0", "0", "0",
+                "0", "1", "0", "0",
+                "0", "0", "1", "0",
+                $"-{xPos}", $"-{yPos}", $"-{zPos}", "1"
+            };
+
+            private List<VarPreset> varPresets = new List<VarPreset>(){
+                new VarPreset(xPos, 0),
+                new VarPreset(yPos, 0),
+                new VarPreset(zPos, 0)
+            };
+
+            public override string name => "Inverse Translation";
+            public override string description => null;
             public override VarPreset[] defaultVariables => varPresets.ToArray();
             public override string[] fieldStrings => matrix.ToArray();
 
@@ -257,8 +347,81 @@ namespace UIMatrices {
 
         }
 
+        // TODO is this REALLY the best name?
+        public class RebaseConfig : MatrixConfig {
+
+            public const string newXx = "newXx";
+            public const string newXy = "newXy";
+            public const string newXz = "newXz";
+            public const string newYx = "newYx";
+            public const string newYy = "newYy";
+            public const string newYz = "newYz";
+            public const string newZx = "newZx";
+            public const string newZy = "newZy";
+            public const string newZz = "newZz";
+
+            private List<string> matrix = new List<string>(){
+                newXx, newXy, newXz, "0",
+                newYx, newYy, newYz, "0",
+                newZx, newZy, newZz, "0",
+                "0", "0", "0", "1"
+            };
+
+            private List<VarPreset> vars = new List<VarPreset>(){
+                new VarPreset(newXx, 1),
+                new VarPreset(newXy, 0),
+                new VarPreset(newXz, 0),
+                new VarPreset(newYx, 0),
+                new VarPreset(newYy, 1),
+                new VarPreset(newYz, 0),
+                new VarPreset(newZx, 0),
+                new VarPreset(newZy, 0),
+                new VarPreset(newZz, 1)
+            };
+
+            public override string name => "Base Substitution";
+            public override string description => "Transforms the vector into a new base. If the base vectors are orthogonal and normalized, this behaves like a rotation matrix.";
+            public override VarPreset[] defaultVariables => vars.ToArray();
+            public override string[] fieldStrings => matrix.ToArray();
+
+        }
+
     #endregion
     
+    #region Projection
+
+        public class PerspectiveProjectionConfig : MatrixConfig {
+
+            public const string fov = "fov";
+            public const string aspect = "aspect";
+            public const string nearClip = "nearClip";
+            public const string farClip = "farClip";
+
+            private List<string> matrix = new List<string>(){
+                $"1 / ({aspect} * tan(({fov} * pi()) / 360))", "0", "0", "0",
+                "0", $"1 / tan(({fov} * pi()) / 360)", "0", "0",
+                "0", "0", $"({farClip} + {nearClip}) / ({farClip} - {nearClip})", "1",
+                "0", "0", $"(-2 * {farClip} * {nearClip}) / ({farClip} - {nearClip})", "0"
+            };
+
+            private List<VarPreset> varPresets = new List<VarPreset>(){
+                new VarPreset(fov, 60),
+                new VarPreset(aspect, 16f/9f),  // this one will have to be set via script from the camera, as long as it is in control
+                new VarPreset(nearClip, 0.5f),
+                new VarPreset(farClip, 10f)
+            };
+
+            public override string name => "Perspective Projection";
+            public override string description => "Corrects for aspect ratio and writes the vertex' z-coordinate into the w-coordinate, so perspective projection can be done when dividing by w.";
+            public override VarPreset[] defaultVariables => varPresets.ToArray();
+            public override string[] fieldStrings => matrix.ToArray();
+
+        }
+
+        // TODO ortho projection
+
+    #endregion
+
     }
 
 }

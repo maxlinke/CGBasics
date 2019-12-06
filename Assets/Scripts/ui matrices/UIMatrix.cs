@@ -196,11 +196,11 @@ public class UIMatrix : MonoBehaviour {
                 var newFieldBGButton = newFieldBGRT.GetComponent<Button>();
                 int btnIndex = i;                                                                                                       // just using i is a trap!
                 newFieldBGButton.onClick.AddListener(() => {
-                    if(Input.GetKey(KeyCode.Mouse1)){                   // TODO this doesn't work as indended. buttons aren't rightclickable
+                    // if(Input.GetKey(KeyCode.Mouse1)){                   // TODO this doesn't work as indended. buttons aren't rightclickable
                         FieldViewer.Open(this, true, btnIndex);
-                    }else{
-                        FieldViewer.Open(this);
-                    }
+                    // }else{
+                        // FieldViewer.Open(this);
+                    // }
                 });
                 fieldButtons[i] = newFieldBGButton;
                 // generate flash image
@@ -374,6 +374,10 @@ public class UIMatrix : MonoBehaviour {
         if(updateColors){
             SetNameLabelColorBasedOnNameHash(ColorScheme.current);
         }
+    }
+
+    public string GetName () {
+        return nameLabel.text;
     }
 
     void SetStringFieldValuesFromMatrix (Matrix4x4 sourceMatrix, bool updateEverything = true) {

@@ -116,6 +116,7 @@ public class FieldEditor : MonoBehaviour {
             InputSystem.UnSubscribe(this);
             subscribedToInputSystem = false;
         }
+        BottomLog.ClearDisplay();
         onDoneEditing?.Invoke(expressionInputField.text);
     }
 	

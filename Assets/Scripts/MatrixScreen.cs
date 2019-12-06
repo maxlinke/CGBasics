@@ -52,8 +52,27 @@ public class MatrixScreen : MonoBehaviour {
         CreateMultiplicationSign();
         modelGroup = CreateMatrixGroup(leftSide: true);
         modelGroup.SetName("Model");
+        modelGroup[0].LoadConfig(UIMatrices.MatrixConfig.scaleConfig);
+        modelGroup.CreateMatrixAtIndex(UIMatrices.MatrixConfig.fullRotationConfig, UIMatrix.Editability.FULL, 1, false);
+        modelGroup.CreateMatrixAtIndex(UIMatrices.MatrixConfig.translationConfig, UIMatrix.Editability.FULL, 2, true);
+
         camGroup = CreateMatrixGroup(leftSide: false);
         camGroup.SetName("Camera");
+        camGroup[0].LoadConfig(UIMatrices.MatrixConfig.rebaseConfig);
+        camGroup[0].Transpose();
+        camGroup[0].SetName("Inv. Camera Rotation");
+        camGroup.CreateMatrixAtIndex(UIMatrices.MatrixConfig.inverseTranslationConfig, UIMatrix.Editability.FULL, 1, false);
+        camGroup[1].SetName("Inv. Camera Position");
+        camGroup.CreateMatrixAtIndex(UIMatrices.MatrixConfig.perspProjConfig, UIMatrix.Editability.FULL, 2, true);
+
+        foreach(var m in modelGroup){
+            m.VariableContainer.Retract();
+        }
+        foreach(var m in camGroup){
+            m.VariableContainer.Retract();
+        }
+        
+        // TODO non-editability for all as soon as i get the "free mode /locked mode" thingy working
 
         initialized = true;
 
@@ -83,6 +102,7 @@ public class MatrixScreen : MonoBehaviour {
 
     void LoadColors (ColorScheme cs) {
         backgroundImage.color = cs.MatrixScreenBackground;
+        multiplicationSignImage.color = cs.MatrixScreenMultiplicationSign;
         modelGroup.LoadColors(cs.MatrixScreenModelMatrixHeader, cs);
         camGroup.LoadColors(cs.MatrixScreenCameraMatrixHeader, cs);
     }
@@ -119,7 +139,7 @@ public class MatrixScreen : MonoBehaviour {
         }
     }
 
-    // TODO remember to transpose every matrix and transpose the final product
+    // TODO remember to transpose
     public void GetCurrentMeshAndWeightedMatrices (out Mesh outputMesh, out Matrix4x4 outputModelMatrix, out Matrix4x4 outputCameraMatrix) {
         outputMesh = referenceObject.sharedMesh;
         var refT = referenceObject.transform;

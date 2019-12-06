@@ -23,12 +23,18 @@ public class MatrixScreen : MonoBehaviour {
     [SerializeField] float matrixGroupMargin;
 
     public float matrixZoom => panAndZoomController.zoomLevel;
+    public UIMatrix ViewPosMatrix => viewPosMatrix;
+    public UIMatrix ViewRotMatrix => viewRotMatrix;
+    public UIMatrix ProjMatrix => projMatrix;
 
     private bool cantAddMoreMatrices => modelGroup.matrixCount + camGroup.matrixCount >= MAX_MATRIX_COUNT;
 
     bool initialized;
     UIMatrixGroup modelGroup;
     UIMatrixGroup camGroup;
+    UIMatrix viewPosMatrix;
+    UIMatrix viewRotMatrix;
+    UIMatrix projMatrix;
     Image multiplicationSignImage;
 
     void OnEnable () {
@@ -66,6 +72,10 @@ public class MatrixScreen : MonoBehaviour {
         camGroup.CreateMatrixAtIndex(UIMatrices.MatrixConfig.inverseTranslationConfig, UIMatrix.Editability.FULL, 1, false);
         camGroup[1].SetName("Inv. Camera Position");
         camGroup.CreateMatrixAtIndex(UIMatrices.MatrixConfig.perspProjConfig, UIMatrix.Editability.FULL, 2, true);
+
+        viewRotMatrix = camGroup[0];    // TODO remember to null these fields upon switching to free mode
+        viewPosMatrix = camGroup[1];
+        projMatrix = camGroup[2];
 
         foreach(var m in modelGroup){
             m.VariableContainer.Retract();

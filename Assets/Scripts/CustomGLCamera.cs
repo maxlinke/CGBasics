@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UIMatrices;
 
 public class CustomGLCamera : MonoBehaviour {
 
@@ -164,6 +165,31 @@ public class CustomGLCamera : MonoBehaviour {
     }
 
     void UpdateMatrices () {
+        if(!isExternalCamera){
+            // this is JUST for testing!
+            matrixScreen.ViewPosMatrix.VariableContainer.EditVariable(MatrixConfig.InverseTranslationConfig.xPos, transform.position.x, false);
+            matrixScreen.ViewPosMatrix.VariableContainer.EditVariable(MatrixConfig.InverseTranslationConfig.yPos, transform.position.y, false);
+            matrixScreen.ViewPosMatrix.VariableContainer.EditVariable(MatrixConfig.InverseTranslationConfig.zPos, transform.position.z, true);
+            // still just testing
+            var left = -transform.right;
+            matrixScreen.ViewRotMatrix.VariableContainer.EditVariable(MatrixConfig.RebaseConfig.newXx, left.x, false);
+            matrixScreen.ViewRotMatrix.VariableContainer.EditVariable(MatrixConfig.RebaseConfig.newXy, left.y, false);
+            matrixScreen.ViewRotMatrix.VariableContainer.EditVariable(MatrixConfig.RebaseConfig.newXz, left.z, false);
+            var up = transform.up;
+            matrixScreen.ViewRotMatrix.VariableContainer.EditVariable(MatrixConfig.RebaseConfig.newYx, up.x, false);
+            matrixScreen.ViewRotMatrix.VariableContainer.EditVariable(MatrixConfig.RebaseConfig.newYy, up.y, false);
+            matrixScreen.ViewRotMatrix.VariableContainer.EditVariable(MatrixConfig.RebaseConfig.newYz, up.z, false);
+            var fwd = transform.forward;
+            matrixScreen.ViewRotMatrix.VariableContainer.EditVariable(MatrixConfig.RebaseConfig.newZx, fwd.x, false);
+            matrixScreen.ViewRotMatrix.VariableContainer.EditVariable(MatrixConfig.RebaseConfig.newZy, fwd.y, false);
+            matrixScreen.ViewRotMatrix.VariableContainer.EditVariable(MatrixConfig.RebaseConfig.newZz, fwd.z, true);
+            // still just testing
+            matrixScreen.ProjMatrix.VariableContainer.EditVariable(MatrixConfig.PerspectiveProjectionConfig.fov, attachedUnityCam.fieldOfView, false);
+            matrixScreen.ProjMatrix.VariableContainer.EditVariable(MatrixConfig.PerspectiveProjectionConfig.nearClip, attachedUnityCam.nearClipPlane, false);
+            matrixScreen.ProjMatrix.VariableContainer.EditVariable(MatrixConfig.PerspectiveProjectionConfig.farClip, attachedUnityCam.farClipPlane, false);
+            matrixScreen.ProjMatrix.VariableContainer.EditVariable(MatrixConfig.PerspectiveProjectionConfig.aspect, attachedUnityCam.aspect, true);
+        }
+
         currentViewMatrix = GLMatrixCreator.GetViewMatrix(
             pos: transform.position,
             forward: transform.forward,

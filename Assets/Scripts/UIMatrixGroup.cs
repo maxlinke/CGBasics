@@ -147,21 +147,71 @@ public class UIMatrixGroup : MonoBehaviour {
         return newMatrix;
     }
 
-    public void DeleteMatrix (UIMatrix matrixToRemove, bool rebuildContent = true) {
-        if(TryGetIndexOf(matrixToRemove, out int removeIndex)){
-            matrices.RemoveAt(removeIndex);
+    public bool DeleteMatrix (UIMatrix matrixToRemove, bool rebuildContent = true) {
+        if(ReleaseMatrix(matrixToRemove, rebuildContent)){
             Destroy(matrixToRemove.gameObject);
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    public bool ReleaseMatrix (UIMatrix matrixToRelease, bool rebuildContent = true) {
+        if(TryGetIndexOf(matrixToRelease, out int removeIndex)){
+            matrixToRelease.matrixGroup = null;
+            matrixToRelease.rectTransform.SetParent(null, false);
+            matrixToRelease.rectTransform.localScale = Vector3.one;
+            matrices.RemoveAt(removeIndex);
             EnsureTheresAtLeastOneMatrix();
             if(rebuildContent){
                 RebuildContent();
             }
+            return true;
         }else{
-            Debug.LogError($"Couldn't remove matrix {matrixToRemove} because it wasn't in this group!", this.gameObject);
+            Debug.LogError($"Couldn't remove matrix {matrixToRelease} because it wasn't in this group!", this.gameObject);
+            return false;
         }
     }
 
-    // TODO remove (as in cut and paste) for moving the matrices both inside one group and between them (should be handled by the matrixscreen)
-    // trymoveleft/right? or with offset? returns false when not possible, so the matrix screen can take a closer look?
+    public void InsertMatrix (UIMatrix matrixToInsert, int insertIndex, bool rebuildContent = true) {
+        if(matrixToInsert.matrixGroup != null){
+            Debug.LogError("Matrix is (apparently) still in another group! Aborting...", this.gameObject);
+            return;
+        }
+        matrixToInsert.matrixGroup = this;
+        matrixToInsert.rectTransform.SetParent(contentRT, false);
+        matrixToInsert.rectTransform.localScale = Vector3.one;
+        if(insertIndex < matrices.Count){
+            matrices.Insert(insertIndex, matrixToInsert);
+        }else{
+            matrices.Add(matrixToInsert);
+        }
+        if(rebuildContent){
+            RebuildContent();
+        }
+    }
+
+    public bool TryMoveMatrix (UIMatrix matrixToMove, int offset, bool rebuildContent = true) {
+        if(TryGetIndexOf(matrixToMove, out var matrixIndex)){
+            int finalIndex = matrixIndex + offset;
+            if(finalIndex < 0 || finalIndex >= matrixCount){
+                return false;
+            }
+            matrices.RemoveAt(matrixIndex);
+            if(finalIndex < matrices.Count){
+                matrices.Insert(finalIndex, matrixToMove);
+            }else{
+                matrices.Add(matrixToMove);
+            }
+            if(rebuildContent){
+                RebuildContent();
+            }
+            return true;
+        }else{
+            Debug.LogError("Can't move matrix because it isn't a part of this group!", this.gameObject);
+            return false;
+        }
+    }
 
     void EnsureTheresAtLeastOneMatrix (bool blockWarning = false) {
         if(matrices.Count > 0){

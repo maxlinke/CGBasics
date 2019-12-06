@@ -122,11 +122,27 @@ public class MatrixScreen : MonoBehaviour {
     }
 
     public void MoveMatrixLeft (UIMatrix matrixToMove) {
-
+        MoveMatrixWithIndexOffset(matrixToMove, -1);
     }
 
     public void MoveMatrixRight (UIMatrix matrixToMove) {
+        MoveMatrixWithIndexOffset(matrixToMove, 1);
+    }
 
+    void MoveMatrixWithIndexOffset (UIMatrix matrixToMove, int indexOffset) {
+        if(matrixToMove.matrixGroup.TryMoveMatrix(matrixToMove, indexOffset)){
+            // all's cool my dude
+        }else{
+            if(indexOffset > 0 && matrixToMove.matrixGroup == modelGroup){
+                modelGroup.ReleaseMatrix(matrixToMove);
+                camGroup.InsertMatrix(matrixToMove, 0);
+            }else if(indexOffset < 0 && matrixToMove.matrixGroup == camGroup){
+                camGroup.ReleaseMatrix(matrixToMove);
+                modelGroup.InsertMatrix(matrixToMove, modelGroup.matrixCount);
+            }else{
+                // nothing to be done. maybe disable the appropriate move button
+            }
+        }
     }
 
     void UpdateMatrixAddButtons () {

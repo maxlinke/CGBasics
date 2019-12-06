@@ -97,13 +97,21 @@ namespace UIMatrices {
                     newFieldRT.anchorMin = new Vector2(x / 4f, (3-y) / 4f);
                     newFieldRT.anchorMax = new Vector2((x+1) / 4f, (3-y+1) / 4f);
                     newFieldRT.sizeDelta = Vector2.zero;
-                    //actual field thingy
+                    // actual field thingy
                     var newField = Instantiate(fieldTemplate);
                     newField.SetGOActive(true);
                     newField.Initialize(this, i);
                     newField.rectTransform.SetParent(newFieldRT, false);
                     newField.rectTransform.SetToFillWithMargins(spaceBetweenFields);
                     actualFields[i] = newField;
+                    // hover hint
+                    // newField.gameObject.AddComponent(typeof(UIHoverEventCaller));
+                    // var hover = newField.gameObject.GetComponent<UIHoverEventCaller>();
+                    // int fieldIndex = i;     // because just using i would always result in displaying 16...
+                    // hover.SetActions(
+                    //     onHoverEnter: (ped) => {BottomLog.DisplayMessage($"Edit field {fieldIndex}");},         // TODO maybe dynamic edit/inspect?
+                    //     onHoverExit: (ped) => {BottomLog.ClearDisplay();}                                       // maybe also add this to the uimatrix itself?
+                    // );                                                                                          // but then i'd probably have to add thingy EVERYWHERE...
                 }
             }
         }
@@ -128,6 +136,15 @@ namespace UIMatrices {
             doneButton.onClick.RemoveAllListeners();
             doneButton.onClick.AddListener(() => {HideAndReset();});
             doneButtonText.text = "Exit";
+            // var hover = doneButton.gameObject.GetComponent<UIHoverEventCaller>();
+            // if(hover == null){
+            //     doneButton.gameObject.AddComponent(typeof(UIHoverEventCaller));
+            //     hover = doneButton.gameObject.GetComponent<UIHoverEventCaller>();
+            // }
+            // hover.SetActions(
+            //     onHoverEnter: (ped) => {BottomLog.DisplayMessage("Close matrix inspection");},
+            //     onHoverExit: (ped) => {BottomLog.ClearDisplay();}
+            // );
         }
 
         void HideAndReset () {
@@ -137,6 +154,7 @@ namespace UIMatrices {
                 InputSystem.UnSubscribe(this);
                 subscribedToInputSystem = false;
             }
+            BottomLog.ClearDisplay();
         }
 
         public void FieldButtonClicked (FieldViewerField field) {

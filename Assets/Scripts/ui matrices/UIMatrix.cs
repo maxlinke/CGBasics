@@ -51,12 +51,14 @@ public class UIMatrix : MonoBehaviour {
     Matrix4x4 calculatedMatrix;
     bool calculatedMatrixUpToDate;
     bool calculatedMatrixIsDisplayedMatrix;
+    bool m_addButtonBlocked;
     Button[] headerButtons;
     Image[] headerButtonImages;
     Button[] controlsButtons;
     Image[] controlsButtonImages;
     Color stringFieldInvalidColor;
     Button matrixInvertButton;
+    Button matrixAddButton;
 
     Editability m_editability;
     public Editability editability {
@@ -71,6 +73,8 @@ public class UIMatrix : MonoBehaviour {
             foreach(var b in controlsButtons){
                 if(b == matrixInvertButton){
                     b.interactable = buttonsInteractable && IsInvertible;
+                }else if(b == matrixAddButton){
+                    b.interactable = buttonsInteractable && !addButtonBlocked;
                 }else{
                     b.interactable = buttonsInteractable;
                 }
@@ -88,6 +92,20 @@ public class UIMatrix : MonoBehaviour {
                 UpdateMatrixAndGridView();
             }
             return calculatedMatrix;
+        }
+    }
+
+    public bool addButtonBlocked {
+        get {
+            return m_addButtonBlocked;
+        } set {
+            m_addButtonBlocked = value;
+            // this.editability = this.editability;
+            if(addButtonBlocked){
+                matrixAddButton.interactable = false;
+            }else{
+                matrixAddButton.interactable = (this.editability == Editability.FULL);
+            }
         }
     }
 
@@ -227,8 +245,8 @@ public class UIMatrix : MonoBehaviour {
             buttonParentRT = controlsArea;
             buttonArray = controlsButtons;
             buttonImageArray = controlsButtonImages;
-            CreateButton("Add", "Add new matrix after this one", UISprites.MatrixAdd, true, 0, () => {matrixScreen?.AddMatrix(this);});
-            CreateButton("Rename", "Rename this matrix", UISprites.MatrixRename, true, 1, RenameButtonPressed);                                         // TODO the language files
+            matrixAddButton = CreateButton("Add", "Add new matrix after this one", UISprites.MatrixAdd, true, 0, () => {matrixScreen?.AddMatrix(this);});
+            CreateButton("Rename", "Rename this matrix", UISprites.MatrixRename, true, 1, RenameButtonPressed);
             CreateButton("Delete", "Delete this matrix", UISprites.MatrixDelete, true, 2, () => {matrixScreen?.DeleteMatrix(this);});
             CreateButton("Set Identity", "Set this matrix to identity (also removes all variables)", UISprites.MatrixIdentity, false, 0, SetIdentity);
             matrixInvertButton = CreateButton("Invert", "Invert this matrix (removes all variables)", UISprites.MatrixInvert, false, 1, Invert);

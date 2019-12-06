@@ -99,6 +99,19 @@ public class ColorScheme : ScriptableObject {
     public Color VertRenderAmbientLight => vertRenderAmbientLight;
     public Color VertRenderClippingOverlay => vertRenderClippingOverlay;
 
+    [Header("Matrix Screen")]
+    [SerializeField] Color matrixScreenBackground;
+    [SerializeField] Color matrixScreenMatrixGroupBackground;
+    [SerializeField] Color matrixScreenModelMatrixHeader;
+    [SerializeField] Color matrixScreenCameraMatrixHeader;
+    [SerializeField] Color matrixScreenMultiplicationSign;
+
+    public Color MatrixScreenBackground => matrixScreenBackground;
+    public Color MatrixScreenMatrixGroupBackground => matrixScreenMatrixGroupBackground;
+    public Color MatrixScreenModelMatrixHeader => matrixScreenModelMatrixHeader;
+    public Color MatrixScreenCameraMatrixHeader => matrixScreenCameraMatrixHeader;
+    public Color MatrixScreenMultiplicationSign => matrixScreenMultiplicationSign;
+
     [Header("UI Matrix")]
     [SerializeField] Color[] uiMatrixHeaders;
     [SerializeField] Color uiMatrixBackground;

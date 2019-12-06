@@ -12,6 +12,8 @@ public class UIMatrixGroup : MonoBehaviour {
     [SerializeField] RectTransform m_rectTransform;
     [SerializeField] RectTransform headerRT;
     [SerializeField] RectTransform contentRT;
+    [SerializeField] Image backgroundImage;
+    [SerializeField] Image headerBackground;
     [SerializeField] TextMeshProUGUI headerLabel;
     [SerializeField] TextMeshProUGUI headerDropShadow;
 
@@ -38,9 +40,40 @@ public class UIMatrixGroup : MonoBehaviour {
         this.matrixScreen = matrixScreen;
         matrices = new List<UIMatrix>();
         multiplicationSigns = new List<RectTransform>();
-        EnsureTheresAtLeastOneMatrix();
+        EnsureTheresAtLeastOneMatrix(blockWarning: true);
         RebuildContent();
         initialized = true;
+    }
+
+    public IEnumerator<UIMatrix> GetEnumerator () {
+        foreach(var m in matrices){
+            yield return m;
+        }
+    }
+
+    public void LoadColors (Color headerColor, ColorScheme cs) {
+        headerBackground.color = headerColor;
+        backgroundImage.color = cs.MatrixScreenMatrixGroupBackground;
+        headerLabel.color = cs.UiMatrixLabel;
+        headerDropShadow.color = cs.UiMatrixLabelDropShadow;
+        foreach(var signRT in multiplicationSigns){
+            signRT.gameObject.GetComponent<Image>().color = cs.MatrixScreenMultiplicationSign;
+        }
+    }
+
+    public void SetName (string name) {
+        if(name == null){
+            Debug.LogError("Name can't be null!", this.gameObject);
+            return;
+        }
+        name = name.Trim();
+        if(name.Length < 1){
+            Debug.LogError("Name can't be empty!", this.gameObject);
+            return;
+        }
+        this.gameObject.name = name;
+        headerLabel.text = name;
+        headerDropShadow.text = name;
     }
 
     // TODO adding buttons to the header (resizing the text recttransform), editing the text, loading the colors...
@@ -65,6 +98,7 @@ public class UIMatrixGroup : MonoBehaviour {
         }
         float totalHeight = headerRT.rect.height + 2 * verticalMatrixMargin + matrices[0].minHeight;        // there will always be a matrices[0]...
         rectTransform.sizeDelta = new Vector2(x, totalHeight);
+        LoadColors(headerBackground.color, ColorScheme.current);
 
         void EnsureRightAmountOfMultiplicationSigns () {
             int numberOfMultiplicationSignsRequired = matrixCount - 1;
@@ -129,11 +163,13 @@ public class UIMatrixGroup : MonoBehaviour {
     // TODO remove (as in cut and paste) for moving the matrices both inside one group and between them (should be handled by the matrixscreen)
     // trymoveleft/right? or with offset? returns false when not possible, so the matrix screen can take a closer look?
 
-    void EnsureTheresAtLeastOneMatrix () {
+    void EnsureTheresAtLeastOneMatrix (bool blockWarning = false) {
         if(matrices.Count > 0){
             return;
         }
-        Debug.LogWarning("There should ALWAYS be one matrix! I'll create one here but this REALLY shouldn't be happening!");
+        if(!blockWarning){
+            Debug.LogWarning("There should ALWAYS be one matrix! I'll create one here but this REALLY shouldn't be happening!");
+        }
         var newMatrix = CreateMatrixAtIndex(UIMatrices.MatrixConfig.identityConfig, UIMatrix.Editability.FULL, 0, false);
     }
 	

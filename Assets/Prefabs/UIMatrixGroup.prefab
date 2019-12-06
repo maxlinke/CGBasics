@@ -91,6 +91,8 @@ MonoBehaviour:
   m_rectTransform: {fileID: 904846044674732687}
   headerRT: {fileID: 4443467026844683126}
   contentRT: {fileID: 8156090979144054797}
+  backgroundImage: {fileID: 6308568293824030030}
+  headerBackground: {fileID: 5386423365938757398}
   headerLabel: {fileID: 5688541505606889324}
   headerDropShadow: {fileID: 5458010198928606400}
   verticalMatrixMargin: 10

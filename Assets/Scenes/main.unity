@@ -857,17 +857,6 @@ PrefabInstance:
       propertyPath: referenceObject
       value: 
       objectReference: {fileID: 1911452501}
-    - target: {fileID: 2677544505658072108, guid: cfa033871734dbb429d1ea2bca1e88f9,
-        type: 3}
-      propertyPath: matrixGroupPrefab
-      value: 
-      objectReference: {fileID: 8357111656008610867, guid: 062239a19e0604c4b8d77ca2704cd485,
-        type: 3}
-    - target: {fileID: 2677544505658072108, guid: cfa033871734dbb429d1ea2bca1e88f9,
-        type: 3}
-      propertyPath: multiplicationSignSize
-      value: 50
-      objectReference: {fileID: 0}
     - target: {fileID: 2677544506212248131, guid: cfa033871734dbb429d1ea2bca1e88f9,
         type: 3}
       propertyPath: targetCustomCam

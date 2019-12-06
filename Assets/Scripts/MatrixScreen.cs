@@ -24,6 +24,8 @@ public class MatrixScreen : MonoBehaviour {
 
     public float matrixZoom => panAndZoomController.zoomLevel;
 
+    private bool cantAddMoreMatrices => modelGroup.matrixCount + camGroup.matrixCount >= MAX_MATRIX_COUNT;
+
     bool initialized;
     UIMatrixGroup modelGroup;
     UIMatrixGroup camGroup;
@@ -71,6 +73,8 @@ public class MatrixScreen : MonoBehaviour {
         foreach(var m in camGroup){
             m.VariableContainer.Retract();
         }
+
+        UpdateMatrixButtons();
         
         // TODO non-editability for all as soon as i get the "free mode /locked mode" thingy working
 
@@ -110,7 +114,7 @@ public class MatrixScreen : MonoBehaviour {
     public void AddMatrix (UIMatrix callingMatrix) {
         if(callingMatrix.matrixGroup.TryGetIndexOf(callingMatrix, out var index)){
             callingMatrix.matrixGroup.CreateMatrixAtIndex(UIMatrices.MatrixConfig.identityConfig, UIMatrix.Editability.FULL, index + 1);
-            UpdateMatrixAddButtons();
+            UpdateMatrixButtons();
         }else{
             Debug.LogError("wat");
         }
@@ -118,7 +122,7 @@ public class MatrixScreen : MonoBehaviour {
 
     public void DeleteMatrix (UIMatrix matrixToDelete) {
         matrixToDelete.matrixGroup.DeleteMatrix(matrixToDelete);
-        UpdateMatrixAddButtons();
+        UpdateMatrixButtons();
     }
 
     public void MoveMatrixLeft (UIMatrix matrixToMove) {
@@ -143,15 +147,23 @@ public class MatrixScreen : MonoBehaviour {
                 // nothing to be done. maybe disable the appropriate move button
             }
         }
+        UpdateMatrixButtons();
     }
 
-    void UpdateMatrixAddButtons () {
-        bool cantAddMore = modelGroup.matrixCount + camGroup.matrixCount >= MAX_MATRIX_COUNT;
-        foreach(var m in modelGroup){
-            m.addButtonBlocked = cantAddMore;
+    void UpdateMatrixButtons () {
+        for(int i=0; i<modelGroup.matrixCount; i++){
+            var m = modelGroup[i];
+            m.moveLeftBlocked = (i == 0);
+            m.moveRightBlocked = (i == (modelGroup.matrixCount - 1)) && cantAddMoreMatrices && (modelGroup.matrixCount == 1);
+            m.addButtonBlocked = cantAddMoreMatrices;
+            m.deleteButtonBlocked = modelGroup.matrixCount == 1;    // TODO is this REALLY important?
         }
-        foreach(var m in camGroup){
-            m.addButtonBlocked = cantAddMore;
+        for(int i=0; i<camGroup.matrixCount; i++){
+            var m = camGroup[i];
+            m.moveLeftBlocked = (i == 0) && cantAddMoreMatrices && (camGroup.matrixCount == 1);
+            m.moveRightBlocked = (i == (camGroup.matrixCount - 1));
+            m.addButtonBlocked = cantAddMoreMatrices;
+            m.deleteButtonBlocked = camGroup.matrixCount == 1;      // TODO is this REALLY important?
         }
     }
 

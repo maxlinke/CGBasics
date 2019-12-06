@@ -52,6 +52,9 @@ public class UIMatrix : MonoBehaviour {
     bool calculatedMatrixUpToDate;
     bool calculatedMatrixIsDisplayedMatrix;
     bool m_addButtonBlocked;
+    bool m_moveLeftBlocked;
+    bool m_moveRightBlocked;
+    bool m_deleteButtonBlocked;
     Button[] headerButtons;
     Image[] headerButtonImages;
     Button[] controlsButtons;
@@ -59,13 +62,17 @@ public class UIMatrix : MonoBehaviour {
     Color stringFieldInvalidColor;
     Button matrixInvertButton;
     Button matrixAddButton;
+    Button moveLeftButton;
+    Button moveRightButton;
+    Button deleteButton;
 
     Editability m_editability;
     public Editability editability {
         get {
             return m_editability;
         } set {
-            bool buttonsInteractable = (value == Editability.FULL);
+            this.m_editability = value;
+            bool buttonsInteractable = controlsShouldBeInteractable;
             foreach(var b in headerButtons){
                 b.interactable = buttonsInteractable;
                 b.gameObject.GetComponent<UIHoverEventCaller>().enabled = b.interactable;
@@ -81,7 +88,6 @@ public class UIMatrix : MonoBehaviour {
                 b.gameObject.GetComponent<UIHoverEventCaller>().enabled = b.interactable;
             }
             SetButtonImageColorAlpha(buttonsInteractable);
-            this.m_editability = value;
             VariableContainer.UpdateEditability();
         }
     }
@@ -99,14 +105,37 @@ public class UIMatrix : MonoBehaviour {
         get {
             return m_addButtonBlocked;
         } set {
-            m_addButtonBlocked = value;
-            // this.editability = this.editability;
-            if(addButtonBlocked){
-                matrixAddButton.interactable = false;
-            }else{
-                matrixAddButton.interactable = (this.editability == Editability.FULL);
-            }
+            SimpleButtonBlockToggle(value, ref m_addButtonBlocked, matrixAddButton);
         }
+    }
+
+    public bool moveLeftBlocked {
+        get {
+            return m_moveLeftBlocked;
+        } set {
+            SimpleButtonBlockToggle(value, ref m_moveLeftBlocked, moveLeftButton);
+        }
+    }
+
+    public bool moveRightBlocked {
+        get {
+            return m_moveRightBlocked;
+        } set {
+            SimpleButtonBlockToggle(value, ref m_moveRightBlocked, moveRightButton);
+        }
+    }
+
+    public bool deleteButtonBlocked {
+        get {
+            return m_deleteButtonBlocked;
+        } set {
+            SimpleButtonBlockToggle(value, ref m_deleteButtonBlocked, deleteButton);
+        }
+    }
+
+    void SimpleButtonBlockToggle (bool newBlockValue, ref bool fieldRef, Button correspondingButton) {
+        fieldRef = newBlockValue;
+        correspondingButton.interactable = !newBlockValue && controlsShouldBeInteractable;
     }
 
     public string this[int i] => stringFieldValues[i];
@@ -115,6 +144,8 @@ public class UIMatrix : MonoBehaviour {
     public VariableContainer VariableContainer => variableContainer;        // spoken to by the camera i guess.
     public RectTransform rectTransform => m_rectTransform;
     public float minHeight => headerArea.rect.height + controlsArea.rect.height + matrixArea.rect.height + variableContainer.minHeight;
+
+    private bool controlsShouldBeInteractable => (this.editability == Editability.FULL);
 
     void Awake () {
         if(!initialized && shouldSelfInit){
@@ -237,8 +268,8 @@ public class UIMatrix : MonoBehaviour {
             var buttonParentRT = headerArea;
             var buttonArray = headerButtons;
             var buttonImageArray = headerButtonImages;
-            CreateButton("Left", "Move matrix left", UISprites.MatrixLeft, true, 0, () => {matrixScreen?.MoveMatrixLeft(this);});
-            CreateButton("Right", "Move matrix right", UISprites.MatrixRight, false, 0, () => {matrixScreen?.MoveMatrixRight(this);});
+            moveLeftButton = CreateButton("Left", "Move matrix left", UISprites.MatrixLeft, true, 0, () => {matrixScreen?.MoveMatrixLeft(this);});
+            moveRightButton = CreateButton("Right", "Move matrix right", UISprites.MatrixRight, false, 0, () => {matrixScreen?.MoveMatrixRight(this);});
             controlsButtons = new Button[7];
             controlsButtonImages = new Image[7];
             arrayIndex = 0;
@@ -247,7 +278,7 @@ public class UIMatrix : MonoBehaviour {
             buttonImageArray = controlsButtonImages;
             matrixAddButton = CreateButton("Add", "Add new matrix after this one", UISprites.MatrixAdd, true, 0, () => {matrixScreen?.AddMatrix(this);});
             CreateButton("Rename", "Rename this matrix", UISprites.MatrixRename, true, 1, RenameButtonPressed);
-            CreateButton("Delete", "Delete this matrix", UISprites.MatrixDelete, true, 2, () => {matrixScreen?.DeleteMatrix(this);});
+            deleteButton = CreateButton("Delete", "Delete this matrix", UISprites.MatrixDelete, true, 2, () => {matrixScreen?.DeleteMatrix(this);});
             CreateButton("Set Identity", "Set this matrix to identity (also removes all variables)", UISprites.MatrixIdentity, false, 0, SetIdentity);
             matrixInvertButton = CreateButton("Invert", "Invert this matrix (removes all variables)", UISprites.MatrixInvert, false, 1, Invert);
             CreateButton("Transpose", "Transpose this matrix", UISprites.MatrixTranspose, false, 2, Transpose);

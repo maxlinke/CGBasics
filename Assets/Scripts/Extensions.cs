@@ -98,6 +98,11 @@ public static class Extensions {
         rt.SetSizeDelta(rt.sizeDelta.x, y);
     }
 
+    public static void SetAnchor (this RectTransform rt, Vector2 anchor) {
+        rt.anchorMin = anchor;
+        rt.anchorMax = anchor;
+    }
+
     public static void SetFadeTransition (this Selectable selectable, float fadeDuration, Color defaultColor, Color hoverColor, Color clickColor, Color disabledColor) {
         selectable.transition = Selectable.Transition.ColorTint;
         var colorBlock = new ColorBlock();

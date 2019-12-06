@@ -35,6 +35,7 @@ public class UISprites : ScriptableObject {
     [SerializeField] Sprite matrixInvert;
     [SerializeField] Sprite matrixIdentity;
     [SerializeField] Sprite matrixConfig;
+    [SerializeField] Sprite matrixMultiply;
 
     public static Sprite MatrixLeft => instance.matrixLeft;
     public static Sprite MatrixRight => instance.matrixRight;
@@ -47,5 +48,6 @@ public class UISprites : ScriptableObject {
     public static Sprite MatrixInvert => instance.matrixInvert;
     public static Sprite MatrixIdentity => instance.matrixIdentity;
     public static Sprite MatrixConfig => instance.matrixConfig;
+    public static Sprite MatrixMultiply => instance.matrixMultiply;
 
 }

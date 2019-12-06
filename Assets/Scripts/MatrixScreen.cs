@@ -5,6 +5,7 @@ public class MatrixScreen : MonoBehaviour {
 
     [Header("Prefabs")]
     [SerializeField] UIMatrix uiMatrixPrefab;
+    [SerializeField] UIMatrixGroup matrixGroupPrefab;
 
     [Header("Components")]
     [SerializeField] Camera matrixCam;
@@ -13,25 +14,41 @@ public class MatrixScreen : MonoBehaviour {
     [SerializeField] RectTransform uiMatrixParent;                  // TODO matrix groups (object, camera)
     [SerializeField] MatrixScreenPanAndZoom panAndZoomController;
 
+    [Header("Settings")]
+    [SerializeField] float multiplicationSignSize;
+
     public float matrixZoom => panAndZoomController.zoomLevel;
+
+    UIMatrixGroup TESTGROUP;
 
     void Awake () {
         matrixCam.GetComponent<CustomGLCamera>().matrixScreen = this;
         externalCam.GetComponent<CustomGLCamera>().matrixScreen = this;
 
-        var newMatrix = Instantiate(uiMatrixPrefab).GetComponent<UIMatrix>();
-        newMatrix.rectTransform.SetParent(uiMatrixParent, false);
-        newMatrix.rectTransform.anchoredPosition = Vector2.zero;
-        newMatrix.Initialize(UIMatrices.MatrixConfig.identityConfig, UIMatrix.Editability.FULL, true);
-        newMatrix.matrixScreen = this;
+        // var newMatrix = Instantiate(uiMatrixPrefab).GetComponent<UIMatrix>();
+        // newMatrix.rectTransform.SetParent(uiMatrixParent, false);
+        // newMatrix.rectTransform.anchoredPosition = Vector2.zero;
+        // newMatrix.Initialize(UIMatrices.MatrixConfig.identityConfig, UIMatrix.Editability.FULL, true);
+        // newMatrix.matrixScreen = this;
+
+        TESTGROUP = Instantiate(matrixGroupPrefab);
+        TESTGROUP.rectTransform.SetParent(uiMatrixParent, false);
+        TESTGROUP.rectTransform.SetAnchor(0.5f * Vector2.one);
+        TESTGROUP.rectTransform.pivot = new Vector2(0f, 0.5f);
+        TESTGROUP.rectTransform.anchoredPosition = Vector2.zero;
+        TESTGROUP.Initialize(this);
     }
 
     public void AddMatrix (UIMatrix callingMatrix) {
-
+        if(callingMatrix.matrixGroup.TryGetIndexOf(callingMatrix, out var index)){
+            callingMatrix.matrixGroup.CreateMatrixAtIndex(UIMatrices.MatrixConfig.identityConfig, UIMatrix.Editability.FULL, index + 1);
+        }else{
+            Debug.Log("wat");
+        }
     }
 
     public void DeleteMatrix (UIMatrix matrixToDelete) {
-
+        matrixToDelete.matrixGroup.DeleteMatrix(matrixToDelete);
     }
 
     public void MoveMatrixLeft (UIMatrix matrixToMove) {

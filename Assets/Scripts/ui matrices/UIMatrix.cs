@@ -46,6 +46,7 @@ public class UIMatrix : MonoBehaviour {
     FieldFlasher[] fieldFlashers = new FieldFlasher[16];
 
     [System.NonSerialized] public MatrixScreen matrixScreen;
+    [System.NonSerialized] public UIMatrixGroup matrixGroup;
     
     Matrix4x4 calculatedMatrix;
     bool calculatedMatrixUpToDate;
@@ -291,7 +292,7 @@ public class UIMatrix : MonoBehaviour {
         rectTransform.SetSizeDeltaY(totalHeight);
     }
 
-    void LoadConfig (MatrixConfig configToLoad) {
+    public void LoadConfig (MatrixConfig configToLoad) {
         if(configToLoad == null){
             return;
         }
@@ -340,7 +341,15 @@ public class UIMatrix : MonoBehaviour {
     }
 
     public void SetName (string newName, bool updateColors = true) {
+        if(newName == null){
+            Debug.LogError("Name can't be null!", this.gameObject);
+            return;
+        }
         newName = newName.Trim();
+        if(newName.Length == 0){
+            Debug.LogError("Name can't be empty!", this.gameObject);
+            return;
+        }
         this.gameObject.name = newName;
         nameLabel.text = newName;
         nameLabelDropShadow.text = newName;

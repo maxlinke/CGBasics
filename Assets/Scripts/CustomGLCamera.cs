@@ -33,9 +33,10 @@ public class CustomGLCamera : MonoBehaviour {
 
     [System.NonSerialized] public bool drawSeeThrough;
     [System.NonSerialized] public bool drawObjectAsWireFrame;
-    [System.NonSerialized] public bool canDrawCamera;
+    // [System.NonSerialized] public bool canDrawCamera;
     [System.NonSerialized] public bool drawCamera;
     [System.NonSerialized] public bool drawClipSpace;
+    [System.NonSerialized] public bool showClipping;
     [System.NonSerialized] public bool drawGridFloor;
     [System.NonSerialized] public bool drawOrigin;
 
@@ -57,6 +58,8 @@ public class CustomGLCamera : MonoBehaviour {
 
     const float seeThroughAlphaMultiplier = 0.333f;
     const float pivotSize = 9f;
+
+    bool canDrawCamera => matrixScreen.ModelMatrixFullyWeighted();
 
     Color wireGridColor;
     Color wireObjectColor;
@@ -95,8 +98,10 @@ public class CustomGLCamera : MonoBehaviour {
         objectMat.hideFlags = HideFlags.HideAndDontSave;
         objectMat.EnableKeyword("USE_SPECIAL_MODEL_MATRIX");
 
-        if(isExternalCamera){                                       // TODO enable disable these on a per-frame basis (or at least per toggle...)
-            objectMat.EnableKeyword("SHOW_CLIPPING");
+        if(isExternalCamera){
+            if(showClipping){
+                objectMat.EnableKeyword("SHOW_CLIPPING");
+            }
             objectMat.EnableKeyword("USE_SPECIAL_CLIPPING_MATRIX");
         }
 
@@ -268,6 +273,11 @@ public class CustomGLCamera : MonoBehaviour {
         GL.MultMatrix(cameraMatrix);
 
         if(currentMesh != null){
+            if(isExternalCamera && showClipping){
+                objectMat.EnableKeyword("SHOW_CLIPPING");
+            }else{
+                objectMat.DisableKeyword("SHOW_CLIPPING");
+            }
             bool wireCache = GL.wireframe;
             GL.wireframe = drawObjectAsWireFrame;
             DrawObject(currentMesh);
@@ -296,8 +306,12 @@ public class CustomGLCamera : MonoBehaviour {
                 DrawAxes(seeThrough);
             }
             if(isExternalCamera){
-                DrawOtherCamera(seeThrough);
-                DrawClipSpace(clipBoxColor, seeThrough);
+                if(drawCamera && canDrawCamera){
+                    DrawOtherCamera(seeThrough);
+                }
+                if(drawClipSpace){
+                    DrawClipSpace(clipBoxColor, seeThrough);
+                }
             }
         }
     }

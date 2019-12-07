@@ -245,5 +245,9 @@ public class MatrixScreen : MonoBehaviour {
     public Mesh GetCurrentMesh () {
         return defaultMesh;     // TODO mesh selection
     }
+
+    public bool ModelMatrixFullyWeighted () {
+        return true;            // TODO this
+    }
 	
 }

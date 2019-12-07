@@ -108,10 +108,10 @@ public class CustomCameraUIController : ClickDragScrollHandler {
             CreateSpecialToggle(UISprites.UITemp, "Origin", "Toggles drawing the origin", (b) => {targetCam.drawOrigin = b;}, true);
             CreateSpecialToggle(UISprites.UITemp, "XRay", "Toggles see-through drawing for all wireframe gizmos", (b) => {targetCam.drawSeeThrough = b;}, false);
             if(targetCam.IsExternalCamera){
-                // >>> space
-                // camera
-                // clip box
-                // culling vis
+                y -= toggleSeparatorOffset;
+                CreateSpecialToggle(UISprites.UITemp, "Cam", "Toggles drawing the other camera", (b) => {targetCam.drawCamera = b;}, true);
+                CreateSpecialToggle(UISprites.UITemp, "ClipBox", "Toggles drawing the clip space area", (b) => {targetCam.drawClipSpace = b;}, true);
+                CreateSpecialToggle(UISprites.UITemp, "ShowClip", "Toggles culling visualization", (b) => {targetCam.showClipping = b;}, true);
             }
 
             void CreateSpecialToggle (Sprite icon, string toggleName, string hoverMessage, System.Action<bool> onStateChange, bool initialState) {

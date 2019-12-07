@@ -36,6 +36,8 @@ public class CustomGLCamera : MonoBehaviour {
     [System.NonSerialized] public bool canDrawCamera;
     [System.NonSerialized] public bool drawCamera;
     [System.NonSerialized] public bool drawClipSpace;
+    [System.NonSerialized] public bool drawGridFloor;
+    [System.NonSerialized] public bool drawOrigin;
 
     bool isExternalCamera;
     CustomGLCamera otherCamera;
@@ -177,7 +179,7 @@ public class CustomGLCamera : MonoBehaviour {
         lineMaterialSolid.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.One);
         lineMaterialSolid.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.Zero);
         lineMaterialSolid.SetInt("_Cull", (int)UnityEngine.Rendering.CullMode.Off);
-        lineMaterialSolid.SetInt("_ZWrite", 1);
+        lineMaterialSolid.SetInt("_ZWrite", 0);
         lineMaterialSolid.SetInt("_ZTest", (int)UnityEngine.Rendering.CompareFunction.LessEqual);
 
         lineMaterialSeeThrough = new Material(shader);
@@ -289,8 +291,12 @@ public class CustomGLCamera : MonoBehaviour {
         GL.wireframe = wireCache;
 
         void DrawAllTheWireThings (bool seeThrough) {
-            DrawWireFloor(seeThrough);
-            DrawAxes(seeThrough);
+            if(drawGridFloor){
+                DrawWireFloor(seeThrough);
+            }
+            if(drawOrigin){
+                DrawAxes(seeThrough);
+            }
             if(isExternalCamera){
                 DrawOtherCamera(seeThrough);
                 DrawClipSpace(clipBoxColor, seeThrough);

@@ -35,6 +35,13 @@ MonoBehaviour:
   matrixScreenCameraMatrixHeader: {r: 0.3448736, g: 0.39271462, b: 0.4716981, a: 1}
   matrixScreenMultiplicationSign: {r: 1, g: 1, b: 1, a: 1}
   matrixScreenBorderColor: {r: 0.3, g: 0.3, b: 0.3, a: 1}
+  matrixCamControllerLabel: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  matrixCamControllerToggleIconInactive: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  matrixCamControllerToggleIconActive: {r: 1, g: 1, b: 1, a: 1}
+  matrixCamControllerToggleBackgroundInactive: {r: 0.333, g: 0.333, b: 0.333, a: 0.5019608}
+  matrixCamControllerToggleBackgroundActive: {r: 0.45, g: 0.45, b: 0.45, a: 0.5019608}
+  matrixCamControllerToggleHover: {r: 0.8, g: 0.8, b: 0.8, a: 1}
+  matrixCamControllerToggleClick: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   uiMatrixHeaders:
   - {r: 0.509434, g: 0.20906019, b: 0.20906019, a: 1}
   - {r: 0.5849056, g: 0.49183732, b: 0.18485224, a: 1}

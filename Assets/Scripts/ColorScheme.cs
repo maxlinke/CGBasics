@@ -114,6 +114,23 @@ public class ColorScheme : ScriptableObject {
     public Color MatrixScreenMultiplicationSign => matrixScreenMultiplicationSign;
     public Color MatrixScreenBorderColor => matrixScreenBorderColor;
 
+    [Header("Matrix Screen Camera Controllers")]
+    [SerializeField] Color matrixCamControllerLabel;
+    [SerializeField] Color matrixCamControllerToggleIconInactive;
+    [SerializeField] Color matrixCamControllerToggleIconActive;
+    [SerializeField] Color matrixCamControllerToggleBackgroundInactive;
+    [SerializeField] Color matrixCamControllerToggleBackgroundActive;
+    [SerializeField] Color matrixCamControllerToggleHover;
+    [SerializeField] Color matrixCamControllerToggleClick;
+
+    public Color MatrixCamControllerLabel => matrixCamControllerLabel;
+    public Color MatrixCamControllerToggleIconInactive => matrixCamControllerToggleIconInactive;
+    public Color MatrixCamControllerToggleIconActive => matrixCamControllerToggleIconActive;
+    public Color MatrixCamControllerToggleBackgroundInactive => matrixCamControllerToggleBackgroundInactive;
+    public Color MatrixCamControllerToggleBackgroundActive => matrixCamControllerToggleBackgroundActive;
+    public Color MatrixCamControllerToggleHover => matrixCamControllerToggleHover;
+    public Color MatrixCamControllerToggleClick => matrixCamControllerToggleClick;
+
     [Header("UI Matrix")]
     [SerializeField] Color[] uiMatrixHeaders;
     [SerializeField] Color uiMatrixBackground;

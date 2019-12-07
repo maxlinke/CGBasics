@@ -2,6 +2,7 @@
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using TMPro;
+using System.Collections.Generic;
 
 public class CustomCameraUIController : ClickDragScrollHandler {
 
@@ -26,14 +27,30 @@ public class CustomCameraUIController : ClickDragScrollHandler {
     [SerializeField] Vector3 camDefaultEuler;
 
     [Header("UI Generation")]
+    [SerializeField] RectTransform uiParent;
     [SerializeField] TMP_FontAsset labelFont;
     [SerializeField] float labelFontSize;
+    [SerializeField] float toggleSize;
+    [SerializeField] float toggleOffset;
+    [SerializeField] float toggleSeparatorOffset;
+
+    bool initialized;
+    Color toggleIconActive;
+    Color toggleIconInactive;
+    Color toggleBackgroundActive;
+    Color toggleBackgroundInactive;
 
     CustomGLCamera targetCam;
     Vector3 pivotPoint; 
     PointerType currentPointerType;
     Vector3 lastMousePos;
 
+    TextMeshProUGUI label;
+    List<Toggle> toggles;
+    List<Image> toggleBackgrounds;
+    List<Image> toggleIcons;
+
+    public bool CanCurrentlyControlCamera { private get; set; }
     public bool IsExternalCamController => isExternalCamController;
     public CustomGLCamera Cam => targetCam;
 
@@ -51,14 +68,102 @@ public class CustomCameraUIController : ClickDragScrollHandler {
         );
         targetCam.SetupViewportRect(new Rect(camRectPos, camRectSize));
         targetCam.LoadColors(ColorScheme.current);
-        InitializeControls();
+        SetupLabel();
+        SetupToggles();
+        initialized = true;
+        LoadColors(ColorScheme.current);
 
-        void InitializeControls () {
-
-
-            if(targetCam.IsExternalCamera){
-                // more buttons
+        void SetupLabel () {
+            label = new GameObject("Label", typeof(RectTransform), typeof(TextMeshProUGUI)).GetComponent<TextMeshProUGUI>();
+            label.rectTransform.SetParent(uiParent, false);
+            label.rectTransform.SetAnchor(0, 1);
+            label.rectTransform.SetPivot(0, 1);
+            label.enableWordWrapping = false;
+            label.overflowMode = TextOverflowModes.Overflow;
+            label.font = labelFont;
+            label.fontSize = labelFontSize;
+            label.raycastTarget = false;
+            if(isExternalCamController){
+                label.text = "External View";
+            }else{
+                label.text = "Render View";
             }
+        }
+
+        void SetupToggles () {
+            toggles = new List<Toggle>();
+            toggleBackgrounds = new List<Image>();
+            toggleIcons = new List<Image>();
+            int toggleIndex = 0;
+            float y = 0;
+            // wireframe toggle (linked)
+            // >>> space
+            CreateSpecialToggle(UISprites.UITemp, "Grid", "Toggles drawing the grid floor", (b) => {targetCam.drawGridFloor = b;}, true);
+            CreateSpecialToggle(UISprites.UITemp, "Origin", "Toggles drawing the origin", (b) => {targetCam.drawOrigin = b;}, true);
+            CreateSpecialToggle(UISprites.UITemp, "XRay", "Toggles see-through drawing for all wireframe gizmos", (b) => {targetCam.drawSeeThrough = b;}, false);
+            if(targetCam.IsExternalCamera){
+                // >>> space
+                // camera
+                // clip box
+                // culling vis
+            }
+
+            void CreateSpecialToggle (Sprite icon, string toggleName, string hoverMessage, System.Action<bool> onStateChange, bool initialState) {
+                // the toggle itself
+                var newToggleRT = new GameObject(toggleName, typeof(RectTransform), typeof(Image), typeof(Toggle), typeof(UIHoverEventCaller)).GetComponent<RectTransform>();
+                newToggleRT.SetParent(uiParent, false);
+                newToggleRT.localScale = Vector3.one;
+                newToggleRT.SetAnchor(1, 1);
+                newToggleRT.SetPivot(1, 1);
+                newToggleRT.sizeDelta = Vector2.one * toggleSize;
+                newToggleRT.anchoredPosition = new Vector2(0, y);
+                var newToggleBG = newToggleRT.gameObject.GetComponent<Image>();
+                newToggleBG.sprite = UISprites.UICircle;
+                newToggleBG.raycastTarget = true;
+                var newToggle = newToggleRT.gameObject.GetComponent<Toggle>();
+                newToggle.targetGraphic = newToggleBG;
+                newToggle.isOn = initialState;
+                var indexCopy = toggleIndex;
+                newToggle.onValueChanged.AddListener((newVal) => {
+                    SetToggleColors(indexCopy);
+                    onStateChange?.Invoke(newVal);
+                });
+                onStateChange?.Invoke(initialState);
+                var hover = newToggleRT.gameObject.GetComponent<UIHoverEventCaller>();
+                hover.SetActions(
+                    onHoverEnter: (ped) => {BottomLog.DisplayMessage(hoverMessage);},
+                    onHoverExit: (ped) => {BottomLog.ClearDisplay();}
+                );
+                // the icon
+                var newToggleIconRT = new GameObject("Icon", typeof(RectTransform), typeof(Image)).GetComponent<RectTransform>();
+                newToggleIconRT.SetParent(newToggleRT, false);
+                newToggleIconRT.localScale = Vector3.one;
+                newToggleIconRT.SetToFill();                
+                var newToggleIcon = newToggleIconRT.gameObject.GetComponent<Image>();
+                newToggleIcon.sprite = icon;
+                newToggleIcon.raycastTarget = false;
+                // setting all the things
+                toggles.Add(newToggle);
+                toggleBackgrounds.Add(newToggleBG);
+                toggleIcons.Add(newToggleIcon);
+                toggleIndex++;
+                y -= (toggleSize + toggleOffset);
+            }
+
+        }
+    }
+
+    void SetWireframeRendering (bool value, bool isCallFromOtherController = false) {
+        // TODO this
+    }
+
+    void SetToggleColors (int toggleIndex) {
+        if(toggles[toggleIndex].isOn){
+            toggleIcons[toggleIndex].color = toggleIconActive;
+            toggleBackgrounds[toggleIndex].color = toggleBackgroundActive;
+        }else{
+            toggleIcons[toggleIndex].color = toggleIconInactive;
+            toggleBackgrounds[toggleIndex].color = toggleBackgroundInactive;
         }
     }
 
@@ -66,12 +171,36 @@ public class CustomCameraUIController : ClickDragScrollHandler {
         targetCam.ResetToDefault();
     }
 
+    void OnEnable () {
+        LoadColors(ColorScheme.current);
+        ColorScheme.onChange += LoadColors;
+    }
+
     void OnDisable () {
+        ColorScheme.onChange -= LoadColors;
         targetCam.drawPivot = false;
         currentPointerType = PointerType.None;
     }
 
+    void LoadColors (ColorScheme cs) {
+        if(!initialized){
+            return;
+        }
+        label.color = cs.MatrixCamControllerLabel;
+        toggleBackgroundActive = cs.MatrixCamControllerToggleBackgroundActive;
+        toggleBackgroundInactive = cs.MatrixCamControllerToggleBackgroundInactive;
+        toggleIconActive = cs.MatrixCamControllerToggleIconActive;
+        toggleIconInactive = cs.MatrixCamControllerToggleIconInactive;
+        for(int i=0; i<toggles.Count; i++){
+            toggles[i].SetFadeTransition(0f, Color.white, cs.MatrixCamControllerToggleHover, cs.MatrixCamControllerToggleClick, Color.magenta);
+            SetToggleColors(i);
+        }
+    }
+
     void Update () {
+        if(!CanCurrentlyControlCamera){
+            return;
+        }
         if(currentPointerType != PointerType.None){
             var currentMousePos = Input.mousePosition;
             var mouseDelta = currentMousePos - lastMousePos;

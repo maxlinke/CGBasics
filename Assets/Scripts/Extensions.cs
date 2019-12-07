@@ -103,6 +103,14 @@ public static class Extensions {
         rt.anchorMax = anchor;
     }
 
+    public static void SetAnchor (this RectTransform rt, float x, float y) {
+        rt.SetAnchor(new Vector2(x, y));
+    }
+
+    public static void SetPivot (this RectTransform rt, float x, float y) {
+        rt.pivot = new Vector2(x, y);
+    }
+
     public static void SetFadeTransition (this Selectable selectable, float fadeDuration, Color defaultColor, Color hoverColor, Color clickColor, Color disabledColor) {
         selectable.transition = Selectable.Transition.ColorTint;
         var colorBlock = new ColorBlock();

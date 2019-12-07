@@ -137,9 +137,9 @@ public class MatrixScreen : MonoBehaviour {
             m.editability = UIMatrix.Editability.NONE;
             m.VariableContainer.Retract();
         }
-        matrixCamController.enabled = true;
+        matrixCamController.CanCurrentlyControlCamera = true;
         matrixCamController.ResetCamera();
-        externalCamController.enabled = true;
+        externalCamController.CanCurrentlyControlCamera = true;
         // externalCamController.ResetCamera();
 
         freeModeActivated = false;
@@ -158,8 +158,8 @@ public class MatrixScreen : MonoBehaviour {
             m.editability = UIMatrix.Editability.FULL;
             m.VariableContainer.Expand();
         }
-        matrixCamController.enabled = false;
-        externalCamController.enabled = true;
+        matrixCamController.CanCurrentlyControlCamera = false;
+        externalCamController.CanCurrentlyControlCamera = true;
 
         freeModeActivated = true;
     }

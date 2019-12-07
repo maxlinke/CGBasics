@@ -179,7 +179,7 @@ public class CustomGLCamera : MonoBehaviour {
         lineMaterialSolid.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.One);
         lineMaterialSolid.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.Zero);
         lineMaterialSolid.SetInt("_Cull", (int)UnityEngine.Rendering.CullMode.Off);
-        lineMaterialSolid.SetInt("_ZWrite", 0);
+        lineMaterialSolid.SetInt("_ZWrite", 1);
         lineMaterialSolid.SetInt("_ZTest", (int)UnityEngine.Rendering.CompareFunction.LessEqual);
 
         lineMaterialSeeThrough = new Material(shader);
@@ -257,9 +257,6 @@ public class CustomGLCamera : MonoBehaviour {
             return;
         }
 
-        bool wireCache = GL.wireframe;
-        GL.wireframe = drawObjectAsWireFrame;
-
         GL.PushMatrix();
 
         // GL.LoadProjectionMatrix(currentProjectionMatrix);
@@ -271,7 +268,10 @@ public class CustomGLCamera : MonoBehaviour {
         GL.MultMatrix(cameraMatrix);
 
         if(currentMesh != null){
+            bool wireCache = GL.wireframe;
+            GL.wireframe = drawObjectAsWireFrame;
             DrawObject(currentMesh);
+            GL.wireframe = wireCache;
         }
 
         if(drawSeeThrough){
@@ -287,8 +287,6 @@ public class CustomGLCamera : MonoBehaviour {
         }
 
         GL.PopMatrix();
-
-        GL.wireframe = wireCache;
 
         void DrawAllTheWireThings (bool seeThrough) {
             if(drawGridFloor){
@@ -310,12 +308,26 @@ public class CustomGLCamera : MonoBehaviour {
         GL.Begin(GL.LINES);
         GL.Color(GetConditionalSeeThroughColor(wireGridColor, seeThrough));
         for(int x=-10; x<=10; x++){
-            GL.Vertex3(x, 0, -10);
-            GL.Vertex3(x, 0, 10);
+            if(x == 0 && drawOrigin){
+                GL.Vertex3(x, 0, -10);
+                GL.Vertex3(x, 0, 0);
+                GL.Vertex3(x, 0, 1);
+                GL.Vertex3(x, 0, 10);
+            }else{
+                GL.Vertex3(x, 0, -10);
+                GL.Vertex3(x, 0, 10);
+            }
         }
         for(int z=-10; z<=10; z++){
-            GL.Vertex3(-10, 0, z);
-            GL.Vertex3(10, 0, z);
+            if(z == 0 && drawOrigin){
+                GL.Vertex3(-10, 0, z);
+                GL.Vertex3(0, 0, z);
+                GL.Vertex3(1, 0, z);
+                GL.Vertex3(10, 0, z);
+            }else{
+                GL.Vertex3(-10, 0, z);
+                GL.Vertex3(10, 0, z);
+            }
         }
         GL.End();
     }

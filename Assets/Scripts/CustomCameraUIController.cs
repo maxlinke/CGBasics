@@ -41,6 +41,7 @@ public class CustomCameraUIController : ClickDragScrollHandler {
     Color toggleBackgroundInactive;
 
     CustomGLCamera targetCam;
+    CustomCameraUIController otherController;
     Vector3 pivotPoint; 
     PointerType currentPointerType;
     Vector3 lastMousePos;
@@ -55,6 +56,10 @@ public class CustomCameraUIController : ClickDragScrollHandler {
     public CustomGLCamera Cam => targetCam;
 
     public void Initialize (MatrixScreen matrixScreen, CustomCameraUIController otherController) {
+        if(initialized){
+            Debug.LogError("Duplicate init call! Aborting...", this.gameObject);
+            return;
+        }
         targetCam = Instantiate(targetCamPrefab);
         targetCam.Initialize(
             isExternalCamera: isExternalCamController,
@@ -68,6 +73,7 @@ public class CustomCameraUIController : ClickDragScrollHandler {
         );
         targetCam.SetupViewportRect(new Rect(camRectPos, camRectSize));
         targetCam.LoadColors(ColorScheme.current);
+        this.otherController = otherController;
         SetupLabel();
         SetupToggles();
         initialized = true;
@@ -96,8 +102,8 @@ public class CustomCameraUIController : ClickDragScrollHandler {
             toggleIcons = new List<Image>();
             int toggleIndex = 0;
             float y = 0;
-            // wireframe toggle (linked)
-            // >>> space
+            CreateSpecialToggle(UISprites.UITemp, "Wireframe", "Toggles wireframe drawing", (b) => {targetCam.drawObjectAsWireFrame = b;}, false);
+            y -= toggleSeparatorOffset;
             CreateSpecialToggle(UISprites.UITemp, "Grid", "Toggles drawing the grid floor", (b) => {targetCam.drawGridFloor = b;}, true);
             CreateSpecialToggle(UISprites.UITemp, "Origin", "Toggles drawing the origin", (b) => {targetCam.drawOrigin = b;}, true);
             CreateSpecialToggle(UISprites.UITemp, "XRay", "Toggles see-through drawing for all wireframe gizmos", (b) => {targetCam.drawSeeThrough = b;}, false);
@@ -149,12 +155,7 @@ public class CustomCameraUIController : ClickDragScrollHandler {
                 toggleIndex++;
                 y -= (toggleSize + toggleOffset);
             }
-
         }
-    }
-
-    void SetWireframeRendering (bool value, bool isCallFromOtherController = false) {
-        // TODO this
     }
 
     void SetToggleColors (int toggleIndex) {

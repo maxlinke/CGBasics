@@ -11,10 +11,9 @@ public class CustomGLCamera : MonoBehaviour {
     [SerializeField] CustomGLCamera otherCamera;
 
     public bool matricesAreUpdated { get; private set; }
-    public Matrix4x4 currentModelMatrix { get; private set; }
-    public Matrix4x4 currentCameraMatrix { get; private set; }
-    // public Matrix4x4 currentViewMatrix { get; private set; }
-    // public Matrix4x4 currentProjectionMatrix { get; private set; }
+    public Matrix4x4 modelMatrix { get; private set; }
+    public Matrix4x4 cameraMatrix { get; private set; }
+    private Mesh currentMesh;
 
     public float nearClipPlane { 
         get { return attachedUnityCam.nearClipPlane; }
@@ -33,7 +32,6 @@ public class CustomGLCamera : MonoBehaviour {
         set { attachedUnityCam.aspect = value; }
     }
 
-    [System.NonSerialized] public MatrixScreen matrixScreen;
     [System.NonSerialized] public bool drawPivot;
     [System.NonSerialized] public Vector3 pivotPointToDraw;
 
@@ -43,6 +41,8 @@ public class CustomGLCamera : MonoBehaviour {
     [System.NonSerialized] public bool drawCamera;
     [System.NonSerialized] public bool drawClipSpace;
 
+    bool initialized;
+    MatrixScreen matrixScreen;
     Camera attachedUnityCam;
     Material lineMaterialSolid;
     Material lineMaterialSeeThrough;
@@ -78,15 +78,21 @@ public class CustomGLCamera : MonoBehaviour {
         new Vector3(-1,  1, 1)
     };
 
-    void Awake () {
-        attachedUnityCam = GetComponent<Camera>();
+    public void Initialize (MatrixScreen matrixScreen) {
+        if(initialized){
+            Debug.LogError("Duplicate init call, aborting!", this.gameObject);
+            return;
+        }
+        this.matrixScreen = matrixScreen;
+
+        EnsureUnityCamLoaded();
         SetupPremadeUnityColoredMaterials();        
 
         objectMat = Instantiate(objectMat);
         objectMat.hideFlags = HideFlags.HideAndDontSave;
         objectMat.EnableKeyword("USE_SPECIAL_MODEL_MATRIX");
 
-        if(isExternalCamera){
+        if(isExternalCamera){                                       // TODO enable disable these on a per-frame basis (or at least per toggle...)
             objectMat.EnableKeyword("SHOW_CLIPPING");
             objectMat.EnableKeyword("USE_SPECIAL_CLIPPING_MATRIX");
         }
@@ -96,6 +102,8 @@ public class CustomGLCamera : MonoBehaviour {
         startFieldOfView = fieldOfView;
         startPosition = transform.position;
         startRotation = transform.rotation;
+
+        initialized = true;
     }
 
     void OnEnable () {
@@ -109,6 +117,10 @@ public class CustomGLCamera : MonoBehaviour {
     }
 
     public void ResetToDefault () {
+        if(!initialized){
+            Debug.LogError("Not initialized yet! Aborting...", this.gameObject);
+            return;
+        }
         nearClipPlane = startNearClipPlane;
         farClipPlane = startFarClipPlane;
         fieldOfView = startFieldOfView;
@@ -117,7 +129,14 @@ public class CustomGLCamera : MonoBehaviour {
         transform.rotation = startRotation;
     }
 
+    void EnsureUnityCamLoaded () {
+        if(attachedUnityCam == null){
+            attachedUnityCam = GetComponent<Camera>();
+        }
+    }
+
     void LoadColors (ColorScheme cs) {
+        EnsureUnityCamLoaded();
         attachedUnityCam.backgroundColor = cs.VertRenderBackground;
         wireGridColor = cs.VertRenderWireGridFloor;
         wireObjectColor = cs.VertRenderWireObject;
@@ -145,7 +164,7 @@ public class CustomGLCamera : MonoBehaviour {
         lineMaterialSolid.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.One);
         lineMaterialSolid.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.Zero);
         lineMaterialSolid.SetInt("_Cull", (int)UnityEngine.Rendering.CullMode.Off);
-        lineMaterialSolid.SetInt("_ZWrite", 0);
+        lineMaterialSolid.SetInt("_ZWrite", 1);
         lineMaterialSolid.SetInt("_ZTest", (int)UnityEngine.Rendering.CompareFunction.LessEqual);
 
         lineMaterialSeeThrough = new Material(shader);
@@ -162,24 +181,27 @@ public class CustomGLCamera : MonoBehaviour {
     }
 
     void OnPreRender () {
+        if(!initialized){
+            return;
+        }
         attachedUnityCam.cullingMask = 0;
         if(isExternalCamera && !otherCamera.matricesAreUpdated){
-            otherCamera.UpdateMatrices();  //TODO change to a better name maybe?
+            otherCamera.UpdateMatricesAndMesh();  //TODO change to a better name maybe?
         }
-        UpdateMatrices();
+        UpdateMatricesAndMesh();
     }
 
-    void UpdateMatrices () {
-        if(!isExternalCamera){
+    void UpdateMatricesAndMesh () {
+        if(!isExternalCamera && !matrixScreen.freeModeActivated){
             // this is JUST for testing!
             matrixScreen.ViewPosMatrix.VariableContainer.EditVariable(MatrixConfig.InverseTranslationConfig.xPos, transform.position.x, false);
             matrixScreen.ViewPosMatrix.VariableContainer.EditVariable(MatrixConfig.InverseTranslationConfig.yPos, transform.position.y, false);
             matrixScreen.ViewPosMatrix.VariableContainer.EditVariable(MatrixConfig.InverseTranslationConfig.zPos, transform.position.z, true);
             // still just testing
-            var left = -transform.right;
-            matrixScreen.ViewRotMatrix.VariableContainer.EditVariable(MatrixConfig.RebaseConfig.newXx, left.x, false);
-            matrixScreen.ViewRotMatrix.VariableContainer.EditVariable(MatrixConfig.RebaseConfig.newXy, left.y, false);
-            matrixScreen.ViewRotMatrix.VariableContainer.EditVariable(MatrixConfig.RebaseConfig.newXz, left.z, false);
+            var right = transform.right;
+            matrixScreen.ViewRotMatrix.VariableContainer.EditVariable(MatrixConfig.RebaseConfig.newXx, right.x, false);
+            matrixScreen.ViewRotMatrix.VariableContainer.EditVariable(MatrixConfig.RebaseConfig.newXy, right.y, false);
+            matrixScreen.ViewRotMatrix.VariableContainer.EditVariable(MatrixConfig.RebaseConfig.newXz, right.z, false);
             var up = transform.up;
             matrixScreen.ViewRotMatrix.VariableContainer.EditVariable(MatrixConfig.RebaseConfig.newYx, up.x, false);
             matrixScreen.ViewRotMatrix.VariableContainer.EditVariable(MatrixConfig.RebaseConfig.newYy, up.y, false);
@@ -195,7 +217,7 @@ public class CustomGLCamera : MonoBehaviour {
             matrixScreen.ProjMatrix.VariableContainer.EditVariable(MatrixConfig.PerspectiveProjectionConfig.aspect, attachedUnityCam.aspect, true);
         }
 
-        // if(isExternalCamera){
+        if(isExternalCamera){
             var currentViewMatrix = GLMatrixCreator.GetViewMatrix(
                 pos: transform.position,
                 forward: transform.forward,
@@ -207,13 +229,19 @@ public class CustomGLCamera : MonoBehaviour {
                 zNear: nearClipPlane,
                 zFar: farClipPlane
             );
-            currentCameraMatrix = currentProjectionMatrix * currentViewMatrix;
-        // }else{
-        //     currentViewMatrix
-        // }
+            cameraMatrix = currentProjectionMatrix * currentViewMatrix;
+        }else{
+            cameraMatrix = matrixScreen.GetWeightedCameraMatrixForRendering();
+        }
+        modelMatrix = matrixScreen.GetWeightedModelMatrixForRendering();
+        currentMesh = matrixScreen.GetCurrentMesh();
     }
 
     void OnPostRender () {
+        if(!initialized){
+            return;
+        }
+
         bool wireCache = GL.wireframe;
         GL.wireframe = drawObjectAsWireFrame;
 
@@ -225,15 +253,10 @@ public class CustomGLCamera : MonoBehaviour {
 
         GL.LoadProjectionMatrix(Matrix4x4.identity);
         GL.LoadIdentity();
-        GL.MultMatrix(currentCameraMatrix);
+        GL.MultMatrix(cameraMatrix);
 
-        // TODO change to get weighted matrices or something like that (only for the render cam)
-        if(matrixScreen != null){
-            matrixScreen.GetWeightedRenderingMatrices(out Matrix4x4 modelMatrix, out _);  // TODO use cam matrix
-            var meshToDraw = matrixScreen.GetCurrentMesh();
-            if(meshToDraw != null){
-                DrawObject(meshToDraw, modelMatrix);
-            }
+        if(currentMesh != null){
+            DrawObject(currentMesh);
         }
 
         if(drawSeeThrough){
@@ -300,7 +323,7 @@ public class CustomGLCamera : MonoBehaviour {
         // GL.MultMatrix(currentViewMatrix * (otherCamera.currentProjectionMatrix * otherCamera.currentViewMatrix).inverse);
         GL.LoadProjectionMatrix(Matrix4x4.identity);
         GL.LoadIdentity();
-        GL.MultMatrix(currentCameraMatrix * otherCamera.currentCameraMatrix.inverse);
+        GL.MultMatrix(cameraMatrix * otherCamera.cameraMatrix.inverse);     // TODO unweighted cam matrix? yes. inverse of unweighted, then multiply with the actual weighted one
         DrawClipSpace(camFrustumColor, seeThrough);
 
         GL.PopMatrix();
@@ -322,7 +345,7 @@ public class CustomGLCamera : MonoBehaviour {
         }
     }
 
-    void DrawObject (Mesh meshToDraw, Matrix4x4 modelMatrix) {
+    void DrawObject (Mesh meshToDraw) {
         GL.PushMatrix();
         
         // GL.LoadProjectionMatrix(currentProjectionMatrix);
@@ -330,11 +353,11 @@ public class CustomGLCamera : MonoBehaviour {
         // GL.MultMatrix(currentViewMatrix * modelMatrix);
         GL.LoadProjectionMatrix(Matrix4x4.identity);
         GL.LoadIdentity();
-        GL.MultMatrix(currentCameraMatrix * modelMatrix);
+        GL.MultMatrix(cameraMatrix * modelMatrix);
 
         if(isExternalCamera){
             // objectMat.SetMatrix("_SpecialClippingMatrix", otherCamera.currentProjectionMatrix * otherCamera.currentViewMatrix * modelMatrix);
-            objectMat.SetMatrix("_SpecialClippingMatrix", otherCamera.currentCameraMatrix * modelMatrix);
+            objectMat.SetMatrix("_SpecialClippingMatrix", otherCamera.cameraMatrix * otherCamera.modelMatrix);
         }
         if(drawObjectAsWireFrame){
             lineMaterialSolid.SetPass(0);
@@ -364,7 +387,7 @@ public class CustomGLCamera : MonoBehaviour {
         // should always have the same pixel-size
         float dist = (pivotPointToDraw - attachedUnityCam.transform.position).magnitude;
         float preMul = pivotSize * dist / Screen.height;
-        preMul *= fieldOfView / 60;         // not perfect but better than nothing. 
+        preMul *= fieldOfView / 60;         // TODO not perfect but better than nothing. 
         Vector3 offsetH = preMul * transform.right;
         Vector3 offsetV = preMul * transform.up;
         Vector3[] points = new Vector3[]{

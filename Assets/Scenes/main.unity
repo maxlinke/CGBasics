@@ -227,7 +227,6 @@ MonoBehaviour:
   objectMat: {fileID: 2100000, guid: e7f3840cfe72eb14597634e5a22d91a3, type: 2}
   isExternalCamera: 1
   otherCamera: {fileID: 1976233771}
-  drawObjectAsWireFrame: 0
 --- !u!20 &805506397
 Camera:
   m_ObjectHideFlags: 0
@@ -579,7 +578,6 @@ MonoBehaviour:
   objectMat: {fileID: 2100000, guid: e7f3840cfe72eb14597634e5a22d91a3, type: 2}
   isExternalCamera: 0
   otherCamera: {fileID: 0}
-  drawObjectAsWireFrame: 0
 --- !u!20 &1976233772
 Camera:
   m_ObjectHideFlags: 0
@@ -877,6 +875,26 @@ PrefabInstance:
       propertyPath: targetCam
       value: 
       objectReference: {fileID: 805506396}
+    - target: {fileID: 8253647280593579671, guid: cfa033871734dbb429d1ea2bca1e88f9,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2091770909933146620, guid: cfa033871734dbb429d1ea2bca1e88f9,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3177943752331237449, guid: cfa033871734dbb429d1ea2bca1e88f9,
+        type: 3}
+      propertyPath: targetCam
+      value: 
+      objectReference: {fileID: 805506396}
+    - target: {fileID: 1308221943000780195, guid: cfa033871734dbb429d1ea2bca1e88f9,
+        type: 3}
+      propertyPath: targetCam
+      value: 
+      objectReference: {fileID: 1976233771}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: cfa033871734dbb429d1ea2bca1e88f9, type: 3}
 --- !u!4 &7730905139910435668

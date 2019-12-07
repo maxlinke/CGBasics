@@ -11,10 +11,10 @@ public class MatrixScreen : MonoBehaviour {
     [SerializeField] UIMatrixGroup matrixGroupPrefab;
 
     [Header("Components")]
-    [SerializeField] Camera matrixCam;
-    [SerializeField] Camera externalCam;
+    [SerializeField] CustomCameraUIController matrixCamController;
+    [SerializeField] CustomCameraUIController externalCamController;
     [SerializeField] Image backgroundImage;
-    [SerializeField] MeshFilter referenceObject;
+    [SerializeField] Mesh defaultMesh;
     [SerializeField] RectTransform uiMatrixParent;
     [SerializeField] MatrixScreenPanAndZoom panAndZoomController;
     [SerializeField] Image[] borders;
@@ -29,6 +29,8 @@ public class MatrixScreen : MonoBehaviour {
     public UIMatrix ProjMatrix => projMatrix;
 
     private bool cantAddMoreMatrices => modelGroup.matrixCount + camGroup.matrixCount >= MAX_MATRIX_COUNT;
+
+    public bool freeModeActivated { get; private set; }
 
     bool initialized;
     UIMatrixGroup modelGroup;
@@ -50,62 +52,31 @@ public class MatrixScreen : MonoBehaviour {
         ColorScheme.onChange -= LoadColors;
     }
 
+    void Update () {
+        if(Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.M)){
+            if(freeModeActivated){
+                ActivateNonFreeMode();
+            }else{
+                ActivateFreeMode();
+            }
+        }
+    }
+
     void Initialize () {
         if(initialized){
             Debug.LogWarning($"Duplicate init call for {nameof(MatrixScreen)}, aborting!", this.gameObject);
             return;
         }
-        matrixCam.GetComponent<CustomGLCamera>().matrixScreen = this;
-        externalCam.GetComponent<CustomGLCamera>().matrixScreen = this;
-
+        matrixCamController.Initialize(this);
+        externalCamController.Initialize(this);
         CreateMultiplicationSign();
         modelGroup = CreateMatrixGroup(leftSide: true);
         modelGroup.SetName("Model");
-        modelGroup[0].LoadConfig(UIMatrices.MatrixConfig.scaleConfig);
-        modelGroup.CreateMatrixAtIndex(UIMatrices.MatrixConfig.fullRotationConfig, UIMatrix.Editability.FULL, 1, false);
-        modelGroup.CreateMatrixAtIndex(UIMatrices.MatrixConfig.translationConfig, UIMatrix.Editability.FULL, 2, true);
-
         camGroup = CreateMatrixGroup(leftSide: false);
         camGroup.SetName("Camera");
-        camGroup[0].LoadConfig(UIMatrices.MatrixConfig.rebaseConfig);
-        camGroup[0].Transpose();
-        camGroup[0].SetName("Inv. Camera Rotation");
-        camGroup.CreateMatrixAtIndex(UIMatrices.MatrixConfig.inverseTranslationConfig, UIMatrix.Editability.FULL, 1, false);
-        camGroup[1].SetName("Inv. Camera Position");
-        camGroup.CreateMatrixAtIndex(UIMatrices.MatrixConfig.perspProjConfig, UIMatrix.Editability.FULL, 2, true);
-
-        viewRotMatrix = camGroup[0];    // TODO remember to null these fields upon switching to free mode
-        viewPosMatrix = camGroup[1];
-        projMatrix = camGroup[2];
-
-        foreach(var m in modelGroup){
-            m.VariableContainer.Retract();
-        }
-        foreach(var m in camGroup){
-            m.VariableContainer.Retract();
-        }
-
+        ActivateNonFreeMode();
         UpdateMatrixButtons();
-        
-        // TODO non-editability for all as soon as i get the "free mode /locked mode" thingy working
-
         initialized = true;
-
-        // var A = new Matrix4x4(
-        //     new Vector4(2, 0, 0, 0),
-        //     new Vector4(0, 1, 0, 0),
-        //     new Vector4(0, 0, 1, 0),
-        //     new Vector4(0, 0, 0, 1)
-        // ).transpose;
-
-        // var B = new Matrix4x4(
-        //     new Vector4(1, 0, 0, 0),
-        //     new Vector4(0, 1, 0, 0),
-        //     new Vector4(0, 0, 1, 0),
-        //     new Vector4(5, 2, -1, 1)
-        // ).transpose;
-
-        // Debug.Log($"A:\n{A}\nB:\n{B}\nA*B:\n{A*B}");
 
         UIMatrixGroup CreateMatrixGroup (bool leftSide) {
             var newGroup = Instantiate(matrixGroupPrefab);
@@ -119,6 +90,10 @@ public class MatrixScreen : MonoBehaviour {
         }
 
         void CreateMultiplicationSign () {
+            if(multiplicationSignImage != null){
+                Debug.LogError("wat", this.gameObject);
+                return;
+            }
             var mulSignRT = new GameObject("Multiplication Sign", typeof(RectTransform), typeof(Image)).GetComponent<RectTransform>();
             mulSignRT.SetParent(uiMatrixParent, false);
             mulSignRT.localScale = Vector3.one;
@@ -129,6 +104,64 @@ public class MatrixScreen : MonoBehaviour {
             multiplicationSignImage = mulSignRT.gameObject.GetComponent<Image>();
             multiplicationSignImage.sprite = UISprites.MatrixMultiply;
         }
+    }
+
+    void ActivateNonFreeMode () {
+        modelGroup.ResetToOnlyOneMatrix(false);
+        modelGroup[0].LoadConfig(UIMatrices.MatrixConfig.scaleConfig);
+        modelGroup.CreateMatrixAtIndex(UIMatrices.MatrixConfig.fullRotationConfig, UIMatrix.Editability.FULL, 1, false);
+        modelGroup.CreateMatrixAtIndex(UIMatrices.MatrixConfig.translationConfig, UIMatrix.Editability.FULL, 2, true);
+
+        camGroup.ResetToOnlyOneMatrix(false);
+        // camGroup[0].LoadConfig(UIMatrices.MatrixConfig.rebaseConfig);
+        // camGroup[0].Transpose();
+        // camGroup[0].SetName("Inv. Camera Rotation");
+        // camGroup.CreateMatrixAtIndex(UIMatrices.MatrixConfig.inverseTranslationConfig, UIMatrix.Editability.FULL, 1, false);
+        // camGroup[1].SetName("Inv. Camera Position");
+        camGroup[0].LoadConfig(UIMatrices.MatrixConfig.inverseTranslationConfig);
+        camGroup[0].SetName("Inv. Camera Position");
+        camGroup.CreateMatrixAtIndex(UIMatrices.MatrixConfig.rebaseConfig, UIMatrix.Editability.FULL, 1, false);
+        camGroup[1].SetName("Inv. Camera Rotation");
+        camGroup[1].Transpose();
+        camGroup.CreateMatrixAtIndex(UIMatrices.MatrixConfig.perspProjConfig, UIMatrix.Editability.FULL, 2, true);
+
+        viewRotMatrix = camGroup[1];
+        viewPosMatrix = camGroup[0];
+        projMatrix = camGroup[2];
+
+        foreach(var m in modelGroup){
+            m.editability = UIMatrix.Editability.VARIABLE_VALUES_ONLY;
+            m.VariableContainer.Expand();
+        }
+        foreach(var m in camGroup){
+            m.editability = UIMatrix.Editability.NONE;
+            m.VariableContainer.Retract();
+        }
+        matrixCamController.enabled = true;
+        matrixCamController.ResetCamera();
+        externalCamController.enabled = true;
+        // externalCamController.ResetCamera();
+
+        freeModeActivated = false;
+    }
+
+    void ActivateFreeMode () {
+        viewRotMatrix = null;
+        viewPosMatrix = null;
+        projMatrix = null;
+
+        foreach(var m in modelGroup){
+            m.editability = UIMatrix.Editability.FULL;
+            m.VariableContainer.Expand();
+        }
+        foreach(var m in camGroup){
+            m.editability = UIMatrix.Editability.FULL;
+            m.VariableContainer.Expand();
+        }
+        matrixCamController.enabled = false;
+        externalCamController.enabled = true;
+
+        freeModeActivated = true;
     }
 
     void LoadColors (ColorScheme cs) {
@@ -197,13 +230,20 @@ public class MatrixScreen : MonoBehaviour {
         }
     }
 
-    public void GetWeightedRenderingMatrices (out Matrix4x4 outputModelMatrix, out Matrix4x4 outputCameraMatrix) {
-        outputModelMatrix = modelGroup.WeightedMatrixProduct.transpose;
-        outputCameraMatrix = camGroup.WeightedMatrixProduct.transpose;
+    public Matrix4x4 GetWeightedModelMatrixForRendering () {
+        return modelGroup.WeightedMatrixProduct.transpose;
+    }
+
+    public Matrix4x4 GetWeightedCameraMatrixForRendering () {
+        return camGroup.WeightedMatrixProduct.transpose;
+    }
+
+    public Matrix4x4 GetUnweightedCameraMatrixForRendering () {
+        return camGroup.UnweightedMatrixProduct.transpose;
     }
 
     public Mesh GetCurrentMesh () {
-        return referenceObject.sharedMesh;
+        return defaultMesh;     // TODO mesh selection
     }
 	
 }

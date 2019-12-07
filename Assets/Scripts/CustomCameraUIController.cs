@@ -17,6 +17,19 @@ public class CustomCameraUIController : ClickDragScrollHandler {
     PointerType currentPointerType;
     Vector3 lastMousePos;
 
+    public void Initialize (MatrixScreen matrixScreen) {
+        targetCam.Initialize(matrixScreen);
+    }
+
+    public void ResetCamera () {
+        targetCam.ResetToDefault();
+    }
+
+    void OnDisable () {
+        targetCam.drawPivot = false;
+        currentPointerType = PointerType.None;
+    }
+
     void Update () {
         if(currentPointerType != PointerType.None){
             var currentMousePos = Input.mousePosition;

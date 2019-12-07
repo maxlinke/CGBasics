@@ -91,6 +91,22 @@ public class MatrixScreen : MonoBehaviour {
 
         initialized = true;
 
+        // var A = new Matrix4x4(
+        //     new Vector4(2, 0, 0, 0),
+        //     new Vector4(0, 1, 0, 0),
+        //     new Vector4(0, 0, 1, 0),
+        //     new Vector4(0, 0, 0, 1)
+        // ).transpose;
+
+        // var B = new Matrix4x4(
+        //     new Vector4(1, 0, 0, 0),
+        //     new Vector4(0, 1, 0, 0),
+        //     new Vector4(0, 0, 1, 0),
+        //     new Vector4(5, 2, -1, 1)
+        // ).transpose;
+
+        // Debug.Log($"A:\n{A}\nB:\n{B}\nA*B:\n{A*B}");
+
         UIMatrixGroup CreateMatrixGroup (bool leftSide) {
             var newGroup = Instantiate(matrixGroupPrefab);
             newGroup.rectTransform.SetParent(uiMatrixParent, false);
@@ -181,12 +197,13 @@ public class MatrixScreen : MonoBehaviour {
         }
     }
 
-    // TODO remember to transpose
-    public void GetCurrentMeshAndWeightedMatrices (out Mesh outputMesh, out Matrix4x4 outputModelMatrix, out Matrix4x4 outputCameraMatrix) {
-        outputMesh = referenceObject.sharedMesh;
-        var refT = referenceObject.transform;
-        outputModelMatrix = GLMatrixCreator.GetModelMatrix(refT.position, refT.eulerAngles, refT.lossyScale);
-        outputCameraMatrix = Matrix4x4.identity;    // TODO this
+    public void GetWeightedRenderingMatrices (out Matrix4x4 outputModelMatrix, out Matrix4x4 outputCameraMatrix) {
+        outputModelMatrix = modelGroup.WeightedMatrixProduct.transpose;
+        outputCameraMatrix = camGroup.WeightedMatrixProduct.transpose;
+    }
+
+    public Mesh GetCurrentMesh () {
+        return referenceObject.sharedMesh;
     }
 	
 }

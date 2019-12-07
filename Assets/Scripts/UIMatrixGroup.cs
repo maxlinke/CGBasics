@@ -31,6 +31,16 @@ public class UIMatrixGroup : MonoBehaviour {
 
     public UIMatrix this[int index] => matrices[index];
     public int matrixCount => matrices.Count;
+
+    public Matrix4x4 WeightedMatrixProduct {
+        get {
+            var outputMatrix = Matrix4x4.identity;
+            for(int i=0; i<matrices.Count; i++){
+                outputMatrix = outputMatrix * matrices[i].WeightedMatrixValue;
+            }
+            return outputMatrix;
+        }
+    }
     
     public void Initialize (MatrixScreen matrixScreen) {
         if(initialized){

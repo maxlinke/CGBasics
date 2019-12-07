@@ -11,6 +11,7 @@ public class CustomGLCamera : MonoBehaviour {
     [SerializeField] CustomGLCamera otherCamera;
 
     public bool matricesAreUpdated { get; private set; }
+    public Matrix4x4 currentModelMatrix { get; private set; }
     public Matrix4x4 currentViewMatrix { get; private set; }
     public Matrix4x4 currentProjectionMatrix { get; private set; }
 
@@ -34,9 +35,12 @@ public class CustomGLCamera : MonoBehaviour {
     [System.NonSerialized] public MatrixScreen matrixScreen;
     [System.NonSerialized] public bool drawPivot;
     [System.NonSerialized] public Vector3 pivotPointToDraw;
+
     [System.NonSerialized] public bool drawSeeThrough;
-    // [System.NonSerialized] public bool drawObjectAsWireFrame;
-    public bool drawObjectAsWireFrame;
+    [System.NonSerialized] public bool drawObjectAsWireFrame;
+    [System.NonSerialized] public bool canDrawCamera;
+    [System.NonSerialized] public bool drawCamera;
+    [System.NonSerialized] public bool drawClipSpace;
 
     Camera attachedUnityCam;
     Material lineMaterialSolid;
@@ -190,17 +194,21 @@ public class CustomGLCamera : MonoBehaviour {
             matrixScreen.ProjMatrix.VariableContainer.EditVariable(MatrixConfig.PerspectiveProjectionConfig.aspect, attachedUnityCam.aspect, true);
         }
 
-        currentViewMatrix = GLMatrixCreator.GetViewMatrix(
-            pos: transform.position,
-            forward: transform.forward,
-            up: transform.up
-        );
-        currentProjectionMatrix = GLMatrixCreator.GetProjectionMatrix(
-            fov: fieldOfView,
-            aspectRatio: aspect,
-            zNear: nearClipPlane,
-            zFar: farClipPlane
-        );
+        // if(isExternalCamera){
+            currentViewMatrix = GLMatrixCreator.GetViewMatrix(
+                pos: transform.position,
+                forward: transform.forward,
+                up: transform.up
+            );
+            currentProjectionMatrix = GLMatrixCreator.GetProjectionMatrix(
+                fov: fieldOfView,
+                aspectRatio: aspect,
+                zNear: nearClipPlane,
+                zFar: farClipPlane
+            );
+        // }else{
+        //     currentViewMatrix
+        // }
     }
 
     void OnPostRender () {
@@ -215,7 +223,8 @@ public class CustomGLCamera : MonoBehaviour {
 
         // TODO change to get weighted matrices or something like that (only for the render cam)
         if(matrixScreen != null){
-            matrixScreen.GetCurrentMeshAndWeightedMatrices(out Mesh meshToDraw, out Matrix4x4 modelMatrix, out _);  // TODO use cam matrix
+            matrixScreen.GetWeightedRenderingMatrices(out Matrix4x4 modelMatrix, out _);  // TODO use cam matrix
+            var meshToDraw = matrixScreen.GetCurrentMesh();
             if(meshToDraw != null){
                 DrawObject(meshToDraw, modelMatrix);
             }

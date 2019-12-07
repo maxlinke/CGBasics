@@ -1,24 +1,65 @@
 ﻿using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
+using TMPro;
 
 public class CustomCameraUIController : ClickDragScrollHandler {
 
-    [Header("References")]
-    [SerializeField] CustomGLCamera targetCam;
+    [Header("Prefabs")]
+    [SerializeField] CustomGLCamera targetCamPrefab;
 
     [Header("Settings")]
+    [SerializeField] bool isExternalCamController;
     [SerializeField] float scrollSensitivity;
     [SerializeField] float smoothScrollSensitivity;
     [SerializeField] float orbitSensitivity;
     [SerializeField] float moveSensitivity;
     [SerializeField] bool inverted;
 
+    [Header("Default Camera Settings")]
+    [SerializeField] Vector2 camRectPos;
+    [SerializeField] Vector2 camRectSize;
+    [SerializeField] float camDefaultFOV;
+    [SerializeField] float camDefaultNearClip;
+    [SerializeField] float camDefaultFarClip;
+    [SerializeField] Vector3 camDefaultPosition;
+    [SerializeField] Vector3 camDefaultEuler;
+
+    [Header("UI Generation")]
+    [SerializeField] TMP_FontAsset labelFont;
+    [SerializeField] float labelFontSize;
+
+    CustomGLCamera targetCam;
     Vector3 pivotPoint; 
     PointerType currentPointerType;
     Vector3 lastMousePos;
 
-    public void Initialize (MatrixScreen matrixScreen) {
-        targetCam.Initialize(matrixScreen);
+    public bool IsExternalCamController => isExternalCamController;
+    public CustomGLCamera Cam => targetCam;
+
+    public void Initialize (MatrixScreen matrixScreen, CustomCameraUIController otherController) {
+        targetCam = Instantiate(targetCamPrefab);
+        targetCam.Initialize(
+            isExternalCamera: isExternalCamController,
+            otherCamera: (isExternalCamController ? otherController.Cam : null),
+            matrixScreen: matrixScreen, 
+            inputFOV: camDefaultFOV,
+            inputNearClip: camDefaultNearClip,
+            inputFarClip: camDefaultFarClip,
+            inputStartPos: camDefaultPosition,
+            inputStartEuler: camDefaultEuler
+        );
+        targetCam.SetupViewportRect(new Rect(camRectPos, camRectSize));
+        targetCam.LoadColors(ColorScheme.current);
+        InitializeControls();
+
+        void InitializeControls () {
+
+
+            if(targetCam.IsExternalCamera){
+                // more buttons
+            }
+        }
     }
 
     public void ResetCamera () {

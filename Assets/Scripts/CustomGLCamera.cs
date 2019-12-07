@@ -3,13 +3,9 @@ using UIMatrices;
 
 public class CustomGLCamera : MonoBehaviour {
 
-    [Header("Drawing Things")]
     [SerializeField] Material objectMat;
 
-    [Header("Settings")]
-    [SerializeField] bool isExternalCamera;
-    [SerializeField] CustomGLCamera otherCamera;
-
+    public bool IsExternalCamera => isExternalCamera;
     public bool matricesAreUpdated { get; private set; }
     public Matrix4x4 modelMatrix { get; private set; }
     public Matrix4x4 cameraMatrix { get; private set; }
@@ -40,6 +36,9 @@ public class CustomGLCamera : MonoBehaviour {
     [System.NonSerialized] public bool canDrawCamera;
     [System.NonSerialized] public bool drawCamera;
     [System.NonSerialized] public bool drawClipSpace;
+
+    bool isExternalCamera;
+    CustomGLCamera otherCamera;
 
     bool initialized;
     MatrixScreen matrixScreen;
@@ -78,12 +77,14 @@ public class CustomGLCamera : MonoBehaviour {
         new Vector3(-1,  1, 1)
     };
 
-    public void Initialize (MatrixScreen matrixScreen) {
+    public void Initialize (MatrixScreen matrixScreen, bool isExternalCamera, CustomGLCamera otherCamera, float inputFOV, float inputNearClip, float inputFarClip, Vector3 inputStartPos, Vector3 inputStartEuler) {
         if(initialized){
             Debug.LogError("Duplicate init call, aborting!", this.gameObject);
             return;
         }
         this.matrixScreen = matrixScreen;
+        this.isExternalCamera = isExternalCamera;
+        this.otherCamera = otherCamera;
 
         EnsureUnityCamLoaded();
         SetupPremadeUnityColoredMaterials();        
@@ -97,6 +98,12 @@ public class CustomGLCamera : MonoBehaviour {
             objectMat.EnableKeyword("USE_SPECIAL_CLIPPING_MATRIX");
         }
 
+        nearClipPlane = inputNearClip;
+        farClipPlane = inputFarClip;
+        fieldOfView = inputFOV;
+        transform.position = inputStartPos;
+        transform.localEulerAngles = inputStartEuler;
+
         startNearClipPlane = nearClipPlane;
         startFarClipPlane = farClipPlane;
         startFieldOfView = fieldOfView;
@@ -106,8 +113,14 @@ public class CustomGLCamera : MonoBehaviour {
         initialized = true;
     }
 
+    public void SetupViewportRect (Rect viewportRect) {
+        attachedUnityCam.rect = viewportRect;
+    }
+
     void OnEnable () {
-        LoadColors(ColorScheme.current);
+        if(initialized){
+            LoadColors(ColorScheme.current);
+        }
         ColorScheme.onChange += LoadColors;
     }
 
@@ -135,7 +148,7 @@ public class CustomGLCamera : MonoBehaviour {
         }
     }
 
-    void LoadColors (ColorScheme cs) {
+    public void LoadColors (ColorScheme cs) {
         EnsureUnityCamLoaded();
         attachedUnityCam.backgroundColor = cs.VertRenderBackground;
         wireGridColor = cs.VertRenderWireGridFloor;

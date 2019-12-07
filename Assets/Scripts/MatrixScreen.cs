@@ -67,8 +67,8 @@ public class MatrixScreen : MonoBehaviour {
             Debug.LogWarning($"Duplicate init call for {nameof(MatrixScreen)}, aborting!", this.gameObject);
             return;
         }
-        matrixCamController.Initialize(this);
-        externalCamController.Initialize(this);
+        matrixCamController.Initialize(this, externalCamController);
+        externalCamController.Initialize(this, matrixCamController);
         CreateMultiplicationSign();
         modelGroup = CreateMatrixGroup(leftSide: true);
         modelGroup.SetName("Model");

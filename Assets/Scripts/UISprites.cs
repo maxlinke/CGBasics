@@ -23,6 +23,11 @@ public class UISprites : ScriptableObject {
         }
     }
 
+    [Header("Generic Sprites")]
+    [SerializeField] Sprite uiCircle;
+
+    public Sprite UICircle => uiCircle;
+
     [Header("Matrix Sprites")]
     [SerializeField] Sprite matrixLeft;
     [SerializeField] Sprite matrixRight;

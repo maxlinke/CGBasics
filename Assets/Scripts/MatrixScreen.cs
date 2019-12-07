@@ -15,8 +15,9 @@ public class MatrixScreen : MonoBehaviour {
     [SerializeField] Camera externalCam;
     [SerializeField] Image backgroundImage;
     [SerializeField] MeshFilter referenceObject;
-    [SerializeField] RectTransform uiMatrixParent;                  // TODO matrix groups (object, camera)
+    [SerializeField] RectTransform uiMatrixParent;
     [SerializeField] MatrixScreenPanAndZoom panAndZoomController;
+    [SerializeField] Image[] borders;
 
     [Header("Settings")]
     [SerializeField] float multiplicationSignSize;
@@ -119,6 +120,9 @@ public class MatrixScreen : MonoBehaviour {
         multiplicationSignImage.color = cs.MatrixScreenMultiplicationSign;
         modelGroup.LoadColors(cs.MatrixScreenModelMatrixHeader, cs);
         camGroup.LoadColors(cs.MatrixScreenCameraMatrixHeader, cs);
+        foreach(var b in borders){
+            b.color = cs.MatrixScreenBorderColor;
+        }
     }
 
     public void AddMatrix (UIMatrix callingMatrix) {

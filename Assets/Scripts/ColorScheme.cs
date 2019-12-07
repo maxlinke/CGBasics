@@ -105,12 +105,14 @@ public class ColorScheme : ScriptableObject {
     [SerializeField] Color matrixScreenModelMatrixHeader;
     [SerializeField] Color matrixScreenCameraMatrixHeader;
     [SerializeField] Color matrixScreenMultiplicationSign;
+    [SerializeField] Color matrixScreenBorderColor;
 
     public Color MatrixScreenBackground => matrixScreenBackground;
     public Color MatrixScreenMatrixGroupBackground => matrixScreenMatrixGroupBackground;
     public Color MatrixScreenModelMatrixHeader => matrixScreenModelMatrixHeader;
     public Color MatrixScreenCameraMatrixHeader => matrixScreenCameraMatrixHeader;
     public Color MatrixScreenMultiplicationSign => matrixScreenMultiplicationSign;
+    public Color MatrixScreenBorderColor => matrixScreenBorderColor;
 
     [Header("UI Matrix")]
     [SerializeField] Color[] uiMatrixHeaders;

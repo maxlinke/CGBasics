@@ -27,6 +27,7 @@ public class UIMatrix : MonoBehaviour {
     [SerializeField] RectTransform headerArea;
     [SerializeField] RectTransform controlsArea;
     [SerializeField] RectTransform matrixArea;
+    [SerializeField] RectTransform backgroundWeightOverlay;
 
     [Header("Settings")]
     [SerializeField, Tooltip("Top, Right, Bottom, Right")] Vector4 fieldArrayMargins;
@@ -65,6 +66,7 @@ public class UIMatrix : MonoBehaviour {
     Button moveLeftButton;
     Button moveRightButton;
     Button deleteButton;
+    float m_currentWeight = 1f;
 
     Editability m_editability;
     public Editability editability {
@@ -98,6 +100,31 @@ public class UIMatrix : MonoBehaviour {
                 UpdateMatrixAndGridView();
             }
             return calculatedMatrix;
+        }
+    }
+
+    public Matrix4x4 WeightedMatrixValue {
+        get {
+            var outputMatrix = new Matrix4x4();
+            var identity = Matrix4x4.identity;
+            var calculated = MatrixValue;
+            for(int i=0; i<16; i++){
+                outputMatrix[i] = Mathf.Lerp(identity[i], calculated[i], CurrentWeight);
+            }
+            return outputMatrix;
+        }
+    }
+
+    public float CurrentWeight {
+        get {
+            return m_currentWeight;
+        } set {
+            m_currentWeight = value;
+            backgroundWeightOverlay.pivot = 0.5f * Vector2.one;
+            backgroundWeightOverlay.anchorMin = new Vector2(value, 0f);
+            backgroundWeightOverlay.anchorMax = new Vector2(1f, 1f);
+            backgroundWeightOverlay.anchoredPosition = Vector2.zero;
+            backgroundWeightOverlay.sizeDelta = Vector2.zero;
         }
     }
 
@@ -154,9 +181,9 @@ public class UIMatrix : MonoBehaviour {
     }
 
     void Update () {
-        if(Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.E)){
-            this.editability = (Editability)(((int)editability + 1) % System.Enum.GetNames(typeof(Editability)).Length);
-        }
+        // if(Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.E)){
+        //     this.editability = (Editability)(((int)editability + 1) % System.Enum.GetNames(typeof(Editability)).Length);
+        // }
     }
 
     void SelfInit () {
@@ -195,7 +222,7 @@ public class UIMatrix : MonoBehaviour {
             nameLabelDropShadow.SetGOActive(true);
             nameLabelInputField.SetGOActive(false);
         });
-
+        this.CurrentWeight = m_currentWeight;
         this.editability = initialEditability;
         initialized = true;
         LoadColorsAndUpdateEverything(ColorScheme.current);
@@ -481,6 +508,8 @@ public class UIMatrix : MonoBehaviour {
         nameLabelInputField.textComponent.color = cs.UiMatrixLabel;
         nameLabelInputField.selectionColor = cs.UiMatrixNameLabelInputFieldSelection;
         SetNameLabelColorBasedOnNameHash(cs);
+        var lum = nameLabelBackground.color.Luminance();
+        backgroundWeightOverlay.GetComponent<Image>().color = new Color(lum, lum, lum, 1f);
         controlsBackground.color = cs.UiMatrixControlsBackground;
         stringFieldInvalidColor = cs.UiMatrixFieldTextInvalid;
         for(int i=0; i<fieldButtons.Length; i++){

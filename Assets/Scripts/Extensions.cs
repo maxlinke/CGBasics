@@ -135,6 +135,10 @@ public static class Extensions {
             Mathf.Clamp01(col.a + otherCol.a * (1f - col.a)));
     }
 
+    public static float Luminance (this Color col) {
+        return 0.299f * col.r + 0.587f * col.g + 0.114f * col.b;
+    }
+
     public static float UniformLocalScale (this Transform transform) {
         Vector3 vec = transform.localScale;
         if(vec.x == vec.y && vec.y == vec.z){

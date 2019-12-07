@@ -12,8 +12,9 @@ public class CustomGLCamera : MonoBehaviour {
 
     public bool matricesAreUpdated { get; private set; }
     public Matrix4x4 currentModelMatrix { get; private set; }
-    public Matrix4x4 currentViewMatrix { get; private set; }
-    public Matrix4x4 currentProjectionMatrix { get; private set; }
+    public Matrix4x4 currentCameraMatrix { get; private set; }
+    // public Matrix4x4 currentViewMatrix { get; private set; }
+    // public Matrix4x4 currentProjectionMatrix { get; private set; }
 
     public float nearClipPlane { 
         get { return attachedUnityCam.nearClipPlane; }
@@ -195,17 +196,18 @@ public class CustomGLCamera : MonoBehaviour {
         }
 
         // if(isExternalCamera){
-            currentViewMatrix = GLMatrixCreator.GetViewMatrix(
+            var currentViewMatrix = GLMatrixCreator.GetViewMatrix(
                 pos: transform.position,
                 forward: transform.forward,
                 up: transform.up
             );
-            currentProjectionMatrix = GLMatrixCreator.GetProjectionMatrix(
+            var currentProjectionMatrix = GLMatrixCreator.GetProjectionMatrix(
                 fov: fieldOfView,
                 aspectRatio: aspect,
                 zNear: nearClipPlane,
                 zFar: farClipPlane
             );
+            currentCameraMatrix = currentProjectionMatrix * currentViewMatrix;
         // }else{
         //     currentViewMatrix
         // }
@@ -217,9 +219,13 @@ public class CustomGLCamera : MonoBehaviour {
 
         GL.PushMatrix();
 
-        GL.LoadProjectionMatrix(currentProjectionMatrix);
+        // GL.LoadProjectionMatrix(currentProjectionMatrix);
+        // GL.LoadIdentity();
+        // GL.MultMatrix(currentViewMatrix);
+
+        GL.LoadProjectionMatrix(Matrix4x4.identity);
         GL.LoadIdentity();
-        GL.MultMatrix(currentViewMatrix);
+        GL.MultMatrix(currentCameraMatrix);
 
         // TODO change to get weighted matrices or something like that (only for the render cam)
         if(matrixScreen != null){
@@ -289,9 +295,12 @@ public class CustomGLCamera : MonoBehaviour {
     void DrawOtherCamera (bool seeThrough) {
         GL.PushMatrix();
         
-        GL.LoadProjectionMatrix(currentProjectionMatrix);
+        // GL.LoadProjectionMatrix(currentProjectionMatrix);
+        // GL.LoadIdentity();
+        // GL.MultMatrix(currentViewMatrix * (otherCamera.currentProjectionMatrix * otherCamera.currentViewMatrix).inverse);
+        GL.LoadProjectionMatrix(Matrix4x4.identity);
         GL.LoadIdentity();
-        GL.MultMatrix(currentViewMatrix * (otherCamera.currentProjectionMatrix * otherCamera.currentViewMatrix).inverse);
+        GL.MultMatrix(currentCameraMatrix * otherCamera.currentCameraMatrix.inverse);
         DrawClipSpace(camFrustumColor, seeThrough);
 
         GL.PopMatrix();
@@ -316,12 +325,16 @@ public class CustomGLCamera : MonoBehaviour {
     void DrawObject (Mesh meshToDraw, Matrix4x4 modelMatrix) {
         GL.PushMatrix();
         
-        GL.LoadProjectionMatrix(currentProjectionMatrix);
+        // GL.LoadProjectionMatrix(currentProjectionMatrix);
+        // GL.LoadIdentity();
+        // GL.MultMatrix(currentViewMatrix * modelMatrix);
+        GL.LoadProjectionMatrix(Matrix4x4.identity);
         GL.LoadIdentity();
-        GL.MultMatrix(currentViewMatrix * modelMatrix);
+        GL.MultMatrix(currentCameraMatrix * modelMatrix);
 
         if(isExternalCamera){
-            objectMat.SetMatrix("_SpecialClippingMatrix", otherCamera.currentProjectionMatrix * otherCamera.currentViewMatrix * modelMatrix);
+            // objectMat.SetMatrix("_SpecialClippingMatrix", otherCamera.currentProjectionMatrix * otherCamera.currentViewMatrix * modelMatrix);
+            objectMat.SetMatrix("_SpecialClippingMatrix", otherCamera.currentCameraMatrix * modelMatrix);
         }
         if(drawObjectAsWireFrame){
             lineMaterialSolid.SetPass(0);

@@ -170,8 +170,7 @@ MonoBehaviour:
   camDefaultFOV: 60
   camDefaultNearClip: 0.5
   camDefaultFarClip: 10
-  camDefaultPosition: {x: 1.171767, y: 1.626779, z: -3.310561}
-  camDefaultEuler: {x: 24.855, y: -19.491, z: 0}
+  camDefaultPosition: {x: 1.5, y: 1, z: 3.5}
   uiParent: {fileID: 8853205429347985091}
   labelFont: {fileID: 11400000, guid: 06f73044a82495643bc9b74204b6e0f0, type: 2}
   labelFontSize: 14
@@ -564,8 +563,7 @@ MonoBehaviour:
   camDefaultFOV: 60
   camDefaultNearClip: 0.1
   camDefaultFarClip: 100
-  camDefaultPosition: {x: 6.028553, y: 6.068264, z: 5.313006}
-  camDefaultEuler: {x: 37.059, y: -131.39, z: 0}
+  camDefaultPosition: {x: -3, y: 2, z: 4}
   uiParent: {fileID: 1192861782020609981}
   labelFont: {fileID: 11400000, guid: 06f73044a82495643bc9b74204b6e0f0, type: 2}
   labelFontSize: 14

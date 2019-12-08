@@ -82,7 +82,7 @@ public class CustomGLCamera : MonoBehaviour {
         new Vector3(-1,  1, 1)
     };
 
-    public void Initialize (MatrixScreen matrixScreen, bool isExternalCamera, CustomGLCamera otherCamera, float inputFOV, float inputNearClip, float inputFarClip, Vector3 inputStartPos, Vector3 inputStartEuler) {
+    public void Initialize (MatrixScreen matrixScreen, bool isExternalCamera, CustomGLCamera otherCamera, float inputFOV, float inputNearClip, float inputFarClip, Vector3 inputStartPos) {
         if(initialized){
             Debug.LogError("Duplicate init call, aborting!", this.gameObject);
             return;
@@ -109,7 +109,7 @@ public class CustomGLCamera : MonoBehaviour {
         farClipPlane = inputFarClip;
         fieldOfView = inputFOV;
         transform.position = inputStartPos;
-        transform.localEulerAngles = inputStartEuler;
+        transform.rotation = Quaternion.LookRotation(-inputStartPos, Vector3.up);
 
         startNearClipPlane = nearClipPlane;
         startFarClipPlane = farClipPlane;

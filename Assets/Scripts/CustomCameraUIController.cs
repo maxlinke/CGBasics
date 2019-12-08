@@ -24,7 +24,6 @@ public class CustomCameraUIController : ClickDragScrollHandler {
     [SerializeField] float camDefaultNearClip;
     [SerializeField] float camDefaultFarClip;
     [SerializeField] Vector3 camDefaultPosition;
-    [SerializeField] Vector3 camDefaultEuler;
 
     [Header("UI Generation")]
     [SerializeField] RectTransform uiParent;
@@ -35,6 +34,7 @@ public class CustomCameraUIController : ClickDragScrollHandler {
     [SerializeField] float toggleSeparatorOffset;
 
     bool initialized;
+    bool m_canCurrentlyControlCamera;
     Color toggleIconActive;
     Color toggleIconInactive;
     Color toggleBackgroundActive;
@@ -50,8 +50,19 @@ public class CustomCameraUIController : ClickDragScrollHandler {
     List<Toggle> toggles;
     List<Image> toggleBackgrounds;
     List<Image> toggleIcons;
+    Button resetButton;
+    Image resetButtonBackground;
+    Image resetButtonIcon;
 
-    public bool CanCurrentlyControlCamera { private get; set; }
+    public bool CanCurrentlyControlCamera { 
+        get {
+            return m_canCurrentlyControlCamera;       
+        } set {
+            m_canCurrentlyControlCamera = value;
+            resetButton.interactable = value;
+            LoadResetButtonColors(ColorScheme.current);
+        }
+    }
     public bool IsExternalCamController => isExternalCamController;
     public CustomGLCamera Cam => targetCam;
 
@@ -68,14 +79,13 @@ public class CustomCameraUIController : ClickDragScrollHandler {
             inputFOV: camDefaultFOV,
             inputNearClip: camDefaultNearClip,
             inputFarClip: camDefaultFarClip,
-            inputStartPos: camDefaultPosition,
-            inputStartEuler: camDefaultEuler
+            inputStartPos: camDefaultPosition
         );
         targetCam.SetupViewportRect(new Rect(camRectPos, camRectSize));
         targetCam.LoadColors(ColorScheme.current);
         this.otherController = otherController;
         SetupLabel();
-        SetupToggles();
+        SetupTogglesAndResetButton();
         initialized = true;
         LoadColors(ColorScheme.current);
 
@@ -96,7 +106,7 @@ public class CustomCameraUIController : ClickDragScrollHandler {
             }
         }
 
-        void SetupToggles () {
+        void SetupTogglesAndResetButton () {
             toggles = new List<Toggle>();
             toggleBackgrounds = new List<Image>();
             toggleIcons = new List<Image>();
@@ -113,21 +123,20 @@ public class CustomCameraUIController : ClickDragScrollHandler {
                 CreateSpecialToggle(UISprites.MCamCtrlDrawClipBox, "ClipBox", "Toggles drawing the clip space area", (b) => {targetCam.drawClipSpace = b;}, true);
                 CreateSpecialToggle(UISprites.MCamCtrlShowCulling, "ShowClip", "Toggles culling visualization", (b) => {targetCam.showClipping = b;}, true);
             }
+            CreateResetButton();
 
             void CreateSpecialToggle (Sprite icon, string toggleName, string hoverMessage, System.Action<bool> onStateChange, bool initialState) {
-                // the toggle itself
-                var newToggleRT = new GameObject(toggleName, typeof(RectTransform), typeof(Image), typeof(Toggle), typeof(UIHoverEventCaller)).GetComponent<RectTransform>();
-                newToggleRT.SetParent(uiParent, false);
+                // setting up position and looks
+                var newToggleRT = CreateThingWithIcon(icon, toggleName, hoverMessage, out var newToggleIcon, out var newToggleBackground);
                 newToggleRT.localScale = Vector3.one;
                 newToggleRT.SetAnchor(1, 1);
                 newToggleRT.SetPivot(1, 1);
                 newToggleRT.sizeDelta = Vector2.one * toggleSize;
                 newToggleRT.anchoredPosition = new Vector2(0, y);
-                var newToggleBG = newToggleRT.gameObject.GetComponent<Image>();
-                newToggleBG.sprite = UISprites.UICircle;
-                newToggleBG.raycastTarget = true;
+                // setting up the toggle itself
+                newToggleRT.gameObject.AddComponent(typeof(Toggle));
                 var newToggle = newToggleRT.gameObject.GetComponent<Toggle>();
-                newToggle.targetGraphic = newToggleBG;
+                newToggle.targetGraphic = newToggleBackground;
                 newToggle.isOn = initialState;
                 var indexCopy = toggleIndex;
                 newToggle.onValueChanged.AddListener((newVal) => {
@@ -135,25 +144,54 @@ public class CustomCameraUIController : ClickDragScrollHandler {
                     onStateChange?.Invoke(newVal);
                 });
                 onStateChange?.Invoke(initialState);
-                var hover = newToggleRT.gameObject.GetComponent<UIHoverEventCaller>();
-                hover.SetActions(
-                    onHoverEnter: (ped) => {BottomLog.DisplayMessage(hoverMessage);},
-                    onHoverExit: (ped) => {BottomLog.ClearDisplay();}
-                );
-                // the icon
-                var newToggleIconRT = new GameObject("Icon", typeof(RectTransform), typeof(Image)).GetComponent<RectTransform>();
-                newToggleIconRT.SetParent(newToggleRT, false);
-                newToggleIconRT.localScale = Vector3.one;
-                newToggleIconRT.SetToFill();                
-                var newToggleIcon = newToggleIconRT.gameObject.GetComponent<Image>();
-                newToggleIcon.sprite = icon;
-                newToggleIcon.raycastTarget = false;
-                // setting all the things
+                // saving to the lists, updating index and y
                 toggles.Add(newToggle);
-                toggleBackgrounds.Add(newToggleBG);
+                toggleBackgrounds.Add(newToggleBackground);
                 toggleIcons.Add(newToggleIcon);
                 toggleIndex++;
                 y -= (toggleSize + toggleOffset);
+            }
+
+            void CreateResetButton () {
+                var newBtnRT = CreateThingWithIcon(UISprites.UIReset, "Reset", "Resets the view", out resetButtonIcon, out resetButtonBackground);
+                newBtnRT.localScale = Vector3.one;
+                newBtnRT.SetAnchor(0, 1);
+                newBtnRT.SetPivot(0, 1);
+                newBtnRT.sizeDelta = Vector2.one * toggleSize;
+                newBtnRT.anchoredPosition = Vector2.zero;
+                label.rectTransform.anchoredPosition += new Vector2(newBtnRT.rect.width + toggleOffset, 0f);    // a bit dirty but who gives a damn
+                // setting up the button
+                newBtnRT.gameObject.AddComponent<Button>();
+                resetButton = newBtnRT.gameObject.GetComponent<Button>();
+                resetButton.targetGraphic = resetButtonBackground;
+                resetButton.onClick.AddListener(() => {ResetCamera();});
+            }
+
+            RectTransform CreateThingWithIcon (Sprite icon, string thingName, string hoverMessage, out Image iconImage, out Image backgroundImage) {
+                // main creation
+                var newThingRT = new GameObject(thingName, typeof(RectTransform), typeof(Image), typeof(UIHoverEventCaller)).GetComponent<RectTransform>();
+                newThingRT.SetParent(uiParent, false);
+                // hover init
+                var newThingHover = newThingRT.gameObject.GetComponent<UIHoverEventCaller>();
+                newThingHover.SetActions(
+                    onHoverEnter: (ped) => {BottomLog.DisplayMessage(hoverMessage);},
+                    onHoverExit: (ped) => {BottomLog.ClearDisplay();}
+                );
+                // initializing and assigning the background image
+                backgroundImage = newThingRT.gameObject.GetComponent<Image>();
+                backgroundImage.sprite = UISprites.UICircle;
+                backgroundImage.raycastTarget = true;
+                // the icon
+                var newThingIconRT = new GameObject("Icon", typeof(RectTransform), typeof(Image)).GetComponent<RectTransform>();
+                newThingIconRT.SetParent(newThingRT, false);
+                newThingIconRT.localScale = Vector3.one;
+                newThingIconRT.SetToFill();
+                // initializing and assigning the icon image
+                iconImage = newThingIconRT.gameObject.GetComponent<Image>();
+                iconImage.sprite = icon;
+                iconImage.raycastTarget = false;
+                // output
+                return newThingRT;
             }
         }
     }
@@ -169,6 +207,7 @@ public class CustomCameraUIController : ClickDragScrollHandler {
     }
 
     public void ResetCamera () {
+        pivotPoint = Vector3.zero;
         targetCam.ResetToDefault();
     }
 
@@ -196,6 +235,18 @@ public class CustomCameraUIController : ClickDragScrollHandler {
             toggles[i].SetFadeTransition(0f, Color.white, cs.MatrixCamControllerToggleHover, cs.MatrixCamControllerToggleClick, Color.magenta);
             SetToggleColors(i);
         }
+        LoadResetButtonColors(cs);
+    }
+
+    void LoadResetButtonColors (ColorScheme cs) {
+        if(resetButton.interactable){
+            resetButtonBackground.color = cs.MatrixCamControllerToggleBackgroundActive;
+            resetButtonIcon.color = cs.MatrixCamControllerToggleIconActive;
+        }else{
+            resetButtonBackground.color = cs.MatrixCamControllerToggleBackgroundInactive;
+            resetButtonIcon.color = cs.MatrixCamControllerToggleIconInactive;
+        }
+        resetButton.SetFadeTransition(0f, Color.white, cs.MatrixCamControllerToggleHover, cs.MatrixCamControllerToggleClick, Color.white);
     }
 
     void Update () {

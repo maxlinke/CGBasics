@@ -102,16 +102,16 @@ public class CustomCameraUIController : ClickDragScrollHandler {
             toggleIcons = new List<Image>();
             int toggleIndex = 0;
             float y = 0;
-            CreateSpecialToggle(UISprites.UITemp, "Wireframe", "Toggles wireframe drawing", (b) => {targetCam.drawObjectAsWireFrame = b;}, false);
+            CreateSpecialToggle(UISprites.MCamCtrlDrawWireframe, "Wireframe", "Toggles wireframe drawing", (b) => {targetCam.drawObjectAsWireFrame = b;}, false);
             y -= toggleSeparatorOffset;
-            CreateSpecialToggle(UISprites.UITemp, "Grid", "Toggles drawing the grid floor", (b) => {targetCam.drawGridFloor = b;}, true);
-            CreateSpecialToggle(UISprites.UITemp, "Origin", "Toggles drawing the origin", (b) => {targetCam.drawOrigin = b;}, true);
-            CreateSpecialToggle(UISprites.UITemp, "XRay", "Toggles see-through drawing for all wireframe gizmos", (b) => {targetCam.drawSeeThrough = b;}, false);
+            CreateSpecialToggle(UISprites.MCamCtrlDrawFloor, "Grid", "Toggles drawing the grid floor", (b) => {targetCam.drawGridFloor = b;}, true);
+            CreateSpecialToggle(UISprites.MCamCtrlDrawOrigin, "Origin", "Toggles drawing the origin", (b) => {targetCam.drawOrigin = b;}, true);
+            CreateSpecialToggle(UISprites.MCamCtrlDrawSeeThrough, "XRay", "Toggles see-through drawing for all wireframe gizmos", (b) => {targetCam.drawSeeThrough = b;}, false);
             if(targetCam.IsExternalCamera){
                 y -= toggleSeparatorOffset;
-                CreateSpecialToggle(UISprites.UITemp, "Cam", "Toggles drawing the other camera", (b) => {targetCam.drawCamera = b;}, true);
-                CreateSpecialToggle(UISprites.UITemp, "ClipBox", "Toggles drawing the clip space area", (b) => {targetCam.drawClipSpace = b;}, true);
-                CreateSpecialToggle(UISprites.UITemp, "ShowClip", "Toggles culling visualization", (b) => {targetCam.showClipping = b;}, true);
+                CreateSpecialToggle(UISprites.MCamCtrlDrawCamera, "Cam", "Toggles drawing the other camera", (b) => {targetCam.drawCamera = b;}, true);
+                CreateSpecialToggle(UISprites.MCamCtrlDrawClipBox, "ClipBox", "Toggles drawing the clip space area", (b) => {targetCam.drawClipSpace = b;}, true);
+                CreateSpecialToggle(UISprites.MCamCtrlShowCulling, "ShowClip", "Toggles culling visualization", (b) => {targetCam.showClipping = b;}, true);
             }
 
             void CreateSpecialToggle (Sprite icon, string toggleName, string hoverMessage, System.Action<bool> onStateChange, bool initialState) {

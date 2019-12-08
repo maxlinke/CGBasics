@@ -26,3 +26,14 @@ MonoBehaviour:
   matrixIdentity: {fileID: 21300000, guid: 6937a4c16a012c147baa3997bf7002f4, type: 3}
   matrixConfig: {fileID: 21300000, guid: 7de91cbe74f7b4b439ad1150f781dd0f, type: 3}
   matrixMultiply: {fileID: 21300000, guid: 80518ac1b8f94894887b7a6bfb0177dc, type: 3}
+  mCamCtrlDrawFloor: {fileID: 21300000, guid: 520d70eeb2ea2814b83f62c0df00633a, type: 3}
+  mCamCtrlDrawOrigin: {fileID: 21300000, guid: a4389c5f339140c48998d5c9d859a255, type: 3}
+  mCamCtrlDrawSeeThrough: {fileID: 21300000, guid: f745db58eacb0c54b98d22b0e30f6e47,
+    type: 3}
+  mCamCtrlDrawWireframe: {fileID: 21300000, guid: 303483ac57fc41d4996b6dcc2a7b79fe,
+    type: 3}
+  mCamCtrlDrawCamera: {fileID: 21300000, guid: 3d78d8ca8343ae644b06668141a2bfab, type: 3}
+  mCamCtrlDrawClipBox: {fileID: 21300000, guid: b02fd556226f1db46a55c955da9678ee,
+    type: 3}
+  mCamCtrlShowCulling: {fileID: 21300000, guid: 1ff0354b05ecd6c43b842abc803147b0,
+    type: 3}

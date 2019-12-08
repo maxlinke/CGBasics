@@ -57,4 +57,21 @@ public class UISprites : ScriptableObject {
     public static Sprite MatrixConfig => instance.matrixConfig;
     public static Sprite MatrixMultiply => instance.matrixMultiply;
 
+    [Header("Matrix Camera Controls")]
+    [SerializeField] Sprite mCamCtrlDrawFloor;
+    [SerializeField] Sprite mCamCtrlDrawOrigin;
+    [SerializeField] Sprite mCamCtrlDrawSeeThrough;
+    [SerializeField] Sprite mCamCtrlDrawWireframe;
+    [SerializeField] Sprite mCamCtrlDrawCamera;
+    [SerializeField] Sprite mCamCtrlDrawClipBox;
+    [SerializeField] Sprite mCamCtrlShowCulling;
+
+    public static Sprite MCamCtrlDrawFloor => instance.mCamCtrlDrawFloor;
+    public static Sprite MCamCtrlDrawOrigin => instance.mCamCtrlDrawOrigin;
+    public static Sprite MCamCtrlDrawSeeThrough => instance.mCamCtrlDrawSeeThrough;
+    public static Sprite MCamCtrlDrawWireframe => instance.mCamCtrlDrawWireframe;
+    public static Sprite MCamCtrlDrawCamera => instance.mCamCtrlDrawCamera;
+    public static Sprite MCamCtrlDrawClipBox => instance.mCamCtrlDrawClipBox;
+    public static Sprite MCamCtrlShowCulling => instance.mCamCtrlShowCulling;
+
 }

@@ -1,11 +1,9 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.EventSystems;
-using TMPro;
 
 public class MatrixScreen : MonoBehaviour {
 
-    private const int MAX_MATRIX_COUNT = 8;    // TODO raise to 16 (and maybe also increase the max variable count to 16?)
+    private const int MAX_MATRIX_COUNT = 16;
 
     [Header("Prefabs")]
     [SerializeField] UIMatrix uiMatrixPrefab;
@@ -165,7 +163,7 @@ public class MatrixScreen : MonoBehaviour {
         externalCamController.CanCurrentlyControlCamera = true;
         // externalCamController.ResetCamera();
 
-        UpdateMatrixButtonsAndSlider(true);
+        UpdateMatrixButtonsAndSlider(modelGroup.matrixCount + camGroup.matrixCount);
 
         freeModeActivated = false;
     }
@@ -203,15 +201,25 @@ public class MatrixScreen : MonoBehaviour {
     public void AddMatrix (UIMatrix callingMatrix) {
         if(callingMatrix.matrixGroup.TryGetIndexOf(callingMatrix, out var index)){
             callingMatrix.matrixGroup.CreateMatrixAtIndex(UIMatrices.MatrixConfig.identityConfig, UIMatrix.Editability.FULL, index + 1);
-            UpdateMatrixButtonsAndSlider();
+            int realIndex = (callingMatrix.matrixGroup == modelGroup ? index : modelGroup.matrixCount + index);
+            if(realIndex < currentLinearWeight){
+                currentLinearWeight += 1;
+            }
+            UpdateMatrixButtonsAndSlider(Mathf.RoundToInt(currentLinearWeight));
         }else{
             Debug.LogError("wat");
         }
     }
 
     public void DeleteMatrix (UIMatrix matrixToDelete) {
+        if(matrixToDelete.matrixGroup.TryGetIndexOf(matrixToDelete, out var index)){
+            int realIndex = (matrixToDelete.matrixGroup == modelGroup ? index : modelGroup.matrixCount + index);
+            if(realIndex < currentLinearWeight){
+                currentLinearWeight -= 1;
+            }
+        }
         matrixToDelete.matrixGroup.DeleteMatrix(matrixToDelete);
-        UpdateMatrixButtonsAndSlider();
+        UpdateMatrixButtonsAndSlider(Mathf.RoundToInt(currentLinearWeight));
     }
 
     public void MoveMatrixLeft (UIMatrix matrixToMove) {
@@ -239,7 +247,7 @@ public class MatrixScreen : MonoBehaviour {
         UpdateMatrixButtonsAndSlider();
     }
 
-    void UpdateMatrixButtonsAndSlider (bool setSliderToMax = false) {
+    void UpdateMatrixButtonsAndSlider (int newSliderValue = -1) {
         for(int i=0; i<modelGroup.matrixCount; i++){
             var m = modelGroup[i];
             m.moveLeftBlocked = (i == 0);
@@ -255,8 +263,8 @@ public class MatrixScreen : MonoBehaviour {
             m.deleteButtonBlocked = camGroup.matrixCount == 1;      // TODO is this REALLY important?
         }
         var totalMatrixCount = modelGroup.matrixCount + camGroup.matrixCount;
-        if(setSliderToMax){
-            bottomArea.UpdateSlider(totalMatrixCount, true, totalMatrixCount);
+        if(newSliderValue != -1){
+            bottomArea.UpdateSlider(totalMatrixCount, true, newSliderValue);
         }else{
             bottomArea.UpdateSlider(totalMatrixCount);
         }

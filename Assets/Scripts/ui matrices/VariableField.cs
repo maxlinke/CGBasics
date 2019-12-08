@@ -37,6 +37,24 @@ namespace UIMatrices {
                 parentContainer.RemoveVariable(this, true);
             });
 
+            varValueField.gameObject.AddComponent(typeof(ScrollableNumberInputField));
+            var scroll = varValueField.gameObject.GetComponent<ScrollableNumberInputField>();
+            scroll.Initialize(varValueField);
+
+            varValueField.gameObject.AddComponent(typeof(UIHoverEventCaller));
+            var valueHover = varValueField.gameObject.GetComponent<UIHoverEventCaller>();
+            valueHover.SetActions(
+                (ped) => {
+                    if(varValueField.interactable){
+                        BottomLog.DisplayMessage($"Scrollable Input Field. Hold \"{InputSystem.sensitivityIncreaseKey}\" for a faster increase and \"{InputSystem.sensitivityReduceKey}\" for finer control");
+                    }
+                }, (ped) => {
+                    if(varValueField.interactable){
+                        BottomLog.ClearDisplay();
+                    }
+                }
+            );
+
             if(initWithValues){
                 varNameField.text = initialName;
                 varValueField.text = initialValue.ToString();

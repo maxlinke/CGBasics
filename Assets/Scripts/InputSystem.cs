@@ -12,6 +12,11 @@ public class InputSystem : MonoBehaviour {
     List<KeyCode> keysUp;
     KeyCode[] keyCodes;
 
+    public const KeyCode sensitivityIncreaseKey = KeyCode.LeftControl;
+    public const KeyCode sensitivityReduceKey = KeyCode.LeftShift;
+
+    public static float shiftCtrlMultiplier;
+
     void Awake () {
         if(instance != null){
             Debug.LogError($"Singleton violation! Instance of {nameof(InputSystem)} is not null! Aborting");
@@ -30,33 +35,49 @@ public class InputSystem : MonoBehaviour {
     }
 
     void Update () {
-        if(subscriptions.Count < 1){
-            return;                     // don't even need to execute all the stuff below...
+        UpdateShiftCtrlMultiplier();
+        UpdateSubscribers();
+
+        void UpdateShiftCtrlMultiplier () {
+            float mult = 1f;
+            if(Input.GetKey(sensitivityReduceKey)){
+                mult *= 0.1f;
+            }
+            if(Input.GetKey(sensitivityIncreaseKey)){
+                mult *= 10f;
+            }
+            shiftCtrlMultiplier = mult;
         }
-        keysDown.Clear();
-        keysHeld.Clear();
-        keysUp.Clear();
-        foreach(var keyCode in keyCodes){
-            if(Input.GetKeyDown(keyCode)){
-                keysDown.Add(keyCode);
+
+        void UpdateSubscribers () {
+            if(subscriptions.Count < 1){
+                return;                     // don't even need to execute all the stuff below...
             }
-            if(Input.GetKey(keyCode)){
-                keysHeld.Add(keyCode);
+            keysDown.Clear();
+            keysHeld.Clear();
+            keysUp.Clear();
+            foreach(var keyCode in keyCodes){
+                if(Input.GetKeyDown(keyCode)){
+                    keysDown.Add(keyCode);
+                }
+                if(Input.GetKey(keyCode)){
+                    keysHeld.Add(keyCode);
+                }
+                if(Input.GetKeyUp(keyCode)){
+                    keysUp.Add(keyCode);
+                }
             }
-            if(Input.GetKeyUp(keyCode)){
-                keysUp.Add(keyCode);
-            }
-        }
-        var top = subscriptions.Peek();
-        foreach(var keyEvent in top){
-            if(keysDown.Contains(keyEvent.keyCode)){
-                keyEvent.onKeyDown?.Invoke();
-            }
-            if(keysHeld.Contains(keyEvent.keyCode)){
-                keyEvent.onKeyHeld?.Invoke();
-            }
-            if(keysUp.Contains(keyEvent.keyCode)){
-                keyEvent.onKeyUp?.Invoke();
+            var top = subscriptions.Peek();
+            foreach(var keyEvent in top){
+                if(keysDown.Contains(keyEvent.keyCode)){
+                    keyEvent.onKeyDown?.Invoke();
+                }
+                if(keysHeld.Contains(keyEvent.keyCode)){
+                    keyEvent.onKeyHeld?.Invoke();
+                }
+                if(keysUp.Contains(keyEvent.keyCode)){
+                    keyEvent.onKeyUp?.Invoke();
+                }
             }
         }
     }

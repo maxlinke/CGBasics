@@ -289,21 +289,33 @@ public class CustomCameraUIController : ClickDragScrollHandler {
     }
 
     void Orbit (Vector3 mouseDelta) {
+        mouseDelta *= InputSystem.shiftCtrlMultiplier;
         targetCam.transform.RotateAround(pivotPoint, Vector3.up, mouseDelta.x * (inverted ? -1 : 1));
         targetCam.transform.RotateAround(pivotPoint, targetCam.transform.right, -mouseDelta.y);
     }
 
     void Move (Vector3 mouseDelta) {
+        mouseDelta *= InputSystem.shiftCtrlMultiplier;
         Vector3 moveDelta = moveSensitivity * GetPivotDistanceScale() * -1 * (targetCam.transform.right * mouseDelta.x + targetCam.transform.up * mouseDelta.y);
         pivotPoint += moveDelta;
         targetCam.transform.position += moveDelta;
     }
 
     void Zoom (float zoomAmount) {
+        zoomAmount *= InputSystem.shiftCtrlMultiplier;
         float currentDistToPivot = (targetCam.transform.position - pivotPoint).magnitude;
         float nearPlaneDist = targetCam.nearClipPlane;
+        float farPlaneDist = targetCam.farClipPlane;
         float tempDist = zoomAmount * scrollSensitivity * GetPivotDistanceScale();
-        Vector3 moveDelta = targetCam.transform.forward * Mathf.Clamp(tempDist, Mathf.NegativeInfinity, currentDistToPivot - nearPlaneDist);
+        float moveDist;
+        if(tempDist > 0f){
+            moveDist = Mathf.Clamp(tempDist, Mathf.NegativeInfinity, currentDistToPivot - nearPlaneDist);
+        }else if(tempDist < 0f){
+            moveDist = Mathf.Clamp(tempDist, currentDistToPivot - (2f * farPlaneDist), Mathf.Infinity);
+        }else{
+            moveDist = 0f;
+        }
+        Vector3 moveDelta = targetCam.transform.forward * moveDist;
         targetCam.transform.position += moveDelta;
     }
 

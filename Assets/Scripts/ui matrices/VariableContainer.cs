@@ -7,7 +7,7 @@ namespace UIMatrices {
 
     public class VariableContainer : MonoBehaviour {
 
-        private const int MAX_VARIABLE_COUNT = 10;
+        private const int MAX_VARIABLE_COUNT = 16;
 
         [SerializeField] UIMatrix parentMatrix;
 

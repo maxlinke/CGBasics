@@ -66,6 +66,7 @@ public class UIMatrix : MonoBehaviour {
     Button moveLeftButton;
     Button moveRightButton;
     Button deleteButton;
+    Color outlineColor;
     float m_currentWeight = 1f;
 
     Editability m_editability;
@@ -125,6 +126,7 @@ public class UIMatrix : MonoBehaviour {
             backgroundWeightOverlay.anchorMax = new Vector2(1f, 1f);
             backgroundWeightOverlay.anchoredPosition = Vector2.zero;
             backgroundWeightOverlay.sizeDelta = Vector2.zero;
+            outline.color = outlineColor.WithOpacity(value);
         }
     }
 
@@ -203,7 +205,6 @@ public class UIMatrix : MonoBehaviour {
         VariableContainer.Initialize(initialVariables, varContainerExpanded);
         UpdateFieldStrings(fieldInitializers);
         SetName(inputName, false);
-        outline.SetGOActive(false);
         nameLabelInputField.SetGOActive(false);
         nameLabelInputField.onEndEdit.AddListener((enteredName) => {
             bool updateName = false;
@@ -498,7 +499,7 @@ public class UIMatrix : MonoBehaviour {
             return;
         }
         background.color = cs.UiMatrixBackground;
-        outline.color = cs.UiMatrixOutline;
+        outlineColor = cs.UiMatrixOutline;
         nameLabel.color = cs.UiMatrixLabel;
         nameLabelDropShadow.color = cs.UiMatrixLabelDropShadow;
         nameLabelInputField.textComponent.color = cs.UiMatrixLabel;

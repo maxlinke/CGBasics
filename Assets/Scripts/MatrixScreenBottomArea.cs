@@ -7,6 +7,7 @@ public class MatrixScreenBottomArea : MonoBehaviour, IPointerEnterHandler, IPoin
 
     [Header("Components")]
     [SerializeField] RectTransform m_rectTransform;
+    [SerializeField] RectTransform backgroundImageRT;
     [SerializeField] Image backgroundImage;
     [SerializeField] Toggle freeModeToggle;
     [SerializeField] RectTransform toggleRT;
@@ -33,16 +34,16 @@ public class MatrixScreenBottomArea : MonoBehaviour, IPointerEnterHandler, IPoin
 
     MatrixScreen matrixScreen;
 
-    Vector2 defaultPos;
-    Vector2 hiddenPos;
+    Vector2 defaultBGPos;
+    Vector2 hiddenBGPos;
 
     public bool initialized { get; private set; }
     public RectTransform rectTransform => m_rectTransform;
 
     public void Initialize (MatrixScreen matrixScreen, System.Action<float> onSliderValueChanged) {
         this.matrixScreen = matrixScreen;
-        defaultPos = rectTransform.anchoredPosition;
-        hiddenPos = new Vector2(defaultPos.x, defaultPos.y - rectTransform.rect.height + hiddenYOffset);
+        defaultBGPos = backgroundImageRT.anchoredPosition;
+        hiddenBGPos = new Vector2(defaultBGPos.x, defaultBGPos.y - rectTransform.rect.height + hiddenYOffset);
         matrixSlider.onValueChanged.AddListener((newVal) => {onSliderValueChanged?.Invoke(newVal);});
         freeModeToggle.isOn = matrixScreen.freeModeActivated;
         freeModeToggle.onValueChanged.AddListener((b) => {
@@ -62,14 +63,14 @@ public class MatrixScreenBottomArea : MonoBehaviour, IPointerEnterHandler, IPoin
     }
 
     public void Hide () {
-        rectTransform.anchoredPosition = hiddenPos;
+        backgroundImageRT.anchoredPosition = hiddenBGPos;
         freeModeToggle.SetGOActive(false);
         dividerRT.SetGOActive(false);
         sliderArea.SetGOActive(false);
     }
 
     public void Show () {
-        rectTransform.anchoredPosition = defaultPos;
+        backgroundImageRT.anchoredPosition = defaultBGPos;
         freeModeToggle.SetGOActive(true);
         dividerRT.SetGOActive(true);
         sliderArea.SetGOActive(true);

@@ -132,7 +132,12 @@ public static class Extensions {
     }
 
     public static Color WithHalfAlpha (this Color col) {
-        return new Color(col.r, col.g, col.b, col.a * 0.5f);
+        return col.WithOpacity(0.5f);
+    }
+
+    public static Color WithOpacity (this Color col, float opacity) {
+        opacity = Mathf.Clamp01(opacity);
+        return new Color(col.r, col.g, col.b, col.a * opacity);
     }
 
     public static Color AlphaOver (this Color col, Color otherCol) {

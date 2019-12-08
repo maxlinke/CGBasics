@@ -14,18 +14,38 @@ public class UIMatrixGroup : MonoBehaviour {
     [SerializeField] RectTransform contentRT;
     [SerializeField] Image backgroundImage;
     [SerializeField] Image headerBackground;
+    [SerializeField] Image headerBackgroundGreyscale;
+    [SerializeField] RectTransform headerBackgroundGreyscaleRT;
     [SerializeField] TextMeshProUGUI headerLabel;
     [SerializeField] TextMeshProUGUI headerDropShadow;
+    [SerializeField] Image outline;
 
     [Header("Settings")]
     [SerializeField] float verticalMatrixMargin;
     [SerializeField] float horizontalMatrixMargin;
     [SerializeField] float multiplicationSignSize;
 
+    Color outlineColor;
     MatrixScreen matrixScreen;
     List<UIMatrix> matrices;
     List<RectTransform> multiplicationSigns;
+    
     bool initialized;
+
+    float m_displayWeight = 1;
+    public float displayWeight {
+        get {
+            return m_displayWeight;
+        } set {
+            m_displayWeight = value;
+            headerBackgroundGreyscaleRT.pivot = 0.5f * Vector2.one;
+            headerBackgroundGreyscaleRT.anchorMin = new Vector2(value, 0f);
+            headerBackgroundGreyscaleRT.anchorMax = new Vector2(1f, 1f);
+            headerBackgroundGreyscaleRT.anchoredPosition = Vector2.zero;
+            headerBackgroundGreyscaleRT.sizeDelta = Vector2.zero;
+            outline.color = outlineColor.WithOpacity(value);
+        }
+    }
 
     public RectTransform rectTransform => m_rectTransform;
 
@@ -62,6 +82,7 @@ public class UIMatrixGroup : MonoBehaviour {
         multiplicationSigns = new List<RectTransform>();
         EnsureTheresAtLeastOneMatrix(blockWarning: true);
         RebuildContent();
+        displayWeight = m_displayWeight;
         initialized = true;
     }
 
@@ -73,7 +94,10 @@ public class UIMatrixGroup : MonoBehaviour {
 
     public void LoadColors (Color headerColor, ColorScheme cs) {
         headerBackground.color = headerColor;
+        var lum = headerColor.Luminance();
+        headerBackgroundGreyscale.color = new Color(lum, lum, lum, 1f);
         backgroundImage.color = cs.MatrixScreenMatrixGroupBackground;
+        outlineColor = cs.UiMatrixOutline;
         headerLabel.color = cs.UiMatrixLabel;
         headerDropShadow.color = cs.UiMatrixLabelDropShadow;
         foreach(var signRT in multiplicationSigns){

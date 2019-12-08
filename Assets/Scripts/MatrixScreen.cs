@@ -82,6 +82,8 @@ public class MatrixScreen : MonoBehaviour {
                 }
                 matrix.CurrentWeight = matrixWeight;
             }
+            modelGroup.displayWeight = Mathf.Clamp01(currentLinearWeight / modelGroup.matrixCount);
+            camGroup.displayWeight = Mathf.Clamp01((currentLinearWeight - modelGroup.matrixCount) / camGroup.matrixCount);
         }  
     }
 
@@ -276,8 +278,8 @@ public class MatrixScreen : MonoBehaviour {
         return defaultMesh;     // TODO mesh selection
     }
 
-    public bool ModelMatrixFullyWeighted () {
-        return true;            // TODO this
+    public bool CanDrawWireCamera () {
+        return (currentLinearWeight >= modelGroup.matrixCount) && (currentLinearWeight < (modelGroup.matrixCount + camGroup.matrixCount));
     }
 
 }

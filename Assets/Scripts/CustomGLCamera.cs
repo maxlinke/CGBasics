@@ -59,7 +59,7 @@ public class CustomGLCamera : MonoBehaviour {
     const float seeThroughAlphaMultiplier = 0.333f;
     const float pivotSize = 9f;
 
-    bool canDrawCamera => matrixScreen.ModelMatrixFullyWeighted();
+    bool canDrawCamera => matrixScreen.CanDrawWireCamera();
 
     Color wireGridColor;
     Color wireObjectColor;
@@ -368,7 +368,7 @@ public class CustomGLCamera : MonoBehaviour {
         // GL.MultMatrix(currentViewMatrix * (otherCamera.currentProjectionMatrix * otherCamera.currentViewMatrix).inverse);
         GL.LoadProjectionMatrix(Matrix4x4.identity);
         GL.LoadIdentity();
-        GL.MultMatrix(cameraMatrix * otherCamera.cameraMatrix.inverse);     // TODO unweighted cam matrix? yes. inverse of unweighted, then multiply with the actual weighted one
+        GL.MultMatrix(cameraMatrix * otherCamera.cameraMatrix * matrixScreen.GetUnweightedCameraMatrixForRendering().inverse);     // TODO unweighted cam matrix? yes. inverse of unweighted, then multiply with the actual weighted one
         DrawClipSpace(camFrustumColor, seeThrough);
 
         GL.PopMatrix();
@@ -398,7 +398,11 @@ public class CustomGLCamera : MonoBehaviour {
         // GL.MultMatrix(currentViewMatrix * modelMatrix);
         GL.LoadProjectionMatrix(Matrix4x4.identity);
         GL.LoadIdentity();
-        GL.MultMatrix(cameraMatrix * modelMatrix);
+        if(isExternalCamera){
+            GL.MultMatrix(cameraMatrix * otherCamera.cameraMatrix * modelMatrix);
+        }else{
+            GL.MultMatrix(cameraMatrix * modelMatrix);
+        }
 
         if(isExternalCamera){
             // objectMat.SetMatrix("_SpecialClippingMatrix", otherCamera.currentProjectionMatrix * otherCamera.currentViewMatrix * modelMatrix);

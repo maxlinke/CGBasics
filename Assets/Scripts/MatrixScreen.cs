@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 using TMPro;
 
 public class MatrixScreen : MonoBehaviour {
@@ -18,8 +19,10 @@ public class MatrixScreen : MonoBehaviour {
     [SerializeField] RectTransform uiMatrixParent;
     [SerializeField] MatrixScreenPanAndZoom panAndZoomController;
     [SerializeField] Image[] borders;
+    [SerializeField] MatrixScreenBottomArea bottomArea;
 
     [Header("Settings")]
+    [SerializeField] float weightLerpDeltaPerSecond;
     [SerializeField] float multiplicationSignSize;
     [SerializeField] float matrixGroupMargin;
 
@@ -40,6 +43,9 @@ public class MatrixScreen : MonoBehaviour {
     UIMatrix projMatrix;
     Image multiplicationSignImage;
 
+    float currentLinearWeight;
+    float currentWeightTarget;
+
     void OnEnable () {
         if(!initialized){
             Initialize();
@@ -53,13 +59,30 @@ public class MatrixScreen : MonoBehaviour {
     }
 
     void Update () {
-        if(Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.M)){
-            if(freeModeActivated){
-                ActivateNonFreeMode();
-            }else{
-                ActivateFreeMode();
-            }
+        if(!initialized){
+            return;
         }
+        UpdateLinearWeight();
+        ApplyIndividualWeights();
+
+        void UpdateLinearWeight () {
+            float delta = currentWeightTarget - currentLinearWeight;
+            currentLinearWeight += Mathf.Sign(delta) * Mathf.Min(Mathf.Abs(delta), weightLerpDeltaPerSecond * Time.deltaTime);
+        }
+
+        void ApplyIndividualWeights () {
+            int totalMatrixCount = modelGroup.matrixCount + camGroup.matrixCount;
+            for(int i=0; i<totalMatrixCount; i++){
+                float matrixWeight = Mathf.Clamp01(currentLinearWeight - i);
+                UIMatrix matrix;
+                if(i<modelGroup.matrixCount){
+                    matrix = modelGroup[i];
+                }else{
+                    matrix = camGroup[i-modelGroup.matrixCount];
+                }
+                matrix.CurrentWeight = matrixWeight;
+            }
+        }  
     }
 
     void Initialize () {
@@ -69,13 +92,16 @@ public class MatrixScreen : MonoBehaviour {
         }
         matrixCamController.Initialize(this, externalCamController);
         externalCamController.Initialize(this, matrixCamController);
+        bottomArea.Initialize(this, (newVal) => {
+            currentWeightTarget = newVal;
+        });
+        bottomArea.LoadColors(ColorScheme.current);
         CreateMultiplicationSign();
         modelGroup = CreateMatrixGroup(leftSide: true);
         modelGroup.SetName("Model");
         camGroup = CreateMatrixGroup(leftSide: false);
         camGroup.SetName("Camera");
         ActivateNonFreeMode();
-        UpdateMatrixButtons();
         initialized = true;
 
         UIMatrixGroup CreateMatrixGroup (bool leftSide) {
@@ -106,18 +132,13 @@ public class MatrixScreen : MonoBehaviour {
         }
     }
 
-    void ActivateNonFreeMode () {
+    public void ActivateNonFreeMode () {
         modelGroup.ResetToOnlyOneMatrix(false);
         modelGroup[0].LoadConfig(UIMatrices.MatrixConfig.scaleConfig);
         modelGroup.CreateMatrixAtIndex(UIMatrices.MatrixConfig.fullRotationConfig, UIMatrix.Editability.FULL, 1, false);
         modelGroup.CreateMatrixAtIndex(UIMatrices.MatrixConfig.translationConfig, UIMatrix.Editability.FULL, 2, true);
 
         camGroup.ResetToOnlyOneMatrix(false);
-        // camGroup[0].LoadConfig(UIMatrices.MatrixConfig.rebaseConfig);
-        // camGroup[0].Transpose();
-        // camGroup[0].SetName("Inv. Camera Rotation");
-        // camGroup.CreateMatrixAtIndex(UIMatrices.MatrixConfig.inverseTranslationConfig, UIMatrix.Editability.FULL, 1, false);
-        // camGroup[1].SetName("Inv. Camera Position");
         camGroup[0].LoadConfig(UIMatrices.MatrixConfig.inverseTranslationConfig);
         camGroup[0].SetName("Inv. Camera Position");
         camGroup.CreateMatrixAtIndex(UIMatrices.MatrixConfig.rebaseConfig, UIMatrix.Editability.FULL, 1, false);
@@ -142,10 +163,12 @@ public class MatrixScreen : MonoBehaviour {
         externalCamController.CanCurrentlyControlCamera = true;
         // externalCamController.ResetCamera();
 
+        UpdateMatrixButtonsAndSlider(true);
+
         freeModeActivated = false;
     }
 
-    void ActivateFreeMode () {
+    public void ActivateFreeMode () {
         viewRotMatrix = null;
         viewPosMatrix = null;
         projMatrix = null;
@@ -172,12 +195,13 @@ public class MatrixScreen : MonoBehaviour {
         foreach(var b in borders){
             b.color = cs.MatrixScreenBorderColor;
         }
+        bottomArea.LoadColors(cs);
     }
 
     public void AddMatrix (UIMatrix callingMatrix) {
         if(callingMatrix.matrixGroup.TryGetIndexOf(callingMatrix, out var index)){
             callingMatrix.matrixGroup.CreateMatrixAtIndex(UIMatrices.MatrixConfig.identityConfig, UIMatrix.Editability.FULL, index + 1);
-            UpdateMatrixButtons();
+            UpdateMatrixButtonsAndSlider();
         }else{
             Debug.LogError("wat");
         }
@@ -185,7 +209,7 @@ public class MatrixScreen : MonoBehaviour {
 
     public void DeleteMatrix (UIMatrix matrixToDelete) {
         matrixToDelete.matrixGroup.DeleteMatrix(matrixToDelete);
-        UpdateMatrixButtons();
+        UpdateMatrixButtonsAndSlider();
     }
 
     public void MoveMatrixLeft (UIMatrix matrixToMove) {
@@ -210,10 +234,10 @@ public class MatrixScreen : MonoBehaviour {
                 // nothing to be done. maybe disable the appropriate move button
             }
         }
-        UpdateMatrixButtons();
+        UpdateMatrixButtonsAndSlider();
     }
 
-    void UpdateMatrixButtons () {
+    void UpdateMatrixButtonsAndSlider (bool setSliderToMax = false) {
         for(int i=0; i<modelGroup.matrixCount; i++){
             var m = modelGroup[i];
             m.moveLeftBlocked = (i == 0);
@@ -227,6 +251,12 @@ public class MatrixScreen : MonoBehaviour {
             m.moveRightBlocked = (i == (camGroup.matrixCount - 1));
             m.addButtonBlocked = cantAddMoreMatrices;
             m.deleteButtonBlocked = camGroup.matrixCount == 1;      // TODO is this REALLY important?
+        }
+        var totalMatrixCount = modelGroup.matrixCount + camGroup.matrixCount;
+        if(setSliderToMax){
+            bottomArea.UpdateSlider(totalMatrixCount, true, totalMatrixCount);
+        }else{
+            bottomArea.UpdateSlider(totalMatrixCount);
         }
     }
 
@@ -249,5 +279,5 @@ public class MatrixScreen : MonoBehaviour {
     public bool ModelMatrixFullyWeighted () {
         return true;            // TODO this
     }
-	
+
 }

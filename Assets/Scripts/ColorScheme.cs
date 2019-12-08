@@ -114,6 +114,29 @@ public class ColorScheme : ScriptableObject {
     public Color MatrixScreenMultiplicationSign => matrixScreenMultiplicationSign;
     public Color MatrixScreenBorderColor => matrixScreenBorderColor;
 
+    [Header("Matrix Screen Bottom Area")]
+    [SerializeField] Color matrixScreenBottomAreaBackground;
+    [SerializeField] Color matrixScreenBottomAreaForegroundElement;
+    [SerializeField] Color matrixScreenSliderBackground;
+    [SerializeField] Color matrixScreenSliderFill;
+    [SerializeField] Color matrixScreenSliderHandle;
+    [SerializeField] Color matrixScreenSliderHandleHover;
+    [SerializeField] Color matrixScreenSliderHandleClick;
+    [SerializeField] Color matrixScreenBottomAreaToggle;
+    [SerializeField] Color matrixScreenBottomAreaToggleHover;
+    [SerializeField] Color matrixScreenBottomAreaToggleClick;
+
+    public Color MatrixScreenBottomAreaBackground => matrixScreenBottomAreaBackground;
+    public Color MatrixScreenBottomAreaForegroundElement => matrixScreenBottomAreaForegroundElement;
+    public Color MatrixScreenSliderBackground => matrixScreenSliderBackground;
+    public Color MatrixScreenSliderFill => matrixScreenSliderFill;
+    public Color MatrixScreenSliderHandle => matrixScreenSliderHandle;
+    public Color MatrixScreenSliderHandleHover => matrixScreenSliderHandleHover;
+    public Color MatrixScreenSliderHandleClick => matrixScreenSliderHandleClick;
+    public Color MatrixScreenBottomAreaToggle => matrixScreenBottomAreaToggle;
+    public Color MatrixScreenBottomAreaToggleHover => matrixScreenBottomAreaToggleHover;
+    public Color MatrixScreenBottomAreaToggleClick => matrixScreenBottomAreaToggleClick;
+
     [Header("Matrix Screen Camera Controllers")]
     [SerializeField] Color matrixCamControllerLabel;
     [SerializeField] Color matrixCamControllerToggleIconInactive;

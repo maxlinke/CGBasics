@@ -271,12 +271,14 @@ public class ColorScheme : ScriptableObject {
     [SerializeField] Color bottomLogRegularText;
     [SerializeField] Color bottomLogWarningText;
     [SerializeField] Color bottomLogErrorText;
+    [SerializeField] Color bottomLogMessageFlash;
 
     public Color BottomLogBackground => bottomLogBackground;
     public Color BottomLogExpandedBackground => bottomLogExpandedBackground;
     public Color BottomLogRegularText => bottomLogRegularText;
     public Color BottomLogWarningText => bottomLogWarningText;
     public Color BottomLogErrorText => bottomLogErrorText;
+    public Color BottomLogMessageFlash => bottomLogMessageFlash;
     
 }
 

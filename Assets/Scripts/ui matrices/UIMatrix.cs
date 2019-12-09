@@ -44,7 +44,7 @@ public class UIMatrix : MonoBehaviour {
     string[] stringFieldValues = new string[16];
     TextMeshProUGUI[] fieldTextMeshes = new TextMeshProUGUI[16];
     Button[] fieldButtons = new Button[16];
-    FieldFlasher[] fieldFlashers = new FieldFlasher[16];
+    ImageFlasher[] fieldFlashers = new ImageFlasher[16];
 
     [System.NonSerialized] public MatrixScreen matrixScreen;
     [System.NonSerialized] public UIMatrixGroup matrixGroup;
@@ -259,14 +259,14 @@ public class UIMatrix : MonoBehaviour {
                 });
                 fieldButtons[i] = newFieldBGButton;
                 // generate flash image
-                var newFlashRT = new GameObject("Flash Image", typeof(RectTransform), typeof(Image), typeof(FieldFlasher)).GetComponent<RectTransform>();
+                var newFlashRT = new GameObject("Flash Image", typeof(RectTransform), typeof(Image), typeof(ImageFlasher)).GetComponent<RectTransform>();
                 newFlashRT.SetParent(newFieldRT, false);
                 newFlashRT.SetToFillWithMargins(spaceBetweenMatrixFields);
                 var newFlasherImage = newFlashRT.gameObject.GetComponent<Image>();
                 newFlasherImage.type = Image.Type.Sliced;
                 newFlasherImage.sprite = fieldBackgroundTexture;
                 newFlasherImage.raycastTarget = false;
-                var newFlasher = newFlashRT.GetComponent<FieldFlasher>();
+                var newFlasher = newFlashRT.GetComponent<ImageFlasher>();
                 newFlasher.Initialize(newFlasherImage);
                 fieldFlashers[i] = newFlasher;
                 // generate textfield
@@ -601,40 +601,5 @@ public class UIMatrix : MonoBehaviour {
     public void SetMatrixNotUpToDate () {
         calculatedMatrixUpToDate = false;
     }
-
-    private class FieldFlasher : MonoBehaviour {
-
-        private const float flashDuration = 0.333f;
-
-        private Image image;
-        private Color flashColor;
-        private float currentBlend;
-
-        public void Initialize (Image image) {
-            this.image = image;
-            currentBlend = 0f;
-            gameObject.SetActive(false);
-        }
-
-        public void UpdateFlashColor (Color newFlashColor) {
-            flashColor = newFlashColor;
-        }
-
-        public void Flash () {
-            gameObject.SetActive(true);
-            image.color = flashColor;
-            currentBlend = 1f;
-        }
-
-        void Update () {
-            if(currentBlend <= 0){
-                gameObject.SetActive(false);
-                return;
-            }
-            image.color = Color.Lerp(Color.clear, flashColor, currentBlend);
-            currentBlend -= (Time.deltaTime / flashDuration); 
-        }
-
-    } 
 
 }

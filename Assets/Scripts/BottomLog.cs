@@ -7,7 +7,8 @@ public class BottomLog : MonoBehaviour {
 
     private static BottomLog instance;
 
-    [SerializeField] Image bottomBackgroundImage; 
+    [SerializeField] Image bottomBackgroundImage;
+    [SerializeField] ImageFlasher messageFlasher;
     [SerializeField] TextMeshProUGUI bottomTextField;
 
     private Log currentlyDisplayedMessage;
@@ -28,6 +29,7 @@ public class BottomLog : MonoBehaviour {
         instance = this;
         logs = new List<Log>();
         hideTime = Mathf.Infinity;
+        messageFlasher.Initialize(messageFlasher.gameObject.GetComponent<Image>());
         Clear();
     }
 
@@ -56,9 +58,8 @@ public class BottomLog : MonoBehaviour {
         if(currentlyDisplayedMessage != null){
             Display(currentlyDisplayedMessage, hideTime - Time.time);     // to redo the colors
         }
+        messageFlasher.UpdateFlashColor(cs.BottomLogMessageFlash);
     }
-
-    // TODO a timer for the messages
 
     ///<summary>Only displays a message, doesn't add it to the log</summary>
     public static void DisplayMessage (string message) {
@@ -103,10 +104,13 @@ public class BottomLog : MonoBehaviour {
         Display(log.message, log.type, duration);
     }
 
-    void Display (string message, LogType logType, float duration) {
+    void Display (string message, LogType logType, float duration, bool flash = true) {
         bottomTextField.text = GetColoredString(message, logType);
         currentlyDisplayedMessage = new Log(message, logType);
         hideTime = Time.time + duration;
+        if(flash && message.Trim().Length > 0){
+            messageFlasher.Flash();
+        }
     }
 
     Color GetColorForLogType (LogType logType) {

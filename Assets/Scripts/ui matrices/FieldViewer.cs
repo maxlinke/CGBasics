@@ -168,6 +168,7 @@ namespace UIMatrices {
                     mainScreen.SetActive(true);
                     UpdateFieldTexts();
                     SetupDoneButton();
+                    field.FlashResultField();
                 }
             );
         }

@@ -587,7 +587,7 @@ MonoBehaviour:
   - {fileID: 7489832311983296522}
   - {fileID: 4332775997684968996}
   bottomArea: {fileID: 5726293091513977209}
-  weightLerpDeltaPerSecond: 10
+  weightLerpDeltaPerSecond: 5
   multiplicationSignSize: 40
   matrixGroupMargin: 20
 --- !u!1 &2677544506591979178

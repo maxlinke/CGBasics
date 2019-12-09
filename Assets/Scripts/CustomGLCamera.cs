@@ -4,7 +4,9 @@ using UIMatrices;
 public class CustomGLCamera : MonoBehaviour {
 
     const string clippingKeyword = "SHOW_CLIPPING";
+    const string specialClippingMatrixKeyword = "USE_SPECIAL_CLIPPING_MATRIX";
     const string clippingMatrixName = "_SpecialClippingMatrix";
+    const string specialModelMatrixKeyword = "USE_SPECIAL_MODEL_MATRIX";
     const string modelMatrixName = "_SpecialModelMatrix";
 
     [SerializeField] Material objectMat;
@@ -98,13 +100,14 @@ public class CustomGLCamera : MonoBehaviour {
 
         objectMat = Instantiate(objectMat);
         objectMat.hideFlags = HideFlags.HideAndDontSave;
-        objectMat.EnableKeyword("USE_SPECIAL_MODEL_MATRIX");
+        objectMat.EnableKeyword(specialModelMatrixKeyword);
+        lineMaterialSolid.EnableKeyword(specialModelMatrixKeyword);
+        lineMaterialSeeThrough.EnableKeyword(specialModelMatrixKeyword);
 
         if(isExternalCamera){
-            if(showClipping){
-                objectMat.EnableKeyword("SHOW_CLIPPING");
-            }
-            objectMat.EnableKeyword("USE_SPECIAL_CLIPPING_MATRIX");
+            objectMat.EnableKeyword(specialClippingMatrixKeyword);
+            lineMaterialSolid.EnableKeyword(specialClippingMatrixKeyword);
+            lineMaterialSeeThrough.EnableKeyword(specialClippingMatrixKeyword);
         }
 
         nearClipPlane = inputNearClip;
@@ -176,11 +179,13 @@ public class CustomGLCamera : MonoBehaviour {
         objectMat.SetColor("_LightColorBack", cs.VertRenderLight2);
         objectMat.SetColor("_LightColorAmbient", cs.VertRenderAmbientLight);
         objectMat.SetColor("_ClippingOverlayColor", cs.VertRenderClippingOverlay);
+        lineMaterialSolid.SetColor("_ClippingOverlayColor", cs.VertRenderClippingOverlay);
+        lineMaterialSeeThrough.SetColor("_ClippingOverlayColor", cs.VertRenderClippingOverlay);
     }
 
     void SetupPremadeUnityColoredMaterials () {
         // modified from https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnPostRender.html
-        var shader = Shader.Find("Hidden/Internal-Colored");
+        var shader = Shader.Find("Custom/InternalColoredWithCulling");
         lineMaterialSolid = new Material(shader);
         lineMaterialSolid.hideFlags = HideFlags.HideAndDontSave;
         lineMaterialSolid.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.One);
@@ -215,11 +220,9 @@ public class CustomGLCamera : MonoBehaviour {
 
     void UpdateMatricesAndMesh () {
         if(!isExternalCamera && !matrixScreen.freeModeActivated){
-            // this is JUST for testing!
             matrixScreen.ViewPosMatrix.VariableContainer.EditVariable(MatrixConfig.InverseTranslationConfig.xPos, transform.position.x, false);
             matrixScreen.ViewPosMatrix.VariableContainer.EditVariable(MatrixConfig.InverseTranslationConfig.yPos, transform.position.y, false);
             matrixScreen.ViewPosMatrix.VariableContainer.EditVariable(MatrixConfig.InverseTranslationConfig.zPos, transform.position.z, true);
-            // still just testing
             var right = transform.right;
             matrixScreen.ViewRotMatrix.VariableContainer.EditVariable(MatrixConfig.RebaseConfig.newXx, right.x, false);
             matrixScreen.ViewRotMatrix.VariableContainer.EditVariable(MatrixConfig.RebaseConfig.newXy, right.y, false);
@@ -232,7 +235,6 @@ public class CustomGLCamera : MonoBehaviour {
             matrixScreen.ViewRotMatrix.VariableContainer.EditVariable(MatrixConfig.RebaseConfig.newZx, fwd.x, false);
             matrixScreen.ViewRotMatrix.VariableContainer.EditVariable(MatrixConfig.RebaseConfig.newZy, fwd.y, false);
             matrixScreen.ViewRotMatrix.VariableContainer.EditVariable(MatrixConfig.RebaseConfig.newZz, fwd.z, true);
-            // still just testing
             matrixScreen.ProjMatrix.VariableContainer.EditVariable(MatrixConfig.PerspectiveProjectionConfig.fov, attachedUnityCam.fieldOfView, false);
             matrixScreen.ProjMatrix.VariableContainer.EditVariable(MatrixConfig.PerspectiveProjectionConfig.nearClip, attachedUnityCam.nearClipPlane, false);
             matrixScreen.ProjMatrix.VariableContainer.EditVariable(MatrixConfig.PerspectiveProjectionConfig.farClip, attachedUnityCam.farClipPlane, false);
@@ -252,11 +254,13 @@ public class CustomGLCamera : MonoBehaviour {
                 zFar: farClipPlane
             );
             cameraMatrix = currentProjectionMatrix * currentViewMatrix;
+            modelMatrix = Matrix4x4.zero;       // if THIS (external) camera needs a model matrix, it should get it from the other camera.
         }else{
             cameraMatrix = matrixScreen.GetWeightedCameraMatrixForRendering();
+            modelMatrix = matrixScreen.GetWeightedModelMatrixForRendering();
         }
-        modelMatrix = matrixScreen.GetWeightedModelMatrixForRendering();
         currentMesh = matrixScreen.GetCurrentMesh();
+        matricesAreUpdated = true;
     }
 
     void OnPostRender () {
@@ -265,50 +269,90 @@ public class CustomGLCamera : MonoBehaviour {
         }
 
         GL.PushMatrix();
-
         GL.LoadProjectionMatrix(Matrix4x4.identity);
         GL.LoadIdentity();
-        GL.MultMatrix(cameraMatrix);
 
-        if(currentMesh != null){
-            if(isExternalCamera && showClipping){
-                objectMat.EnableKeyword(clippingKeyword);
-            }else{
-                objectMat.DisableKeyword(clippingKeyword);
+        if(currentMesh != null){            
+            RenderTheObject();
+        }
+
+        DrawWithNewMVPMatrix(cameraMatrix, () => {
+            if(drawSeeThrough){
+                DrawAllTheWireThings(true);
             }
-            bool wireCache = GL.wireframe;
-            GL.wireframe = drawObjectAsWireFrame;
-            DrawObject(currentMesh);
-            GL.wireframe = wireCache;
-        }
+            DrawAllTheWireThings(false);
 
-        if(drawSeeThrough){
-            lineMaterialSeeThrough.SetPass(0);
-            DrawAllTheWireThings(true);
-        }
-        lineMaterialSolid.SetPass(0);
-        DrawAllTheWireThings(false);
-
-        if(drawPivot){
-            DrawPivot(true);
-            DrawPivot(false);
-        }
+            if(drawPivot){
+                lineMaterialSolid.DisableKeyword(clippingKeyword);
+                lineMaterialSeeThrough.DisableKeyword(clippingKeyword);
+                DrawPivot(true);
+                DrawPivot(false);
+            }
+        });
 
         GL.PopMatrix();
 
+        void RenderTheObject () {
+            Material drawMat = drawObjectAsWireFrame ? lineMaterialSolid : objectMat;
+            Matrix4x4 newMVP;
+            if(isExternalCamera){
+                var otherMVP = otherCamera.cameraMatrix * otherCamera.modelMatrix;
+                newMVP = cameraMatrix * otherMVP;
+                if(showClipping){
+                    drawMat.EnableKeyword(clippingKeyword);
+                    drawMat.SetMatrix(clippingMatrixName, otherMVP);
+                }else{
+                    drawMat.DisableKeyword(clippingKeyword);
+                }
+            }else{
+                newMVP = cameraMatrix * modelMatrix;
+                drawMat.DisableKeyword(clippingKeyword);
+            }
+            drawMat.SetMatrix(modelMatrixName, isExternalCamera ? otherCamera.modelMatrix : modelMatrix);
+
+            bool wireCache = GL.wireframe;
+            GL.wireframe = drawObjectAsWireFrame;
+            DrawWithNewMVPMatrix(newMVP, () => {
+                drawMat.SetPass(0);
+                DrawMesh(currentMesh, drawObjectAsWireFrame ? wireObjectColor : Color.white);
+            });
+            GL.wireframe = wireCache;
+        }
+
         void DrawAllTheWireThings (bool seeThrough) {
+            Material drawMat = seeThrough ? lineMaterialSeeThrough : lineMaterialSolid;
+            drawMat.DisableKeyword(clippingKeyword);
+            drawMat.SetPass(0);
             if(drawGridFloor){
-                DrawWireFloor(seeThrough);
+                DrawWireFloor(seeThrough, drawOrigin);
             }
             if(drawOrigin){
                 DrawAxes(seeThrough);
             }
             if(isExternalCamera){
                 if(drawCamera && !matrixScreen.CameraMatrixFullyWeighted()){
-                    DrawOtherCamera(seeThrough);
+                    DrawWithNewMVPMatrix(cameraMatrix * otherCamera.cameraMatrix * matrixScreen.GetUnweightedCameraMatrixForRendering().inverse, () => {
+                        var camDrawColor = matrixScreen.CameraMatrixNotUnweighted() ? camFrustumColor : ((0.5f * camFrustumColor) + (0.5f * attachedUnityCam.backgroundColor));
+                        DrawClipSpace(camDrawColor, seeThrough);
+                    });
                 }
                 if(drawClipSpace){
                     DrawClipSpace(clipBoxColor, seeThrough);
+                }
+                if(otherCamera.drawGridFloor || otherCamera.drawOrigin){
+                    if(showClipping){
+                        drawMat.EnableKeyword(clippingKeyword);
+                        drawMat.SetMatrix(clippingMatrixName, otherCamera.cameraMatrix);
+                        drawMat.SetPass(0);
+                    }
+                    DrawWithNewMVPMatrix(cameraMatrix * otherCamera.cameraMatrix, () => {
+                        if(otherCamera.drawGridFloor){
+                            DrawWireFloor(seeThrough, otherCamera.drawOrigin);
+                        }
+                        if(otherCamera.drawOrigin){
+                            DrawAxes(seeThrough);
+                        }
+                    });
                 }
             }
         }
@@ -316,11 +360,11 @@ public class CustomGLCamera : MonoBehaviour {
 
 #region GL_Drawing
 
-    void DrawWireFloor (bool seeThrough) {
+    void DrawWireFloor (bool seeThrough, bool holdOutOrigin) {
         GLDraw(GL.LINES, () => {
             GL.Color(GetConditionalSeeThroughColor(wireGridColor, seeThrough));
             for(int x=-10; x<=10; x++){
-                if(x == 0 && drawOrigin){
+                if(x == 0 && holdOutOrigin){
                     GL.Vertex3(x, 0, -10);
                     GL.Vertex3(x, 0, 0);
                     GL.Vertex3(x, 0, 1);
@@ -331,7 +375,7 @@ public class CustomGLCamera : MonoBehaviour {
                 }
             }
             for(int z=-10; z<=10; z++){
-                if(z == 0 && drawOrigin){
+                if(z == 0 && holdOutOrigin){
                     GL.Vertex3(-10, 0, z);
                     GL.Vertex3(0, 0, z);
                     GL.Vertex3(1, 0, z);
@@ -356,17 +400,6 @@ public class CustomGLCamera : MonoBehaviour {
             GL.Vertex3(0, 0, 0);
             GL.Vertex3(0, 0, 1);
         });
-    }
-
-    void DrawOtherCamera (bool seeThrough) {
-        GL.PushMatrix();
-        
-        GL.LoadProjectionMatrix(Matrix4x4.identity);
-        GL.LoadIdentity();
-        GL.MultMatrix(cameraMatrix * otherCamera.cameraMatrix * matrixScreen.GetUnweightedCameraMatrixForRendering().inverse);     // TODO unweighted cam matrix? yes. inverse of unweighted, then multiply with the actual weighted one
-        DrawClipSpace(camFrustumColor, seeThrough);
-
-        GL.PopMatrix();
     }
 
     void DrawClipSpace (Color drawColor, bool seeThrough) {
@@ -396,32 +429,6 @@ public class CustomGLCamera : MonoBehaviour {
                 GL.Vertex(verts[tris[i+2]]);
             }
         });
-    }
-
-    void DrawObject (Mesh meshToDraw) {
-        GL.PushMatrix();
-        
-        GL.LoadProjectionMatrix(Matrix4x4.identity);
-        GL.LoadIdentity();
-        if(isExternalCamera){
-            GL.MultMatrix(cameraMatrix * otherCamera.cameraMatrix * modelMatrix);
-        }else{
-            GL.MultMatrix(cameraMatrix * modelMatrix);
-        }
-
-        if(isExternalCamera){
-            objectMat.SetMatrix(clippingMatrixName, otherCamera.cameraMatrix * otherCamera.modelMatrix);
-        }
-        if(drawObjectAsWireFrame){
-            lineMaterialSolid.SetPass(0);
-        }else{
-            objectMat.SetMatrix(modelMatrixName, modelMatrix);
-            objectMat.SetPass(0);
-        }
-        
-        DrawMesh(meshToDraw, drawObjectAsWireFrame ? wireObjectColor : Color.white);
-
-        GL.PopMatrix();
     }
 	
     void DrawPivot (bool seeThrough) {
@@ -467,6 +474,15 @@ public class CustomGLCamera : MonoBehaviour {
 
     Color GetSeeThroughColor (Color inputColor) {
         return new Color(inputColor.r, inputColor.g, inputColor.b, inputColor.a * seeThroughAlphaMultiplier);
+    }
+
+    void DrawWithNewMVPMatrix (Matrix4x4 newMVP, System.Action drawAction) {
+        GL.PushMatrix();
+        GL.LoadProjectionMatrix(Matrix4x4.identity);
+        GL.LoadIdentity();
+        GL.MultMatrix(newMVP);
+        drawAction.Invoke();
+        GL.PopMatrix();
     }
 
     void GLDraw (int drawMode, System.Action drawAction) {

@@ -112,6 +112,8 @@ MonoBehaviour:
   uiMatrixFieldViewerDoneButtonClick: {r: 0, g: 0, b: 0, a: 1}
   uiMatrixFieldViewerDoneButtonDisabled: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   uiMatrixFieldViewerDoneButtonText: {r: 1, g: 1, b: 1, a: 1}
+  uiMatrixFieldEditorSolidBackground: {r: 0.1, g: 0.1, b: 0.1, a: 1}
+  uiMatrixFieldEditorSelectionColor: {r: 0.25, g: 0.3333, b: 0.5, a: 1}
   bottomLogBackground: {r: 0.2, g: 0.2, b: 0.2, a: 1}
   bottomLogExpandedBackground: {r: 0, g: 0, b: 0, a: 0.8}
   bottomLogRegularText: {r: 0.667, g: 0.667, b: 0.667, a: 1}

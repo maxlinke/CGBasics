@@ -9,12 +9,15 @@ namespace UIMatrices {
     public class FieldEditor : MonoBehaviour {
 
         [Header("Components")]
+        [SerializeField] Image solidBackground;
         [SerializeField] Button insertButtonTemplate;
         [SerializeField] Button doneButton;
         [SerializeField] TextMeshProUGUI doneButtonText;
         [SerializeField] TMP_InputField expressionInputField;
+        [SerializeField] TextMeshProUGUI expressionInputFieldText;
         [SerializeField] Image expressionInputFieldBackground;
         [SerializeField] TextMeshProUGUI editingInfo;
+        [SerializeField] TextMeshProUGUI fieldInfo;
         [SerializeField] ScrollRect varAndFuncScrollView;
         [SerializeField] RectTransform varAndFuncScrollViewRT;
         [SerializeField] RectTransform varAndFuncScrollViewContentRT;
@@ -27,6 +30,7 @@ namespace UIMatrices {
         [Header("Settings")]
         [SerializeField] float maxVarAndFuncAreaWidth;
         [SerializeField] float buttonVerticalOffset;
+        [SerializeField] float solidBGWidthAddition;
 
         System.Action<string> onDoneEditing;
 
@@ -35,7 +39,8 @@ namespace UIMatrices {
         bool subscribedToInputSystem;
 
         public void Initialize () {
-            editingInfo.text = "Editing is only possible in free mode";
+            editingInfo.text = "(Editing is only possible in free mode)";
+            fieldInfo.text = "Field expression";
             variableHeader.text = "Variables";
             functionHeader.text = "Functions";
             ((TextMeshProUGUI)(expressionInputField.placeholder)).text = "Enter an expression here";
@@ -47,17 +52,22 @@ namespace UIMatrices {
                 var funcName = allFuncs[ind].functionName;
                 var funcDesc = allFuncs[ind].description;
                 var funcCall = allFuncs[ind].exampleCall;
-                btn.Setup(funcCall, funcDesc, $"{funcName}(");
+                var funcInsert = (allFuncs[ind].paramNumber == 0) ? $"{funcName}()" : $"{funcName}(";
+                btn.Setup(funcCall, funcDesc, funcInsert);
             });
         }
 
         public void LoadColors (ColorScheme cs) {
             // done button is already accounted for in the viewer
+            solidBackground.color = cs.UiMatrixFieldEditorSolidBackground;
             expressionInputFieldBackground.color = Color.white;
-            expressionInputField.SetFadeTransition(0f, cs.UiMatrixFieldViewerDoneButton, cs.UiMatrixFieldViewerDoneButtonHover, cs.UiMatrixFieldViewerDoneButtonClick, Color.clear);
+            // expressionInputField.SetFadeTransition(0f, cs.UiMatrixFieldViewerDoneButton, cs.UiMatrixFieldViewerDoneButtonHover, cs.UiMatrixFieldViewerDoneButtonClick, Color.clear);
+            expressionInputField.SetFadeTransition(0f, cs.UiMatrixFieldViewerDoneButton, cs.UiMatrixFieldViewerDoneButtonHover, cs.UiMatrixFieldViewerDoneButtonClick, cs.UiMatrixFieldViewerDoneButton);
             expressionInputField.textComponent.color = cs.UiMatrixFieldViewerDoneButtonText;
             expressionInputField.placeholder.color = 0.5f * cs.UiMatrixFieldViewerDoneButtonText + 0.5f * cs.UiMatrixFieldViewerDoneButton;
-            editingInfo.color = cs.UiMatrixFieldViewerDoneButtonText;
+            expressionInputField.selectionColor = cs.UiMatrixFieldEditorSelectionColor;
+            editingInfo.color = cs.UiMatrixFieldViewerDoneButtonText.WithOpacity(0.5f);
+            fieldInfo.color = cs.UiMatrixFieldViewerDoneButtonText;
             variableHeader.color = cs.UiMatrixFieldViewerDoneButtonText;
             functionHeader.color = cs.UiMatrixFieldViewerDoneButtonText;
             foreach(var b in varButtons){
@@ -75,12 +85,14 @@ namespace UIMatrices {
             EventSystem.current.SetSelectedGameObject(null);
             gameObject.SetActive(true);
             expressionInputField.text = expression;
-            expressionInputField.interactable = editable;       // TODO onEndEdit check maybe? just red or white?
-            expressionInputFieldBackground.enabled = editable;
+            expressionInputField.interactable = editable;
+            expressionInputFieldText.overflowMode = editable ? TextOverflowModes.ScrollRect : TextOverflowModes.Ellipsis;
+            // expressionInputFieldBackground.enabled = editable;
             editingInfo.SetGOActive(!editable);
             SetupDoneButton();
             varAndFuncScrollViewRT.SetSizeDeltaX(Mathf.Min(Screen.width, maxVarAndFuncAreaWidth));
             varAndFuncHeaderParent.SetSizeDeltaX(Mathf.Min(Screen.width, maxVarAndFuncAreaWidth));
+            solidBackground.gameObject.GetComponent<RectTransform>().SetSizeDeltaX(varAndFuncScrollViewRT.rect.width + (2 * solidBGWidthAddition));
             string[] varNames = new string[variables.Count];
             float[] varValues = new float[variables.Count];
             int varIndex = 0;
@@ -189,9 +201,10 @@ namespace UIMatrices {
                 this.hoverMessage = hoverMessage;
                 m_button.onClick.RemoveAllListeners();
                 m_button.onClick.AddListener(() => {
-                    targetInputField.text += insert;
+                    int cPos = targetInputField.caretPosition;
+                    targetInputField.text = targetInputField.text.Insert(cPos, insert);
                     EventSystem.current.SetSelectedGameObject(targetInputField.gameObject);
-                    targetInputField.MoveTextEnd(false);
+                    targetInputField.caretPosition = cPos + insert.Length;
                 });
             }
 

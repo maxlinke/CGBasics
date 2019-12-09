@@ -253,6 +253,8 @@ public class ColorScheme : ScriptableObject {
     [SerializeField] Color uiMatrixFieldViewerDoneButtonClick;
     [SerializeField] Color uiMatrixFieldViewerDoneButtonDisabled;
     [SerializeField] Color uiMatrixFieldViewerDoneButtonText;
+    [SerializeField] Color uiMatrixFieldEditorSolidBackground;
+    [SerializeField] Color uiMatrixFieldEditorSelectionColor;
 
     public Color UiMatrixFieldViewerBackground => uiMatrixFieldViewerBackground;
     public Color UiMatrixFieldViewerDoneButton => uiMatrixFieldViewerDoneButton;
@@ -260,6 +262,8 @@ public class ColorScheme : ScriptableObject {
     public Color UiMatrixFieldViewerDoneButtonClick => uiMatrixFieldViewerDoneButtonClick;
     public Color UiMatrixFieldViewerDoneButtonDisabled => uiMatrixFieldViewerDoneButtonDisabled;
     public Color UiMatrixFieldViewerDoneButtonText => uiMatrixFieldViewerDoneButtonText;
+    public Color UiMatrixFieldEditorSolidBackground => uiMatrixFieldEditorSolidBackground;
+    public Color UiMatrixFieldEditorSelectionColor => uiMatrixFieldEditorSelectionColor;
 
     [Header("Bottom Log")]
     [SerializeField] Color bottomLogBackground;

@@ -15,6 +15,7 @@ MonoBehaviour:
   uiTemp: {fileID: 21300000, guid: 2bbc50456c0a1b64ca5c547083dcf03a, type: 3}
   uiCircle: {fileID: 21300000, guid: 6d5973b2c64c794488324ee422b91f3a, type: 3}
   uiReset: {fileID: 21300000, guid: 09bd65ce338df0447bd6527330855773, type: 3}
+  uiCheckmark: {fileID: 21300000, guid: b6bb6007a7ec9384791c62917d7d513a, type: 3}
   matrixLeft: {fileID: 21300000, guid: b4142fafa1a26f347aea8f8364dc157d, type: 3}
   matrixRight: {fileID: 21300000, guid: 2f78a6b7c627d354db3b0335ae765fca, type: 3}
   matrixUp: {fileID: 21300000, guid: 8d667d060e6cfb04ab807a97ecf3c602, type: 3}

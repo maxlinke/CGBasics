@@ -6,6 +6,10 @@ using System.Collections.Generic;
 
 public class CustomCameraUIController : ClickDragScrollHandler {
 
+    const string renderCamLabelText = "Render View";
+    const string externalCamLabelText = "External View";
+    const string renderCamLockedSuffix = "(Locked, use the matrices)";
+
     [Header("Prefabs")]
     [SerializeField] CustomGLCamera targetCamPrefab;
 
@@ -62,6 +66,13 @@ public class CustomCameraUIController : ClickDragScrollHandler {
             m_canCurrentlyControlCamera = value;
             resetButton.interactable = value;
             LoadResetButtonColors(ColorScheme.current);
+            if(!isExternalCamController){
+                if(value){
+                    label.text = renderCamLabelText;
+                }else{
+                    label.text = $"{renderCamLabelText} {renderCamLockedSuffix}";
+                }
+            }
         }
     }
     public bool IsExternalCamController => isExternalCamController;
@@ -101,9 +112,9 @@ public class CustomCameraUIController : ClickDragScrollHandler {
             label.fontSize = labelFontSize;
             label.raycastTarget = false;
             if(isExternalCamController){
-                label.text = "External View";
+                label.text = externalCamLabelText;
             }else{
-                label.text = "Render View";
+                label.text = renderCamLabelText;
             }
         }
 

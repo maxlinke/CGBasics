@@ -27,10 +27,12 @@ public class UISprites : ScriptableObject {
     [SerializeField] Sprite uiTemp;
     [SerializeField] Sprite uiCircle;
     [SerializeField] Sprite uiReset;
+    [SerializeField] Sprite uiCheckmark;
 
     public static Sprite UITemp => instance.uiTemp;
     public static Sprite UICircle => instance.uiCircle;
     public static Sprite UIReset => instance.uiReset;
+    public static Sprite UICheckmark => instance.uiCheckmark;
 
     [Header("Matrix Sprites")]
     [SerializeField] Sprite matrixLeft;

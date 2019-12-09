@@ -126,7 +126,6 @@
                     fixed inOrOut = saturate(            //0 = in, 1 = out
                         step(1, abs(cPos.x)) + 
                         step(1, abs(cPos.y)) + 
-                        // (1 - step(0, wPos.z) + step(1, wPos.z))
                         step(1, abs(cPos.z))
                     );
                     fixed oa = _ClippingOverlayColor.a;

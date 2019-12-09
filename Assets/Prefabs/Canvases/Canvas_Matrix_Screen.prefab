@@ -799,7 +799,7 @@ MonoBehaviour:
   camDefaultFOV: 60
   camDefaultNearClip: 0.1
   camDefaultFarClip: 100
-  camDefaultPosition: {x: -3, y: 2, z: 4}
+  camDefaultPosition: {x: 0, y: 0, z: -4}
   uiParent: {fileID: 1192861782020609981}
   labelFont: {fileID: 11400000, guid: 06f73044a82495643bc9b74204b6e0f0, type: 2}
   labelFontSize: 14

@@ -28,7 +28,7 @@ MonoBehaviour:
   vertRenderLight1: {r: 0.8, g: 0.8, b: 0.8, a: 1}
   vertRenderLight2: {r: 0.2, g: 0.2, b: 0.5, a: 1}
   vertRenderAmbientLight: {r: 0.2, g: 0.1, b: 0.1, a: 1}
-  vertRenderClippingOverlay: {r: 0.1, g: 0.1, b: 0.1, a: 0.9019608}
+  vertRenderClippingOverlay: {r: 0.1, g: 0.1, b: 0.1, a: 0.8}
   matrixScreenBackground: {r: 0.1, g: 0.1, b: 0.1, a: 1}
   matrixScreenMatrixGroupBackground: {r: 0.167, g: 0.167, b: 0.167, a: 1}
   matrixScreenModelMatrixHeader: {r: 0.5471698, g: 0.47036064, b: 0.3484336, a: 1}
@@ -119,4 +119,4 @@ MonoBehaviour:
   bottomLogRegularText: {r: 0.667, g: 0.667, b: 0.667, a: 1}
   bottomLogWarningText: {r: 1, g: 0.7, b: 0.3, a: 1}
   bottomLogErrorText: {r: 1, g: 0.2, b: 0.2, a: 1}
-  bottomLogMessageFlash: {r: 1, g: 1, b: 1, a: 0.2509804}
+  bottomLogMessageFlash: {r: 1, g: 1, b: 1, a: 0.5019608}

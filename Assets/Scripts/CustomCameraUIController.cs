@@ -53,6 +53,7 @@ public class CustomCameraUIController : ClickDragScrollHandler {
     Button resetButton;
     Image resetButtonBackground;
     Image resetButtonIcon;
+    Toggle wireToggle;
 
     public bool CanCurrentlyControlCamera { 
         get {
@@ -112,10 +113,13 @@ public class CustomCameraUIController : ClickDragScrollHandler {
             toggleIcons = new List<Image>();
             int toggleIndex = 0;
             float y = 0;
-            CreateSpecialToggle(UISprites.MCamCtrlDrawWireframe, "Wireframe", "Toggles wireframe drawing", (b) => {targetCam.drawObjectAsWireFrame = b;}, false);
+            wireToggle = CreateSpecialToggle(UISprites.MCamCtrlDrawWireframe, "Wireframe", "Toggles wireframe drawing", (b) => {
+                targetCam.drawObjectAsWireFrame = b;
+                otherController.WireToggled(b);
+            }, false);
             y -= toggleSeparatorOffset;
-            CreateSpecialToggle(UISprites.MCamCtrlDrawFloor, "Grid", "Toggles drawing the grid floor", (b) => {targetCam.drawGridFloor = b;}, true);
-            CreateSpecialToggle(UISprites.MCamCtrlDrawOrigin, "Origin", "Toggles drawing the origin", (b) => {targetCam.drawOrigin = b;}, true);
+            CreateSpecialToggle(UISprites.MCamCtrlDrawFloor, "Grid", "Toggles drawing the grid floor", (b) => {targetCam.drawGridFloor = b;}, !isExternalCamController);
+            CreateSpecialToggle(UISprites.MCamCtrlDrawOrigin, "Origin", "Toggles drawing the origin", (b) => {targetCam.drawOrigin = b;}, isExternalCamController);
             CreateSpecialToggle(UISprites.MCamCtrlDrawSeeThrough, "XRay", "Toggles see-through drawing for all wireframe gizmos", (b) => {targetCam.drawSeeThrough = b;}, false);
             if(targetCam.IsExternalCamera){
                 y -= toggleSeparatorOffset;
@@ -125,7 +129,7 @@ public class CustomCameraUIController : ClickDragScrollHandler {
             }
             CreateResetButton();
 
-            void CreateSpecialToggle (Sprite icon, string toggleName, string hoverMessage, System.Action<bool> onStateChange, bool initialState) {
+            Toggle CreateSpecialToggle (Sprite icon, string toggleName, string hoverMessage, System.Action<bool> onStateChange, bool initialState) {
                 // setting up position and looks
                 var newToggleRT = CreateThingWithIcon(icon, toggleName, hoverMessage, out var newToggleIcon, out var newToggleBackground);
                 newToggleRT.localScale = Vector3.one;
@@ -150,6 +154,8 @@ public class CustomCameraUIController : ClickDragScrollHandler {
                 toggleIcons.Add(newToggleIcon);
                 toggleIndex++;
                 y -= (toggleSize + toggleOffset);
+                // output
+                return newToggle;
             }
 
             void CreateResetButton () {
@@ -194,6 +200,13 @@ public class CustomCameraUIController : ClickDragScrollHandler {
                 return newThingRT;
             }
         }
+    }
+
+    void WireToggled (bool newVal) {
+        if(wireToggle == null || wireToggle.isOn == newVal){
+            return;
+        }
+        wireToggle.isOn = newVal;
     }
 
     void SetToggleColors (int toggleIndex) {

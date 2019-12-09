@@ -286,8 +286,16 @@ public class MatrixScreen : MonoBehaviour {
         return defaultMesh;     // TODO mesh selection
     }
 
-    public bool CanDrawWireCamera () {
-        return (currentLinearWeight >= modelGroup.matrixCount) && (currentLinearWeight < (modelGroup.matrixCount + camGroup.matrixCount));
+    // public bool CanDrawWireCamera () {
+    //     return (currentLinearWeight >= modelGroup.matrixCount) && (currentLinearWeight < (modelGroup.matrixCount + camGroup.matrixCount));
+    // }
+
+    public bool ModelMatrixFullyWeighted () {
+        return (currentLinearWeight >= modelGroup.matrixCount);
+    }
+
+    public bool CameraMatrixFullyWeighted () {
+        return (currentLinearWeight >= (modelGroup.matrixCount + camGroup.matrixCount));
     }
 
 }

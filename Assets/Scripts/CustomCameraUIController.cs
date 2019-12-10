@@ -3,6 +3,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using TMPro;
 using System.Collections.Generic;
+using MatrixScreenUtils;
 
 public class CustomCameraUIController : ClickDragScrollHandler {
 
@@ -14,7 +15,7 @@ public class CustomCameraUIController : ClickDragScrollHandler {
     [SerializeField] CustomGLCamera targetCamPrefab;
 
     [Header("References")]
-    [SerializeField] WindowDresser windowDresser;
+    [SerializeField] CamControllerWindowOverlay windowOverlay;
 
     [Header("Settings")]
     [SerializeField] bool isExternalCamController;
@@ -32,59 +33,39 @@ public class CustomCameraUIController : ClickDragScrollHandler {
     [SerializeField] float camDefaultFarClip;
     [SerializeField] Vector3 camDefaultPosition;
 
-    [Header("UI Generation")]
-    [SerializeField] RectTransform uiParent;
-
     bool initialized;
-    bool m_canCurrentlyControlCamera;
-    Color toggleIconActive;
-    Color toggleIconInactive;
-    Color toggleBackgroundActive;
-    Color toggleBackgroundInactive;
-
-    CustomGLCamera targetCam;
-    CustomCameraUIController otherController;
+    
     Vector3 pivotPoint; 
     PointerType currentPointerType;
     Vector3 lastMousePos;
 
-    TextMeshProUGUI label;
-    List<Toggle> toggles;
-    List<Image> toggleBackgrounds;
-    List<Image> toggleIcons;
-    Button resetButton;
-    Image resetButtonBackground;
-    Image resetButtonIcon;
-    Toggle wireToggle;
-
     public bool CanCurrentlyControlCamera { 
         get {
-            return m_canCurrentlyControlCamera;       
+            return windowOverlay.resetButtonEnabled;
         } set {
-            m_canCurrentlyControlCamera = value;
-            resetButton.interactable = value;
-            LoadResetButtonColors(ColorScheme.current);
-            if(!isExternalCamController){
-                if(value){
-                    label.text = renderCamLabelText;
-                }else{
-                    label.text = $"{renderCamLabelText} {renderCamLockedSuffix}";
-                }
+            windowOverlay.resetButtonEnabled = value;
+            if(!value){
+                currentPointerType = PointerType.None;
             }
         }
     }
+    
+    public CustomGLCamera targetCam { get; private set; }
+    public CustomCameraUIController otherController { get; private set; }
+
     public bool IsExternalCamController => isExternalCamController;
-    public CustomGLCamera Cam => targetCam;
+    public CamControllerWindowOverlay overlay => windowOverlay;
 
     public void Initialize (MatrixScreen matrixScreen, CustomCameraUIController otherController) {
         if(initialized){
             Debug.LogError("Duplicate init call! Aborting...", this.gameObject);
             return;
         }
+        this.otherController = otherController;
         targetCam = Instantiate(targetCamPrefab);
         targetCam.Initialize(
             isExternalCamera: isExternalCamController,
-            otherCamera: (isExternalCamController ? otherController.Cam : null),
+            otherCamera: (isExternalCamController ? otherController.targetCam : null),
             matrixScreen: matrixScreen, 
             inputFOV: camDefaultFOV,
             inputNearClip: camDefaultNearClip,
@@ -93,88 +74,9 @@ public class CustomCameraUIController : ClickDragScrollHandler {
         );
         targetCam.SetupViewportRect(new Rect(camRectPos, camRectSize));
         targetCam.LoadColors(ColorScheme.current);
-        this.otherController = otherController;
-
-        toggles = new List<Toggle>();
-        toggleBackgrounds = new List<Image>();
-        toggleIcons = new List<Image>();
-        CreateRightSideToggles();
-        CreateResetButtonAndLabel();
-
+        windowOverlay.Initialize(this);
         initialized = true;
-        LoadColors(ColorScheme.current);
-
-        void CreateRightSideToggles () {
-            windowDresser.Begin(uiParent, new Vector2(1, 1), new Vector2(0, -1), Vector2.zero);
-            int toggleIndex = 0;
-            wireToggle = CreateSpecialToggle(UISprites.MCamCtrlDrawWireframe, "Wireframe", "Toggles wireframe drawing", (b) => {
-                targetCam.drawObjectAsWireFrame = b;
-                otherController.WireToggled(b);
-            }, false, offsetAfter: true);
-            CreateSpecialToggle(UISprites.MCamCtrlDrawFloor, "Grid", "Toggles drawing the grid floor", (b) => {targetCam.drawGridFloor = b;}, !isExternalCamController);
-            CreateSpecialToggle(UISprites.MCamCtrlDrawOrigin, "Origin", "Toggles drawing the origin", (b) => {targetCam.drawOrigin = b;}, isExternalCamController);
-            CreateSpecialToggle(UISprites.MCamCtrlDrawSeeThrough, "XRay", "Toggles see-through drawing for all wireframe gizmos", (b) => {targetCam.drawSeeThrough = b;}, false, offsetAfter: isExternalCamController);
-            if(targetCam.IsExternalCamera){     
-                CreateSpecialToggle(UISprites.MCamCtrlDrawCamera, "Cam", "Toggles drawing the other camera", (b) => {targetCam.drawCamera = b;}, true);
-                CreateSpecialToggle(UISprites.MCamCtrlDrawClipBox, "ClipBox", "Toggles drawing the clip space area", (b) => {targetCam.drawClipSpace = b;}, true);
-                CreateSpecialToggle(UISprites.MCamCtrlShowCulling, "ShowClip", "Toggles culling visualization", (b) => {targetCam.showClipping = b;}, true);
-            }
-            windowDresser.End();
-
-            Toggle CreateSpecialToggle (Sprite icon, string toggleName, string hoverMessage, System.Action<bool> onStateChange, bool initialState, bool offsetAfter = false) {
-                // setting up position and looks
-                var newToggleRT = windowDresser.CreateCircleWithIcon(icon, toggleName, hoverMessage, out var newToggleIcon, out var newToggleBackground, offsetAfter);
-                // setting up the actual toggle
-                newToggleRT.gameObject.AddComponent(typeof(Toggle));
-                var newToggle = newToggleRT.GetComponent<Toggle>();
-                newToggle.targetGraphic = newToggleBackground;
-                newToggle.isOn = initialState;
-                var indexCopy = toggleIndex;
-                newToggle.onValueChanged.AddListener((newVal) => {
-                    SetToggleColors(indexCopy);
-                    onStateChange?.Invoke(newVal);
-                });
-                onStateChange?.Invoke(initialState);
-                // saving to the lists, updating index
-                toggles.Add(newToggle);
-                toggleBackgrounds.Add(newToggleBackground);
-                toggleIcons.Add(newToggleIcon);
-                toggleIndex++;
-                // output
-                return newToggle;
-            }
-        }
-
-        void CreateResetButtonAndLabel () {
-            windowDresser.Begin(uiParent, new Vector2(0, 1), new Vector2(1, 0), Vector2.zero);
-            // the reset button
-            var resetRT = windowDresser.CreateCircleWithIcon(UISprites.UIReset, "Reset", "Resets the view", out resetButtonIcon, out resetButtonBackground);
-            resetRT.gameObject.AddComponent<Button>();
-            resetButton = resetRT.GetComponent<Button>();
-            resetButton.targetGraphic = resetButtonBackground;
-            resetButton.onClick.AddListener(() => {ResetCamera();});
-            // the label
-            label = windowDresser.CreateLabel();
-            label.text = isExternalCamController ? externalCamLabelText : renderCamLabelText;
-            windowDresser.End();
-        }
-    }
-
-    void WireToggled (bool newVal) {
-        if(wireToggle == null || wireToggle.isOn == newVal){
-            return;
-        }
-        wireToggle.isOn = newVal;
-    }
-
-    void SetToggleColors (int toggleIndex) {
-        if(toggles[toggleIndex].isOn){
-            toggleIcons[toggleIndex].color = toggleIconActive;
-            toggleBackgrounds[toggleIndex].color = toggleBackgroundActive;
-        }else{
-            toggleIcons[toggleIndex].color = toggleIconInactive;
-            toggleBackgrounds[toggleIndex].color = toggleBackgroundInactive;
-        }
+        LoadColors(ColorScheme.current);    
     }
 
     public void ResetCamera () {
@@ -197,27 +99,7 @@ public class CustomCameraUIController : ClickDragScrollHandler {
         if(!initialized){
             return;
         }
-        label.color = cs.MatrixWindowLabel;
-        toggleBackgroundActive = cs.MatrixWindowButtonBackgroundActive;
-        toggleBackgroundInactive = cs.MatrixWindowButtonBackgroundInactive;
-        toggleIconActive = cs.MatrixWindowButtonIconActive;
-        toggleIconInactive = cs.MatrixWindowButtonIconInactive;
-        for(int i=0; i<toggles.Count; i++){
-            toggles[i].SetFadeTransition(0f, Color.white, cs.MatrixWindowButtonHover, cs.MatrixWindowButtonClick, Color.magenta);
-            SetToggleColors(i);
-        }
-        LoadResetButtonColors(cs);
-    }
-
-    void LoadResetButtonColors (ColorScheme cs) {
-        if(resetButton.interactable){
-            resetButtonBackground.color = cs.MatrixWindowButtonBackgroundActive;
-            resetButtonIcon.color = cs.MatrixWindowButtonIconActive;
-        }else{
-            resetButtonBackground.color = cs.MatrixWindowButtonBackgroundInactive;
-            resetButtonIcon.color = cs.MatrixWindowButtonIconInactive;
-        }
-        resetButton.SetFadeTransition(0f, Color.white, cs.MatrixWindowButtonHover, cs.MatrixWindowButtonClick, Color.white);
+        windowOverlay.LoadColors(cs);
     }
 
     void Update () {

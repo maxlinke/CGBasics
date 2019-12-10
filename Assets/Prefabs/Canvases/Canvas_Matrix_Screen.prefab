@@ -385,6 +385,7 @@ GameObject:
   - component: {fileID: 8136390207849719493}
   - component: {fileID: 6469730779491551637}
   - component: {fileID: 1308221943000780195}
+  - component: {fileID: 986018775139316719}
   m_Layer: 5
   m_Name: Left Half (Matrix Cam Controller)
   m_TagString: Untagged
@@ -462,7 +463,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   targetCamPrefab: {fileID: 8404678681725351506, guid: df23d40eff87b9a499f7fcd3e9b42a45,
     type: 3}
-  windowDresser: {fileID: 5918332399242812913}
+  windowOverlay: {fileID: 986018775139316719}
   isExternalCamController: 0
   scrollSensitivity: 0.2
   smoothScrollSensitivity: 0.2
@@ -475,6 +476,19 @@ MonoBehaviour:
   camDefaultNearClip: 0.5
   camDefaultFarClip: 10
   camDefaultPosition: {x: 1.5, y: 1, z: 3.5}
+--- !u!114 &986018775139316719
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2677544505263237202}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e98ab432280dd55498482e1d7ad9b315, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  windowDresser: {fileID: 5918332399242812913}
   uiParent: {fileID: 8853205429347985091}
 --- !u!1 &2677544505613820311
 GameObject:
@@ -645,6 +659,7 @@ MonoBehaviour:
     type: 3}
   matrixGroupPrefab: {fileID: 8357111656008610867, guid: 062239a19e0604c4b8d77ca2704cd485,
     type: 3}
+  windowDresser: {fileID: 0}
   matrixCamController: {fileID: 1308221943000780195}
   externalCamController: {fileID: 3177943752331237449}
   backgroundImage: {fileID: 8344668593284754150}
@@ -781,6 +796,7 @@ GameObject:
   - component: {fileID: 4647882121921138706}
   - component: {fileID: 8256375298977470279}
   - component: {fileID: 3177943752331237449}
+  - component: {fileID: 1836315502982515302}
   m_Layer: 5
   m_Name: Right Half (Ext Cam Controller)
   m_TagString: Untagged
@@ -858,7 +874,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   targetCamPrefab: {fileID: 8404678681725351506, guid: df23d40eff87b9a499f7fcd3e9b42a45,
     type: 3}
-  windowDresser: {fileID: 5918332399242812913}
+  windowOverlay: {fileID: 1836315502982515302}
   isExternalCamController: 1
   scrollSensitivity: 0.2
   smoothScrollSensitivity: 0.2
@@ -871,6 +887,19 @@ MonoBehaviour:
   camDefaultNearClip: 0.1
   camDefaultFarClip: 100
   camDefaultPosition: {x: 0, y: 0, z: -4}
+--- !u!114 &1836315502982515302
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2677544506744128208}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e98ab432280dd55498482e1d7ad9b315, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  windowDresser: {fileID: 5918332399242812913}
   uiParent: {fileID: 1192861782020609981}
 --- !u!1 &2707620953300439000
 GameObject:

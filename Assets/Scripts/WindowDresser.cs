@@ -1,9 +1,8 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-public class MatrixScreenWindowDresser : MonoBehaviour {
+public class WindowDresser : MonoBehaviour {
 
     [Header("Label")]
     [SerializeField] TMP_FontAsset labelFont;

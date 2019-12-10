@@ -332,8 +332,7 @@ public class CustomGLCamera : MonoBehaviour {
             if(isExternalCamera){
                 if(drawCamera && !matrixScreen.CameraMatrixFullyWeighted()){
                     DrawWithNewMVPMatrix(cameraMatrix * otherCamera.cameraMatrix * matrixScreen.GetUnweightedCameraMatrixForRendering().inverse, () => {
-                        var camDrawColor = matrixScreen.CameraMatrixNotUnweighted() ? camFrustumColor : ((0.5f * camFrustumColor) + (0.5f * attachedUnityCam.backgroundColor));
-                        DrawClipSpace(camDrawColor, seeThrough);
+                        DrawClipSpace(camFrustumColor, seeThrough);
                     });
                 }
                 if(drawClipSpace){

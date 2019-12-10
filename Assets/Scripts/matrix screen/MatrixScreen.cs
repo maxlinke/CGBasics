@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using MatrixScreenUtils;
 
 public class MatrixScreen : MonoBehaviour {
 
@@ -10,14 +11,15 @@ public class MatrixScreen : MonoBehaviour {
     [SerializeField] UIMatrixGroup matrixGroupPrefab;
 
     [Header("Components")]
+    [SerializeField] WindowDresser windowDresser;
     [SerializeField] CustomCameraUIController matrixCamController;
     [SerializeField] CustomCameraUIController externalCamController;
     [SerializeField] Image backgroundImage;
     [SerializeField] Mesh defaultMesh;
     [SerializeField] RectTransform uiMatrixParent;
-    [SerializeField] MatrixScreenPanAndZoom panAndZoomController;
+    [SerializeField] PanAndZoom panAndZoomController;
     [SerializeField] Image[] borders;
-    [SerializeField] MatrixScreenBottomArea bottomArea;
+    [SerializeField] CenterBottomPopup centerBottomPopup;
 
     [Header("Settings")]
     [SerializeField] float weightLerpDeltaPerSecond;
@@ -92,10 +94,10 @@ public class MatrixScreen : MonoBehaviour {
         }
         matrixCamController.Initialize(this, externalCamController);
         externalCamController.Initialize(this, matrixCamController);
-        bottomArea.Initialize(this, (newVal) => {
+        centerBottomPopup.Initialize(this, (newVal) => {
             currentWeightTarget = newVal;
         });
-        bottomArea.LoadColors(ColorScheme.current);
+        centerBottomPopup.LoadColors(ColorScheme.current);
         CreateMultiplicationSign();
         modelGroup = CreateMatrixGroup(leftSide: true);
         modelGroup.SetName("Model");
@@ -195,7 +197,7 @@ public class MatrixScreen : MonoBehaviour {
         foreach(var b in borders){
             b.color = cs.MatrixScreenBorderColor;
         }
-        bottomArea.LoadColors(cs);
+        centerBottomPopup.LoadColors(cs);
     }
 
     public void AddMatrix (UIMatrix callingMatrix) {
@@ -264,9 +266,9 @@ public class MatrixScreen : MonoBehaviour {
         }
         var totalMatrixCount = modelGroup.matrixCount + camGroup.matrixCount;
         if(newSliderValue != -1){
-            bottomArea.UpdateSlider(totalMatrixCount, true, newSliderValue);
+            centerBottomPopup.UpdateSlider(totalMatrixCount, true, newSliderValue);
         }else{
-            bottomArea.UpdateSlider(totalMatrixCount);
+            centerBottomPopup.UpdateSlider(totalMatrixCount);
         }
     }
 

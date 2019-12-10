@@ -14,7 +14,7 @@ public class CustomCameraUIController : ClickDragScrollHandler {
     [SerializeField] CustomGLCamera targetCamPrefab;
 
     [Header("References")]
-    [SerializeField] MatrixScreenWindowDresser windowDresser;
+    [SerializeField] WindowDresser windowDresser;
 
     [Header("Settings")]
     [SerializeField] bool isExternalCamController;

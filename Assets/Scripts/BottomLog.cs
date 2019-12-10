@@ -109,7 +109,7 @@ public class BottomLog : MonoBehaviour {
         currentlyDisplayedMessage = new Log(message, logType);
         hideTime = Time.time + duration;
         if(flash && message.Trim().Length > 0){
-            messageFlasher.Flash();
+            messageFlasher.Flash(0.5f);
         }
     }
 

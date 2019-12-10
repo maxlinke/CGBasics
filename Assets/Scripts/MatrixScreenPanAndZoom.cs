@@ -25,6 +25,9 @@ public class MatrixScreenPanAndZoom : ClickDragScrollHandler {
             var currentMousePos = Input.mousePosition;
             var mouseDelta = currentMousePos - lastMousePos;
             switch(currentPointerType){
+                case PointerType.Left:
+                    Pan(mouseDelta);
+                    break;
                 case PointerType.Right:
                     Pan(mouseDelta);
                     break;

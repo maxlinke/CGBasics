@@ -172,7 +172,7 @@ public class MatrixScreen : MonoBehaviour {
         camGroup[0].SetName("Inv. Camera Position");
         camGroup.CreateMatrixAtIndex(UIMatrices.MatrixConfig.rebaseConfig, UIMatrix.Editability.FULL, 1, false);
         camGroup[1].SetName("Inv. Camera Rotation");
-        camGroup[1].Transpose();
+        camGroup[1].Transpose(false);
         camGroup.CreateMatrixAtIndex(UIMatrices.MatrixConfig.perspProjConfig, UIMatrix.Editability.FULL, 2, true);
 
         viewRotMatrix = camGroup[1];
@@ -301,15 +301,27 @@ public class MatrixScreen : MonoBehaviour {
     }
 
     public Matrix4x4 GetWeightedModelMatrixForRendering () {
-        return modelGroup.WeightedMatrixProduct.transpose;
+        if(OpenGLMode){
+            return modelGroup.WeightedMatrixProduct;
+        }else{
+            return modelGroup.WeightedMatrixProduct.transpose;
+        }
     }
 
     public Matrix4x4 GetWeightedCameraMatrixForRendering () {
-        return camGroup.WeightedMatrixProduct.transpose;
+        if(OpenGLMode){
+            return camGroup.WeightedMatrixProduct;
+        }else{
+            return camGroup.WeightedMatrixProduct.transpose;
+        }
     }
 
     public Matrix4x4 GetUnweightedCameraMatrixForRendering () {
-        return camGroup.UnweightedMatrixProduct.transpose;
+        if(OpenGLMode){
+            return camGroup.UnweightedMatrixProduct;
+        }else{
+            return camGroup.UnweightedMatrixProduct.transpose;
+        }
     }
 
     public Mesh GetCurrentMesh () {

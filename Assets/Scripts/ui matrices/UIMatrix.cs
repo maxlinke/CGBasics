@@ -182,12 +182,6 @@ public class UIMatrix : MonoBehaviour {
         }
     }
 
-    void Update () {
-        // if(Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.E)){
-        //     this.editability = (Editability)(((int)editability + 1) % System.Enum.GetNames(typeof(Editability)).Length);
-        // }
-    }
-
     void SelfInit () {
         Initialize(MatrixConfig.translationConfig, Editability.FULL, true);
     }
@@ -199,6 +193,9 @@ public class UIMatrix : MonoBehaviour {
     public void Initialize (string inputName, string[] fieldInitializers, IEnumerable<MatrixConfig.VarPreset> initialVariables, Editability initialEditability, bool varContainerExpanded) {
         if(initialized){
             Debug.LogError($"Call to initialize although {nameof(UIMatrix)} is already initialized. Aborting.");
+        }
+        if(!shouldSelfInit && matrixScreen.OpenGLMode){
+            fieldInitializers = GetTransposedStringArray(fieldInitializers);
         }
         CreateUIFieldArray();
         CreateButtons();
@@ -305,7 +302,7 @@ public class UIMatrix : MonoBehaviour {
             deleteButton = CreateButton("Delete", "Delete this matrix", UISprites.MatrixDelete, true, 2, () => {matrixScreen?.DeleteMatrix(this);});
             CreateButton("Set Identity", "Set this matrix to identity (also removes all variables)", UISprites.MatrixIdentity, false, 0, SetIdentity);
             matrixInvertButton = CreateButton("Invert", "Invert this matrix (removes all variables)", UISprites.MatrixInvert, false, 1, Invert);
-            CreateButton("Transpose", "Transpose this matrix", UISprites.MatrixTranspose, false, 2, Transpose);
+            CreateButton("Transpose", "Transpose this matrix", UISprites.MatrixTranspose, false, 2, () => {Transpose();});
             CreateButton("Load Config", "Load a matrix configuration", UISprites.MatrixConfig, false, 3, () => {ConfigPicker.Open(LoadConfig, (matrixScreen != null ? matrixScreen.matrixZoom : 1f));});
 
             Button CreateButton (string newButtonName, string description, Sprite newButtonMainImage, bool leftBound, int displayIndex, System.Action onClickAction) {
@@ -373,7 +370,11 @@ public class UIMatrix : MonoBehaviour {
         variableContainer.LoadConfig(configToLoad.defaultVariables, false, variableContainer.expanded);
         UpdateFieldStrings(configToLoad.fieldStrings);
         SetName(configToLoad.name);
-        UpdateMatrixAndGridView();
+        if(matrixScreen.OpenGLMode){
+            Transpose(false);       // also updates grid and view
+        }else{
+            UpdateMatrixAndGridView();
+        }
     }
 
     public string FieldExpressionToColoredResult (string inputExpression, out float parsedValue, out bool validValue) {
@@ -445,19 +446,32 @@ public class UIMatrix : MonoBehaviour {
         }
     }
 
-    public void Transpose () {
+    public void Transpose (bool changeName = true) {
+        stringFieldValues = GetTransposedStringArray(stringFieldValues);
+        calculatedMatrixUpToDate = false;
+        UpdateMatrixAndGridView();
+        if(changeName){
+            UpdateNameWithSuffixToggle("(Tranposed)");
+        }
+    }
+
+    string[] GetTransposedStringArray (string[] input) {
+        if(input.Length != 16){
+            Debug.LogError($"Input array should have length 16, was {input.Length}! Aborting!");
+            return input;
+        }
+        var output = new string[16];
+        input.CopyTo(output, 0);
         for(int y=0; y<3; y++){
             for(int x = y+1; x<4; x++){
                 int src = 4 * y + x;
                 int dst = 4 * x + y;
-                var dstCache = stringFieldValues[dst];
-                stringFieldValues[dst] = stringFieldValues[src];
-                stringFieldValues[src] = dstCache;
+                var dstCache = output[dst];
+                output[dst] = output[src];
+                output[src] = dstCache;
             }
         }
-        calculatedMatrixUpToDate = false;
-        UpdateMatrixAndGridView();
-        UpdateNameWithSuffixToggle("(Tranposed)");
+        return output;
     }
 
     void UpdateNameWithSuffixToggle (string suffix) {

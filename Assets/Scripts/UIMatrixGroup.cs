@@ -56,7 +56,7 @@ public class UIMatrixGroup : MonoBehaviour {
         get {
             var outputMatrix = Matrix4x4.identity;
             for(int i=0; i<matrices.Count; i++){
-                outputMatrix = outputMatrix * matrices[i].MatrixValue;
+                outputMatrix = outputMatrix * matrices[matrixScreen.OpenGLMode ? matrices.Count - i - 1 : i].MatrixValue;
             }
             return outputMatrix;
         }
@@ -66,7 +66,7 @@ public class UIMatrixGroup : MonoBehaviour {
         get {
             var outputMatrix = Matrix4x4.identity;
             for(int i=0; i<matrices.Count; i++){
-                outputMatrix = outputMatrix * matrices[i].WeightedMatrixValue;
+                outputMatrix = outputMatrix * matrices[matrixScreen.OpenGLMode ? matrices.Count - i - 1 : i].WeightedMatrixValue;
             }
             return outputMatrix;
         }
@@ -128,9 +128,15 @@ public class UIMatrixGroup : MonoBehaviour {
         float x = 0f;
         for(int i=0; i<matrixCount; i++){
             x += horizontalMatrixMargin;
-            matrices[i].rectTransform.SetAnchor(new Vector2(0, 1));
-            matrices[i].rectTransform.pivot = new Vector2(0, 1);
-            matrices[i].rectTransform.anchoredPosition = new Vector2(x, -verticalMatrixMargin);
+            if(matrixScreen.OpenGLMode){
+                matrices[i].rectTransform.SetAnchor(new Vector2(1, 1));
+                matrices[i].rectTransform.pivot = new Vector2(1, 1);
+                matrices[i].rectTransform.anchoredPosition = new Vector2(-x, -verticalMatrixMargin);
+            }else{
+                matrices[i].rectTransform.SetAnchor(new Vector2(0, 1));
+                matrices[i].rectTransform.pivot = new Vector2(0, 1);
+                matrices[i].rectTransform.anchoredPosition = new Vector2(x, -verticalMatrixMargin);
+            }
             x += matrices[i].rectTransform.rect.width;
             x += horizontalMatrixMargin;
             if(i+1 < matrixCount){
@@ -177,9 +183,9 @@ public class UIMatrixGroup : MonoBehaviour {
         var newMatrix = Instantiate(matrixPrefab);
         newMatrix.rectTransform.SetParent(contentRT, false);
         newMatrix.rectTransform.localScale = Vector3.one;
-        newMatrix.Initialize(config, editability, false);
         newMatrix.matrixScreen = this.matrixScreen;
         newMatrix.matrixGroup = this;
+        newMatrix.Initialize(config, editability, false);
         if(index < matrices.Count){
             matrices.Insert(index, newMatrix);
         }else{

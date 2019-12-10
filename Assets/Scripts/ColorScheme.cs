@@ -137,22 +137,22 @@ public class ColorScheme : ScriptableObject {
     public Color MatrixScreenBottomAreaToggleHover => matrixScreenBottomAreaToggleHover;
     public Color MatrixScreenBottomAreaToggleClick => matrixScreenBottomAreaToggleClick;
 
-    [Header("Matrix Screen Camera Controllers")]
-    [SerializeField] Color matrixCamControllerLabel;
-    [SerializeField] Color matrixCamControllerToggleIconInactive;
-    [SerializeField] Color matrixCamControllerToggleIconActive;
-    [SerializeField] Color matrixCamControllerToggleBackgroundInactive;
-    [SerializeField] Color matrixCamControllerToggleBackgroundActive;
-    [SerializeField] Color matrixCamControllerToggleHover;
-    [SerializeField] Color matrixCamControllerToggleClick;
+    [Header("Matrix Screen Window Elements")]
+    [SerializeField] Color matrixWindowLabel;
+    [SerializeField] Color matrixWindowButtonIconInactive;
+    [SerializeField] Color matrixWindowButtonIconActive;
+    [SerializeField] Color matrixWindowButtonBackgroundInactive;
+    [SerializeField] Color matrixWindowButtonBackgroundActive;
+    [SerializeField] Color matrixWindowButtonHover;
+    [SerializeField] Color matrixWindowButtonClick;
 
-    public Color MatrixCamControllerLabel => matrixCamControllerLabel;
-    public Color MatrixCamControllerToggleIconInactive => matrixCamControllerToggleIconInactive;
-    public Color MatrixCamControllerToggleIconActive => matrixCamControllerToggleIconActive;
-    public Color MatrixCamControllerToggleBackgroundInactive => matrixCamControllerToggleBackgroundInactive;
-    public Color MatrixCamControllerToggleBackgroundActive => matrixCamControllerToggleBackgroundActive;
-    public Color MatrixCamControllerToggleHover => matrixCamControllerToggleHover;
-    public Color MatrixCamControllerToggleClick => matrixCamControllerToggleClick;
+    public Color MatrixWindowLabel => matrixWindowLabel;
+    public Color MatrixWindowButtonIconInactive => matrixWindowButtonIconInactive;
+    public Color MatrixWindowButtonIconActive => matrixWindowButtonIconActive;
+    public Color MatrixWindowButtonBackgroundInactive => matrixWindowButtonBackgroundInactive;
+    public Color MatrixWindowButtonBackgroundActive => matrixWindowButtonBackgroundActive;
+    public Color MatrixWindowButtonHover => matrixWindowButtonHover;
+    public Color MatrixWindowButtonClick => matrixWindowButtonClick;
 
     [Header("UI Matrix")]
     [SerializeField] Color[] uiMatrixHeaders;

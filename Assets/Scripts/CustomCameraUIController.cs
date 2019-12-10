@@ -8,10 +8,13 @@ public class CustomCameraUIController : ClickDragScrollHandler {
 
     const string renderCamLabelText = "Render View";
     const string externalCamLabelText = "External View";
-    const string renderCamLockedSuffix = "(Locked, use the matrices)";
+    const string renderCamLockedSuffix = "(Locked, use the matrices or deactivate free mode)";
 
     [Header("Prefabs")]
     [SerializeField] CustomGLCamera targetCamPrefab;
+
+    [Header("References")]
+    [SerializeField] MatrixScreenWindowDresser windowDresser;
 
     [Header("Settings")]
     [SerializeField] bool isExternalCamController;
@@ -31,11 +34,6 @@ public class CustomCameraUIController : ClickDragScrollHandler {
 
     [Header("UI Generation")]
     [SerializeField] RectTransform uiParent;
-    [SerializeField] TMP_FontAsset labelFont;
-    [SerializeField] float labelFontSize;
-    [SerializeField] float toggleSize;
-    [SerializeField] float toggleOffset;
-    [SerializeField] float toggleSeparatorOffset;
 
     bool initialized;
     bool m_canCurrentlyControlCamera;
@@ -96,61 +94,39 @@ public class CustomCameraUIController : ClickDragScrollHandler {
         targetCam.SetupViewportRect(new Rect(camRectPos, camRectSize));
         targetCam.LoadColors(ColorScheme.current);
         this.otherController = otherController;
-        SetupLabel();
-        SetupTogglesAndResetButton();
+
+        toggles = new List<Toggle>();
+        toggleBackgrounds = new List<Image>();
+        toggleIcons = new List<Image>();
+        CreateRightSideToggles();
+        CreateResetButtonAndLabel();
+
         initialized = true;
         LoadColors(ColorScheme.current);
 
-        void SetupLabel () {
-            label = new GameObject("Label", typeof(RectTransform), typeof(TextMeshProUGUI)).GetComponent<TextMeshProUGUI>();
-            label.rectTransform.SetParent(uiParent, false);
-            label.rectTransform.SetAnchor(0, 1);
-            label.rectTransform.SetPivot(0, 1);
-            label.enableWordWrapping = false;
-            label.overflowMode = TextOverflowModes.Overflow;
-            label.font = labelFont;
-            label.fontSize = labelFontSize;
-            label.raycastTarget = false;
-            if(isExternalCamController){
-                label.text = externalCamLabelText;
-            }else{
-                label.text = renderCamLabelText;
-            }
-        }
-
-        void SetupTogglesAndResetButton () {
-            toggles = new List<Toggle>();
-            toggleBackgrounds = new List<Image>();
-            toggleIcons = new List<Image>();
+        void CreateRightSideToggles () {
+            windowDresser.Begin(uiParent, new Vector2(1, 1), new Vector2(0, -1), Vector2.zero);
             int toggleIndex = 0;
-            float y = 0;
             wireToggle = CreateSpecialToggle(UISprites.MCamCtrlDrawWireframe, "Wireframe", "Toggles wireframe drawing", (b) => {
                 targetCam.drawObjectAsWireFrame = b;
                 otherController.WireToggled(b);
-            }, false);
-            y -= toggleSeparatorOffset;
+            }, false, offsetAfter: true);
             CreateSpecialToggle(UISprites.MCamCtrlDrawFloor, "Grid", "Toggles drawing the grid floor", (b) => {targetCam.drawGridFloor = b;}, !isExternalCamController);
             CreateSpecialToggle(UISprites.MCamCtrlDrawOrigin, "Origin", "Toggles drawing the origin", (b) => {targetCam.drawOrigin = b;}, isExternalCamController);
-            CreateSpecialToggle(UISprites.MCamCtrlDrawSeeThrough, "XRay", "Toggles see-through drawing for all wireframe gizmos", (b) => {targetCam.drawSeeThrough = b;}, false);
-            if(targetCam.IsExternalCamera){
-                y -= toggleSeparatorOffset;
+            CreateSpecialToggle(UISprites.MCamCtrlDrawSeeThrough, "XRay", "Toggles see-through drawing for all wireframe gizmos", (b) => {targetCam.drawSeeThrough = b;}, false, offsetAfter: isExternalCamController);
+            if(targetCam.IsExternalCamera){     
                 CreateSpecialToggle(UISprites.MCamCtrlDrawCamera, "Cam", "Toggles drawing the other camera", (b) => {targetCam.drawCamera = b;}, true);
                 CreateSpecialToggle(UISprites.MCamCtrlDrawClipBox, "ClipBox", "Toggles drawing the clip space area", (b) => {targetCam.drawClipSpace = b;}, true);
                 CreateSpecialToggle(UISprites.MCamCtrlShowCulling, "ShowClip", "Toggles culling visualization", (b) => {targetCam.showClipping = b;}, true);
             }
-            CreateResetButton();
+            windowDresser.End();
 
-            Toggle CreateSpecialToggle (Sprite icon, string toggleName, string hoverMessage, System.Action<bool> onStateChange, bool initialState) {
+            Toggle CreateSpecialToggle (Sprite icon, string toggleName, string hoverMessage, System.Action<bool> onStateChange, bool initialState, bool offsetAfter = false) {
                 // setting up position and looks
-                var newToggleRT = CreateThingWithIcon(icon, toggleName, hoverMessage, out var newToggleIcon, out var newToggleBackground);
-                newToggleRT.localScale = Vector3.one;
-                newToggleRT.SetAnchor(1, 1);
-                newToggleRT.SetPivot(1, 1);
-                newToggleRT.sizeDelta = Vector2.one * toggleSize;
-                newToggleRT.anchoredPosition = new Vector2(0, y);
-                // setting up the toggle itself
+                var newToggleRT = windowDresser.CreateCircleWithIcon(icon, toggleName, hoverMessage, out var newToggleIcon, out var newToggleBackground, offsetAfter);
+                // setting up the actual toggle
                 newToggleRT.gameObject.AddComponent(typeof(Toggle));
-                var newToggle = newToggleRT.gameObject.GetComponent<Toggle>();
+                var newToggle = newToggleRT.GetComponent<Toggle>();
                 newToggle.targetGraphic = newToggleBackground;
                 newToggle.isOn = initialState;
                 var indexCopy = toggleIndex;
@@ -159,57 +135,28 @@ public class CustomCameraUIController : ClickDragScrollHandler {
                     onStateChange?.Invoke(newVal);
                 });
                 onStateChange?.Invoke(initialState);
-                // saving to the lists, updating index and y
+                // saving to the lists, updating index
                 toggles.Add(newToggle);
                 toggleBackgrounds.Add(newToggleBackground);
                 toggleIcons.Add(newToggleIcon);
                 toggleIndex++;
-                y -= (toggleSize + toggleOffset);
                 // output
                 return newToggle;
             }
+        }
 
-            void CreateResetButton () {
-                var newBtnRT = CreateThingWithIcon(UISprites.UIReset, "Reset", "Resets the view", out resetButtonIcon, out resetButtonBackground);
-                newBtnRT.localScale = Vector3.one;
-                newBtnRT.SetAnchor(0, 1);
-                newBtnRT.SetPivot(0, 1);
-                newBtnRT.sizeDelta = Vector2.one * toggleSize;
-                newBtnRT.anchoredPosition = Vector2.zero;
-                label.rectTransform.anchoredPosition += new Vector2(newBtnRT.rect.width + toggleOffset, 0f);    // a bit dirty but who gives a damn
-                // setting up the button
-                newBtnRT.gameObject.AddComponent<Button>();
-                resetButton = newBtnRT.gameObject.GetComponent<Button>();
-                resetButton.targetGraphic = resetButtonBackground;
-                resetButton.onClick.AddListener(() => {ResetCamera();});
-            }
-
-            RectTransform CreateThingWithIcon (Sprite icon, string thingName, string hoverMessage, out Image iconImage, out Image backgroundImage) {
-                // main creation
-                var newThingRT = new GameObject(thingName, typeof(RectTransform), typeof(Image), typeof(UIHoverEventCaller)).GetComponent<RectTransform>();
-                newThingRT.SetParent(uiParent, false);
-                // hover init
-                var newThingHover = newThingRT.gameObject.GetComponent<UIHoverEventCaller>();
-                newThingHover.SetActions(
-                    onHoverEnter: (ped) => {BottomLog.DisplayMessage(hoverMessage);},
-                    onHoverExit: (ped) => {BottomLog.ClearDisplay();}
-                );
-                // initializing and assigning the background image
-                backgroundImage = newThingRT.gameObject.GetComponent<Image>();
-                backgroundImage.sprite = UISprites.UICircle;
-                backgroundImage.raycastTarget = true;
-                // the icon
-                var newThingIconRT = new GameObject("Icon", typeof(RectTransform), typeof(Image)).GetComponent<RectTransform>();
-                newThingIconRT.SetParent(newThingRT, false);
-                newThingIconRT.localScale = Vector3.one;
-                newThingIconRT.SetToFill();
-                // initializing and assigning the icon image
-                iconImage = newThingIconRT.gameObject.GetComponent<Image>();
-                iconImage.sprite = icon;
-                iconImage.raycastTarget = false;
-                // output
-                return newThingRT;
-            }
+        void CreateResetButtonAndLabel () {
+            windowDresser.Begin(uiParent, new Vector2(0, 1), new Vector2(1, 0), Vector2.zero);
+            // the reset button
+            var resetRT = windowDresser.CreateCircleWithIcon(UISprites.UIReset, "Reset", "Resets the view", out resetButtonIcon, out resetButtonBackground);
+            resetRT.gameObject.AddComponent<Button>();
+            resetButton = resetRT.GetComponent<Button>();
+            resetButton.targetGraphic = resetButtonBackground;
+            resetButton.onClick.AddListener(() => {ResetCamera();});
+            // the label
+            label = windowDresser.CreateLabel();
+            label.text = isExternalCamController ? externalCamLabelText : renderCamLabelText;
+            windowDresser.End();
         }
     }
 
@@ -250,13 +197,13 @@ public class CustomCameraUIController : ClickDragScrollHandler {
         if(!initialized){
             return;
         }
-        label.color = cs.MatrixCamControllerLabel;
-        toggleBackgroundActive = cs.MatrixCamControllerToggleBackgroundActive;
-        toggleBackgroundInactive = cs.MatrixCamControllerToggleBackgroundInactive;
-        toggleIconActive = cs.MatrixCamControllerToggleIconActive;
-        toggleIconInactive = cs.MatrixCamControllerToggleIconInactive;
+        label.color = cs.MatrixWindowLabel;
+        toggleBackgroundActive = cs.MatrixWindowButtonBackgroundActive;
+        toggleBackgroundInactive = cs.MatrixWindowButtonBackgroundInactive;
+        toggleIconActive = cs.MatrixWindowButtonIconActive;
+        toggleIconInactive = cs.MatrixWindowButtonIconInactive;
         for(int i=0; i<toggles.Count; i++){
-            toggles[i].SetFadeTransition(0f, Color.white, cs.MatrixCamControllerToggleHover, cs.MatrixCamControllerToggleClick, Color.magenta);
+            toggles[i].SetFadeTransition(0f, Color.white, cs.MatrixWindowButtonHover, cs.MatrixWindowButtonClick, Color.magenta);
             SetToggleColors(i);
         }
         LoadResetButtonColors(cs);
@@ -264,13 +211,13 @@ public class CustomCameraUIController : ClickDragScrollHandler {
 
     void LoadResetButtonColors (ColorScheme cs) {
         if(resetButton.interactable){
-            resetButtonBackground.color = cs.MatrixCamControllerToggleBackgroundActive;
-            resetButtonIcon.color = cs.MatrixCamControllerToggleIconActive;
+            resetButtonBackground.color = cs.MatrixWindowButtonBackgroundActive;
+            resetButtonIcon.color = cs.MatrixWindowButtonIconActive;
         }else{
-            resetButtonBackground.color = cs.MatrixCamControllerToggleBackgroundInactive;
-            resetButtonIcon.color = cs.MatrixCamControllerToggleIconInactive;
+            resetButtonBackground.color = cs.MatrixWindowButtonBackgroundInactive;
+            resetButtonIcon.color = cs.MatrixWindowButtonIconInactive;
         }
-        resetButton.SetFadeTransition(0f, Color.white, cs.MatrixCamControllerToggleHover, cs.MatrixCamControllerToggleClick, Color.white);
+        resetButton.SetFadeTransition(0f, Color.white, cs.MatrixWindowButtonHover, cs.MatrixWindowButtonClick, Color.white);
     }
 
     void Update () {

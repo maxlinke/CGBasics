@@ -11,7 +11,7 @@ public class MatrixScreen : MonoBehaviour {
     [SerializeField] UIMatrixGroup matrixGroupPrefab;
 
     [Header("Components")]
-    [SerializeField] WindowDresser windowDresser;
+    [SerializeField] MatrixWindowOverlay windowOverlay;
     [SerializeField] CustomCameraUIController matrixCamController;
     [SerializeField] CustomCameraUIController externalCamController;
     [SerializeField] Image backgroundImage;
@@ -30,12 +30,14 @@ public class MatrixScreen : MonoBehaviour {
     public UIMatrix ViewPosMatrix => viewPosMatrix;
     public UIMatrix ViewRotMatrix => viewRotMatrix;
     public UIMatrix ProjMatrix => projMatrix;
+    public PanAndZoom PanAndZoomController => panAndZoomController;
 
     private bool cantAddMoreMatrices => modelGroup.matrixCount + camGroup.matrixCount >= MAX_MATRIX_COUNT;
 
     public bool freeModeActivated { get; private set; }
 
     bool initialized;
+    bool m_openGLMode;
     UIMatrixGroup modelGroup;
     UIMatrixGroup camGroup;
     UIMatrix viewPosMatrix;
@@ -45,6 +47,17 @@ public class MatrixScreen : MonoBehaviour {
 
     float currentLinearWeight;
     float currentWeightTarget;
+
+    public bool OpenGLMode {
+        get {
+            return m_openGLMode;
+        } set {
+            m_openGLMode = value;
+            AlignMatrixGroups();
+            ActivateNonFreeMode();
+            // TODO the slider too
+        }
+    }
 
     void OnEnable () {
         if(!initialized){
@@ -92,6 +105,8 @@ public class MatrixScreen : MonoBehaviour {
             Debug.LogWarning($"Duplicate init call for {nameof(MatrixScreen)}, aborting!", this.gameObject);
             return;
         }
+        m_openGLMode = false;
+        windowOverlay.Initialize(this);
         matrixCamController.Initialize(this, externalCamController);
         externalCamController.Initialize(this, matrixCamController);
         centerBottomPopup.Initialize(this, (newVal) => {
@@ -103,15 +118,13 @@ public class MatrixScreen : MonoBehaviour {
         modelGroup.SetName("Model");
         camGroup = CreateMatrixGroup(leftSide: false);
         camGroup.SetName("Camera");
+        AlignMatrixGroups();
         ActivateNonFreeMode();
         initialized = true;
 
         UIMatrixGroup CreateMatrixGroup (bool leftSide) {
             var newGroup = Instantiate(matrixGroupPrefab);
             newGroup.rectTransform.SetParent(uiMatrixParent, false);
-            newGroup.rectTransform.SetAnchor(0.5f * Vector2.one);
-            newGroup.rectTransform.pivot = new Vector2(leftSide ? 1f : 0f, 0.5f);
-            newGroup.rectTransform.anchoredPosition = new Vector2((leftSide ? -1f : 1f) * (matrixGroupMargin + multiplicationSignSize / 2f), 0f);
             newGroup.rectTransform.localScale = Vector3.one;
             newGroup.Initialize(this);
             return newGroup;
@@ -132,6 +145,20 @@ public class MatrixScreen : MonoBehaviour {
             multiplicationSignImage = mulSignRT.gameObject.GetComponent<Image>();
             multiplicationSignImage.sprite = UISprites.MatrixMultiply;
         }
+    }
+
+    void AlignMatrixGroups () {
+        Vector2 anchor = new Vector2(0.5f, 0.5f);
+        Vector2 leftPivot = new Vector2(1f, 0.5f);
+        Vector2 rightPivot = new Vector2(0f, 0.5f);
+        Vector2 leftPos = new Vector2(-1f * (matrixGroupMargin + multiplicationSignSize / 2f), 0f);
+        Vector2 rightPos = new Vector2(1f * (matrixGroupMargin + multiplicationSignSize / 2f), 0f);
+        modelGroup.rectTransform.SetAnchor(anchor);
+        modelGroup.rectTransform.pivot = (OpenGLMode ? rightPivot : leftPivot);
+        modelGroup.rectTransform.anchoredPosition = (OpenGLMode ? rightPos : leftPos);
+        camGroup.rectTransform.SetAnchor(anchor);
+        camGroup.rectTransform.pivot = (OpenGLMode ? leftPivot : rightPivot);
+        camGroup.rectTransform.anchoredPosition= (OpenGLMode ? leftPos : rightPos);
     }
 
     public void ActivateNonFreeMode () {
@@ -198,6 +225,7 @@ public class MatrixScreen : MonoBehaviour {
             b.color = cs.MatrixScreenBorderColor;
         }
         centerBottomPopup.LoadColors(cs);
+        windowOverlay.LoadColors(cs);
     }
 
     public void AddMatrix (UIMatrix callingMatrix) {

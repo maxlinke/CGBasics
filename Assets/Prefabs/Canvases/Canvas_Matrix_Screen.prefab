@@ -553,6 +553,7 @@ GameObject:
   - component: {fileID: 2677544505658072110}
   - component: {fileID: 2677544505658072109}
   - component: {fileID: 2677544505658072108}
+  - component: {fileID: 146898259227228654}
   m_Layer: 5
   m_Name: Canvas_Matrix_Screen
   m_TagString: Untagged
@@ -659,7 +660,7 @@ MonoBehaviour:
     type: 3}
   matrixGroupPrefab: {fileID: 8357111656008610867, guid: 062239a19e0604c4b8d77ca2704cd485,
     type: 3}
-  windowDresser: {fileID: 0}
+  windowOverlay: {fileID: 146898259227228654}
   matrixCamController: {fileID: 1308221943000780195}
   externalCamController: {fileID: 3177943752331237449}
   backgroundImage: {fileID: 8344668593284754150}
@@ -675,6 +676,20 @@ MonoBehaviour:
   weightLerpDeltaPerSecond: 7.5
   multiplicationSignSize: 40
   matrixGroupMargin: 20
+--- !u!114 &146898259227228654
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2677544505658072107}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 85bc0a98161870442abc2b90453f92c2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  windowDresser: {fileID: 5918332399242812913}
+  uiParent: {fileID: 2084143777903233601}
 --- !u!1 &2677544506591979178
 GameObject:
   m_ObjectHideFlags: 0
@@ -2464,12 +2479,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 10839e149377d5e4f9656f73ce61ff19, type: 3}
---- !u!224 &6320155693885880309 stripped
-RectTransform:
-  m_CorrespondingSourceObject: {fileID: 4692523703009036164, guid: 10839e149377d5e4f9656f73ce61ff19,
-    type: 3}
-  m_PrefabInstance: {fileID: 1633264514093723761}
-  m_PrefabAsset: {fileID: 0}
 --- !u!114 &5918332399242812913 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 4938380170915687808, guid: 10839e149377d5e4f9656f73ce61ff19,
@@ -2482,3 +2491,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1309a365052f56a45a3cef1938bfecc3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!224 &6320155693885880309 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 4692523703009036164, guid: 10839e149377d5e4f9656f73ce61ff19,
+    type: 3}
+  m_PrefabInstance: {fileID: 1633264514093723761}
+  m_PrefabAsset: {fileID: 0}

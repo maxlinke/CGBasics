@@ -24,7 +24,8 @@ namespace MatrixScreenUtils {
             toggleBackgrounds = new List<Image>();
             toggleIcons = new List<Image>();
             CreateRightSideToggles();
-            CreateResetButtonAndLabel("Resets the view", camController.ResetCamera);
+            var initLabelText = camController.IsExternalCamController ? externalCamLabelText : renderCamLabelText;
+            CreateResetButtonAndLabel(initLabelText, "Resets the view", camController.ResetCamera);
 
             initialized = true;
 
@@ -62,11 +63,6 @@ namespace MatrixScreenUtils {
                 return;
             }
             base.LoadColors(cs);
-        }
-
-        protected override void CreateResetButtonAndLabel (string hoverMessage, System.Action onResetButtonClicked) {
-            base.CreateResetButtonAndLabel(hoverMessage, onResetButtonClicked);
-            label.text = camController.IsExternalCamController ? externalCamLabelText : renderCamLabelText;
         }
 
         protected override void OnResetButtonActiveStateChanged (bool value) {

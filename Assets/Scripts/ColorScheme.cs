@@ -139,6 +139,7 @@ public class ColorScheme : ScriptableObject {
 
     [Header("Matrix Screen Window Elements")]
     [SerializeField] Color matrixWindowLabel;
+    [SerializeField] Color matrixWindowLabelDropShadow;
     [SerializeField] Color matrixWindowButtonIconInactive;
     [SerializeField] Color matrixWindowButtonIconActive;
     [SerializeField] Color matrixWindowButtonBackgroundInactive;
@@ -147,6 +148,7 @@ public class ColorScheme : ScriptableObject {
     [SerializeField] Color matrixWindowButtonClick;
 
     public Color MatrixWindowLabel => matrixWindowLabel;
+    public Color MatrixWindowLabelDropShadow => matrixWindowLabelDropShadow;
     public Color MatrixWindowButtonIconInactive => matrixWindowButtonIconInactive;
     public Color MatrixWindowButtonIconActive => matrixWindowButtonIconActive;
     public Color MatrixWindowButtonBackgroundInactive => matrixWindowButtonBackgroundInactive;

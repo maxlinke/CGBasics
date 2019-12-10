@@ -26,12 +26,14 @@ namespace MatrixScreenUtils {
         protected Image resetButtonIcon;
 
         protected TextMeshProUGUI label;
+        protected TextMeshProUGUI labelDropShadow;
 
         public string labelText {
             get {
                 return label.text;
             } set {
                 label.text = value;
+                labelDropShadow.text = value;
             }
         }
 
@@ -47,6 +49,7 @@ namespace MatrixScreenUtils {
 
         public virtual void LoadColors (ColorScheme cs) {
             label.color = cs.MatrixWindowLabel;
+            labelDropShadow.color = cs.MatrixWindowLabelDropShadow;
             buttonIconActive = cs.MatrixWindowButtonIconActive;
             buttonIconInactive = cs.MatrixWindowButtonIconInactive;
             buttonBackgroundActive = cs.MatrixWindowButtonBackgroundActive;
@@ -75,7 +78,7 @@ namespace MatrixScreenUtils {
             SetColorsForActiveState(toggleBackgrounds[toggleIndex], toggleIcons[toggleIndex], toggles[toggleIndex].isOn);
         }
 
-        protected virtual void CreateResetButtonAndLabel (string hoverMessage, System.Action onResetButtonClicked) {
+        protected virtual void CreateResetButtonAndLabel (string initialLabelText, string hoverMessage, System.Action onResetButtonClicked) {
             windowDresser.Begin(uiParent, new Vector2(0, 1), new Vector2(1, 0), Vector2.zero);
             // the reset button
             var resetRT = windowDresser.CreateCircleWithIcon(UISprites.UIReset, "Reset", hoverMessage, out resetButtonIcon, out resetButtonBackground);
@@ -85,10 +88,14 @@ namespace MatrixScreenUtils {
             resetButton.onClick.AddListener(() => { onResetButtonClicked.Invoke(); });
             // the label
             label = windowDresser.CreateLabel();
+            labelDropShadow = Instantiate(label, label.rectTransform.parent);
+            labelDropShadow.rectTransform.SetSiblingIndex(label.rectTransform.GetSiblingIndex());
+            labelDropShadow.rectTransform.anchoredPosition += new Vector2(1, -1);
+            labelText = initialLabelText;
             windowDresser.End();
         }
 
-        protected virtual Toggle CreateSpecialToggle (ref int toggleIndex, Sprite icon, string toggleName, string hoverMessage, System.Action<bool> onStateChange, bool initialState, bool offsetAfter = false) {
+        protected virtual Toggle CreateSpecialToggle (ref int toggleIndex, Sprite icon, string toggleName, string hoverMessage, System.Action<bool> onStateChange, bool initialState, bool offsetAfter = false, bool invokeStateChange = true) {
             // setting up position and looks
             var newToggleRT = windowDresser.CreateCircleWithIcon(icon, toggleName, hoverMessage, out var newToggleIcon, out var newToggleBackground, offsetAfter);
             // setting up the actual toggle
@@ -101,7 +108,9 @@ namespace MatrixScreenUtils {
                 SetToggleColors(indexCopy);
                 onStateChange?.Invoke(newVal);
             });
-            onStateChange?.Invoke(initialState);
+            if(invokeStateChange){
+                onStateChange?.Invoke(initialState);
+            }
             // saving to the lists, updating index
             toggles.Add(newToggle);
             toggleBackgrounds.Add(newToggleBackground);

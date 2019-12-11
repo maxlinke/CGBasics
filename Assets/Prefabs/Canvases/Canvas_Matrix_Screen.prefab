@@ -1059,7 +1059,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
   m_AnchoredPosition: {x: -5, y: 0}
-  m_SizeDelta: {x: -20, y: 5}
+  m_SizeDelta: {x: -20, y: 4}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &4637032711885063637
 GameObject:
@@ -1094,8 +1094,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -7.5}
-  m_SizeDelta: {x: -30, y: -15}
+  m_AnchoredPosition: {x: 0, y: -5}
+  m_SizeDelta: {x: -20, y: -10}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &4643677175196293483
 GameObject:
@@ -1204,7 +1204,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 3}
+  m_SizeDelta: {x: 0, y: 4}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7182723191372955093
 CanvasRenderer:
@@ -1868,6 +1868,10 @@ MonoBehaviour:
   dividerRightMargin: 10
   matrixSliderMargin: 20
   sliderStepWidth: 25
+  notchSprite: {fileID: 21300000, guid: f3b630d7c030c0040904e426b33dd6cd, type: 3}
+  sliderNotchSize: {x: 8, y: 8}
+  sliderNotchOffset: {x: 0, y: 0}
+  doubleSidedNotches: 0
 --- !u!1 &7040549135652078121
 GameObject:
   m_ObjectHideFlags: 0
@@ -1931,7 +1935,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 6d5973b2c64c794488324ee422b91f3a, type: 3}
+  m_Sprite: {fileID: 21300000, guid: dafa76e9b31fa9d4bb9a3ede556441ea, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1

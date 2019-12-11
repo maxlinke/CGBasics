@@ -107,8 +107,25 @@ public static class Extensions {
         rt.SetAnchor(new Vector2(x, y));
     }
 
+    public static Vector2 AverageAnchor (this RectTransform rt) {
+        return 0.5f * rt.anchorMin + 0.5f * rt.anchorMax;
+    }
+
     public static void SetPivot (this RectTransform rt, float x, float y) {
         rt.pivot = new Vector2(x, y);
+    }
+
+    public static void MatchOther (this RectTransform rt, RectTransform otherRT, bool includingParent = true) {
+        if(includingParent){
+            rt.SetParent(otherRT.parent, false);
+        }
+        rt.localScale = otherRT.localScale;
+        rt.localRotation = otherRT.localRotation;
+        rt.anchorMin = otherRT.anchorMin;
+        rt.anchorMax = otherRT.anchorMax;
+        rt.pivot = otherRT.pivot;
+        rt.sizeDelta = otherRT.sizeDelta;
+        rt.anchoredPosition = otherRT.anchoredPosition;
     }
 
     public static void SetFadeTransition (this Selectable selectable, float fadeDuration, Color defaultColor, Color hoverColor, Color clickColor, Color disabledColor) {

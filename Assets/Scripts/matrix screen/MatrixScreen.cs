@@ -230,7 +230,8 @@ public class MatrixScreen : MonoBehaviour {
 
     public void AddMatrix (UIMatrix callingMatrix) {
         if(callingMatrix.matrixGroup.TryGetIndexOf(callingMatrix, out var index)){
-            callingMatrix.matrixGroup.CreateMatrixAtIndex(UIMatrices.MatrixConfig.identityConfig, UIMatrix.Editability.FULL, index + 1);
+            // callingMatrix.matrixGroup.CreateMatrixAtIndex(UIMatrices.MatrixConfig.identityConfig, UIMatrix.Editability.FULL, index + 1);
+            callingMatrix.matrixGroup.CreateMatrixAtIndex(UIMatrices.MatrixConfig.identityConfig, UIMatrix.Editability.FULL, index + (OpenGLMode ? 0 : 1));
             int realIndex = (callingMatrix.matrixGroup == modelGroup ? index : modelGroup.matrixCount + index);
             if(realIndex < currentLinearWeight){
                 currentLinearWeight += 1;

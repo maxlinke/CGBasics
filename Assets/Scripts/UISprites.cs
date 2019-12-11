@@ -26,13 +26,23 @@ public class UISprites : ScriptableObject {
     [Header("Generic Sprites")]
     [SerializeField] Sprite uiTemp;
     [SerializeField] Sprite uiCircle;
+    [SerializeField] Sprite uiCircleHighres;
     [SerializeField] Sprite uiReset;
     [SerializeField] Sprite uiCheckmark;
+    [SerializeField] Sprite uiDirLeft;
+    [SerializeField] Sprite uiDirUp;
+    [SerializeField] Sprite uiDirRight;
+    [SerializeField] Sprite uiDirDown;
 
     public static Sprite UITemp => instance.uiTemp;
     public static Sprite UICircle => instance.uiCircle;
+    public static Sprite UICircleHighres => instance.uiCircleHighres;
     public static Sprite UIReset => instance.uiReset;
     public static Sprite UICheckmark => instance.uiCheckmark;
+    public static Sprite UIDirLeft => instance.uiDirLeft;
+    public static Sprite UIDirUp => instance.uiDirUp;
+    public static Sprite UIDirRight => instance.uiDirRight;
+    public static Sprite UIDirDown => instance.uiDirDown;
 
     [Header("Matrix Screen")]
     [SerializeField] Sprite matrixScreenGL;

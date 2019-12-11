@@ -13,9 +13,14 @@ MonoBehaviour:
   m_Name: UI Sprite Collection
   m_EditorClassIdentifier: 
   uiTemp: {fileID: 21300000, guid: 2bbc50456c0a1b64ca5c547083dcf03a, type: 3}
-  uiCircle: {fileID: 21300000, guid: 6d5973b2c64c794488324ee422b91f3a, type: 3}
+  uiCircle: {fileID: 21300000, guid: dafa76e9b31fa9d4bb9a3ede556441ea, type: 3}
+  uiCircleHighres: {fileID: 21300000, guid: 6d5973b2c64c794488324ee422b91f3a, type: 3}
   uiReset: {fileID: 21300000, guid: 09bd65ce338df0447bd6527330855773, type: 3}
   uiCheckmark: {fileID: 21300000, guid: b6bb6007a7ec9384791c62917d7d513a, type: 3}
+  uiDirLeft: {fileID: 21300000, guid: 793e9b39e9678e34fa51a131fe25c476, type: 3}
+  uiDirUp: {fileID: 21300000, guid: 89d736c0e08e6334cae01ca56ab6645a, type: 3}
+  uiDirRight: {fileID: 21300000, guid: 9e7f40dddcd925d4b9b637a028439a8b, type: 3}
+  uiDirDown: {fileID: 21300000, guid: a3ef3307db3cc6b4682d85869df380d5, type: 3}
   matrixScreenGL: {fileID: 21300000, guid: 394626e89c6231b4d9f53b386944cd9f, type: 3}
   matrixLeft: {fileID: 21300000, guid: b4142fafa1a26f347aea8f8364dc157d, type: 3}
   matrixRight: {fileID: 21300000, guid: 2f78a6b7c627d354db3b0335ae765fca, type: 3}

@@ -116,7 +116,6 @@ namespace MatrixScreenUtils {
             UpdateNotchColors();
             if(alsoSetValue && newValue != -1){
                 matrixSlider.value = newValue;
-                // matrixSlider.onValueChanged.Invoke(matrixSlider.value);     // might not be necessary but it doesn't hurt or throw exceptions, so why bother?
             }
             matrixSliderRT.SetSizeDeltaX(newMaxVal * sliderStepWidth);
             matrixSliderRT.anchoredPosition = new Vector2(-matrixSliderMargin, 0f);

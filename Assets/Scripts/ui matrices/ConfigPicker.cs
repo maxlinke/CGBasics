@@ -1,8 +1,4 @@
-﻿using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.EventSystems;
-using TMPro;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace UIMatrices {
 

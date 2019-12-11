@@ -24,6 +24,7 @@ public static partial class StringExpressions {
     public static float ParseExpression (string inputExpression, Dictionary<string, float> variables) {
         PruneInputExpression();
         var postfix = InfixToPostfix(inputExpression, variables);
+        // Debug.Log(GetPostfixAsString(postfix));
         return EvaluatePostfix(postfix);
 
         void PruneInputExpression () {
@@ -41,7 +42,7 @@ public static partial class StringExpressions {
         Stack<Token> tempStack = new Stack<Token>();
         Queue<Token> postfix = new Queue<Token>();
         bool nextPlusOrMinusIsSignInsteadOfOperator = true;
-        float tempSign = 1;
+        // float tempSign = 1;
         while(inputExpression.Length > 0){
             char ch = inputExpression[0];
             if(IsOperatorChar(ch, true)){
@@ -54,7 +55,11 @@ public static partial class StringExpressions {
                     }
                     tempStack.Pop();
                 }else if((ch == '+' || ch == '-') && nextPlusOrMinusIsSignInsteadOfOperator){
-                    tempSign *= (ch == '-' ? -1 : 1);
+                    // tempSign *= (ch == '-' ? -1 : 1);
+                    if(ch == '-'){
+                        postfix.Enqueue(new NumberToken(-1));
+                        inputExpression = inputExpression.Insert(1, "*");
+                    }
                 }else{
                     if(tempStack.Count > 0){
                         if(OutStackPrecedence(ch) > InStackPrecedence(tempStack.Peek())){
@@ -73,8 +78,8 @@ public static partial class StringExpressions {
                 inputExpression = inputExpression.Substring(1);
             }else{
                 inputExpression = ParseAndRemoveOperand(inputExpression, out float parsedOperand, variables);
-                parsedOperand *= tempSign;
-                tempSign = 1;
+                // parsedOperand *= tempSign;
+                // tempSign = 1;
                 nextPlusOrMinusIsSignInsteadOfOperator = false;
                 postfix.Enqueue(new NumberToken(parsedOperand));
             }
@@ -84,6 +89,16 @@ public static partial class StringExpressions {
             postfix.Enqueue(tempStack.Pop());
         }
         return postfix;
+    }
+
+    private static string GetPostfixAsString (Queue<Token> postfix){
+        var output = string.Empty;
+        for(int i=0; i<postfix.Count; i++){
+            var tok = postfix.Dequeue();
+            output += $"{tok.GetPrintString()}, ";
+            postfix.Enqueue(tok);
+        }
+        return output;
     }
 
     private static float EvaluatePostfix (Queue<Token> postfix) {

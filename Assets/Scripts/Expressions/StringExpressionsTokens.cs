@@ -4,6 +4,8 @@
 
         public abstract bool Equals (char ch);
 
+        public abstract string GetPrintString ();
+
     }
 
     private class NumberToken : Token {
@@ -16,6 +18,10 @@
 
         public override bool Equals (char ch) {
             return false;
+        }
+
+        public override string GetPrintString () {
+            return value.ToString();
         }
     }
 
@@ -32,6 +38,10 @@
 
         public override bool Equals (char ch) {
             return ch == this.value;
+        }
+
+        public override string GetPrintString () {
+            return value.ToString();
         }
     }
 	

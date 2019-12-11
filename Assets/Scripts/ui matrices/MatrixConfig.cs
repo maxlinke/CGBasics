@@ -413,7 +413,7 @@ namespace UIMatrices {
             private List<string> matrix = new List<string>(){
                 $"2 / ({orthoSize} * {aspect})", "0", "0", "0",
                 "0", $"2 / {orthoSize}", "0", "0",
-                "0", "0", $"-2 / ({farClip} - {nearClip})", "0",
+                "0", "0", $"2 / ({farClip} - {nearClip})", "0",
                 "0", "0", $"-({farClip} + {nearClip}) / ({farClip} - {nearClip})", "1"
             };
 

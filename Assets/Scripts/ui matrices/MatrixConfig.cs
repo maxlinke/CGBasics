@@ -13,40 +13,23 @@ namespace UIMatrices {
             RotationY,
             RotationZ,
             Rebase,
-            PerspProj
+            PerspProj,
+            OrthoProj
         }
 
         private static Dictionary<Type, MatrixConfig> map;
 
-        private static IdentityConfig m_identityConfig;
-        public static IdentityConfig identityConfig => m_identityConfig;
-
-        private static TranslationConfig m_translationConfig;
-        public static TranslationConfig translationConfig => m_translationConfig;
-
-        private static InverseTranslationConfig m_inverseTranslationConfig;
-        public static InverseTranslationConfig inverseTranslationConfig => m_inverseTranslationConfig;
-
-        private static FullEulerRotationConfig m_fullRotationConfig;
-        public static FullEulerRotationConfig fullRotationConfig => m_fullRotationConfig;
-
-        private static ScaleConfig m_scaleConfig;
-        public static ScaleConfig scaleConfig => m_scaleConfig;
-
-        private static XRotConfig m_xRotConfig;
-        public static XRotConfig xRotConfig => m_xRotConfig;
-
-        private static YRotConfig m_yRotConfig;
-        public static YRotConfig yRotConfig => m_yRotConfig;
-
-        private static ZRotConfig m_zRotConfig;
-        public static ZRotConfig zRotConfig => m_zRotConfig;
-
-        private static RebaseConfig m_rebaseConfig;
-        public static RebaseConfig rebaseConfig => m_rebaseConfig;
-
-        private static PerspectiveProjectionConfig m_perspProjConfig;
-        public static PerspectiveProjectionConfig perspProjConfig => m_perspProjConfig;
+        public static IdentityConfig identityConfig { get; private set; }
+        public static TranslationConfig translationConfig { get; private set; }
+        public static InverseTranslationConfig inverseTranslationConfig { get; private set; }
+        public static FullEulerRotationConfig fullRotationConfig { get; private set; }
+        public static ScaleConfig scaleConfig { get; private set; }
+        public static XRotConfig xRotConfig { get; private set; }
+        public static YRotConfig yRotConfig { get; private set; }
+        public static ZRotConfig zRotConfig { get; private set; }
+        public static RebaseConfig rebaseConfig { get; private set; }
+        public static PerspectiveProjectionConfig perspProjConfig { get; private set; }
+        public static OrthographicProjectionConfig orthoProjConfig { get; private set; }
 
         public abstract string name { get; }
         public abstract string description { get; }
@@ -55,26 +38,28 @@ namespace UIMatrices {
 
         static MatrixConfig () {
             map = new Dictionary<Type, MatrixConfig>();
-            m_identityConfig = new IdentityConfig();
-            map.Add(Type.Identity, m_identityConfig);
-            m_translationConfig = new TranslationConfig();
-            map.Add(Type.Translation, m_translationConfig);
-            m_scaleConfig = new ScaleConfig();
-            map.Add(Type.Scale, m_scaleConfig);
-            m_fullRotationConfig = new FullEulerRotationConfig();
-            map.Add(Type.RotationZXY, m_fullRotationConfig);
-            m_xRotConfig = new XRotConfig();
-            map.Add(Type.RotationX, m_xRotConfig);
-            m_yRotConfig = new YRotConfig();
-            map.Add(Type.RotationY, m_yRotConfig);
-            m_zRotConfig = new ZRotConfig();
-            map.Add(Type.RotationZ, m_zRotConfig);
-            m_rebaseConfig = new RebaseConfig();
-            map.Add(Type.Rebase, m_rebaseConfig);
-            m_perspProjConfig = new PerspectiveProjectionConfig();
-            map.Add(Type.PerspProj, m_perspProjConfig);
+            identityConfig = new IdentityConfig();
+            map.Add(Type.Identity, identityConfig);
+            translationConfig = new TranslationConfig();
+            map.Add(Type.Translation, translationConfig);
+            scaleConfig = new ScaleConfig();
+            map.Add(Type.Scale, scaleConfig);
+            fullRotationConfig = new FullEulerRotationConfig();
+            map.Add(Type.RotationZXY, fullRotationConfig);
+            xRotConfig = new XRotConfig();
+            map.Add(Type.RotationX, xRotConfig);
+            yRotConfig = new YRotConfig();
+            map.Add(Type.RotationY, yRotConfig);
+            zRotConfig = new ZRotConfig();
+            map.Add(Type.RotationZ, zRotConfig);
+            rebaseConfig = new RebaseConfig();
+            map.Add(Type.Rebase, rebaseConfig);
+            perspProjConfig = new PerspectiveProjectionConfig();
+            map.Add(Type.PerspProj, perspProjConfig);
+            orthoProjConfig = new OrthographicProjectionConfig();
+            map.Add(Type.OrthoProj, orthoProjConfig);
             // the non-enum ones
-            m_inverseTranslationConfig = new InverseTranslationConfig();
+            inverseTranslationConfig = new InverseTranslationConfig();
         }
 
         public static MatrixConfig GetForType (Type type) {
@@ -418,7 +403,33 @@ namespace UIMatrices {
 
         }
 
-        // TODO ortho projection
+        public class OrthographicProjectionConfig : MatrixConfig {
+
+            public const string orthoSize = "orthoSize";
+            public const string aspect = "aspect";
+            public const string nearClip = "nearClip";
+            public const string farClip = "farClip";
+
+            private List<string> matrix = new List<string>(){
+                $"2 / ({orthoSize} * {aspect})", "0", "0", "0",
+                "0", $"2 / {orthoSize}", "0", "0",
+                "0", "0", $"-2 / ({farClip} - {nearClip})", "0",
+                "0", "0", $"-({farClip} + {nearClip}) / ({farClip} - {nearClip})", "1"
+            };
+
+            private List<VarPreset> varPresets = new List<VarPreset>(){
+                new VarPreset(orthoSize, 3),
+                new VarPreset(aspect, 16f/9f),  // this one will have to be set via script from the camera, as long as it is in control
+                new VarPreset(nearClip, 0.5f),
+                new VarPreset(farClip, 10f)
+            };
+
+            public override string name => "Orthographic Projection";
+            public override string description => "A projection matrix without perspective distortion. ";
+            public override VarPreset[] defaultVariables => varPresets.ToArray();
+            public override string[] fieldStrings => matrix.ToArray();
+
+        }
 
     #endregion
 

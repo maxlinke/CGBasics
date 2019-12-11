@@ -6,16 +6,40 @@ namespace MatrixScreenUtils {
 
     public class MatrixWindowOverlay : WindowOverlay {
 
+        private const string resetWarning = "(Resets matrix view)";
+
         private bool initialized = false;
 
-        public void Initialize (MatrixScreen matrixScreen) {
+        public Toggle glToggle { get; private set; }
+        public Toggle orthoToggle { get; private set; }
+
+        public void Initialize (MatrixScreen matrixScreen, bool glInit, System.Action<bool> onGLToggled, bool orthoInit, System.Action<bool> onOrthoToggled) {
             toggles = new List<Toggle>();
             toggleBackgrounds = new List<Image>();
             toggleIcons = new List<Image>();
 
             int toggleIndex = 0;
             windowDresser.Begin(uiParent, new Vector2(1, 1), new Vector2(0, -1), new Vector2(0, 0));
-            CreateSpecialToggle(ref toggleIndex, UISprites.MatrixScreenGL, "OpenGLMode", "Toggle Open GL Mode (Resets matrix view)", (b) => {matrixScreen.OpenGLMode = b;}, matrixScreen.OpenGLMode, false, invokeStateChange: false);
+            glToggle = CreateSpecialToggle(
+                ref toggleIndex, 
+                icon: UISprites.MatrixScreenGL, 
+                toggleName: "OpenGLMode", 
+                hoverMessage: $"Toggle Open GL Mode {resetWarning}", 
+                onStateChange: onGLToggled,
+                initialState: glInit, 
+                offsetAfter: false, 
+                invokeStateChange: false
+            );
+            orthoToggle = CreateSpecialToggle(
+                ref toggleIndex, 
+                icon: UISprites.MatrixScreenOrtho, 
+                toggleName: "OrthoMode", 
+                hoverMessage: $"Toggles between orthographic and perspective projection {resetWarning}", 
+                onStateChange: onOrthoToggled,
+                initialState: orthoInit, 
+                offsetAfter: false, 
+                invokeStateChange: false
+            );
             windowDresser.End();
             CreateResetButtonAndLabel("Matrix View", "Resets the view", matrixScreen.PanAndZoomController.ResetView);
 

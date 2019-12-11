@@ -29,6 +29,7 @@ public class CustomCameraUIController : ClickDragScrollHandler {
     [SerializeField] Vector2 camRectPos;
     [SerializeField] Vector2 camRectSize;
     [SerializeField] float camDefaultFOV;
+    [SerializeField] float camDefaultOrthoSize;
     [SerializeField] float camDefaultNearClip;
     [SerializeField] float camDefaultFarClip;
     [SerializeField] Vector3 camDefaultPosition;
@@ -38,6 +39,7 @@ public class CustomCameraUIController : ClickDragScrollHandler {
     Vector3 pivotPoint; 
     PointerType currentPointerType;
     Vector3 lastMousePos;
+    MatrixScreen matrixScreen;
 
     public bool CanCurrentlyControlCamera { 
         get {
@@ -61,6 +63,7 @@ public class CustomCameraUIController : ClickDragScrollHandler {
             Debug.LogError("Duplicate init call! Aborting...", this.gameObject);
             return;
         }
+        this.matrixScreen = matrixScreen;
         this.otherController = otherController;
         targetCam = Instantiate(targetCamPrefab);
         targetCam.Initialize(
@@ -70,7 +73,8 @@ public class CustomCameraUIController : ClickDragScrollHandler {
             inputFOV: camDefaultFOV,
             inputNearClip: camDefaultNearClip,
             inputFarClip: camDefaultFarClip,
-            inputStartPos: camDefaultPosition
+            inputStartPos: camDefaultPosition,
+            inputOrthoSize: camDefaultOrthoSize
         );
         targetCam.SetupViewportRect(new Rect(camRectPos, camRectSize));
         targetCam.LoadColors(ColorScheme.current);
@@ -124,12 +128,20 @@ public class CustomCameraUIController : ClickDragScrollHandler {
             }
             lastMousePos = currentMousePos;
         }
-        EnsureCameraLookingAtPivot();
+        EnsurePivotIsCenteredInClipSpace();
 
         targetCam.drawPivot = currentPointerType != PointerType.None;
         targetCam.pivotPointToDraw = pivotPoint;
 
-        void EnsureCameraLookingAtPivot () {
+        void EnsurePivotIsCenteredInClipSpace () {
+            if(!isExternalCamController && matrixScreen.OrthoMode){
+                var offsetDir = (pivotPoint - targetCam.transform.position).normalized;
+                var near = targetCam.transform.position + (targetCam.nearClipPlane * offsetDir);
+                var far = targetCam.transform.position + (targetCam.farClipPlane * offsetDir);
+                var avg = (near + far) / 2f;
+                var delta = pivotPoint - avg;
+                targetCam.transform.position += delta;
+            }
             Vector3 origUp = targetCam.transform.up;
             Vector3 customUp;
             if(Mathf.Abs(origUp.y) > 0.1f){
@@ -156,20 +168,28 @@ public class CustomCameraUIController : ClickDragScrollHandler {
 
     void Zoom (float zoomAmount) {
         zoomAmount *= InputSystem.shiftCtrlMultiplier;
-        float currentDistToPivot = (targetCam.transform.position - pivotPoint).magnitude;
-        float nearPlaneDist = targetCam.nearClipPlane;
-        float farPlaneDist = targetCam.farClipPlane;
-        float tempDist = zoomAmount * scrollSensitivity * GetPivotDistanceScale();
-        float moveDist;
-        if(tempDist > 0f){
-            moveDist = Mathf.Clamp(tempDist, Mathf.NegativeInfinity, currentDistToPivot - nearPlaneDist);
-        }else if(tempDist < 0f){
-            moveDist = Mathf.Clamp(tempDist, currentDistToPivot - (2f * farPlaneDist), Mathf.Infinity);
+        if(matrixScreen.OrthoMode && !isExternalCamController){
+            float currentOrthoSize = targetCam.orthoSize;
+            float tempDelta = -zoomAmount * currentOrthoSize * 0.1f;
+            targetCam.orthoSize = Mathf.Clamp(currentOrthoSize + tempDelta, 0.5f, 20f);
+            float orthoFact = targetCam.orthoSize / camDefaultOrthoSize;
+            targetCam.farClipPlane = orthoFact * camDefaultFarClip;
         }else{
-            moveDist = 0f;
+            float currentDistToPivot = (targetCam.transform.position - pivotPoint).magnitude;       // TODO maybe also just change the far clip plane here and let the pivot center thingy take care of the position?
+            float nearPlaneDist = targetCam.nearClipPlane;
+            float farPlaneDist = targetCam.farClipPlane;
+            float tempDist = zoomAmount * scrollSensitivity * GetPivotDistanceScale();
+            float moveDist;
+            if(tempDist > 0f){
+                moveDist = Mathf.Clamp(tempDist, Mathf.NegativeInfinity, currentDistToPivot - nearPlaneDist);
+            }else if(tempDist < 0f){
+                moveDist = Mathf.Clamp(tempDist, currentDistToPivot - (2f * farPlaneDist), Mathf.Infinity);
+            }else{
+                moveDist = 0f;
+            }
+            Vector3 moveDelta = targetCam.transform.forward * moveDist;
+            targetCam.transform.position += moveDelta;
         }
-        Vector3 moveDelta = targetCam.transform.forward * moveDist;
-        targetCam.transform.position += moveDelta;
     }
 
     float GetPivotDistanceScale () {

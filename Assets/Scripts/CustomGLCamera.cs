@@ -18,20 +18,43 @@ public class CustomGLCamera : MonoBehaviour {
     private Mesh currentMesh;
 
     public float nearClipPlane { 
-        get { return attachedUnityCam.nearClipPlane; }
-        set { attachedUnityCam.nearClipPlane = value; }
+        get {
+            return attachedUnityCam.nearClipPlane;
+        } set {
+            attachedUnityCam.nearClipPlane = value;
+        }
     }
-    public float farClipPlane {
-        get { return attachedUnityCam.farClipPlane; }
-        set { attachedUnityCam.farClipPlane = value; }
+
+    public float farClipPlane { 
+        get {
+            return attachedUnityCam.farClipPlane;
+        } set {
+            attachedUnityCam.farClipPlane = value;
+        }
     }
-    public float fieldOfView {
-        get { return attachedUnityCam.fieldOfView; }
-        set { attachedUnityCam.fieldOfView = value; }
+
+    public float fieldOfView { 
+        get {
+            return attachedUnityCam.fieldOfView;
+        } set {
+            attachedUnityCam.fieldOfView = value;
+        }
     }
-    public float aspect {
-        get { return attachedUnityCam.aspect; }
-        set { attachedUnityCam.aspect = value; }
+
+    public float orthoSize { 
+        get {
+            return attachedUnityCam.orthographicSize;
+        } set {
+            attachedUnityCam.orthographicSize = value;
+        }
+    }
+
+    public float aspect { 
+        get {
+            return attachedUnityCam.aspect;
+        } set {
+            attachedUnityCam.aspect = value;
+        }
     }
 
     [System.NonSerialized] public bool drawPivot;
@@ -58,6 +81,7 @@ public class CustomGLCamera : MonoBehaviour {
     float startNearClipPlane;
     float startFarClipPlane;
     float startFieldOfView;
+    float startOrthoSize;
     // float startAspect;       // use ResetAspect instead
     Vector3 startPosition;
     Quaternion startRotation;
@@ -86,7 +110,7 @@ public class CustomGLCamera : MonoBehaviour {
         new Vector3(-1,  1, 1)
     };
 
-    public void Initialize (MatrixScreen matrixScreen, bool isExternalCamera, CustomGLCamera otherCamera, float inputFOV, float inputNearClip, float inputFarClip, Vector3 inputStartPos) {
+    public void Initialize (MatrixScreen matrixScreen, bool isExternalCamera, CustomGLCamera otherCamera, float inputFOV, float inputNearClip, float inputFarClip, Vector3 inputStartPos, float inputOrthoSize) {
         if(initialized){
             Debug.LogError("Duplicate init call, aborting!", this.gameObject);
             return;
@@ -113,6 +137,7 @@ public class CustomGLCamera : MonoBehaviour {
         nearClipPlane = inputNearClip;
         farClipPlane = inputFarClip;
         fieldOfView = inputFOV;
+        orthoSize = inputOrthoSize;
         transform.position = inputStartPos;
         transform.rotation = Quaternion.LookRotation(-inputStartPos, Vector3.up);
 
@@ -121,6 +146,7 @@ public class CustomGLCamera : MonoBehaviour {
         startFieldOfView = fieldOfView;
         startPosition = transform.position;
         startRotation = transform.rotation;
+        startOrthoSize = inputOrthoSize;
 
         initialized = true;
     }
@@ -149,6 +175,7 @@ public class CustomGLCamera : MonoBehaviour {
         nearClipPlane = startNearClipPlane;
         farClipPlane = startFarClipPlane;
         fieldOfView = startFieldOfView;
+        orthoSize = startOrthoSize;
         attachedUnityCam.ResetAspect();
         transform.position = startPosition;
         transform.rotation = startRotation;
@@ -219,7 +246,7 @@ public class CustomGLCamera : MonoBehaviour {
     }
 
     void UpdateMatricesAndMesh () {
-        if(!isExternalCamera && !matrixScreen.freeModeActivated){
+        if(!isExternalCamera && !matrixScreen.FreeMode){
             matrixScreen.ViewPosMatrix.VariableContainer.EditVariable(MatrixConfig.InverseTranslationConfig.xPos, transform.position.x, false);
             matrixScreen.ViewPosMatrix.VariableContainer.EditVariable(MatrixConfig.InverseTranslationConfig.yPos, transform.position.y, false);
             matrixScreen.ViewPosMatrix.VariableContainer.EditVariable(MatrixConfig.InverseTranslationConfig.zPos, transform.position.z, true);
@@ -235,10 +262,17 @@ public class CustomGLCamera : MonoBehaviour {
             matrixScreen.ViewRotMatrix.VariableContainer.EditVariable(MatrixConfig.RebaseConfig.newZx, fwd.x, false);
             matrixScreen.ViewRotMatrix.VariableContainer.EditVariable(MatrixConfig.RebaseConfig.newZy, fwd.y, false);
             matrixScreen.ViewRotMatrix.VariableContainer.EditVariable(MatrixConfig.RebaseConfig.newZz, fwd.z, true);
-            matrixScreen.ProjMatrix.VariableContainer.EditVariable(MatrixConfig.PerspectiveProjectionConfig.fov, attachedUnityCam.fieldOfView, false);
-            matrixScreen.ProjMatrix.VariableContainer.EditVariable(MatrixConfig.PerspectiveProjectionConfig.nearClip, attachedUnityCam.nearClipPlane, false);
-            matrixScreen.ProjMatrix.VariableContainer.EditVariable(MatrixConfig.PerspectiveProjectionConfig.farClip, attachedUnityCam.farClipPlane, false);
-            matrixScreen.ProjMatrix.VariableContainer.EditVariable(MatrixConfig.PerspectiveProjectionConfig.aspect, attachedUnityCam.aspect, true);
+            if(matrixScreen.OrthoMode){
+                matrixScreen.ProjMatrix.VariableContainer.EditVariable(MatrixConfig.OrthographicProjectionConfig.orthoSize, orthoSize, false);
+                matrixScreen.ProjMatrix.VariableContainer.EditVariable(MatrixConfig.OrthographicProjectionConfig.nearClip, nearClipPlane, false);
+                matrixScreen.ProjMatrix.VariableContainer.EditVariable(MatrixConfig.OrthographicProjectionConfig.farClip, farClipPlane, false);
+                matrixScreen.ProjMatrix.VariableContainer.EditVariable(MatrixConfig.OrthographicProjectionConfig.aspect, aspect, true);
+            }else{
+                matrixScreen.ProjMatrix.VariableContainer.EditVariable(MatrixConfig.PerspectiveProjectionConfig.fov, fieldOfView, false);
+                matrixScreen.ProjMatrix.VariableContainer.EditVariable(MatrixConfig.PerspectiveProjectionConfig.nearClip, nearClipPlane, false);
+                matrixScreen.ProjMatrix.VariableContainer.EditVariable(MatrixConfig.PerspectiveProjectionConfig.farClip, farClipPlane, false);
+                matrixScreen.ProjMatrix.VariableContainer.EditVariable(MatrixConfig.PerspectiveProjectionConfig.aspect, aspect, true);
+            }
         }
 
         if(isExternalCamera){
@@ -433,8 +467,12 @@ public class CustomGLCamera : MonoBehaviour {
     void DrawPivot (bool seeThrough) {
         // should always have the same pixel-size
         float dist = (pivotPointToDraw - attachedUnityCam.transform.position).magnitude;
-        float preMul = pivotSize * dist / Screen.height;
-        preMul *= fieldOfView / 60;         // TODO not perfect but better than nothing. 
+        float preMul = pivotSize / Screen.height;
+        if(matrixScreen.OrthoMode){
+            preMul *= orthoSize * 0.8f;
+        }else{
+            preMul *= dist * fieldOfView / 60;         // not perfect but better than nothing. 
+        }
         Vector3 offsetH = preMul * transform.right;
         Vector3 offsetV = preMul * transform.up;
         Vector3[] points = new Vector3[]{

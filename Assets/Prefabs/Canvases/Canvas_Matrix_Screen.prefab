@@ -857,6 +857,7 @@ MonoBehaviour:
   camRectPos: {x: 0, y: 0}
   camRectSize: {x: 0.5, y: 0.5}
   camDefaultFOV: 60
+  camDefaultOrthoSize: 3
   camDefaultNearClip: 0.5
   camDefaultFarClip: 10
   camDefaultPosition: {x: -1.5, y: 1, z: -3.5}
@@ -1283,6 +1284,7 @@ MonoBehaviour:
   camRectPos: {x: 0.5, y: 0}
   camRectSize: {x: 0.5, y: 0.5}
   camDefaultFOV: 60
+  camDefaultOrthoSize: 3
   camDefaultNearClip: 0.1
   camDefaultFarClip: 100
   camDefaultPosition: {x: 0, y: 0, z: -4}
@@ -2165,7 +2167,6 @@ MonoBehaviour:
   outlineImage: {fileID: 78139699651227419}
   freeModeToggle: {fileID: 3105272323061801625}
   toggleRT: {fileID: 1430616807963430010}
-  toggleRing: {fileID: 0}
   toggleCheckmark: {fileID: 902420952895537289}
   toggleLabel: {fileID: 5107886275706765332}
   toggleLabelDropShadow: {fileID: 283987707966510466}

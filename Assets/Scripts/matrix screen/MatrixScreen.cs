@@ -34,10 +34,7 @@ public class MatrixScreen : MonoBehaviour {
 
     private bool cantAddMoreMatrices => modelGroup.matrixCount + camGroup.matrixCount >= MAX_MATRIX_COUNT;
 
-    public bool freeModeActivated { get; private set; }
-
     bool initialized;
-    bool m_openGLMode;
     UIMatrixGroup modelGroup;
     UIMatrixGroup camGroup;
     UIMatrix viewPosMatrix;
@@ -48,16 +45,9 @@ public class MatrixScreen : MonoBehaviour {
     float currentLinearWeight;
     float currentWeightTarget;
 
-    public bool OpenGLMode {
-        get {
-            return m_openGLMode;
-        } set {
-            m_openGLMode = value;
-            AlignMatrixGroups();
-            ActivateNonFreeMode();
-            // TODO the slider too
-        }
-    }
+    public bool FreeMode => centerBottomPopup.FreeModeToggle.isOn;
+    public bool OpenGLMode => windowOverlay.glToggle.isOn;
+    public bool OrthoMode => windowOverlay.orthoToggle.isOn;
 
     void OnEnable () {
         if(!initialized){
@@ -105,13 +95,17 @@ public class MatrixScreen : MonoBehaviour {
             Debug.LogWarning($"Duplicate init call for {nameof(MatrixScreen)}, aborting!", this.gameObject);
             return;
         }
-        m_openGLMode = false;
-        windowOverlay.Initialize(this);
+        windowOverlay.Initialize(this, glInit: false, GLModeUpdated, orthoInit: false, OrthoModeUpdated);
         matrixCamController.Initialize(this, externalCamController);
         externalCamController.Initialize(this, matrixCamController);
-        centerBottomPopup.Initialize(this, (newVal) => {
-            currentWeightTarget = newVal;
-        });
+        centerBottomPopup.Initialize(
+            matrixScreen: this, 
+            freeModeInit: false,
+            onFreeModeToggled: FreeModeUpdated,
+            onSliderValueChanged: (newVal) => {
+                currentWeightTarget = newVal;
+            }
+        );
         centerBottomPopup.LoadColors(ColorScheme.current);
         CreateMultiplicationSign();
         modelGroup = CreateMatrixGroup(leftSide: true);
@@ -147,6 +141,31 @@ public class MatrixScreen : MonoBehaviour {
         }
     }
 
+    void FreeModeUpdated (bool value) {
+        if(value){
+            ActivateFreeMode();
+        }else{
+            ActivateNonFreeMode();
+        }
+    }
+
+    void GLModeUpdated (bool value) {
+        AlignMatrixGroups();
+        if(FreeMode){
+            centerBottomPopup.FreeModeToggle.isOn = false;
+        }else{
+            ActivateNonFreeMode();
+        }
+    }
+
+    void OrthoModeUpdated (bool value) {
+        if(FreeMode){
+            centerBottomPopup.FreeModeToggle.isOn = false;
+        }else{
+            ActivateNonFreeMode();
+        }
+    }
+
     void AlignMatrixGroups () {
         Vector2 anchor = new Vector2(0.5f, 0.5f);
         Vector2 leftPivot = new Vector2(1f, 0.5f);
@@ -173,7 +192,11 @@ public class MatrixScreen : MonoBehaviour {
         camGroup.CreateMatrixAtIndex(UIMatrices.MatrixConfig.rebaseConfig, UIMatrix.Editability.FULL, 1, false);
         camGroup[1].SetName("Inv. Camera Rotation");
         camGroup[1].Transpose(false);
-        camGroup.CreateMatrixAtIndex(UIMatrices.MatrixConfig.perspProjConfig, UIMatrix.Editability.FULL, 2, true);
+        if(OrthoMode){
+            camGroup.CreateMatrixAtIndex(UIMatrices.MatrixConfig.orthoProjConfig, UIMatrix.Editability.FULL, 2, true);
+        }else{
+            camGroup.CreateMatrixAtIndex(UIMatrices.MatrixConfig.perspProjConfig, UIMatrix.Editability.FULL, 2, true);
+        }
 
         viewRotMatrix = camGroup[1];
         viewPosMatrix = camGroup[0];
@@ -193,8 +216,6 @@ public class MatrixScreen : MonoBehaviour {
         // externalCamController.ResetCamera();
 
         UpdateMatrixButtonsAndSlider(modelGroup.matrixCount + camGroup.matrixCount);
-
-        freeModeActivated = false;
     }
 
     public void ActivateFreeMode () {
@@ -212,8 +233,6 @@ public class MatrixScreen : MonoBehaviour {
         }
         matrixCamController.CanCurrentlyControlCamera = false;
         externalCamController.CanCurrentlyControlCamera = true;
-
-        freeModeActivated = true;
     }
 
     void LoadColors (ColorScheme cs) {

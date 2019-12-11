@@ -22,6 +22,7 @@ MonoBehaviour:
   uiDirRight: {fileID: 21300000, guid: 9e7f40dddcd925d4b9b637a028439a8b, type: 3}
   uiDirDown: {fileID: 21300000, guid: a3ef3307db3cc6b4682d85869df380d5, type: 3}
   matrixScreenGL: {fileID: 21300000, guid: 394626e89c6231b4d9f53b386944cd9f, type: 3}
+  matrixScreenOrtho: {fileID: 21300000, guid: 61709ef8de2c3444aa74ba38cb8c32b3, type: 3}
   matrixLeft: {fileID: 21300000, guid: b4142fafa1a26f347aea8f8364dc157d, type: 3}
   matrixRight: {fileID: 21300000, guid: 2f78a6b7c627d354db3b0335ae765fca, type: 3}
   matrixUp: {fileID: 21300000, guid: 8d667d060e6cfb04ab807a97ecf3c602, type: 3}

@@ -52,9 +52,10 @@ namespace MatrixScreenUtils {
         List<(RectTransform rt, Image img)> notches;
 
         public bool initialized { get; private set; }
+        public Toggle FreeModeToggle => freeModeToggle;
         public RectTransform rectTransform => m_rectTransform;
 
-        public void Initialize (MatrixScreen matrixScreen, System.Action<float> onSliderValueChanged) {
+        public void Initialize (MatrixScreen matrixScreen, bool freeModeInit, System.Action<bool> onFreeModeToggled, System.Action<float> onSliderValueChanged) {
             this.matrixScreen = matrixScreen;
             defaultBGPos = backgroundImageRT.anchoredPosition;
             hiddenBGPos = new Vector2(defaultBGPos.x, defaultBGPos.y - rectTransform.rect.height + hiddenYOffset);
@@ -70,13 +71,9 @@ namespace MatrixScreenUtils {
                 onSliderValueChanged?.Invoke(newVal);
             });
 
-            freeModeToggle.isOn = matrixScreen.freeModeActivated;
+            freeModeToggle.isOn = freeModeInit;
             freeModeToggle.onValueChanged.AddListener((b) => {
-                if(b){
-                    matrixScreen.ActivateFreeMode();
-                }else{
-                    matrixScreen.ActivateNonFreeMode();
-                }
+                onFreeModeToggled.Invoke(b);
             });
             toggleLabel.text = "Free Mode";
             toggleLabelDropShadow.text = toggleLabel.text;

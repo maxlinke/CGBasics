@@ -46,8 +46,10 @@ public class UISprites : ScriptableObject {
 
     [Header("Matrix Screen")]
     [SerializeField] Sprite matrixScreenGL;
+    [SerializeField] Sprite matrixScreenOrtho;
 
     public static Sprite MatrixScreenGL => instance.matrixScreenGL;
+    public static Sprite MatrixScreenOrtho => instance.matrixScreenOrtho;
 
     [Header("Matrix Sprites")]
     [SerializeField] Sprite matrixLeft;

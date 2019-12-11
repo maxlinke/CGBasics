@@ -475,7 +475,7 @@ MonoBehaviour:
   camDefaultFOV: 60
   camDefaultNearClip: 0.5
   camDefaultFarClip: 10
-  camDefaultPosition: {x: 1.5, y: 1, z: 3.5}
+  camDefaultPosition: {x: -1.5, y: 1, z: -3.5}
 --- !u!114 &986018775139316719
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -664,7 +664,7 @@ MonoBehaviour:
   matrixCamController: {fileID: 1308221943000780195}
   externalCamController: {fileID: 3177943752331237449}
   backgroundImage: {fileID: 8344668593284754150}
-  defaultMesh: {fileID: 4300000, guid: 0737392d7f76e874c8958fc4f4ac55aa, type: 3}
+  defaultMesh: {fileID: 4300000, guid: 787db055e1d84114db8a0fa6f0b045ed, type: 3}
   uiMatrixParent: {fileID: 448211681366667359}
   panAndZoomController: {fileID: 2711445455600250081}
   borders:

@@ -15,7 +15,7 @@ namespace MatrixScreenUtils {
 
             int toggleIndex = 0;
             windowDresser.Begin(uiParent, new Vector2(1, 1), new Vector2(0, -1), new Vector2(0, 0));
-            CreateSpecialToggle(ref toggleIndex, UISprites.UITemp, "OpenGLMode", "Toggle Open GL Mode (Resets matrix view)", (b) => {matrixScreen.OpenGLMode = b;}, matrixScreen.OpenGLMode, false, invokeStateChange: false);
+            CreateSpecialToggle(ref toggleIndex, UISprites.MatrixScreenGL, "OpenGLMode", "Toggle Open GL Mode (Resets matrix view)", (b) => {matrixScreen.OpenGLMode = b;}, matrixScreen.OpenGLMode, false, invokeStateChange: false);
             windowDresser.End();
             CreateResetButtonAndLabel("Matrix View", "Resets the view", matrixScreen.PanAndZoomController.ResetView);
 

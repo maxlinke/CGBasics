@@ -34,6 +34,11 @@ public class UISprites : ScriptableObject {
     public static Sprite UIReset => instance.uiReset;
     public static Sprite UICheckmark => instance.uiCheckmark;
 
+    [Header("Matrix Screen")]
+    [SerializeField] Sprite matrixScreenGL;
+
+    public static Sprite MatrixScreenGL => instance.matrixScreenGL;
+
     [Header("Matrix Sprites")]
     [SerializeField] Sprite matrixLeft;
     [SerializeField] Sprite matrixRight;

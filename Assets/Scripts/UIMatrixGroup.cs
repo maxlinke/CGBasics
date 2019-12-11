@@ -39,8 +39,13 @@ public class UIMatrixGroup : MonoBehaviour {
         } set {
             m_displayWeight = value;
             headerBackgroundGreyscaleRT.pivot = 0.5f * Vector2.one;
-            headerBackgroundGreyscaleRT.anchorMin = new Vector2(value, 0f);
-            headerBackgroundGreyscaleRT.anchorMax = new Vector2(1f, 1f);
+            if(matrixScreen.OpenGLMode){
+                headerBackgroundGreyscaleRT.anchorMin = new Vector2(0f, 0f);
+                headerBackgroundGreyscaleRT.anchorMax = new Vector2(1f - value, 1f);
+            }else{
+                headerBackgroundGreyscaleRT.anchorMin = new Vector2(value, 0f);
+                headerBackgroundGreyscaleRT.anchorMax = new Vector2(1f, 1f);
+            }
             headerBackgroundGreyscaleRT.anchoredPosition = Vector2.zero;
             headerBackgroundGreyscaleRT.sizeDelta = Vector2.zero;
             outline.color = outlineColor.WithOpacity(value);

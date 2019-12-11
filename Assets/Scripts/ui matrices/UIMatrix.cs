@@ -122,8 +122,13 @@ public class UIMatrix : MonoBehaviour {
         } set {
             m_currentWeight = value;
             backgroundWeightOverlay.pivot = 0.5f * Vector2.one;
-            backgroundWeightOverlay.anchorMin = new Vector2(value, 0f);
-            backgroundWeightOverlay.anchorMax = new Vector2(1f, 1f);
+            if(matrixScreen != null && matrixScreen.OpenGLMode){
+                backgroundWeightOverlay.anchorMin = new Vector2(0f, 0f);
+                backgroundWeightOverlay.anchorMax = new Vector2(1f - value, 1f);
+            }else{
+                backgroundWeightOverlay.anchorMin = new Vector2(value, 0f);
+                backgroundWeightOverlay.anchorMax = new Vector2(1f, 1f);
+            }
             backgroundWeightOverlay.anchoredPosition = Vector2.zero;
             backgroundWeightOverlay.sizeDelta = Vector2.zero;
             outline.color = outlineColor.WithOpacity(value);

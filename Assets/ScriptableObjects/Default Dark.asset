@@ -35,14 +35,14 @@ MonoBehaviour:
   matrixScreenCameraMatrixHeader: {r: 0.3448736, g: 0.39271462, b: 0.4716981, a: 1}
   matrixScreenMultiplicationSign: {r: 1, g: 1, b: 1, a: 1}
   matrixScreenBorderColor: {r: 0.3, g: 0.3, b: 0.3, a: 1}
-  matrixScreenBottomAreaBackground: {r: 0.4, g: 0.4, b: 0.4, a: 1}
+  matrixScreenBottomAreaBackground: {r: 0.45, g: 0.45, b: 0.45, a: 1}
+  matrixScreenBottomAreaOutline: {r: 0.3, g: 0.3, b: 0.3, a: 1}
   matrixScreenBottomAreaForegroundElement: {r: 0.9, g: 0.9, b: 0.9, a: 1}
   matrixScreenSliderBackground: {r: 0.25, g: 0.25, b: 0.25, a: 1}
   matrixScreenSliderFill: {r: 0.6, g: 0.6, b: 0.6, a: 1}
   matrixScreenSliderHandle: {r: 0.9, g: 0.9, b: 0.9, a: 1}
   matrixScreenSliderHandleHover: {r: 0.9, g: 0.9, b: 0.9, a: 1}
   matrixScreenSliderHandleClick: {r: 0.8, g: 0.8, b: 0.8, a: 1}
-  matrixScreenSliderNotch: {r: 0, g: 0, b: 0, a: 0.5019608}
   matrixScreenBottomAreaToggle: {r: 0, g: 0, b: 0, a: 0}
   matrixScreenBottomAreaToggleHover: {r: 0, g: 0, b: 0, a: 0.2}
   matrixScreenBottomAreaToggleClick: {r: 0, g: 0, b: 0, a: 0.4}

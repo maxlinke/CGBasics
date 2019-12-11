@@ -116,6 +116,7 @@ public class ColorScheme : ScriptableObject {
 
     [Header("Matrix Screen Bottom Area")]
     [SerializeField] Color matrixScreenBottomAreaBackground;
+    [SerializeField] Color matrixScreenBottomAreaOutline;
     [SerializeField] Color matrixScreenBottomAreaForegroundElement;
     [SerializeField] Color matrixScreenSliderBackground;
     [SerializeField] Color matrixScreenSliderFill;
@@ -127,6 +128,7 @@ public class ColorScheme : ScriptableObject {
     [SerializeField] Color matrixScreenBottomAreaToggleClick;
 
     public Color MatrixScreenBottomAreaBackground => matrixScreenBottomAreaBackground;
+    public Color MatrixScreenBottomAreaOutline => matrixScreenBottomAreaOutline;
     public Color MatrixScreenBottomAreaForegroundElement => matrixScreenBottomAreaForegroundElement;
     public Color MatrixScreenSliderBackground => matrixScreenSliderBackground;
     public Color MatrixScreenSliderFill => matrixScreenSliderFill;

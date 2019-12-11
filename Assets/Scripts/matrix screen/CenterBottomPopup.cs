@@ -15,15 +15,16 @@ namespace MatrixScreenUtils {
         [SerializeField] Image outlineImage;
         [SerializeField] Toggle freeModeToggle;
         [SerializeField] RectTransform toggleRT;
-        [SerializeField] Image toggleRing;
         [SerializeField] Image toggleCheckmark;
         [SerializeField] TextMeshProUGUI toggleLabel;
+        [SerializeField] TextMeshProUGUI toggleLabelDropShadow;
         [SerializeField] RectTransform dividerRT;
         [SerializeField] Image dividerImage;
         [SerializeField] RectTransform sliderArea;
         [SerializeField] RectTransform matrixSliderRT;
         [SerializeField] Slider matrixSlider;
         [SerializeField] TextMeshProUGUI sliderLabel;
+        [SerializeField] TextMeshProUGUI sliderLabelDropShadow;
         [SerializeField] Image sliderBackground;
         [SerializeField] Image sliderFill;
 
@@ -78,10 +79,16 @@ namespace MatrixScreenUtils {
                 }
             });
             toggleLabel.text = "Free Mode";
+            toggleLabelDropShadow.text = toggleLabel.text;
             toggleLabel.rectTransform.anchoredPosition = new Vector2(toggleLabelMarginLeft, 0f);
-            toggleRT.SetSizeDeltaX(toggleLabel.preferredWidth + toggleLabelMarginLeft + toggleLabelMarginRight + toggleRing.GetComponent<RectTransform>().rect.width);
+            toggleLabelDropShadow.rectTransform.MatchOther(toggleLabel.rectTransform);
+            toggleLabelDropShadow.rectTransform.anchoredPosition += new Vector2(1, -1);
+            toggleRT.SetSizeDeltaX(toggleLabel.preferredWidth + toggleLabelMarginLeft + toggleLabelMarginRight + freeModeToggle.targetGraphic.GetComponent<RectTransform>().rect.width);
             dividerRT.anchoredPosition = new Vector2(toggleRT.rect.width + dividerLeftMargin, 0f);
             sliderLabel.text = "Matrix Weights";
+            sliderLabelDropShadow.text = sliderLabel.text;
+            sliderLabelDropShadow.rectTransform.MatchOther(sliderLabel.rectTransform);
+            sliderLabelDropShadow.rectTransform.anchoredPosition += new Vector2(1, -1);
             
             Hide();
             initialized = true;
@@ -157,12 +164,14 @@ namespace MatrixScreenUtils {
             }
             outlineImage.color = cs.MatrixScreenBottomAreaOutline;
             backgroundImage.color = cs.MatrixScreenBottomAreaBackground;
+            dividerImage.color = cs.MatrixScreenBottomAreaDivider;
             Color fg = cs.MatrixScreenBottomAreaForegroundElement;
             sliderLabel.color = fg;
             toggleLabel.color = fg;
-            toggleRing.color = fg;
             toggleCheckmark.color = fg;
-            dividerImage.color = fg;
+            Color ds = cs.MatrixScreenBottomAreaTextDropShadow;
+            toggleLabelDropShadow.color = ds;
+            sliderLabelDropShadow.color = ds;
             fillBackground = cs.MatrixScreenSliderBackground;
             fillForeground = cs.MatrixScreenSliderFill;
             sliderBackground.color = cs.MatrixScreenSliderBackground;

@@ -118,6 +118,8 @@ public class ColorScheme : ScriptableObject {
     [SerializeField] Color matrixScreenBottomAreaBackground;
     [SerializeField] Color matrixScreenBottomAreaOutline;
     [SerializeField] Color matrixScreenBottomAreaForegroundElement;
+    [SerializeField] Color matrixScreenBottomAreaTextDropShadow;
+    [SerializeField] Color matrixScreenBottomAreaDivider;
     [SerializeField] Color matrixScreenSliderBackground;
     [SerializeField] Color matrixScreenSliderFill;
     [SerializeField] Color matrixScreenSliderHandle;
@@ -130,6 +132,8 @@ public class ColorScheme : ScriptableObject {
     public Color MatrixScreenBottomAreaBackground => matrixScreenBottomAreaBackground;
     public Color MatrixScreenBottomAreaOutline => matrixScreenBottomAreaOutline;
     public Color MatrixScreenBottomAreaForegroundElement => matrixScreenBottomAreaForegroundElement;
+    public Color MatrixScreenBottomAreaTextDropShadow => matrixScreenBottomAreaTextDropShadow;
+    public Color MatrixScreenBottomAreaDivider => matrixScreenBottomAreaDivider;
     public Color MatrixScreenSliderBackground => matrixScreenSliderBackground;
     public Color MatrixScreenSliderFill => matrixScreenSliderFill;
     public Color MatrixScreenSliderHandle => matrixScreenSliderHandle;

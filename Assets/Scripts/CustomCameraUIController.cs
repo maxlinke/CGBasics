@@ -1,8 +1,5 @@
 ﻿using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.UI;
-using TMPro;
-using System.Collections.Generic;
 using MatrixScreenUtils;
 
 public class CustomCameraUIController : ClickDragScrollHandler {
@@ -10,6 +7,12 @@ public class CustomCameraUIController : ClickDragScrollHandler {
     const string renderCamLabelText = "Render View";
     const string externalCamLabelText = "External View";
     const string renderCamLockedSuffix = "(Locked, use the matrices or deactivate free mode)";
+
+    const float scrollSensitivity = 0.2f;
+    const float smoothScrollSensitivity = 0.2f;
+    const float orbitSensitivity = 0.8f;
+    const float orthoMoveSensitivity = 0.01f;
+    const float perspMoveSensitivity = 0.0025f;
 
     [Header("Prefabs")]
     [SerializeField] CustomGLCamera targetCamPrefab;
@@ -19,11 +22,6 @@ public class CustomCameraUIController : ClickDragScrollHandler {
 
     [Header("Settings")]
     [SerializeField] bool isExternalCamController;
-    [SerializeField] float scrollSensitivity;
-    [SerializeField] float smoothScrollSensitivity;
-    [SerializeField] float orbitSensitivity;
-    [SerializeField] float moveSensitivity;
-    [SerializeField] bool inverted;
 
     [Header("Default Camera Settings")]
     [SerializeField] Vector2 camRectPos;
@@ -154,14 +152,19 @@ public class CustomCameraUIController : ClickDragScrollHandler {
     }
 
     void Orbit (Vector3 mouseDelta) {
-        mouseDelta *= InputSystem.shiftCtrlMultiplier;
-        targetCam.transform.RotateAround(pivotPoint, Vector3.up, mouseDelta.x * (inverted ? -1 : 1));
+        mouseDelta *= InputSystem.shiftCtrlMultiplier * orbitSensitivity;
+        targetCam.transform.RotateAround(pivotPoint, Vector3.up, mouseDelta.x);
         targetCam.transform.RotateAround(pivotPoint, targetCam.transform.right, -mouseDelta.y);
     }
 
     void Move (Vector3 mouseDelta) {
         mouseDelta *= InputSystem.shiftCtrlMultiplier;
-        Vector3 moveDelta = moveSensitivity * GetPivotDistanceScale() * -1 * (targetCam.transform.right * mouseDelta.x + targetCam.transform.up * mouseDelta.y);
+        Vector3 moveDelta = -1 * (targetCam.transform.right * mouseDelta.x + targetCam.transform.up * mouseDelta.y);
+        if(matrixScreen.OrthoMode && !isExternalCamController){
+            moveDelta *= orthoMoveSensitivity * (targetCam.orthoSize / camDefaultOrthoSize);
+        }else{
+            moveDelta *= perspMoveSensitivity * GetPivotDistanceScale();
+        }
         pivotPoint += moveDelta;
         targetCam.transform.position += moveDelta;
     }

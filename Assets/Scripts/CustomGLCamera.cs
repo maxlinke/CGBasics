@@ -468,7 +468,7 @@ public class CustomGLCamera : MonoBehaviour {
         // should always have the same pixel-size
         float dist = (pivotPointToDraw - attachedUnityCam.transform.position).magnitude;
         float preMul = pivotSize / Screen.height;
-        if(matrixScreen.OrthoMode){
+        if(matrixScreen.OrthoMode && !isExternalCamera){
             preMul *= orthoSize * 0.8f;
         }else{
             preMul *= dist * fieldOfView / 60;         // not perfect but better than nothing. 

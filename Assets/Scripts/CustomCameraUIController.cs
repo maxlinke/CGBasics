@@ -30,6 +30,7 @@ public class CustomCameraUIController : ClickDragScrollHandler {
     [SerializeField] float camDefaultOrthoSize;
     [SerializeField] float camDefaultNearClip;
     [SerializeField] float camDefaultFarClip;
+    [SerializeField] float farClipMaximum;
     [SerializeField] Vector3 camDefaultPosition;
 
     bool initialized;
@@ -178,20 +179,27 @@ public class CustomCameraUIController : ClickDragScrollHandler {
             float orthoFact = targetCam.orthoSize / camDefaultOrthoSize;
             targetCam.farClipPlane = orthoFact * camDefaultFarClip;
         }else{
-            float currentDistToPivot = (targetCam.transform.position - pivotPoint).magnitude;       // TODO maybe also just change the far clip plane here and let the pivot center thingy take care of the position?
+            float currentDistToPivot = (targetCam.transform.position - pivotPoint).magnitude;
             float nearPlaneDist = targetCam.nearClipPlane;
-            float farPlaneDist = targetCam.farClipPlane;
             float tempDist = zoomAmount * scrollSensitivity * GetPivotDistanceScale();
             float moveDist;
+            float maxNearDist = camDefaultNearClip;
+            float maxFarDist = 2f * camDefaultFarClip;
             if(tempDist > 0f){
                 moveDist = Mathf.Clamp(tempDist, Mathf.NegativeInfinity, currentDistToPivot - nearPlaneDist);
             }else if(tempDist < 0f){
-                moveDist = Mathf.Clamp(tempDist, currentDistToPivot - (2f * farPlaneDist), Mathf.Infinity);
+                moveDist = Mathf.Clamp(tempDist, currentDistToPivot - maxFarDist, Mathf.Infinity);
             }else{
                 moveDist = 0f;
             }
             Vector3 moveDelta = targetCam.transform.forward * moveDist;
             targetCam.transform.position += moveDelta;
+            float startDist = camDefaultPosition.magnitude;
+            float m = (farClipMaximum - camDefaultFarClip) / (maxFarDist - startDist);
+            float n = camDefaultFarClip - (startDist * m);
+            float farClipMinimum = m * maxNearDist  + n;
+            farClipMinimum = Mathf.Clamp(farClipMinimum, nearPlaneDist + 0.1f, Mathf.Infinity);     // just to make sure i don't input bogus values
+            targetCam.farClipPlane = Mathf.Lerp(farClipMinimum, farClipMaximum, ((targetCam.transform.position - pivotPoint).magnitude - maxNearDist) / (maxFarDist - maxNearDist));
         }
     }
 

@@ -849,17 +849,13 @@ MonoBehaviour:
     type: 3}
   windowOverlay: {fileID: 986018775139316719}
   isExternalCamController: 0
-  scrollSensitivity: 0.2
-  smoothScrollSensitivity: 0.2
-  orbitSensitivity: 0.5
-  moveSensitivity: 0.004
-  inverted: 0
   camRectPos: {x: 0, y: 0}
   camRectSize: {x: 0.5, y: 0.5}
   camDefaultFOV: 60
   camDefaultOrthoSize: 3
   camDefaultNearClip: 0.5
   camDefaultFarClip: 10
+  farClipMaximum: 40
   camDefaultPosition: {x: -1.5, y: 1, z: -3.5}
 --- !u!114 &986018775139316719
 MonoBehaviour:
@@ -1276,17 +1272,13 @@ MonoBehaviour:
     type: 3}
   windowOverlay: {fileID: 1836315502982515302}
   isExternalCamController: 1
-  scrollSensitivity: 0.2
-  smoothScrollSensitivity: 0.2
-  orbitSensitivity: 0.5
-  moveSensitivity: 0.004
-  inverted: 0
   camRectPos: {x: 0.5, y: 0}
   camRectSize: {x: 0.5, y: 0.5}
   camDefaultFOV: 60
   camDefaultOrthoSize: 3
   camDefaultNearClip: 0.1
   camDefaultFarClip: 100
+  farClipMaximum: 200
   camDefaultPosition: {x: 0, y: 0, z: -4}
 --- !u!114 &1836315502982515302
 MonoBehaviour:

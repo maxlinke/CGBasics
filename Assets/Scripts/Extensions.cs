@@ -128,6 +128,10 @@ public static class Extensions {
         rt.anchoredPosition = otherRT.anchoredPosition;
     }
 
+    public static void ResetLocalScale (this Transform t) {
+        t.localScale = Vector3.one;
+    }
+
     public static void SetFadeTransition (this Selectable selectable, float fadeDuration, Color defaultColor, Color hoverColor, Color clickColor, Color disabledColor) {
         selectable.transition = Selectable.Transition.ColorTint;
         var colorBlock = new ColorBlock();

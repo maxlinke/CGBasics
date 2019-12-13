@@ -77,6 +77,7 @@ public class WindowDresser : MonoBehaviour {
         label.overflowMode = TextOverflowModes.Overflow;
         label.font = labelFont;
         label.fontSize = labelFontSize;
+        label.raycastTarget = false;
         return label;
     }
 

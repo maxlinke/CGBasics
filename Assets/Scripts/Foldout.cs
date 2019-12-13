@@ -146,7 +146,7 @@ public class Foldout : MonoBehaviour {
             float topSpace = Screen.height - bottomSpace;
 
             bool toRight = (rightSpace >= scaledWidth || leftSpace < scaledWidth);
-            bool toBottom = (bottomSpace >= scaledHeight || topSpace < scaledHeight);
+            bool toBottom = (bottomSpace >= scaledHeight ? true : ((topSpace >= scaledHeight) ? false : (bottomSpace >= topSpace)));
             float pivotX = toRight ? 0 : 1;
             float pivotY = toBottom ? 1 : 0;
 

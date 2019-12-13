@@ -142,7 +142,7 @@ namespace MatrixScreenUtils {
                 notchRT.SetAnchor(((float)i) / iMax, 0.5f);
                 notchRT.anchoredPosition = Vector2.zero;
             }
-            for(int i=notches.Count-1; i>iMax; i++){
+            for(int i=notches.Count-1; i>iMax; i--){
                 Destroy(notches[i].rt.gameObject);
                 notches.RemoveAt(i);
             }

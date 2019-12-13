@@ -14,6 +14,7 @@ public class Foldout : MonoBehaviour {
 
     [Header("Settings")]
     [SerializeField] float foldoutWidth;
+    [SerializeField] int maxLineCount;
 
     [Header("Regular Button Generation")]
     [SerializeField] TMP_FontAsset buttonFont;
@@ -239,7 +240,14 @@ public class Foldout : MonoBehaviour {
         label.raycastTarget = false;
         label.text = setup.buttonName;
         label.ForceMeshUpdate();
-        rt.SetSizeDeltaY(label.preferredHeight + 2 * buttonTextVerticalMargin);
+        int lineCount = label.textInfo.lineCount;
+        if(lineCount > maxLineCount){
+            rt.SetSizeDeltaY((label.preferredHeight / lineCount) * maxLineCount + 2 * buttonTextVerticalMargin);
+            label.overflowMode = TextOverflowModes.Ellipsis;
+            label.ForceMeshUpdate(); 
+        }else{
+            rt.SetSizeDeltaY(label.preferredHeight + 2 * buttonTextVerticalMargin);
+        }
         return new FoldoutButton(
             gameObject: btn.gameObject,
             button: btn,

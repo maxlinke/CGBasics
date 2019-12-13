@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using TMPro;
 using System.Text;
@@ -8,8 +7,7 @@ using System.Text;
 public class FoldoutTester : MonoBehaviour, IPointerClickHandler, IScrollHandler {
 
     const int minNameLength = 1;
-    // const int maxNameLength = 20;
-    const int maxNameLength = 1;
+    const int maxNameLength = 20;
 
     const float minScale = 0.2f;
     const float maxScale = 5f;

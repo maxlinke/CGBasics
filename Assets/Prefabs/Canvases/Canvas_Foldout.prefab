@@ -316,6 +316,7 @@ MonoBehaviour:
   backgroundRaycastCatcher: {fileID: 2117444559895857308}
   buttonParent: {fileID: 4755826422316669192}
   foldoutWidth: 160
+  maxLineCount: 3
   buttonFont: {fileID: 11400000, guid: 7d5a3290111844c49b3364fbc9b10fa7, type: 2}
   buttonFontSize: 16
   buttonTextVerticalMargin: 4

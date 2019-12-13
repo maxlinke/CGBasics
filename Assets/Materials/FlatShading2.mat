@@ -85,4 +85,4 @@ Material:
     - _LightColorAmbient: {r: 0.2, g: 0.1, b: 0.1, a: 1}
     - _LightColorBack: {r: 0.2, g: 0.2, b: 0.5, a: 1}
     - _LightColorFront: {r: 1, g: 1, b: 1, a: 1}
-    - _LightDir: {r: 1, g: 1, b: 1, a: 0}
+    - _LightDir: {r: 1, g: 1, b: -1, a: 0}

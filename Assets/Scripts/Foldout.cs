@@ -197,8 +197,9 @@ public class Foldout : MonoBehaviour {
                         if(i+2 >= buttons.Count){                           // if it's the last one, we don't need a new group
                             return false;
                         }
-                        tempScreenY += SignedScreenOffset(buttons[i+2]);
-                        return (tempScreenY < 0 || tempScreenY > Screen.height);    // it if's not the last one, whether or not the one after fits determines whether we need a new group
+                        // tempScreenY += SignedScreenOffset(buttons[i+2]);
+                        tempScreenY += upDownButtonHeight * scale * offsetMultiplier;   // check if we can fit another page change button
+                        return (tempScreenY < 0 || tempScreenY > Screen.height);        // it it fits, then we don't have to worry about it. the next call of this will insert said button if there is need for it
                     }
                     return true;
                 }

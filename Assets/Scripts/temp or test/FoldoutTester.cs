@@ -8,7 +8,8 @@ using System.Text;
 public class FoldoutTester : MonoBehaviour, IPointerClickHandler, IScrollHandler {
 
     const int minNameLength = 1;
-    const int maxNameLength = 20;
+    // const int maxNameLength = 20;
+    const int maxNameLength = 1;
 
     const float minScale = 0.2f;
     const float maxScale = 5f;
@@ -48,7 +49,7 @@ public class FoldoutTester : MonoBehaviour, IPointerClickHandler, IScrollHandler
         var setups = new List<Foldout.ButtonSetup>();
         StringBuilder sb = new StringBuilder();
         for(int i=0; i<((int)amount); i++){
-            int nameLength = Random.Range(minNameLength, maxNameLength);
+            int nameLength = Random.Range(minNameLength, maxNameLength+1);
             sb.Append($"{i} ");
             for(int j=0; j<nameLength; j++){
                 sb.Append($"{loremIpsum[Random.Range(0, loremIpsum.Length)]} ");

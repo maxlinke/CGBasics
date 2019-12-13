@@ -29,6 +29,8 @@ public class UIMatrixGroup : MonoBehaviour {
     MatrixScreen matrixScreen;
     List<UIMatrix> matrices;
     List<RectTransform> multiplicationSigns;
+
+    public event System.Action onContentRebuilt = delegate {};
     
     bool initialized;
 
@@ -154,6 +156,7 @@ public class UIMatrixGroup : MonoBehaviour {
         float totalHeight = headerRT.rect.height + 2 * verticalMatrixMargin + matrices[0].minHeight;        // there will always be a matrices[0]...
         rectTransform.sizeDelta = new Vector2(x, totalHeight);
         LoadColors(headerBackground.color, ColorScheme.current);
+        onContentRebuilt.Invoke();
 
         void EnsureRightAmountOfMultiplicationSigns () {
             int numberOfMultiplicationSignsRequired = matrixCount - 1;

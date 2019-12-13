@@ -451,7 +451,7 @@ public class CustomGLCamera : MonoBehaviour {
         }
     }
 
-    void DrawMesh (Mesh meshToDraw, Color drawColor) {
+    public static void DrawMesh (Mesh meshToDraw, Color drawColor) {
         GLDraw(GL.TRIANGLES, () => {
             GL.Color(drawColor);
             var verts = meshToDraw.vertices;
@@ -522,7 +522,7 @@ public class CustomGLCamera : MonoBehaviour {
         GL.PopMatrix();
     }
 
-    void GLDraw (int drawMode, System.Action drawAction) {
+    static void GLDraw (int drawMode, System.Action drawAction) {
         GL.Begin(drawMode);
         drawAction.Invoke();
         GL.End();

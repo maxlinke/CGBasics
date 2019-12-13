@@ -109,10 +109,12 @@ public class MatrixScreen : MonoBehaviour {
         centerBottomPopup.LoadColors(ColorScheme.current);
         CreateMultiplicationSign();
         modelGroup = CreateMatrixGroup(leftSide: true);
-        modelGroup.SetName("Model");
+        modelGroup.SetName("Model Matrix");
         camGroup = CreateMatrixGroup(leftSide: false);
-        camGroup.SetName("Camera");
+        camGroup.SetName("Camera Matrix");
         AlignMatrixGroups();
+        // create model picker (better name...)
+        // subscribe to content rebuilding
         ActivateNonFreeMode();
         initialized = true;
 

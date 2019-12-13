@@ -509,8 +509,9 @@ public class UIMatrix : MonoBehaviour {
     }
 
     void SetNameLabelColorBasedOnNameHash (ColorScheme cs) {
-        int nameHash = System.Math.Abs(this.nameLabel.text.GetHashCode());
-        nameLabelBackground.color = cs.UiMatrixHeaders[nameHash % cs.UiMatrixHeaders.Length];
+        // int nameHash = System.Math.Abs(this.nameLabel.text.GetHashCode());
+        // nameLabelBackground.color = cs.UiMatrixHeaders[nameHash % cs.UiMatrixHeaders.Length];
+        nameLabelBackground.color = cs.UiMatrixHeaders.FromStringHash(this.nameLabel.text);
     }
 
     void LoadColorsAndUpdateEverything (ColorScheme cs) {

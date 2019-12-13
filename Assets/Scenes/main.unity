@@ -337,12 +337,12 @@ PrefabInstance:
       propertyPath: m_Shadows.m_Type
       value: 2
       objectReference: {fileID: 0}
-    - target: {fileID: 7130508853083180532, guid: 2ce3ff664fd9f1d4c87284e826f85164,
+    - target: {fileID: 1535203314384388586, guid: 2ce3ff664fd9f1d4c87284e826f85164,
         type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 15303, guid: 0000000000000000f000000000000000, type: 0}
-    - target: {fileID: 1535203314384388586, guid: 2ce3ff664fd9f1d4c87284e826f85164,
+    - target: {fileID: 7130508853083180532, guid: 2ce3ff664fd9f1d4c87284e826f85164,
         type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 

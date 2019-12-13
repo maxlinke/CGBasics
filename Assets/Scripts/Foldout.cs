@@ -25,8 +25,8 @@ public class Foldout : MonoBehaviour {
     [SerializeField] float upDownButtonHeight;
     [SerializeField] float upDownButtonSpriteSize;
 
-    bool initialized;
-    bool subscribedToInputSystem;
+    bool initialized = false;
+    bool subscribedToInputSystem = false;
     List<FoldoutButton> buttons;
     List<List<FoldoutButton>> buttonGroups;
     List<FoldoutButton> displayedButtons;
@@ -63,8 +63,6 @@ public class Foldout : MonoBehaviour {
         backgroundRaycastCatcher.color = Color.clear;
         backgroundRaycastCatcher.gameObject.AddComponent(typeof(BackgroundRaycastCatcher));
         backgroundRaycastCatcher.GetComponent<BackgroundRaycastCatcher>().Initialize(this);
-        // buttonTemplate.SetGOActive(false);
-        // buttonTemplate.onClick.RemoveAllListeners();
         HideAndReset();
         initialized = true;
     }
@@ -98,6 +96,7 @@ public class Foldout : MonoBehaviour {
         gameObject.SetActive(false);
         if(subscribedToInputSystem){
             InputSystem.UnSubscribe(this);
+            subscribedToInputSystem = false;
         }
     }
 
@@ -118,15 +117,20 @@ public class Foldout : MonoBehaviour {
         }
         EventSystem.current.SetSelectedGameObject(null);
         gameObject.SetActive(true);                             // needs to happen before i build the elements because text meshes ABSOLUTELY DO NOT UPDATE THEIR VALUES unless enabled (even if you explicitly tell them to)
+        this.onNotSelectAnything = onNotSelectAnything;
         foreach(var setup in setups){
             buttons.Add(CreateButtonFromSetup(setup));              
+        }
+        if(buttons.Count < 1){
+            Debug.LogWarning("No buttons created, aborting!", this.gameObject);
+            HideAndReset();
+            return;
         }
         GroupButtonsAndSetupRectTransforms();
         ShowGroup(0);
         LoadColors(ColorScheme.current);
         InputSystem.Subscribe(this, new InputSystem.KeyEvent(KeyCode.Escape, onKeyDown: AbortSelection));
         subscribedToInputSystem = true;
-        this.onNotSelectAnything = onNotSelectAnything;
 
         void GroupButtonsAndSetupRectTransforms () {
             float width = 0f;

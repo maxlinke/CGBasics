@@ -88,7 +88,7 @@ public class CustomGLCamera : MonoBehaviour {
     Quaternion startRotation;
 
     const float seeThroughAlphaMultiplier = 0.333f;
-    const float pivotSize = 9f;
+    const float pointSize = 8f;
 
     Color wireGridColor;
     Color wireObjectColor;
@@ -318,10 +318,17 @@ public class CustomGLCamera : MonoBehaviour {
             DrawAllTheWireThings(false);
 
             if(drawPivot){
-                lineMaterialSolid.DisableKeyword(clippingKeyword);
-                lineMaterialSeeThrough.DisableKeyword(clippingKeyword);
-                DrawPivot(true);
-                DrawPivot(false);
+                DrawWithNewMVPMatrix(Matrix4x4.identity, () => {
+                    Vector4 v4Pivot = new Vector4(pivotPointToDraw.x, pivotPointToDraw.y, pivotPointToDraw.z, 1f);
+                    Vector4 clipSpacePivot = this.cameraMatrix * v4Pivot;
+                    Vector3 drawnPivot = new Vector3(clipSpacePivot.x, clipSpacePivot.y, clipSpacePivot.z) / clipSpacePivot.w;
+                    lineMaterialSeeThrough.DisableKeyword(clippingKeyword);
+                    lineMaterialSeeThrough.SetPass(0);
+                    DrawPoint(drawnPivot, GetSeeThroughColor(pivotColor), GetSeeThroughColor(pivotOutlineColor));
+                    lineMaterialSolid.DisableKeyword(clippingKeyword);
+                    lineMaterialSolid.SetPass(0);
+                    DrawPoint(drawnPivot, pivotColor, pivotOutlineColor);
+                });
             }
         });
 
@@ -466,38 +473,27 @@ public class CustomGLCamera : MonoBehaviour {
             }
         });
     }
-	
-    void DrawPivot (bool seeThrough) {
-        // should always have the same pixel-size
-        float dist = (pivotPointToDraw - attachedUnityCam.transform.position).magnitude;
-        float preMul = pivotSize / Screen.height;
-        if(matrixScreen.OrthoMode && !isExternalCamera){
-            preMul *= orthoSize * 0.8f;
-        }else{
-            preMul *= dist * fieldOfView / 60;         // not perfect but better than nothing. 
-        }
-        Vector3 offsetH = preMul * transform.right;
-        Vector3 offsetV = preMul * transform.up;
+
+    void DrawPoint (Vector3 point, Color mainColor, Color outlineColor) {
+        float fOffsetV = 2f * pointSize / Screen.height;
+        float fOffsetH = 2f * pointSize / Screen.width;
+        Vector3 offsetV = new Vector3(0f, fOffsetV, 0f);
+        Vector3 offsetH = new Vector3(fOffsetH, 0f, 0f);
         Vector3[] points = new Vector3[]{
-            pivotPointToDraw + offsetV,
-            pivotPointToDraw + offsetH,
-            pivotPointToDraw - offsetV,
-            pivotPointToDraw - offsetH
+            point + offsetV,
+            point + offsetH,
+            point - offsetV,
+            point - offsetH
         };
-        if(seeThrough){
-            lineMaterialSeeThrough.SetPass(0);
-        }else{
-            lineMaterialSolid.SetPass(0);
-        }
         GLDraw(GL.TRIANGLE_STRIP, () => {
-            GL.Color(pivotColor * new Color(1,1,1, seeThrough ? seeThroughAlphaMultiplier : 1));
+            GL.Color(mainColor);
             GL.Vertex(points[3]);
             GL.Vertex(points[2]);
             GL.Vertex(points[0]);
             GL.Vertex(points[1]);
         });
         GLDraw(GL.LINE_STRIP, () => {
-            GL.Color(pivotOutlineColor * new Color(1,1,1, seeThrough ? seeThroughAlphaMultiplier : 1));
+            GL.Color(outlineColor);
             GL.Vertex(points[0]);
             GL.Vertex(points[1]);
             GL.Vertex(points[2]);

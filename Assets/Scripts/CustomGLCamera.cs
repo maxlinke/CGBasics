@@ -8,6 +8,7 @@ public class CustomGLCamera : MonoBehaviour {
     const string clippingMatrixName = "_SpecialClippingMatrix";
     const string specialModelMatrixKeyword = "USE_SPECIAL_MODEL_MATRIX";
     const string modelMatrixName = "_SpecialModelMatrix";
+    const string camPosName = "_SpecialCamPos";
 
     [SerializeField] Material objectMat;
 
@@ -338,9 +339,11 @@ public class CustomGLCamera : MonoBehaviour {
                 }else{
                     drawMat.DisableKeyword(clippingKeyword);
                 }
+                objectMat.SetVector(camPosName, otherCamera.transform.position);
             }else{
                 newMVP = cameraMatrix * modelMatrix;
                 drawMat.DisableKeyword(clippingKeyword);
+                objectMat.SetVector(camPosName, transform.position);
             }
             drawMat.SetMatrix(modelMatrixName, isExternalCamera ? otherCamera.modelMatrix : modelMatrix);
 

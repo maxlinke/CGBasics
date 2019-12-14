@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.UI;
 using MatrixScreenUtils;
 
@@ -9,13 +10,14 @@ public class MatrixScreen : MonoBehaviour {
     [Header("Prefabs")]
     [SerializeField] UIMatrix uiMatrixPrefab;
     [SerializeField] UIMatrixGroup matrixGroupPrefab;
+    [SerializeField] UIMatrixInputModel modelPreviewPrefab;
 
     [Header("Components")]
     [SerializeField] MatrixWindowOverlay windowOverlay;
     [SerializeField] CustomCameraUIController matrixCamController;
     [SerializeField] CustomCameraUIController externalCamController;
     [SerializeField] Image backgroundImage;
-    [SerializeField] Mesh defaultMesh;
+    [SerializeField] DefaultMesh defaultMesh;
     [SerializeField] RectTransform uiMatrixParent;
     [SerializeField] PanAndZoom panAndZoomController;
     [SerializeField] Image[] borders;
@@ -26,7 +28,7 @@ public class MatrixScreen : MonoBehaviour {
     [SerializeField] float multiplicationSignSize;
     [SerializeField] float matrixGroupMargin;
 
-    public float matrixZoom => panAndZoomController.zoomLevel;
+    public float zoomLevel => panAndZoomController.zoomLevel;
     public UIMatrix ViewPosMatrix => viewPosMatrix;
     public UIMatrix ViewRotMatrix => viewRotMatrix;
     public UIMatrix ProjMatrix => projMatrix;
@@ -40,7 +42,10 @@ public class MatrixScreen : MonoBehaviour {
     UIMatrix viewPosMatrix;
     UIMatrix viewRotMatrix;
     UIMatrix projMatrix;
-    Image multiplicationSignImage;
+    UIMatrixInputModel modelPreview;
+    List<Image> multiplicationSignImages;
+    RectTransform previewMultiplicationSignRT;
+    Mesh currentMesh;
 
     float currentLinearWeight;
     float currentWeightTarget;
@@ -106,15 +111,22 @@ public class MatrixScreen : MonoBehaviour {
                 currentWeightTarget = newVal;
             }
         );
+        multiplicationSignImages = new List<Image>();
         centerBottomPopup.LoadColors(ColorScheme.current);
-        CreateMultiplicationSign();
+        CreateMultiplicationSign(out _);
         modelGroup = CreateMatrixGroup(leftSide: true);
         modelGroup.SetName("Model Matrix");
         camGroup = CreateMatrixGroup(leftSide: false);
         camGroup.SetName("Camera Matrix");
+        CreateMultiplicationSign(out previewMultiplicationSignRT);
+        modelPreview = Instantiate(modelPreviewPrefab);
+        modelPreview.Initialize(this, defaultMesh.mesh, defaultMesh.name, (m) => {currentMesh = m;});
+        modelPreview.rectTransform.SetParent(uiMatrixParent, false);
+        modelPreview.rectTransform.ResetLocalScale();
+        currentMesh = defaultMesh.mesh;
         AlignMatrixGroups();
-        // create model picker (better name...)
-        // subscribe to content rebuilding
+        modelGroup.onContentRebuilt += UpdatePreviewPosition;
+        camGroup.onContentRebuilt += UpdatePreviewPosition;
         ActivateNonFreeMode();
         initialized = true;
 
@@ -125,22 +137,20 @@ public class MatrixScreen : MonoBehaviour {
             newGroup.Initialize(this);
             return newGroup;
         }
+        
+    }
 
-        void CreateMultiplicationSign () {
-            if(multiplicationSignImage != null){
-                Debug.LogError("wat", this.gameObject);
-                return;
-            }
-            var mulSignRT = new GameObject("Multiplication Sign", typeof(RectTransform), typeof(Image)).GetComponent<RectTransform>();
-            mulSignRT.SetParent(uiMatrixParent, false);
-            mulSignRT.localScale = Vector3.one;
-            mulSignRT.SetAnchor(0.5f * Vector2.one);
-            mulSignRT.pivot = 0.5f * Vector2.one;
-            mulSignRT.anchoredPosition = Vector2.zero;
-            mulSignRT.sizeDelta = Vector2.one * multiplicationSignSize;
-            multiplicationSignImage = mulSignRT.gameObject.GetComponent<Image>();
-            multiplicationSignImage.sprite = UISprites.MatrixMultiply;
-        }
+    void CreateMultiplicationSign (out RectTransform mulSignRT) {
+        mulSignRT = new GameObject("Multiplication Sign", typeof(RectTransform), typeof(Image)).GetComponent<RectTransform>();
+        mulSignRT.SetParent(uiMatrixParent, false);
+        mulSignRT.localScale = Vector3.one;
+        mulSignRT.SetAnchor(0.5f * Vector2.one);
+        mulSignRT.pivot = 0.5f * Vector2.one;
+        mulSignRT.anchoredPosition = Vector2.zero;
+        mulSignRT.sizeDelta = Vector2.one * multiplicationSignSize;
+        var mulSignImg = mulSignRT.gameObject.GetComponent<Image>();
+        mulSignImg.sprite = UISprites.MatrixMultiply;
+        multiplicationSignImages.Add(mulSignImg);
     }
 
     void FreeModeUpdated (bool value) {
@@ -180,6 +190,22 @@ public class MatrixScreen : MonoBehaviour {
         camGroup.rectTransform.SetAnchor(anchor);
         camGroup.rectTransform.pivot = (OpenGLMode ? leftPivot : rightPivot);
         camGroup.rectTransform.anchoredPosition= (OpenGLMode ? leftPos : rightPos);
+    }
+
+    void UpdatePreviewPosition () {
+        Vector2 anchor = new Vector2(0.5f, 0.5f);
+        Vector2 leftPivot = new Vector2(1f, 0.5f);
+        Vector2 rightPivot = new Vector2(0f, 0.5f);
+        float absX = Mathf.Abs(modelGroup.rectTransform.anchoredPosition.x) + modelGroup.rectTransform.rect.width + matrixGroupMargin + (multiplicationSignSize / 2);
+        Vector2 pos = (OpenGLMode ? new Vector2(absX, 0) : new Vector2(-absX, 0));
+        previewMultiplicationSignRT.SetAnchor(anchor);
+        previewMultiplicationSignRT.pivot = new Vector2(0.5f, 0.5f);
+        previewMultiplicationSignRT.anchoredPosition = pos;
+        absX += matrixGroupMargin + (multiplicationSignSize / 2);
+        pos = (OpenGLMode ? new Vector2(absX, 0) : new Vector2(-absX, 0));
+        modelPreview.rectTransform.SetAnchor(anchor);
+        modelPreview.rectTransform.pivot = (OpenGLMode ? rightPivot : leftPivot);
+        modelPreview.rectTransform.anchoredPosition = pos;
     }
 
     public void ActivateNonFreeMode () {
@@ -239,7 +265,9 @@ public class MatrixScreen : MonoBehaviour {
 
     void LoadColors (ColorScheme cs) {
         backgroundImage.color = cs.MatrixScreenBackground;
-        multiplicationSignImage.color = cs.MatrixScreenMultiplicationSign;
+        foreach(var mulImg in multiplicationSignImages){
+            mulImg.color = cs.MatrixScreenMultiplicationSign;
+        }
         modelGroup.LoadColors(cs.MatrixScreenModelMatrixHeader, cs);
         camGroup.LoadColors(cs.MatrixScreenCameraMatrixHeader, cs);
         foreach(var b in borders){
@@ -347,7 +375,7 @@ public class MatrixScreen : MonoBehaviour {
     }
 
     public Mesh GetCurrentMesh () {
-        return defaultMesh;     // TODO mesh selection
+        return currentMesh;
     }
 
     public bool CameraMatrixNotUnweighted () {

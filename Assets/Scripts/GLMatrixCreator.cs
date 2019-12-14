@@ -129,5 +129,14 @@ public static class GLMatrixCreator {
             new Vector4(0, 0, (-2f * zFar * zNear) / (zFar - zNear),  0)
         );
     }
+
+    public static Matrix4x4 GetOrthoProjectionMatrix (float orthoSize, float aspect, float zNear, float zFar) {
+        return new Matrix4x4(
+            new Vector4(2f / (orthoSize * aspect), 0, 0, 0),
+            new Vector4(0, 2f / orthoSize, 0, 0),
+            new Vector4(0, 0, 2f / (zFar - zNear), 0),
+            new Vector4(0, 0, -(zFar + zNear) / (zFar - zNear), 1)
+        );
+    }
 	
 }

@@ -13,41 +13,42 @@ public class UIMatrixInputModel : MonoBehaviour {
     [SerializeField] TextMeshProUGUI label;
     [SerializeField] TextMeshProUGUI labelDropShadow;
     [SerializeField] RawImage previewImage;
+    [SerializeField] Button previewButton;
 
     [Header("Settings")]
-    [SerializeField] float previewTexScale;
+    [SerializeField] bool wireframe;
+    [SerializeField] bool perspectivePreview;
     [SerializeField] Vector3 previewCamPosition;
-    [SerializeField] Material meshPreviewMat;
-
-    [Header("TEMP")]
-    [SerializeField] bool selfInit;
-    [SerializeField] Mesh meshToSelfInitWith;
-    [SerializeField] string meshNameToSelfInitWith;
 
     private RectTransform m_rectTransform;
     public RectTransform rectTransform => m_rectTransform;
 
     bool initialized = false;
-    System.Action<Mesh> onMeshChanged;
-    // Material meshPreviewMat;
+    Material meshPreviewMat;
     RenderTexture previewTex;
+    Mesh previewMesh;
+    MatrixScreen matrixScreen;
+    float lastScale = 1;
 
-    void Initialize (Mesh mesh, string meshName, System.Action<Mesh> onMeshChanged) {
-        var previewDimensions = previewImage.GetComponent<RectTransform>().rect;
-        previewTex = new RenderTexture(
-            width: (int)(previewDimensions.width * previewTexScale), 
-            height: (int)(previewDimensions.height * previewTexScale),
-            depth: 32,
-            format: RenderTextureFormat.ARGB32,
-            readWrite: RenderTextureReadWrite.Default
-        );
-        UpdatePreview(mesh);
-        UpdateName(meshName);
-        this.onMeshChanged = onMeshChanged;
+    public void Initialize (MatrixScreen matrixScreen, Mesh mesh, string meshName, System.Action<Mesh> onMeshChanged) {
+        this.matrixScreen = matrixScreen;
+        this.m_rectTransform = GetComponent<RectTransform>();
+        UpdateNameAndMesh(meshName, mesh);
+        previewButton.onClick.AddListener(() => {
+            ModelPicker.Open(
+                (newMesh, newName) => {
+                    if(newMesh != null){
+                        UpdateNameAndMesh(newName, newMesh, true); 
+                        onMeshChanged?.Invoke(newMesh);
+                    }
+                }, 
+                (matrixScreen != null ? matrixScreen.zoomLevel : 1f)
+            );
+        });
         this.initialized = true;
     }
 
-    void UpdateName (string newName) {
+    public void UpdateNameAndMesh (string newName, Mesh newMesh, bool autoUpdatePreview = true) {
         if(newName == null){
             Debug.LogWarning("Name can't be null, aborting!", this.gameObject);
             return;
@@ -59,7 +60,18 @@ public class UIMatrixInputModel : MonoBehaviour {
         }
         label.text = newName;
         labelDropShadow.text = newName;
-        UpdateHeaderBackgroundColor(ColorScheme.current);
+        previewMesh = newMesh;
+        if(autoUpdatePreview){
+            UpdatePreview();
+        }
+    }
+
+    void Update () {
+        if(initialized && (matrixScreen != null)){
+            if(matrixScreen.zoomLevel != lastScale){
+                UpdatePreview();
+            }
+        }
     }
 
     void LoadColors (ColorScheme cs) {
@@ -67,17 +79,11 @@ public class UIMatrixInputModel : MonoBehaviour {
         labelDropShadow.color = cs.UiMatrixLabelDropShadow;
         outline.color = cs.UiMatrixOutline;
         background.color = cs.UiMatrixBackground;
-        UpdateHeaderBackgroundColor(ColorScheme.current);
-    }
-
-    void UpdateHeaderBackgroundColor (ColorScheme cs) {
-        headerBackground.color = cs.UiMatrixHeaders.FromStringHash(label.text);
+        headerBackground.color = cs.UiMatrixModelPreviewHeader;
+        previewButton.SetFadeTransition(0f, cs.UiMatrixModelPreview, cs.UiMatrixModelPreviewHover, cs.UiMatrixModelPreviewClick, Color.magenta);
     }
 
     void OnEnable () {
-        if(!initialized && selfInit){
-            Initialize(meshToSelfInitWith, meshNameToSelfInitWith, null);
-        }
         LoadColors(ColorScheme.current);
         ColorScheme.onChange += LoadColors;
     }
@@ -86,10 +92,13 @@ public class UIMatrixInputModel : MonoBehaviour {
         ColorScheme.onChange -= LoadColors;
     }
 
-    void UpdatePreview (Mesh meshToUse) {
+    public void UpdatePreview () {
         EnsurePreviewMatLoaded();
+        UpdatePreviewTex();
         var rtCache = RenderTexture.active;
         RenderTexture.active = previewTex;
+        var wireCache = GL.wireframe;
+        GL.wireframe = wireframe;
         GL.Clear(
             clearDepth: true,
             clearColor: true,
@@ -98,25 +107,59 @@ public class UIMatrixInputModel : MonoBehaviour {
         GL.PushMatrix();
         GL.LoadProjectionMatrix(Matrix4x4.identity);
         GL.LoadIdentity();
-        var proj = GLMatrixCreator.GetProjectionMatrix(
-            fov: 45f, 
-            aspectRatio: (float)(previewTex.width) / previewTex.height,
-            zNear: 0.1f,
-            zFar: 100f
-        );
-        var view = GLMatrixCreator.GetLookAtMatrix(
-            eye: previewCamPosition,
-            center: Vector3.zero,
-            up: Vector3.up
-        );
-        var translate = GLMatrixCreator.GetTranslationMatrix(-meshToUse.bounds.center);
-        var scale = GLMatrixCreator.GetScaleMatrix(Vector3.one / meshToUse.bounds.extents.magnitude);
-        GL.MultMatrix(proj * view * translate * scale);
+        GL.MultMatrix(GetMVPMatrix());
         meshPreviewMat.SetPass(0);
-        CustomGLCamera.DrawMesh(meshToUse, Color.white);
+        if(previewMesh != null){
+            CustomGLCamera.DrawMesh(previewMesh, Color.white);
+        }
         GL.PopMatrix();
+        GL.wireframe = wireCache;
         previewImage.texture = previewTex;
         RenderTexture.active = rtCache;
+
+        void UpdatePreviewTex () {
+            float textureScale = matrixScreen != null ? matrixScreen.zoomLevel : 1f;
+            var previewDimensions = previewImage.GetComponent<RectTransform>().rect;
+            if(previewTex != null){
+                previewTex.Release();
+            }
+            previewTex = new RenderTexture(
+                width: (int)(previewDimensions.width * textureScale), 
+                height: (int)(previewDimensions.height * textureScale),
+                depth: 32,
+                format: RenderTextureFormat.ARGB32,
+                readWrite: RenderTextureReadWrite.Default
+            );
+            previewTex.filterMode = FilterMode.Point;
+            lastScale = textureScale;
+        }
+
+        Matrix4x4 GetMVPMatrix () {
+            Matrix4x4 proj;
+            if(perspectivePreview){
+                proj = GLMatrixCreator.GetProjectionMatrix(
+                    fov: 45f, 
+                    aspectRatio: (float)(previewTex.width) / previewTex.height,
+                    zNear: 0.1f,
+                    zFar: 100f
+                );
+            }else{
+                proj = GLMatrixCreator.GetOrthoProjectionMatrix(
+                    orthoSize: 2f,
+                    aspect: (float)(previewTex.width) / previewTex.height,
+                    zNear: 0.1f,
+                    zFar: 100f
+                );
+            }
+            var view = GLMatrixCreator.GetLookAtMatrix(
+                eye: previewCamPosition,
+                center: Vector3.zero,
+                up: Vector3.up
+            );
+            var translate = GLMatrixCreator.GetTranslationMatrix(-previewMesh.bounds.center);
+            var scale = GLMatrixCreator.GetScaleMatrix(Vector3.one / previewMesh.bounds.extents.magnitude);
+            return (proj * view * scale * translate);     // scale and translate are NORMALLY the other way round, but not here!
+        }
     }
 
     void EnsurePreviewMatLoaded () {

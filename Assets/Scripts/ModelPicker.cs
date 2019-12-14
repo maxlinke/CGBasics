@@ -26,7 +26,7 @@ public class ModelPicker : MonoBehaviour {
         loadedMeshes = null;
     }
 
-    public static void Open (System.Action<Mesh> onMeshPicked, float scale) {
+    public static void Open (System.Action<Mesh, string> onMeshPicked, float scale) {
         var buttonSetups = new List<Foldout.ButtonSetup>();
         foreach(var defaultMesh in loadedMeshes){
             string meshName = defaultMesh.name;
@@ -34,11 +34,11 @@ public class ModelPicker : MonoBehaviour {
             buttonSetups.Add(new Foldout.ButtonSetup(
                 buttonName: meshName,
                 buttonHoverMessage: meshName,
-                buttonClickAction: () => {onMeshPicked.Invoke(mesh);},
+                buttonClickAction: () => {onMeshPicked?.Invoke(mesh, meshName);},
                 buttonInteractable: true
             ));
         }
-        Foldout.Create(buttonSetups, () => {onMeshPicked.Invoke(null);}, scale);
+        Foldout.Create(buttonSetups, () => {onMeshPicked?.Invoke(null, null);}, scale);
     }
 	
 }

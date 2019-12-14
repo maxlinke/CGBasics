@@ -1041,11 +1041,15 @@ MonoBehaviour:
     type: 3}
   matrixGroupPrefab: {fileID: 8357111656008610867, guid: 062239a19e0604c4b8d77ca2704cd485,
     type: 3}
+  modelPreviewPrefab: {fileID: 1669636760370137199, guid: 111f72eae3debe04d964a98c795c7a00,
+    type: 3}
   windowOverlay: {fileID: 146898259227228654}
   matrixCamController: {fileID: 1308221943000780195}
   externalCamController: {fileID: 3177943752331237449}
   backgroundImage: {fileID: 8344668593284754150}
-  defaultMesh: {fileID: 4300000, guid: 787db055e1d84114db8a0fa6f0b045ed, type: 3}
+  defaultMesh:
+    m_name: Suzanne
+    m_mesh: {fileID: 4300000, guid: bc69fc385493a1d40914a08df80842c5, type: 3}
   uiMatrixParent: {fileID: 448211681366667359}
   panAndZoomController: {fileID: 2711445455600250081}
   borders:

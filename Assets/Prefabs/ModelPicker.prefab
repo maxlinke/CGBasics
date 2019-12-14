@@ -43,9 +43,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b1c478dbc848334cbdc8f02876f0dcc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  defaultMeshes:
+  presetMeshes:
   - m_name: Suzanne
-    m_mesh: {fileID: 4300000, guid: 787db055e1d84114db8a0fa6f0b045ed, type: 3}
+    m_mesh: {fileID: 4300000, guid: bc69fc385493a1d40914a08df80842c5, type: 3}
   - m_name: Cube
     m_mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
   - m_name: Sphere

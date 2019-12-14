@@ -273,6 +273,17 @@ public class ColorScheme : ScriptableObject {
     public Color UiMatrixFieldEditorSolidBackground => uiMatrixFieldEditorSolidBackground;
     public Color UiMatrixFieldEditorSelectionColor => uiMatrixFieldEditorSelectionColor;
 
+    [Header("UI Matrix Model Preview")]
+    [SerializeField] Color uiMatrixModelPreviewHeader;
+    [SerializeField] Color uiMatrixModelPreview;
+    [SerializeField] Color uiMatrixModelPreviewHover;
+    [SerializeField] Color uiMatrixModelPreviewClick;
+
+    public Color UiMatrixModelPreviewHeader => uiMatrixModelPreviewHeader;
+    public Color UiMatrixModelPreview => uiMatrixModelPreview;
+    public Color UiMatrixModelPreviewHover => uiMatrixModelPreviewHover;
+    public Color UiMatrixModelPreviewClick => uiMatrixModelPreviewClick;
+
     [Header("Bottom Log")]
     [SerializeField] Color bottomLogBackground;
     [SerializeField] Color bottomLogExpandedBackground;

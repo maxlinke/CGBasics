@@ -77,6 +77,8 @@ public class CustomCameraUIController : ClickDragScrollHandler {
         );
         targetCam.SetupViewportRect(new Rect(camRectPos, camRectSize));
         targetCam.LoadColors(ColorScheme.current);
+        string nameSuffix = isExternalCamController ? "(ext)" : "(int)";
+        targetCam.name += $" {nameSuffix}";
         windowOverlay.Initialize(this);
         initialized = true;
         LoadColors(ColorScheme.current);    

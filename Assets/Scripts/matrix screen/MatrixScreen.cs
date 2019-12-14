@@ -33,6 +33,7 @@ public class MatrixScreen : MonoBehaviour {
     public UIMatrix ViewRotMatrix => viewRotMatrix;
     public UIMatrix ProjMatrix => projMatrix;
     public PanAndZoom PanAndZoomController => panAndZoomController;
+    public Vector4 VectorModeVector => new Vector4(1, 1, 1, 1);         // TODO this and all that comes with it
 
     private bool cantAddMoreMatrices => modelGroup.matrixCount + camGroup.matrixCount >= MAX_MATRIX_COUNT;
 
@@ -53,6 +54,7 @@ public class MatrixScreen : MonoBehaviour {
     public bool FreeMode => centerBottomPopup.FreeModeToggle.isOn;
     public bool OpenGLMode => windowOverlay.glToggle.isOn;
     public bool OrthoMode => windowOverlay.orthoToggle.isOn;
+    public bool VectorMode => windowOverlay.vectorToggle.isOn;
 
     void OnEnable () {
         if(!initialized){
@@ -100,7 +102,15 @@ public class MatrixScreen : MonoBehaviour {
             Debug.LogWarning($"Duplicate init call for {nameof(MatrixScreen)}, aborting!", this.gameObject);
             return;
         }
-        windowOverlay.Initialize(this, glInit: false, GLModeUpdated, orthoInit: false, OrthoModeUpdated);
+        windowOverlay.Initialize(
+            matrixScreen: this, 
+            glInit: false, 
+            onGLToggled: GLModeUpdated, 
+            orthoInit: false, 
+            onOrthoToggled: OrthoModeUpdated,
+            vectorInit: false,
+            onVectorToggled: VectorModeUpdated
+        );
         matrixCamController.Initialize(this, externalCamController);
         externalCamController.Initialize(this, matrixCamController);
         centerBottomPopup.Initialize(
@@ -176,6 +186,10 @@ public class MatrixScreen : MonoBehaviour {
         }else{
             ActivateNonFreeMode();
         }
+    }
+
+    void VectorModeUpdated (bool value) {
+
     }
 
     void AlignMatrixGroups () {

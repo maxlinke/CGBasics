@@ -99,6 +99,7 @@ public class CustomGLCamera : MonoBehaviour {
     Color zColor;
     Color pivotColor;
     Color pivotOutlineColor;
+    Color clipOverlayColor;
 
     Vector3[] clipSpaceVertices = new Vector3[]{
         new Vector3(-1, -1, -1),
@@ -206,9 +207,10 @@ public class CustomGLCamera : MonoBehaviour {
         objectMat.SetColor("_LightColorFront", cs.VertRenderLight1);
         objectMat.SetColor("_LightColorBack", cs.VertRenderLight2);
         objectMat.SetColor("_LightColorAmbient", cs.VertRenderAmbientLight);
-        objectMat.SetColor("_ClippingOverlayColor", cs.VertRenderClippingOverlay);
-        lineMaterialSolid.SetColor("_ClippingOverlayColor", cs.VertRenderClippingOverlay);
-        lineMaterialSeeThrough.SetColor("_ClippingOverlayColor", cs.VertRenderClippingOverlay);
+        clipOverlayColor = cs.VertRenderClippingOverlay;
+        objectMat.SetColor("_ClippingOverlayColor", clipOverlayColor);
+        lineMaterialSolid.SetColor("_ClippingOverlayColor", clipOverlayColor);
+        lineMaterialSeeThrough.SetColor("_ClippingOverlayColor", clipOverlayColor);
     }
 
     void SetupPremadeUnityColoredMaterials () {
@@ -307,7 +309,28 @@ public class CustomGLCamera : MonoBehaviour {
         GL.LoadProjectionMatrix(Matrix4x4.identity);
         GL.LoadIdentity();
 
-        if(currentMesh != null){            
+        if(matrixScreen.VectorMode){
+            Vector4 vmVec;
+            Color mCol = Color.white;   // TODO colors
+            Color oCol = Color.black;
+            if(isExternalCamera){
+                Matrix4x4 otherMVP = otherCamera.cameraMatrix * otherCamera.modelMatrix;
+                vmVec = otherMVP * matrixScreen.VectorModeVector;
+                Vector3 vmVecCPos = new Vector3(vmVec.x, vmVec.y, vmVec.z);
+                if(vmVec.w != 0){
+                    vmVecCPos /= vmVec.w;
+                }
+                bool clipped = Mathf.Abs(vmVecCPos.x) > 1 || Mathf.Abs(vmVecCPos.y) > 1 || Mathf.Abs(vmVecCPos.z) > 1;
+                if(clipped && showClipping){
+                    mCol = mCol.AlphaOver(clipOverlayColor);
+                    oCol = oCol.AlphaOver(clipOverlayColor);
+                }
+                RenderPoint(vmVec, mCol, oCol, true);
+            }else{
+                vmVec = modelMatrix * matrixScreen.VectorModeVector;
+                RenderPoint(vmVec, mCol, oCol, true);
+            }
+        }else if(currentMesh != null){            
             RenderTheObject();
         }
 
@@ -316,21 +339,12 @@ public class CustomGLCamera : MonoBehaviour {
                 DrawAllTheWireThings(true);
             }
             DrawAllTheWireThings(false);
-
-            if(drawPivot){
-                DrawWithNewMVPMatrix(Matrix4x4.identity, () => {
-                    Vector4 v4Pivot = new Vector4(pivotPointToDraw.x, pivotPointToDraw.y, pivotPointToDraw.z, 1f);
-                    Vector4 clipSpacePivot = this.cameraMatrix * v4Pivot;
-                    Vector3 drawnPivot = new Vector3(clipSpacePivot.x, clipSpacePivot.y, clipSpacePivot.z) / clipSpacePivot.w;
-                    lineMaterialSeeThrough.DisableKeyword(clippingKeyword);
-                    lineMaterialSeeThrough.SetPass(0);
-                    DrawPoint(drawnPivot, GetSeeThroughColor(pivotColor), GetSeeThroughColor(pivotOutlineColor));
-                    lineMaterialSolid.DisableKeyword(clippingKeyword);
-                    lineMaterialSolid.SetPass(0);
-                    DrawPoint(drawnPivot, pivotColor, pivotOutlineColor);
-                });
-            }
         });
+
+        if(drawPivot){
+            Vector4 v4Pivot = new Vector4(pivotPointToDraw.x, pivotPointToDraw.y, pivotPointToDraw.z, 1f);
+            RenderPoint(v4Pivot, pivotColor, pivotOutlineColor, true);
+        }
 
         GL.PopMatrix();
 
@@ -361,6 +375,31 @@ public class CustomGLCamera : MonoBehaviour {
                 DrawMesh(currentMesh, drawObjectAsWireFrame ? wireObjectColor : Color.white);
             });
             GL.wireframe = wireCache;
+        }
+
+        void RenderPoint (Vector4 inputPoint, Color mainColor, Color outlineColor, bool alsoSeeThrough) {
+            Vector4 clipSpaceInput = this.cameraMatrix * inputPoint;
+            Vector3 drawPoint = new Vector3(clipSpaceInput.x, clipSpaceInput.y, clipSpaceInput.z);
+            if(inputPoint.w != 0){
+                drawPoint /= clipSpaceInput.w;
+            }
+            if(alsoSeeThrough){
+                DrawThePoint(true);
+            }
+            DrawThePoint(false);
+
+            void DrawThePoint (bool seeThrough) {
+                Material drawMat = seeThrough ? lineMaterialSeeThrough : lineMaterialSolid;
+                bool clipCache = drawMat.IsKeywordEnabled(clippingKeyword);
+                drawMat.DisableKeyword(clippingKeyword);
+                DrawWithNewMVPMatrix(Matrix4x4.identity, () => {
+                    drawMat.SetPass(0);
+                    DrawClipspacePoint(drawPoint, GetConditionalSeeThroughColor(mainColor, seeThrough), GetConditionalSeeThroughColor(outlineColor, seeThrough));
+                });
+                if(clipCache){
+                    drawMat.EnableKeyword(clippingKeyword);
+                }
+            }
         }
 
         void DrawAllTheWireThings (bool seeThrough) {
@@ -474,7 +513,7 @@ public class CustomGLCamera : MonoBehaviour {
         });
     }
 
-    void DrawPoint (Vector3 point, Color mainColor, Color outlineColor) {
+    void DrawClipspacePoint (Vector3 point, Color mainColor, Color outlineColor) {
         float fOffsetV = 2f * pointSize / Screen.height;
         float fOffsetH = 2f * pointSize / Screen.width;
         Vector3 offsetV = new Vector3(0f, fOffsetV, 0f);

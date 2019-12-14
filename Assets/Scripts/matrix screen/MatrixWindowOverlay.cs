@@ -12,8 +12,9 @@ namespace MatrixScreenUtils {
 
         public Toggle glToggle { get; private set; }
         public Toggle orthoToggle { get; private set; }
+        public Toggle vectorToggle { get; private set; }
 
-        public void Initialize (MatrixScreen matrixScreen, bool glInit, System.Action<bool> onGLToggled, bool orthoInit, System.Action<bool> onOrthoToggled) {
+        public void Initialize (MatrixScreen matrixScreen, bool glInit, System.Action<bool> onGLToggled, bool orthoInit, System.Action<bool> onOrthoToggled, bool vectorInit, System.Action<bool> onVectorToggled) {
             toggles = new List<Toggle>();
             toggleBackgrounds = new List<Image>();
             toggleIcons = new List<Image>();
@@ -37,6 +38,16 @@ namespace MatrixScreenUtils {
                 hoverMessage: $"Toggles between orthographic and perspective projection {resetWarning}", 
                 onStateChange: onOrthoToggled,
                 initialState: orthoInit, 
+                offsetAfter: false, 
+                invokeStateChange: false
+            );
+            vectorToggle = CreateSpecialToggle(
+                ref toggleIndex, 
+                icon: UISprites.UITemp, 
+                toggleName: "VectorMode", 
+                hoverMessage: $"Disables the mesh and instead shows a configurable vector", 
+                onStateChange: onVectorToggled,
+                initialState: vectorInit, 
                 offsetAfter: false, 
                 invokeStateChange: false
             );

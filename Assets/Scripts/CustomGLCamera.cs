@@ -100,6 +100,8 @@ public class CustomGLCamera : MonoBehaviour {
     Color pivotColor;
     Color pivotOutlineColor;
     Color clipOverlayColor;
+    Color vectorColor;
+    Color vectorOutlineColor;
 
     Vector3[] clipSpaceVertices = new Vector3[]{
         new Vector3(-1, -1, -1),
@@ -201,6 +203,8 @@ public class CustomGLCamera : MonoBehaviour {
         zColor = cs.VertRenderOriginZAxis;
         pivotColor = cs.VertRenderPivot;
         pivotOutlineColor = cs.VertRenderPivotOutline;
+        vectorColor = cs.VertRenderVectorPoint;
+        vectorOutlineColor = cs.VertRenderVectorPointOutline;
 
         objectMat.SetColor("_FrontColor", cs.VertRenderObjectColor);
         objectMat.SetColor("_BackColor", cs.VertRenderObjectBackfaceColor);
@@ -243,7 +247,7 @@ public class CustomGLCamera : MonoBehaviour {
         }
         attachedUnityCam.cullingMask = 0;
         if(isExternalCamera && !otherCamera.matricesAreUpdated){
-            otherCamera.UpdateMatricesAndMesh();  //TODO change to a better name maybe?
+            otherCamera.UpdateMatricesAndMesh();
         }
         UpdateMatricesAndMesh();
     }
@@ -310,26 +314,7 @@ public class CustomGLCamera : MonoBehaviour {
         GL.LoadIdentity();
 
         if(matrixScreen.VectorMode){
-            Vector4 vmVec;
-            Color mCol = Color.white;   // TODO colors
-            Color oCol = Color.black;
-            if(isExternalCamera){
-                Matrix4x4 otherMVP = otherCamera.cameraMatrix * otherCamera.modelMatrix;
-                vmVec = otherMVP * matrixScreen.VectorModeVector;
-                Vector3 vmVecCPos = new Vector3(vmVec.x, vmVec.y, vmVec.z);
-                if(vmVec.w != 0){
-                    vmVecCPos /= vmVec.w;
-                }
-                bool clipped = Mathf.Abs(vmVecCPos.x) > 1 || Mathf.Abs(vmVecCPos.y) > 1 || Mathf.Abs(vmVecCPos.z) > 1;
-                if(clipped && showClipping){
-                    mCol = mCol.AlphaOver(clipOverlayColor);
-                    oCol = oCol.AlphaOver(clipOverlayColor);
-                }
-                RenderPoint(vmVec, mCol, oCol, true);
-            }else{
-                vmVec = modelMatrix * matrixScreen.VectorModeVector;
-                RenderPoint(vmVec, mCol, oCol, true);
-            }
+            RenderTheVector();
         }else if(currentMesh != null){            
             RenderTheObject();
         }
@@ -375,6 +360,29 @@ public class CustomGLCamera : MonoBehaviour {
                 DrawMesh(currentMesh, drawObjectAsWireFrame ? wireObjectColor : Color.white);
             });
             GL.wireframe = wireCache;
+        }
+
+        void RenderTheVector () {
+            Vector4 vmVec;
+            Color mCol = vectorColor;
+            Color oCol = vectorOutlineColor;
+            if(isExternalCamera){
+                Matrix4x4 otherMVP = otherCamera.cameraMatrix * otherCamera.modelMatrix;
+                vmVec = otherMVP * matrixScreen.VectorModeVector;
+                Vector3 vmVecCPos = new Vector3(vmVec.x, vmVec.y, vmVec.z);
+                if(vmVec.w != 0){           // TODO what happens if i remove this check?
+                    vmVecCPos /= vmVec.w;
+                }
+                bool clipped = Mathf.Abs(vmVecCPos.x) > 1 || Mathf.Abs(vmVecCPos.y) > 1 || Mathf.Abs(vmVecCPos.z) > 1;
+                if(clipped && showClipping){
+                    mCol = mCol.AlphaOver(clipOverlayColor);
+                    oCol = oCol.AlphaOver(clipOverlayColor);
+                }
+                RenderPoint(vmVec, mCol, oCol, true);
+            }else{
+                vmVec = modelMatrix * matrixScreen.VectorModeVector;
+                RenderPoint(vmVec, mCol, oCol, true);
+            }
         }
 
         void RenderPoint (Vector4 inputPoint, Color mainColor, Color outlineColor, bool alsoSeeThrough) {

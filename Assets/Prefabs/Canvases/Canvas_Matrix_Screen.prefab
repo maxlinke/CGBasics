@@ -1043,13 +1043,12 @@ MonoBehaviour:
     type: 3}
   modelPreviewPrefab: {fileID: 1669636760370137199, guid: 111f72eae3debe04d964a98c795c7a00,
     type: 3}
+  vectorPrefab: {fileID: 578944307453655653, guid: db95ddbf79b6b504280015e9f75ead73,
+    type: 3}
   windowOverlay: {fileID: 146898259227228654}
   matrixCamController: {fileID: 1308221943000780195}
   externalCamController: {fileID: 3177943752331237449}
   backgroundImage: {fileID: 8344668593284754150}
-  defaultMesh:
-    m_name: Suzanne
-    m_mesh: {fileID: 4300000, guid: bc69fc385493a1d40914a08df80842c5, type: 3}
   uiMatrixParent: {fileID: 448211681366667359}
   panAndZoomController: {fileID: 2711445455600250081}
   borders:
@@ -1058,6 +1057,10 @@ MonoBehaviour:
   - {fileID: 7489832311983296522}
   - {fileID: 4332775997684968996}
   centerBottomPopup: {fileID: 5726293091513977209}
+  defaultMesh:
+    m_name: Suzanne
+    m_mesh: {fileID: 4300000, guid: bc69fc385493a1d40914a08df80842c5, type: 3}
+  defaultVector: {x: 0, y: 0, z: 0, w: 1}
   weightLerpDeltaPerSecond: 7.5
   multiplicationSignSize: 40
   matrixGroupMargin: 20

@@ -23,6 +23,7 @@ MonoBehaviour:
   uiDirDown: {fileID: 21300000, guid: a3ef3307db3cc6b4682d85869df380d5, type: 3}
   matrixScreenGL: {fileID: 21300000, guid: 394626e89c6231b4d9f53b386944cd9f, type: 3}
   matrixScreenOrtho: {fileID: 21300000, guid: 61709ef8de2c3444aa74ba38cb8c32b3, type: 3}
+  matrixScreenVector: {fileID: 21300000, guid: 2106446af404adb4f9d7ce4b61ac83a7, type: 3}
   matrixLeft: {fileID: 21300000, guid: b4142fafa1a26f347aea8f8364dc157d, type: 3}
   matrixRight: {fileID: 21300000, guid: 2f78a6b7c627d354db3b0335ae765fca, type: 3}
   matrixUp: {fileID: 21300000, guid: 8d667d060e6cfb04ab807a97ecf3c602, type: 3}
@@ -35,6 +36,7 @@ MonoBehaviour:
   matrixIdentity: {fileID: 21300000, guid: 6937a4c16a012c147baa3997bf7002f4, type: 3}
   matrixConfig: {fileID: 21300000, guid: 7de91cbe74f7b4b439ad1150f781dd0f, type: 3}
   matrixMultiply: {fileID: 21300000, guid: 80518ac1b8f94894887b7a6bfb0177dc, type: 3}
+  matrixEquals: {fileID: 21300000, guid: 661c9b4f852be314ea3edbd8d08597b3, type: 3}
   mCamCtrlDrawFloor: {fileID: 21300000, guid: 520d70eeb2ea2814b83f62c0df00633a, type: 3}
   mCamCtrlDrawOrigin: {fileID: 21300000, guid: a4389c5f339140c48998d5c9d859a255, type: 3}
   mCamCtrlDrawSeeThrough: {fileID: 21300000, guid: f745db58eacb0c54b98d22b0e30f6e47,

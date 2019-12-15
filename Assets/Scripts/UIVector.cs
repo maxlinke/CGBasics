@@ -22,6 +22,7 @@ public class UIVector : MonoBehaviour {
     bool m_columnMode;
     TMP_InputField[] inputFields;
     RectTransform[] inputFieldRTs;
+    ScrollableNumberInputField[] inputFieldScrollHandlers;
     float defaultFontSize;
 
     public RectTransform rectTransform => m_rectTransform;
@@ -52,7 +53,7 @@ public class UIVector : MonoBehaviour {
         }
     }
 
-    void Initialize (Vector4 vectorValue, bool initEditability, bool initColumn) {
+    public void Initialize (Vector4 vectorValue, bool initEditability, bool initColumn) {
         if(initialized){
             Debug.LogError("Duplicate init call, aborting!", this.gameObject);
             return;
@@ -61,10 +62,12 @@ public class UIVector : MonoBehaviour {
         this.m_columnMode = initColumn;
         inputFields = new TMP_InputField[4];
         inputFieldRTs = new RectTransform[4];
+        inputFieldScrollHandlers = new ScrollableNumberInputField[4];
         inputFieldTemplate.SetActive(false);
         SetupInputFields();
         ColumnModeUpdated();
         initialized = true;
+        LoadColors(ColorScheme.current);
 
         void SetupInputFields () {
             for(int i=0; i<4; i++){
@@ -80,7 +83,9 @@ public class UIVector : MonoBehaviour {
                 newFieldRT.sizeDelta = fieldSize;
                 inputFieldRTs[i] = newFieldRT;
                 newField.GetComponent<Image>().color = Color.white;
-                newField.gameObject.AddComponent<ScrollableNumberInputField>().Initialize(newField);
+                var newScroll = newField.gameObject.AddComponent<ScrollableNumberInputField>();
+                newScroll.Initialize(newField);
+                inputFieldScrollHandlers[i] = newScroll;
                 newField.gameObject.AddComponent<UIHoverEventCaller>().SetActions(
                     onHoverEnter: (ped) => {if(newField.interactable){BottomLog.DisplayMessage(ScrollableNumberInputField.hintText);}},
                     onHoverExit: (ped) => {if(newField.interactable){BottomLog.ClearDisplay();}}
@@ -92,14 +97,12 @@ public class UIVector : MonoBehaviour {
                     FormatFieldText(indexCopy);
                 });
                 newField.interactable = this.editable;
+                newScroll.enabled = this.editable;
             }
         }
     }
 
     void OnEnable () {
-        if(!initialized){
-            Initialize(new Vector4(-2, 0, 56, 0.3f), true, true);
-        }
         LoadColors(ColorScheme.current);
         ColorScheme.onChange += LoadColors;
     }
@@ -148,8 +151,9 @@ public class UIVector : MonoBehaviour {
     }
 
     void UpdateFieldEditability () {
-        foreach(var field in inputFields){
-            field.interactable = this.editable;
+        for(int i=0; i<4; i++){
+            inputFields[i].interactable = this.editable;
+            inputFieldScrollHandlers[i].enabled = this.editable;
         }
     }
 
@@ -168,7 +172,8 @@ public class UIVector : MonoBehaviour {
 
     void SetFieldsFromVector (Vector4 inputVector) {
         for(int i=0; i<4; i++){
-            inputFields[i].text = FormatFloatForField(inputVector[i]);
+            inputFields[i].text = inputVector[i].ToString();
+            FormatFieldText(i);
         }
     }
 
@@ -190,7 +195,10 @@ public class UIVector : MonoBehaviour {
             float scale = fieldRT.rect.width / field.textComponent.preferredWidth;
             field.textComponent.fontSize = defaultFontSize * scale;
         }
-        field.textComponent.rectTransform.SetToFill();
+        var textParent = field.textComponent.rectTransform.parent;
+        for(int i=0; i<textParent.childCount; i++){
+            ((RectTransform)(textParent.GetChild(i))).SetToFill();
+        }
     }
 	
 }

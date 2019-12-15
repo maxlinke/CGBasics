@@ -11,19 +11,21 @@ public class MatrixScreen : MonoBehaviour {
     [SerializeField] UIMatrix uiMatrixPrefab;
     [SerializeField] UIMatrixGroup matrixGroupPrefab;
     [SerializeField] UIMatrixInputModel modelPreviewPrefab;
+    [SerializeField] UIVector vectorPrefab;
 
     [Header("Components")]
     [SerializeField] MatrixWindowOverlay windowOverlay;
     [SerializeField] CustomCameraUIController matrixCamController;
     [SerializeField] CustomCameraUIController externalCamController;
     [SerializeField] Image backgroundImage;
-    [SerializeField] DefaultMesh defaultMesh;
     [SerializeField] RectTransform uiMatrixParent;
     [SerializeField] PanAndZoom panAndZoomController;
     [SerializeField] Image[] borders;
     [SerializeField] CenterBottomPopup centerBottomPopup;
 
     [Header("Settings")]
+    [SerializeField] DefaultMesh defaultMesh;
+    [SerializeField] Vector4 defaultVector;
     [SerializeField] float weightLerpDeltaPerSecond;
     [SerializeField] float multiplicationSignSize;
     [SerializeField] float matrixGroupMargin;
@@ -33,7 +35,7 @@ public class MatrixScreen : MonoBehaviour {
     public UIMatrix ViewRotMatrix => viewRotMatrix;
     public UIMatrix ProjMatrix => projMatrix;
     public PanAndZoom PanAndZoomController => panAndZoomController;
-    public Vector4 VectorModeVector => new Vector4(1, 1, 1, 1);         // TODO this and all that comes with it
+    public Vector4 VectorModeVector => inputVector.VectorValue;
 
     private bool cantAddMoreMatrices => modelGroup.matrixCount + camGroup.matrixCount >= MAX_MATRIX_COUNT;
 
@@ -44,8 +46,12 @@ public class MatrixScreen : MonoBehaviour {
     UIMatrix viewRotMatrix;
     UIMatrix projMatrix;
     UIMatrixInputModel modelPreview;
-    List<Image> multiplicationSignImages;
+    UIVector inputVector;
+    UIVector outputVector;
+    List<Image> mathematicalSignImages;
     RectTransform previewMultiplicationSignRT;
+    RectTransform vectorMultiplicationSignRT;
+    RectTransform vectorEqualsSignRT;
     Mesh currentMesh;
 
     float currentLinearWeight;
@@ -74,6 +80,7 @@ public class MatrixScreen : MonoBehaviour {
         }
         UpdateLinearWeight();
         ApplyIndividualWeights();
+        outputVector.VectorValue = GetWeightedCameraMatrixForRendering() * GetWeightedModelMatrixForRendering() * inputVector.VectorValue;
 
         void UpdateLinearWeight () {
             float delta = currentWeightTarget - currentLinearWeight;
@@ -121,22 +128,34 @@ public class MatrixScreen : MonoBehaviour {
                 currentWeightTarget = newVal;
             }
         );
-        multiplicationSignImages = new List<Image>();
+        mathematicalSignImages = new List<Image>();
         centerBottomPopup.LoadColors(ColorScheme.current);
-        CreateMultiplicationSign(out _);
+
+        CreateMathematicalSign(UISprites.MatrixMultiply, out _);
         modelGroup = CreateMatrixGroup(leftSide: true);
         modelGroup.SetName("Model Matrix");
         camGroup = CreateMatrixGroup(leftSide: false);
         camGroup.SetName("Camera Matrix");
-        CreateMultiplicationSign(out previewMultiplicationSignRT);
+
+        CreateMathematicalSign(UISprites.MatrixMultiply, out previewMultiplicationSignRT);
         modelPreview = Instantiate(modelPreviewPrefab);
         modelPreview.Initialize(this, defaultMesh.mesh, defaultMesh.name, (m) => {currentMesh = m;});
         modelPreview.rectTransform.SetParent(uiMatrixParent, false);
         modelPreview.rectTransform.ResetLocalScale();
         currentMesh = defaultMesh.mesh;
+
+        CreateMathematicalSign(UISprites.MatrixMultiply, out vectorMultiplicationSignRT);
+        CreateMathematicalSign(UISprites.MatrixEquals, out vectorEqualsSignRT);
+        inputVector = CreateVector(true);
+        outputVector = CreateVector(false);
+
+        VectorModeUpdated(this.VectorMode);
+
         AlignMatrixGroups();
         modelGroup.onContentRebuilt += UpdatePreviewPosition;
+        modelGroup.onContentRebuilt += UpdateVectorPositions;
         camGroup.onContentRebuilt += UpdatePreviewPosition;
+        camGroup.onContentRebuilt += UpdateVectorPositions;
         ActivateNonFreeMode();
         initialized = true;
 
@@ -147,11 +166,19 @@ public class MatrixScreen : MonoBehaviour {
             newGroup.Initialize(this);
             return newGroup;
         }
+
+        UIVector CreateVector (bool vectorInitEditable) {
+            var newVector = Instantiate(vectorPrefab);
+            newVector.Initialize(defaultVector, vectorInitEditable, OpenGLMode);
+            newVector.rectTransform.SetParent(uiMatrixParent, false);
+            newVector.rectTransform.ResetLocalScale();
+            return newVector;
+        }
         
     }
 
-    void CreateMultiplicationSign (out RectTransform mulSignRT) {
-        mulSignRT = new GameObject("Multiplication Sign", typeof(RectTransform), typeof(Image)).GetComponent<RectTransform>();
+    void CreateMathematicalSign (Sprite mathSignSprite, out RectTransform mulSignRT) {
+        mulSignRT = new GameObject($"Math Sign ({mathSignSprite.name})", typeof(RectTransform), typeof(Image)).GetComponent<RectTransform>();
         mulSignRT.SetParent(uiMatrixParent, false);
         mulSignRT.localScale = Vector3.one;
         mulSignRT.SetAnchor(0.5f * Vector2.one);
@@ -159,8 +186,8 @@ public class MatrixScreen : MonoBehaviour {
         mulSignRT.anchoredPosition = Vector2.zero;
         mulSignRT.sizeDelta = Vector2.one * multiplicationSignSize;
         var mulSignImg = mulSignRT.gameObject.GetComponent<Image>();
-        mulSignImg.sprite = UISprites.MatrixMultiply;
-        multiplicationSignImages.Add(mulSignImg);
+        mulSignImg.sprite = mathSignSprite;
+        mathematicalSignImages.Add(mulSignImg);
     }
 
     void FreeModeUpdated (bool value) {
@@ -173,6 +200,8 @@ public class MatrixScreen : MonoBehaviour {
 
     void GLModeUpdated (bool value) {
         AlignMatrixGroups();
+        inputVector.columnMode = OpenGLMode;
+        outputVector.columnMode = OpenGLMode;
         if(FreeMode){
             centerBottomPopup.FreeModeToggle.isOn = false;
         }else{
@@ -189,7 +218,20 @@ public class MatrixScreen : MonoBehaviour {
     }
 
     void VectorModeUpdated (bool value) {
+        SetPreviewActivated(!VectorMode);
+        SetVectorsActivated(VectorMode);
 
+        void SetPreviewActivated (bool activatedValue) {
+            modelPreview.SetGOActive(activatedValue);
+            previewMultiplicationSignRT.SetGOActive(activatedValue);
+        }
+
+        void SetVectorsActivated (bool activatedValue) {
+            inputVector.SetGOActive(activatedValue);
+            outputVector.SetGOActive(activatedValue);
+            vectorMultiplicationSignRT.SetGOActive(activatedValue);
+            vectorEqualsSignRT.SetGOActive(activatedValue);
+        }
     }
 
     void AlignMatrixGroups () {
@@ -220,6 +262,51 @@ public class MatrixScreen : MonoBehaviour {
         modelPreview.rectTransform.SetAnchor(anchor);
         modelPreview.rectTransform.pivot = (OpenGLMode ? rightPivot : leftPivot);
         modelPreview.rectTransform.anchoredPosition = pos;
+    }
+
+    void UpdateVectorPositions () {
+        Vector2 anchor = new Vector2(0.5f, 0.5f);
+        Vector2 leftPivot = new Vector2(1f, 0.5f);
+        Vector2 rightPivot = new Vector2(0f, 0.5f);
+        inputVector.rectTransform.SetAnchor(anchor);
+        outputVector.rectTransform.SetAnchor(anchor);
+        vectorMultiplicationSignRT.SetAnchor(anchor);
+        vectorEqualsSignRT.SetAnchor(anchor);
+        vectorMultiplicationSignRT.pivot = anchor;
+        vectorEqualsSignRT.pivot = anchor;
+        float outputOffset;
+        UIMatrixGroup rightGroup;
+        if(OpenGLMode){
+            float x = MatrixGroupOffset(modelGroup) + MultSignOffset();
+            vectorMultiplicationSignRT.anchoredPosition = new Vector2(x, 0);
+            x += MultSignOffset();
+            inputVector.rectTransform.pivot = rightPivot;
+            inputVector.rectTransform.anchoredPosition = new Vector2(x, 0);
+            outputOffset = 2 * MultSignOffset() + inputVector.rectTransform.rect.width;
+            rightGroup = modelGroup;
+        }else{
+            float x = MatrixGroupOffset(modelGroup) - MultSignOffset();
+            vectorMultiplicationSignRT.anchoredPosition = new Vector2(x, 0);
+            x -= MultSignOffset();
+            inputVector.rectTransform.pivot = leftPivot;
+            inputVector.rectTransform.anchoredPosition = new Vector2(x, 0);
+            outputOffset = 0;
+            rightGroup = camGroup;
+        }
+        float outputX = MatrixGroupOffset(rightGroup) + outputOffset + MultSignOffset();
+        vectorEqualsSignRT.anchoredPosition = new Vector2(outputX, 0);
+        outputX += MultSignOffset();
+        outputVector.rectTransform.pivot = rightPivot;
+        outputVector.rectTransform.anchoredPosition = new Vector2(outputX, 0);
+
+        float MatrixGroupOffset (UIMatrixGroup inputGroup) {
+            float sign = Mathf.Sign(inputGroup.rectTransform.anchoredPosition.x);
+            return inputGroup.rectTransform.anchoredPosition.x + (sign * inputGroup.rectTransform.rect.width);
+        }
+
+        float MultSignOffset () {
+            return (multiplicationSignSize / 2) + matrixGroupMargin;
+        }
     }
 
     public void ActivateNonFreeMode () {
@@ -279,7 +366,7 @@ public class MatrixScreen : MonoBehaviour {
 
     void LoadColors (ColorScheme cs) {
         backgroundImage.color = cs.MatrixScreenBackground;
-        foreach(var mulImg in multiplicationSignImages){
+        foreach(var mulImg in mathematicalSignImages){
             mulImg.color = cs.MatrixScreenMultiplicationSign;
         }
         modelGroup.LoadColors(cs.MatrixScreenModelMatrixHeader, cs);

@@ -370,15 +370,17 @@ public class CustomGLCamera : MonoBehaviour {
                 Matrix4x4 otherMVP = otherCamera.cameraMatrix * otherCamera.modelMatrix;
                 vmVec = otherMVP * matrixScreen.VectorModeVector;
                 Vector3 vmVecCPos = new Vector3(vmVec.x, vmVec.y, vmVec.z);
-                if(vmVec.w != 0){           // TODO what happens if i remove this check?
-                    vmVecCPos /= vmVec.w;   // if it's 0, draw a line instead?
+                if(vmVec.w > 0){
+                    vmVecCPos /= vmVec.w;
+                    bool clipped = Mathf.Abs(vmVecCPos.x) > 1 || Mathf.Abs(vmVecCPos.y) > 1 || Mathf.Abs(vmVecCPos.z) > 1;
+                    if(clipped && showClipping){
+                        mCol = mCol.AlphaOver(clipOverlayColor);
+                        oCol = oCol.AlphaOver(clipOverlayColor);
+                    }
+                    RenderPoint(vmVec, mCol, oCol, true);
+                }else{
+                    Debug.LogWarning("not drawing the vector!");
                 }
-                bool clipped = Mathf.Abs(vmVecCPos.x) > 1 || Mathf.Abs(vmVecCPos.y) > 1 || Mathf.Abs(vmVecCPos.z) > 1;
-                if(clipped && showClipping){
-                    mCol = mCol.AlphaOver(clipOverlayColor);
-                    oCol = oCol.AlphaOver(clipOverlayColor);
-                }
-                RenderPoint(vmVec, mCol, oCol, true);
             }else{
                 vmVec = modelMatrix * matrixScreen.VectorModeVector;
                 RenderPoint(vmVec, mCol, oCol, true);
@@ -437,7 +439,7 @@ public class CustomGLCamera : MonoBehaviour {
                     }
                     DrawWithNewMVPMatrix(cameraMatrix * otherCamera.cameraMatrix, () => {
                         if(otherCamera.drawGridFloor){
-                            DrawWireFloor(seeThrough, otherCamera.drawOrigin);
+                            DrawWireFloor(seeThrough, otherCamera.drawOrigin || (this.drawOrigin && !matrixScreen.CameraMatrixNotUnweighted()));
                         }
                         if(otherCamera.drawOrigin){
                             DrawAxes(seeThrough);

@@ -47,9 +47,11 @@ public class UISprites : ScriptableObject {
     [Header("Matrix Screen")]
     [SerializeField] Sprite matrixScreenGL;
     [SerializeField] Sprite matrixScreenOrtho;
+    [SerializeField] Sprite matrixScreenVector;
 
     public static Sprite MatrixScreenGL => instance.matrixScreenGL;
     public static Sprite MatrixScreenOrtho => instance.matrixScreenOrtho;
+    public static Sprite MatrixScreenVector => instance.matrixScreenVector;
 
     [Header("Matrix Sprites")]
     [SerializeField] Sprite matrixLeft;
@@ -64,6 +66,7 @@ public class UISprites : ScriptableObject {
     [SerializeField] Sprite matrixIdentity;
     [SerializeField] Sprite matrixConfig;
     [SerializeField] Sprite matrixMultiply;
+    [SerializeField] Sprite matrixEquals;
 
     public static Sprite MatrixLeft => instance.matrixLeft;
     public static Sprite MatrixRight => instance.matrixRight;
@@ -77,6 +80,7 @@ public class UISprites : ScriptableObject {
     public static Sprite MatrixIdentity => instance.matrixIdentity;
     public static Sprite MatrixConfig => instance.matrixConfig;
     public static Sprite MatrixMultiply => instance.matrixMultiply;
+    public static Sprite MatrixEquals => instance.matrixEquals;
 
     [Header("Matrix Camera Controls")]
     [SerializeField] Sprite mCamCtrlDrawFloor;

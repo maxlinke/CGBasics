@@ -43,7 +43,7 @@ namespace MatrixScreenUtils {
             );
             vectorToggle = CreateSpecialToggle(
                 ref toggleIndex, 
-                icon: UISprites.UITemp, 
+                icon: UISprites.MatrixScreenVector, 
                 toggleName: "VectorMode", 
                 hoverMessage: $"Disables the mesh and instead shows a configurable vector", 
                 onStateChange: onVectorToggled,

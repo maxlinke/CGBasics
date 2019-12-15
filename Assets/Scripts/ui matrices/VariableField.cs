@@ -46,7 +46,7 @@ namespace UIMatrices {
             valueHover.SetActions(
                 (ped) => {
                     if(varValueField.interactable){
-                        BottomLog.DisplayMessage($"Scrollable Input Field. Hold \"{InputSystem.sensitivityIncreaseKey}\" for a faster increase and \"{InputSystem.sensitivityReduceKey}\" for finer control");
+                        BottomLog.DisplayMessage(ScrollableNumberInputField.hintText);
                     }
                 }, (ped) => {
                     if(varValueField.interactable){

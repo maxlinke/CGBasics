@@ -9,6 +9,8 @@ public class ScrollableNumberInputField : MonoBehaviour, IScrollHandler {
     InputField field;
     TMP_InputField tmpField;
 
+    public static string hintText => $"Scrollable Input Field. Hold \"{InputSystem.sensitivityIncreaseKey}\" for a faster increase and \"{InputSystem.sensitivityReduceKey}\" for finer control";
+
     public void Initialize (InputField field) {
         if(initialized){
             Debug.LogError("Duplicate init, aborting!", this.gameObject);

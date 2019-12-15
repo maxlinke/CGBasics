@@ -371,7 +371,7 @@ public class CustomGLCamera : MonoBehaviour {
                 vmVec = otherMVP * matrixScreen.VectorModeVector;
                 Vector3 vmVecCPos = new Vector3(vmVec.x, vmVec.y, vmVec.z);
                 if(vmVec.w != 0){           // TODO what happens if i remove this check?
-                    vmVecCPos /= vmVec.w;
+                    vmVecCPos /= vmVec.w;   // if it's 0, draw a line instead?
                 }
                 bool clipped = Mathf.Abs(vmVecCPos.x) > 1 || Mathf.Abs(vmVecCPos.y) > 1 || Mathf.Abs(vmVecCPos.z) > 1;
                 if(clipped && showClipping){

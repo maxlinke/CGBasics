@@ -9,6 +9,23 @@ public static class Extensions {
         component.gameObject.SetActive(newActiveState);
     }
 
+    public static string ShortenNumberString (this string inputString) {
+        string output = inputString;
+        if(float.TryParse(inputString, out var parsed)){
+            string pString = parsed.ToString();
+            if(pString.Contains(".")){
+                while(pString[pString.Length-1] == '0'){
+                    pString = pString.Substring(0, pString.Length - 1);
+                }
+                if(pString[pString.Length-1] == '.'){
+                    pString = pString.Substring(0, pString.Length - 1);
+                }
+            }
+            output = pString;
+        }
+        return output;
+    }
+
     public static int IndexOf<T> (this T[] array, T element) {
         for(int i=0; i<array.Length; i++){
             if(array[i].Equals(element)){

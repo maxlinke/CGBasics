@@ -396,14 +396,7 @@ public class UIMatrix : MonoBehaviour {
                 return InvalidColors("-Inf");
             }else{
                 var showVal = $"{parsedValue:F3}";
-                if(showVal.Contains(".")){
-                    while(showVal[showVal.Length-1] == '0'){
-                        showVal = showVal.Substring(0, showVal.Length - 1);
-                    }
-                    if(showVal[showVal.Length-1] == '.'){
-                        showVal = showVal.Substring(0, showVal.Length - 1);
-                    }
-                }
+                showVal = showVal.ShortenNumberString();
                 validValue = true;
                 return showVal;
             }

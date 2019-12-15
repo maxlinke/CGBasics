@@ -135,7 +135,7 @@
                 fixed3 spec = specFront + specBack;
                 #ifndef LIT_BACKFACES
                     diff = lerp(fixed4(1,1,1,1), diff, faceStep);
-                    // spec = lerp(fixed4(0,0,0,0), spec, faceStep);
+                    spec = lerp(fixed4(0,0,0,0), spec, faceStep);
                 #endif
                 #ifndef SOLID_BACKFACES
                     float2 pixelPos = i.data.vertex.xy;;

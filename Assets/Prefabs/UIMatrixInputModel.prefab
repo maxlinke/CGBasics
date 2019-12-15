@@ -331,12 +331,11 @@ MonoBehaviour:
   labelDropShadow: {fileID: 1669636761150783058}
   previewImage: {fileID: 1669636760898858132}
   previewButton: {fileID: 1669636760293520486}
-  wireframe: 1
+  wireframe: 0
   perspectivePreview: 0
+  dynamicallyScalePreview: 0
   previewCamPosition: {x: 1, y: 1, z: -2}
-  selfInit: 0
-  meshToSelfInitWith: {fileID: 4300000, guid: 787db055e1d84114db8a0fa6f0b045ed, type: 3}
-  meshNameToSelfInitWith: Angus McFife, 13th by Name
+  meshPreviewMat: {fileID: 2100000, guid: e7f3840cfe72eb14597634e5a22d91a3, type: 2}
 --- !u!222 &1669636760370137196
 CanvasRenderer:
   m_ObjectHideFlags: 0

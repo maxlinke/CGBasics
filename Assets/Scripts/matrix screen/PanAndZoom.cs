@@ -21,6 +21,7 @@ namespace MatrixScreenUtils {
         Vector3 lastMousePos;
 
         public float zoomLevel => zoomRT.UniformLocalScale();
+        public float maxZoomLevel => maxZoom;
 
         void Update () {
             if(currentPointerType != PointerType.None){

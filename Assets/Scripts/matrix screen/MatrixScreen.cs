@@ -31,6 +31,7 @@ public class MatrixScreen : MonoBehaviour {
     [SerializeField] float matrixGroupMargin;
 
     public float zoomLevel => panAndZoomController.zoomLevel;
+    public float maxmumZoomLevel => panAndZoomController.maxZoomLevel;
     public UIMatrix ViewPosMatrix => viewPosMatrix;
     public UIMatrix ViewRotMatrix => viewRotMatrix;
     public UIMatrix ProjMatrix => projMatrix;

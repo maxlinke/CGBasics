@@ -16,13 +16,14 @@ public class UIMatrixInputModel : MonoBehaviour {
     [Header("Settings")]
     [SerializeField] bool wireframe;
     [SerializeField] bool perspectivePreview;
+    [SerializeField] bool dynamicallyScalePreview;
     [SerializeField] Vector3 previewCamPosition;
+    [SerializeField] Material meshPreviewMat;
 
     private RectTransform m_rectTransform;
     public RectTransform rectTransform => m_rectTransform;
 
     bool initialized = false;
-    Material meshPreviewMat;
     RenderTexture previewTex;
     Mesh previewMesh;
     MatrixScreen matrixScreen;
@@ -66,7 +67,7 @@ public class UIMatrixInputModel : MonoBehaviour {
 
     void Update () {
         if(initialized && (matrixScreen != null)){
-            if(matrixScreen.zoomLevel != lastScale){
+            if(matrixScreen.zoomLevel != lastScale && dynamicallyScalePreview){
                 UpdatePreview();
             }
         }
@@ -103,9 +104,9 @@ public class UIMatrixInputModel : MonoBehaviour {
             backgroundColor: Color.clear
         );
         GL.PushMatrix();
-        GL.LoadProjectionMatrix(Matrix4x4.identity);
+        GL.LoadProjectionMatrix(GetProjectionMatrix());
         GL.LoadIdentity();
-        GL.MultMatrix(GetMVPMatrix());
+        GL.MultMatrix(GetModelViewMatrix());
         meshPreviewMat.SetPass(0);
         if(previewMesh != null){
             CustomGLCamera.DrawMesh(previewMesh, Color.white);
@@ -116,39 +117,53 @@ public class UIMatrixInputModel : MonoBehaviour {
         RenderTexture.active = rtCache;
 
         void UpdatePreviewTex () {
-            float textureScale = matrixScreen != null ? matrixScreen.zoomLevel : 1f;
-            var previewDimensions = previewImage.GetComponent<RectTransform>().rect;
-            if(previewTex != null){
-                previewTex.Release();
+            if(dynamicallyScalePreview){
+                if(previewTex != null){
+                    previewTex.Release();
+                }
+                float newScale = (matrixScreen != null ? matrixScreen.zoomLevel : 1f);
+                previewTex = CreateTex(newScale, FilterMode.Point);
+            }else{
+                if(previewTex == null){
+                    float newScale = (matrixScreen != null ? matrixScreen.maxmumZoomLevel : 1f);
+                    previewTex = CreateTex(newScale, FilterMode.Bilinear);
+                }
             }
-            previewTex = new RenderTexture(
-                width: (int)(previewDimensions.width * textureScale), 
-                height: (int)(previewDimensions.height * textureScale),
-                depth: 32,
-                format: RenderTextureFormat.ARGB32,
-                readWrite: RenderTextureReadWrite.Default
-            );
-            previewTex.filterMode = FilterMode.Point;
-            lastScale = textureScale;
+
+            RenderTexture CreateTex (float inputTexScale, FilterMode inputFilterMode) {
+                var previewDimensions = previewImage.GetComponent<RectTransform>().rect;
+                var output = new RenderTexture(
+                    width: (int)(previewDimensions.width * inputTexScale), 
+                    height: (int)(previewDimensions.height * inputTexScale),
+                    depth: 32,
+                    format: RenderTextureFormat.ARGB32,
+                    readWrite: RenderTextureReadWrite.Default
+                );
+                output.filterMode = inputFilterMode;
+                lastScale = inputTexScale;
+                return output;
+            }
         }
 
-        Matrix4x4 GetMVPMatrix () {
-            Matrix4x4 proj;
+        Matrix4x4 GetProjectionMatrix () {
             if(perspectivePreview){
-                proj = GLMatrixCreator.GetProjectionMatrix(
+                return GLMatrixCreator.GetProjectionMatrix(
                     fov: 45f, 
                     aspectRatio: (float)(previewTex.width) / previewTex.height,
                     zNear: 0.1f,
                     zFar: 100f
                 );
             }else{
-                proj = GLMatrixCreator.GetOrthoProjectionMatrix(
+                return GLMatrixCreator.GetOrthoProjectionMatrix(
                     orthoSize: 2f,
                     aspect: (float)(previewTex.width) / previewTex.height,
                     zNear: 0.1f,
                     zFar: 100f
                 );
             }
+        }
+
+        Matrix4x4 GetModelViewMatrix () {
             var view = GLMatrixCreator.GetLookAtMatrix(
                 eye: previewCamPosition,
                 center: Vector3.zero,
@@ -156,7 +171,7 @@ public class UIMatrixInputModel : MonoBehaviour {
             );
             var translate = GLMatrixCreator.GetTranslationMatrix(-previewMesh.bounds.center);
             var scale = GLMatrixCreator.GetScaleMatrix(Vector3.one / previewMesh.bounds.extents.magnitude);
-            return (proj * view * scale * translate);     // scale and translate are NORMALLY the other way round, but not here!
+            return (view * scale * translate);     // scale and translate are NORMALLY the other way round, but not here!
         }
     }
 

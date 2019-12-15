@@ -206,6 +206,7 @@ public class Foldout : MonoBehaviour {
                 }
             }
             buttonGroups.Add(currentGroup);
+            buttonParent.anchoredPosition += new Vector2(toRight ? 1 : -1, toBottom ? -1 : 1);  // offsetting it by 1 pixel so the mouse isn't on the first element
 
             void NextGroup () {
                 y = 0;

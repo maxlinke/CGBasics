@@ -14,7 +14,8 @@ namespace UIMatrices {
             RotationZ,
             Rebase,
             PerspProj,
-            OrthoProj
+            OrthoProj,
+            Free
         }
 
         private static Dictionary<Type, MatrixConfig> map;
@@ -30,6 +31,7 @@ namespace UIMatrices {
         public static RebaseConfig rebaseConfig { get; private set; }
         public static PerspectiveProjectionConfig perspProjConfig { get; private set; }
         public static OrthographicProjectionConfig orthoProjConfig { get; private set; }
+        public static FreeConfig freeConfig { get; private set; }
 
         public abstract string name { get; }
         public abstract string description { get; }
@@ -58,6 +60,8 @@ namespace UIMatrices {
             map.Add(Type.PerspProj, perspProjConfig);
             orthoProjConfig = new OrthographicProjectionConfig();
             map.Add(Type.OrthoProj, orthoProjConfig);
+            freeConfig = new FreeConfig();
+            map.Add(Type.Free, freeConfig);
             // the non-enum ones
             inverseTranslationConfig = new InverseTranslationConfig();
         }
@@ -78,7 +82,7 @@ namespace UIMatrices {
             }
         }
 
-    #region Identity, Dynamic
+    #region Identity, Dynamic, Free
 
         public class IdentityConfig : MatrixConfig {
 
@@ -136,6 +140,37 @@ namespace UIMatrices {
                 foreach(var key in varMap.Keys){
                     vars.Add(new VarPreset(key, varMap[key]));
                 }
+            }
+
+        }
+
+        public class FreeConfig : MatrixConfig {
+
+            private List<string> matrix;
+            private List<VarPreset> vars;
+
+            public override string name => "Free";
+            public override string description => "A matrix with a variable for each field.";
+            public override VarPreset[] defaultVariables => vars.ToArray();
+            public override string[] fieldStrings => matrix.ToArray();
+
+            public FreeConfig () : base() {
+                matrix = new List<string>();
+                vars = new List<VarPreset>();
+                for(int i=0; i<16; i++){
+                    string varName = FieldVarName(i);
+                    matrix.Add(varName);
+                    vars.Add(new VarPreset(varName, ((i % 4) == (i / 4)) ? 1 : 0));
+                }
+            }
+
+            public string FieldVarName (int fieldIndex) {
+                if(fieldIndex < 0 || fieldIndex > 15){
+                    throw new System.ArgumentException($"Invalid index \"{fieldIndex}\"!");
+                }
+                int x = fieldIndex % 4;
+                int y = fieldIndex / 4;
+                return $"m{y}{x}";
             }
 
         }

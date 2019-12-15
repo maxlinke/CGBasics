@@ -46,7 +46,13 @@ namespace UIMatrices {
 
         void LoadColors (ColorScheme cs) {
             backgroundImage.color = cs.UiMatrixFieldViewerBackground;
-            doneButton.SetFadeTransition(0f, cs.UiMatrixFieldViewerDoneButton, cs.UiMatrixFieldViewerDoneButtonHover, cs.UiMatrixFieldViewerDoneButtonClick, cs.UiMatrixFieldViewerDoneButtonDisabled);
+            doneButton.SetFadeTransition(
+                fadeDuration: 0f, 
+                defaultColor: cs.UiMatrixFieldViewerDoneButton, 
+                hoverColor: cs.UiMatrixFieldViewerDoneButtonHover, 
+                clickColor: cs.UiMatrixFieldViewerDoneButtonClick, 
+                disabledColor: cs.UiMatrixFieldViewerDoneButtonDisabled
+            );
             doneButtonText.color = cs.UiMatrixFieldViewerDoneButtonText;
             foreach(var field in actualFields){
                 field.LoadColors(cs);
@@ -117,7 +123,7 @@ namespace UIMatrices {
         }
 
         // no onendedit, just straight up replace the string field array everytime a change is made..
-        public static void Open (UIMatrix callingMatrix, bool directlyEditField = false, int fieldIndex = -1) {
+        public static void Open (UIMatrix callingMatrix, bool directlyEditField, int fieldIndex) {
             instance.Unhide(callingMatrix, directlyEditField, fieldIndex);
         }
 
@@ -129,6 +135,8 @@ namespace UIMatrices {
             subscribedToInputSystem = true;
             if(directlyEditField){
                 FieldButtonClicked(actualFields[fieldIndex]);
+            }else if(fieldIndex >= 0 && fieldIndex < actualFields.Length){
+                actualFields[fieldIndex].Flash();
             }
         }
 
@@ -168,7 +176,7 @@ namespace UIMatrices {
                     mainScreen.SetActive(true);
                     UpdateFieldTexts();
                     SetupDoneButton();
-                    field.FlashResultField();
+                    field.Flash();
                 }
             );
         }

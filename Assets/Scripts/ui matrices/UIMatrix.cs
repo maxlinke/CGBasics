@@ -257,7 +257,8 @@ public class UIMatrix : MonoBehaviour {
                 var newFieldBGButton = newFieldBGRT.GetComponent<Button>();
                 int btnIndex = i;                                                                                                       // just using i is a trap!
                 newFieldBGButton.onClick.AddListener(() => {
-                    FieldViewer.Open(this, true, btnIndex);
+                    // FieldViewer.Open(this, true, btnIndex);
+                    FieldViewer.Open(this, false, btnIndex);
                 });
                 fieldButtons[i] = newFieldBGButton;
                 // generate flash image

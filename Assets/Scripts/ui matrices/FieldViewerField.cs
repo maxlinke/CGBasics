@@ -12,6 +12,7 @@ namespace UIMatrices {
         [SerializeField] Image resultBackground;
         [SerializeField] TextMeshProUGUI resultTextField;
         [SerializeField] ImageFlasher resultFlasher;
+        [SerializeField] ImageFlasher mainFlasher;
 
         FieldViewer viewer;
         bool initialized;
@@ -49,6 +50,7 @@ namespace UIMatrices {
             this.m_index = index;
             fieldEditButton.onClick.AddListener(() => {viewer.FieldButtonClicked(this);});
             resultFlasher.Initialize(resultFlasher.gameObject.GetComponent<Image>());
+            mainFlasher.Initialize(mainFlasher.gameObject.GetComponent<Image>());
             initialized = true;
         }
 
@@ -59,17 +61,17 @@ namespace UIMatrices {
             // resultTextField.color = cs.          // gets its actual color from the rich text stuff
             resultBackground.color = cs.UiMatrixBackground.AlphaOver(cs.UiMatrixFieldBackground);
             resultFlasher.UpdateFlashColor(cs.UiMatrixFieldFlash);
+            mainFlasher.UpdateFlashColor(cs.UiMatrixFieldFlash);
         }
 
         public void UpdateResultText (string resultText) {
-            // if(resultTextField.text != resultText){
-            //     resultFlasher.Flash();
-            // }
             resultTextField.text = resultText;
         }
 
-        public void FlashResultField () {
-            resultFlasher.Flash(0.5f);
+        public void Flash () {
+            // resultFlasher.Flash(0.5f);
+            resultFlasher.Flash();
+            mainFlasher.Flash();
         }
     
     }

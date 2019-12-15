@@ -16,6 +16,8 @@ public class UIVector : MonoBehaviour {
     [SerializeField] Vector2 fieldSize;
     [SerializeField] float fieldSpacing;
     [SerializeField] Vector2 outsideMargin;
+    [SerializeField] bool flashActiveFields;
+    [SerializeField] bool flashPassiveFields;
 
     bool initialized = false;
     bool m_editable;
@@ -23,6 +25,8 @@ public class UIVector : MonoBehaviour {
     TMP_InputField[] inputFields;
     RectTransform[] inputFieldRTs;
     ScrollableNumberInputField[] inputFieldScrollHandlers;
+    ImageFlasher[] fieldFlashers;
+    string[] lastTexts;
     float defaultFontSize;
 
     public RectTransform rectTransform => m_rectTransform;
@@ -63,6 +67,7 @@ public class UIVector : MonoBehaviour {
         inputFields = new TMP_InputField[4];
         inputFieldRTs = new RectTransform[4];
         inputFieldScrollHandlers = new ScrollableNumberInputField[4];
+        fieldFlashers = new ImageFlasher[4];
         inputFieldTemplate.SetActive(false);
         SetupInputFields();
         ColumnModeUpdated();
@@ -82,6 +87,9 @@ public class UIVector : MonoBehaviour {
                 newFieldRT.SetAnchor(newFieldRT.pivot);
                 newFieldRT.sizeDelta = fieldSize;
                 inputFieldRTs[i] = newFieldRT;
+                var newFlasher = newFieldRT.GetComponentInChildren<ImageFlasher>();
+                newFlasher.Initialize(newFlasher.gameObject.GetComponent<Image>());
+                fieldFlashers[i] = newFlasher;
                 newField.GetComponent<Image>().color = Color.white;
                 var newScroll = newField.gameObject.AddComponent<ScrollableNumberInputField>();
                 newScroll.Initialize(newField);
@@ -111,6 +119,31 @@ public class UIVector : MonoBehaviour {
         ColorScheme.onChange -= LoadColors;
     }
 
+    void Update () {
+        if(!initialized){
+            return;
+        }
+        if(lastTexts == null){
+            lastTexts = new string[4];
+            CacheTexts();
+            return;
+        }
+        for(int i=0; i<4; i++){
+            bool textDifferent = !inputFields[i].text.Equals(lastTexts[i]);
+            bool eligibleForFlashing = (inputFields[i].interactable && flashActiveFields) || (!inputFields[i].interactable && flashPassiveFields);
+            if(textDifferent && eligibleForFlashing){
+                fieldFlashers[i].Flash();
+            }
+        }
+        CacheTexts();
+
+        void CacheTexts () {
+            for(int i=0; i<4; i++){
+                lastTexts[i] = inputFields[i].text;
+            }
+        }
+    }
+
     void LoadColors (ColorScheme cs) {
         if(!initialized){
             return;
@@ -121,6 +154,9 @@ public class UIVector : MonoBehaviour {
             field.SetFadeTransition(0f, cs.UiMatrixFieldBackground, cs.UiMatrixFieldBackgroundHighlighted, cs.UiMatrixFieldBackgroundClicked, Color.clear);
             field.textComponent.color = cs.UiMatrixFieldText;
             field.selectionColor = cs.UiMatrixVariablesFieldSelection;
+        }
+        foreach(var flasher in fieldFlashers){
+            flasher.UpdateFlashColor(cs.UiMatrixFieldFlash);
         }
     }
 

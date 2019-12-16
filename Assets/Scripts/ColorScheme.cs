@@ -118,7 +118,7 @@ public class ColorScheme : ScriptableObject {
     public Color MatrixScreenMultiplicationSign => matrixScreenMultiplicationSign;
     public Color MatrixScreenBorderColor => matrixScreenBorderColor;
 
-    [Header("Matrix Screen Bottom Area")]
+    [Header("Matrix Screen Center Bottom Popup")]
     [SerializeField] Color matrixScreenBottomAreaBackground;
     [SerializeField] Color matrixScreenBottomAreaOutline;
     [SerializeField] Color matrixScreenBottomAreaForegroundElement;

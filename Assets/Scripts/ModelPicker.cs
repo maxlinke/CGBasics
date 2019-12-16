@@ -3,7 +3,8 @@ using UnityEngine;
 
 public class ModelPicker : MonoBehaviour {
 
-    [SerializeField] ModelPreset[] modelPresets;
+    [Tooltip("These are at the beginning of the list"), SerializeField] ModelPreset[] interestingModelPresets;
+    [Tooltip("These are at the end of the list"), SerializeField] ModelPreset[] boringModelPresets;
 
     static List<LoadedModel> loadedModels;
 
@@ -13,7 +14,10 @@ public class ModelPicker : MonoBehaviour {
             return;
         }
         loadedModels = new List<LoadedModel>();
-        foreach(var preset in modelPresets){
+        foreach(var preset in interestingModelPresets){
+            loadedModels.Add(new LoadedModel(preset));
+        }
+        foreach(var preset in boringModelPresets){
             loadedModels.Add(new LoadedModel(preset));
         }
         // TODO streamingassets maybe (color hue from hash, then hsv with a fairly fixed value and saturation range)

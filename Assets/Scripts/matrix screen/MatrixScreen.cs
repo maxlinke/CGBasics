@@ -24,7 +24,7 @@ public class MatrixScreen : MonoBehaviour {
     [SerializeField] CenterBottomPopup centerBottomPopup;
 
     [Header("Settings")]
-    [SerializeField] DefaultMesh defaultMesh;
+    [SerializeField] ModelPreset defaultModel;
     [SerializeField] Vector4 defaultVector;
     [SerializeField] float weightLerpDeltaPerSecond;
     [SerializeField] float multiplicationSignSize;
@@ -140,10 +140,10 @@ public class MatrixScreen : MonoBehaviour {
 
         CreateMathematicalSign(UISprites.MatrixMultiply, out previewMultiplicationSignRT);
         modelPreview = Instantiate(modelPreviewPrefab);
-        modelPreview.Initialize(this, defaultMesh.mesh, defaultMesh.name, (m) => {currentMesh = m;});
+        modelPreview.Initialize(this, defaultModel.mesh, defaultModel.name, (m) => {currentMesh = m;});
         modelPreview.rectTransform.SetParent(uiMatrixParent, false);
         modelPreview.rectTransform.ResetLocalScale();
-        currentMesh = defaultMesh.mesh;
+        currentMesh = defaultModel.mesh;
 
         CreateMathematicalSign(UISprites.MatrixMultiply, out vectorMultiplicationSignRT);
         CreateMathematicalSign(UISprites.MatrixEquals, out vectorEqualsSignRT);

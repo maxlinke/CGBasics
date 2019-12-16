@@ -43,14 +43,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b1c478dbc848334cbdc8f02876f0dcc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  presetMeshes:
-  - m_name: Suzanne
-    m_mesh: {fileID: 4300000, guid: bc69fc385493a1d40914a08df80842c5, type: 3}
-  - m_name: Cube
-    m_mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
-  - m_name: Sphere
-    m_mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
-  - m_name: Quad
-    m_mesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
-  - m_name: Text
-    m_mesh: {fileID: 4300000, guid: 206b23aa8a8c55d42a527c13a5ffbe6e, type: 3}
+  modelPresets:
+  - {fileID: 11400000, guid: a2024be66dde725468f5aab9adc32c74, type: 2}
+  - {fileID: 11400000, guid: 1052d95e6780158409bb18e1750e5532, type: 2}
+  - {fileID: 11400000, guid: 300253f75bf74f14989f156ae803ccf0, type: 2}
+  - {fileID: 11400000, guid: 22d5eb6518d08904e87a1f508d28cb28, type: 2}
+  - {fileID: 11400000, guid: 63952f5d36493584f8e84f02de586a81, type: 2}
+  - {fileID: 11400000, guid: 6e4bc72f5f91575449f615128042ea73, type: 2}
+  - {fileID: 11400000, guid: 79a9ff6d7ec46294dbcefb715d889364, type: 2}

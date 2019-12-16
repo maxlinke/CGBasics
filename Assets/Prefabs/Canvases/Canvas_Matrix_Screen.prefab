@@ -1057,9 +1057,7 @@ MonoBehaviour:
   - {fileID: 7489832311983296522}
   - {fileID: 4332775997684968996}
   centerBottomPopup: {fileID: 5726293091513977209}
-  defaultMesh:
-    m_name: Suzanne
-    m_mesh: {fileID: 4300000, guid: bc69fc385493a1d40914a08df80842c5, type: 3}
+  defaultModel: {fileID: 11400000, guid: a2024be66dde725468f5aab9adc32c74, type: 2}
   defaultVector: {x: 0, y: 0, z: 0, w: 1}
   weightLerpDeltaPerSecond: 7.5
   multiplicationSignSize: 40

@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1fe0aafb42bd6b145a6c31b73812d444, type: 3}
   m_Name: Bunny
   m_EditorClassIdentifier: 
-  m_mesh: {fileID: 4300000, guid: b2945def834cba04ba082d151fca5a70, type: 3}
+  m_mesh: {fileID: 4300000, guid: 739838454524a2c4b87f6f53f31ee96b, type: 3}
   m_color: {r: 0.62357605, g: 0.7053287, b: 0.764151, a: 1}

@@ -3,8 +3,8 @@
     Properties {
         _SpecularColor ("Specular Color", Color) = (1,1,1,1)
         _SpecularIntensity ("Specular Intensity", Range(0,1)) = 1
-        _SpecularAnisoX ("Specular Anisotropy X", Range(0, 2)) = 1
-        _SpecularAnisoY ("Specular Anisotropy Y", Range(0, 2)) = 1
+        _SpecularHardnessX ("Specular Hardness X", Range(0, 128)) = 1
+        _SpecularHardnessY ("Specular Hardness Y", Range(0, 128)) = 1
         [Enum(UnityEngine.Rendering.BlendMode)]       _SrcBlend ("SrcBlend", Int) = 5.0 // SrcAlpha
         [Enum(UnityEngine.Rendering.BlendMode)]       _DstBlend ("DstBlend", Int) = 10.0 // OneMinusSrcAlpha
         [Enum(Off, 0, On, 1)]                         _ZWrite ("ZWrite", Int) = 1.0 // On

@@ -66,8 +66,8 @@ float _MinnaertExp;
 fixed4 _SpecularColor;
 float _SpecularIntensity;
 float _SpecularHardness;
-float _SpecularAnisoX;
-float _SpecularAnisoY;
+float _SpecularHardnessX;
+float _SpecularHardnessY;
 
 // ----------------------------------------------------------------
 // helper functions
@@ -235,10 +235,12 @@ half Specular_Ward_Iso (lm_input input) {
 }
 
 half Specular_Ward_Aniso (lm_input input) {
-    half expA = dot(input.halfVec, input.tangent) / _SpecularAnisoX;
-    half expB = dot(input.halfVec, input.bitangent) / _SpecularAnisoY;
+    half roughX = SlopeRMSFromHardness(_SpecularHardnessX);
+    half roughY = SlopeRMSFromHardness(_SpecularHardnessY);
+    half expA = dot(input.halfVec, input.tangent) / roughX;
+    half expB = dot(input.halfVec, input.bitangent) / roughY;
     half expAB = -2.0 * (expA * expA + expB * expB) / (1.0 + input.nDotH);
-    return Ward (input, sqrt(_SpecularAnisoX * _SpecularAnisoY), expAB);
+    return Ward (input, sqrt(roughX * roughY), expAB);
     // half expAB = exp(-2.0 * (expA * expA + expB * expB) / (1.0 + input.nDotH));
     // return _SpecularIntensity * input.nDotL * expAB / (sqrt(input.nDotL * input.nDotV) * 4.0 * UNITY_PI * _SpecularAnisoX * _SpecularAnisoY);
 }

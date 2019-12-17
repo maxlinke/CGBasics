@@ -1,4 +1,4 @@
-﻿Shader "Custom/LightingModels/LM_Diffuse_Oren_Nayer" {
+﻿Shader "Custom/LightingModels/LM_Diffuse_Oren_Nayar" {
 
     Properties {
         _Color ("Main Color", Color) = (1,1,1,1)
@@ -27,7 +27,7 @@
             CGPROGRAM
 			
             #pragma vertex lm_vert
-            #pragma fragment lm_frag_oren_nayer
+            #pragma fragment lm_frag_oren_nayar
             #pragma multi_compile_fwdbase
 
             #include "LightingModels.cginc"
@@ -49,7 +49,7 @@
             CGPROGRAM
 			
             #pragma vertex lm_vert
-            #pragma fragment lm_frag_oren_nayer
+            #pragma fragment lm_frag_oren_nayar
             #pragma multi_compile_fwdadd
 
             #include "LightingModels.cginc"

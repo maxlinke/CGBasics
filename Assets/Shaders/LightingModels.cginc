@@ -6,7 +6,9 @@
 #include "Lighting.cginc"
 #endif
 
+// ----------------------------------------------------------------
 // structs
+// ----------------------------------------------------------------
 
 struct lm_input {
     half3 normal;
@@ -16,12 +18,15 @@ struct lm_input {
     half nDotL;
     half nDotV;
     half nDotH;
+    half3 tangent;
+    half3 bitangent;
 };
 
 struct lm_appdata {
     float4 vertex : POSITION;
     float3 normal : NORMAL;
     float4 color : COLOR;
+    float4 tangent : TANGENT;
 };
 
 struct lm_v2f {
@@ -31,21 +36,12 @@ struct lm_v2f {
     float3 worldPos : TEXCOORD1;
     float3 lightDir : TEXCOORD2;
     float3 viewDir : TEXCOORD3;
+    float3 worldTangent : TEXCOORD4;
 };
 
-lm_input GetLMInput (lm_v2f i) {
-    lm_input o;
-    o.normal = normalize(i.worldNormal);
-    o.lightDir = normalize(i.lightDir);
-    o.viewDir = normalize(i.viewDir);
-    o.halfVec = normalize(o.lightDir + o.viewDir);
-    o.nDotL = dot(o.normal, o.lightDir);
-    o.nDotV = dot(o.normal, o.viewDir);
-    o.nDotH = dot(o.normal, o.halfVec);
-    return o;
-}
-
+// ----------------------------------------------------------------
 // the universal vertex shader
+// ----------------------------------------------------------------
 
 lm_v2f lm_vert (lm_appdata v) {
     lm_v2f o;
@@ -55,10 +51,13 @@ lm_v2f lm_vert (lm_appdata v) {
     o.worldPos = mul(unity_ObjectToWorld, v.vertex).xyz;
     o.lightDir = WorldSpaceLightDir(v.vertex);
     o.viewDir = _WorldSpaceCameraPos - o.worldPos.xyz;
+    o.worldTangent = UnityObjectToWorldDir(v.tangent.xyz);
     return o;
 }
 
+// ----------------------------------------------------------------
 // universal properties
+// ----------------------------------------------------------------
 
 fixed4 _Color;
 float _Roughness;
@@ -70,7 +69,72 @@ float _SpecularHardness;
 float _SpecularAnisoX;
 float _SpecularAnisoY;
 
+// ----------------------------------------------------------------
+// helper functions
+// ----------------------------------------------------------------
+
+lm_input GetLMInput (lm_v2f i) {
+    lm_input o;
+    o.normal = normalize(i.worldNormal);
+    o.lightDir = normalize(i.lightDir);
+    o.viewDir = normalize(i.viewDir);
+    o.halfVec = normalize(o.lightDir + o.viewDir);
+    o.nDotL = dot(o.normal, o.lightDir);
+    o.nDotV = dot(o.normal, o.viewDir);
+    o.nDotH = dot(o.normal, o.halfVec);
+    o.tangent = normalize(i.worldTangent);
+    o.bitangent = normalize(cross(o.normal, o.tangent));
+    return o;
+}
+
+half SlopeRMSFromHardness (half hardness) {
+    return sqrt(2.0 / (hardness + 2));   // from https://simonstechblog.blogspot.com/2011/12/microfacet-brdf.html
+}
+
+// https://en.wikipedia.org/wiki/Specular_highlight#Beckmann_distribution
+half Beckmann_Distribution (lm_input input) {
+    half alpha = acos(input.nDotH);
+
+    half m = SlopeRMSFromHardness(_SpecularHardness);
+    half m2 = m * m;
+    half tanAlpha = tan(alpha);
+    half tanAlpha2 = tanAlpha * tanAlpha;
+    half cosAlpha = cos(alpha);
+    half cosAlpha4 = cosAlpha * cosAlpha * cosAlpha * cosAlpha;
+
+    return exp(-tanAlpha2 / m2) / (UNITY_PI * m2 * cosAlpha4);
+}
+
+// https://en.wikipedia.org/wiki/Schlick%27s_approximation
+// half Schlicks_Fresnel_Approximation_IOR (lm_input input) {
+//     float n1 = 1;   // assuming air as refractive medium
+//     float n2 = _SpecularIndexOfRefraction;
+
+//     float sqrtR0 = (n1 - n2) / (n1 + n2);
+//     float r0 = sqrtR0 * sqrtR0;
+
+//     float cosTheta = input.nDotL;
+//     return r0 + (1.0 - r0) * pow(1 - cosTheta, 5);
+// }
+
+// https://en.wikibooks.org/wiki/GLSL_Programming/Unity/Specular_Highlights_at_Silhouettes
+half Schlicks_Fresnel_Approximation_Intensity (lm_input input) {
+    float fLambda = _SpecularIntensity;
+    float hDotV = dot(input.halfVec, input.viewDir);
+    return fLambda + ((1.0 - fLambda) * pow(1.0 - hDotV, 5));
+}
+
+// https://en.wikipedia.org/wiki/Specular_highlight#Cook%E2%80%93Torrance_model
+half Geometric_Attenuation (lm_input input) {
+    half vDotH = dot(input.viewDir, input.halfVec);
+    half a = (2 * input.nDotH * input.nDotV) / vDotH;
+    half b = (2 * input.nDotH * input.nDotL) / vDotH;
+    return min(1, min(a, b));
+}
+
+// ----------------------------------------------------------------
 // lighting models
+// ----------------------------------------------------------------
 
 half3 Diffuse_Ambient (lm_input input) {
     return ShadeSH9(half4(input.normal, 1.0));
@@ -140,47 +204,6 @@ half Specular_Blinn_Phong (lm_input input) {
     return _SpecularIntensity * pow(saturate(input.nDotH), _SpecularHardness);
 }
 
-// https://en.wikipedia.org/wiki/Specular_highlight#Beckmann_distribution
-half Beckmann_Distribution (lm_input input) {
-    half alpha = acos(input.nDotH);
-
-    half m = sqrt(2.0 / (_SpecularHardness + 2));   // from https://simonstechblog.blogspot.com/2011/12/microfacet-brdf.html
-    half m2 = m * m;
-    half tanAlpha = tan(alpha);
-    half tanAlpha2 = tanAlpha * tanAlpha;
-    half cosAlpha = cos(alpha);
-    half cosAlpha4 = cosAlpha * cosAlpha * cosAlpha * cosAlpha;
-
-    return exp(-tanAlpha2 / m2) / (UNITY_PI * m2 * cosAlpha4);
-}
-
-// https://en.wikipedia.org/wiki/Schlick%27s_approximation
-// half Schlicks_Fresnel_Approximation_IOR (lm_input input) {
-//     float n1 = 1;   // assuming air as refractive medium
-//     float n2 = _SpecularIndexOfRefraction;
-
-//     float sqrtR0 = (n1 - n2) / (n1 + n2);
-//     float r0 = sqrtR0 * sqrtR0;
-
-//     float cosTheta = input.nDotL;
-//     return r0 + (1.0 - r0) * pow(1 - cosTheta, 5);
-// }
-
-// https://en.wikibooks.org/wiki/GLSL_Programming/Unity/Specular_Highlights_at_Silhouettes
-half Schlicks_Fresnel_Approximation_Intensity (lm_input input) {
-    float fLambda = _SpecularIntensity;
-    float hDotV = dot(input.halfVec, input.viewDir);
-    return fLambda + ((1.0 - fLambda) * pow(1.0 - hDotV, 5));
-}
-
-// https://en.wikipedia.org/wiki/Specular_highlight#Cook%E2%80%93Torrance_model
-half Geometric_Attenuation (lm_input input) {
-    half vDotH = dot(input.viewDir, input.halfVec);
-    half a = (2 * input.nDotH * input.nDotV) / vDotH;
-    half b = (2 * input.nDotH * input.nDotL) / vDotH;
-    return min(1, min(a, b));
-}
-
 // https://en.wikipedia.org/wiki/Specular_highlight#Cook%E2%80%93Torrance_model
 half Specular_Cook_Torrance (lm_input input) {
     half d = Beckmann_Distribution(input);
@@ -191,7 +214,37 @@ half Specular_Cook_Torrance (lm_input input) {
     return (d * f * g) / (UNITY_PI * input.nDotV * input.nDotL);
 }
 
+// TODO incorporate the specular intensity into roughness/aniso somehow so that aniso x and y can be normalized
+half Ward (lm_input input, half roughness, half exponent) {
+    half root = sqrt(input.nDotL * input.nDotV);
+    return _SpecularIntensity * input.nDotL * exp(exponent) / (root * 4.0 * UNITY_PI * roughness * roughness);  // ndotl isn't in the original paper but it's necessary
+}
+
+half Specular_Ward_Iso (lm_input input) {
+    half alpha = SlopeRMSFromHardness(_SpecularHardness);
+    half delta = input.nDotH;
+
+    half tanD = tan(delta);
+    half exponent = -(tanD * tanD) / (alpha * alpha);
+
+    // half tanD = tan(delta / (alpha * alpha));    // very trippy but wrong
+    // half exponent = -(tanD * tanD);
+
+    return Ward(input, alpha, exponent);
+}
+
+half Specular_Ward_Aniso (lm_input input) {
+    half expA = dot(input.halfVec, input.tangent) / _SpecularAnisoX;
+    half expB = dot(input.halfVec, input.bitangent) / _SpecularAnisoY;
+    half expAB = -2.0 * (expA * expA + expB * expB) / (1.0 + input.nDotH);
+    return Ward (input, sqrt(_SpecularAnisoX * _SpecularAnisoY), expAB);
+    // half expAB = exp(-2.0 * (expA * expA + expB * expB) / (1.0 + input.nDotH));
+    // return _SpecularIntensity * input.nDotL * expAB / (sqrt(input.nDotL * input.nDotV) * 4.0 * UNITY_PI * _SpecularAnisoX * _SpecularAnisoY);
+}
+
+// ----------------------------------------------------------------
 // fragment shaders using the lighting models
+// ----------------------------------------------------------------
 
 fixed4 lm_frag_lambert (lm_v2f i) : SV_TARGET {
     fixed4 col = _Color * i.color;
@@ -237,6 +290,22 @@ fixed4 lm_frag_cook_torrance (lm_v2f i) : SV_TARGET {
     fixed4 col = _SpecularColor;
     lm_input li = GetLMInput(i);
     fixed3 spec = _LightColor0.rgb * Specular_Cook_Torrance(li);
+    col.rgb *= spec;
+    return col;
+}
+
+fixed4 lm_frag_ward_iso (lm_v2f i) : SV_TARGET {
+    fixed4 col = _SpecularColor;
+    lm_input li = GetLMInput(i);
+    fixed3 spec = _LightColor0.rgb * Specular_Ward_Iso(li);
+    col.rgb *= spec;
+    return col;
+}
+
+fixed4 lm_frag_ward_aniso (lm_v2f i) : SV_TARGET {
+    fixed4 col = _SpecularColor;
+    lm_input li = GetLMInput(i);
+    fixed3 spec = _LightColor0.rgb * Specular_Ward_Aniso(li);
     col.rgb *= spec;
     return col;
 }

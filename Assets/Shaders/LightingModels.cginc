@@ -67,7 +67,8 @@ float _MinnaertExp;
 fixed4 _SpecularColor;
 float _SpecularIntensity;
 float _SpecularHardness;
-float _SpecularIndexOfRefraction;
+float _SpecularAnisoX;
+float _SpecularAnisoY;
 
 // lighting models
 
@@ -154,15 +155,22 @@ half Beckmann_Distribution (lm_input input) {
 }
 
 // https://en.wikipedia.org/wiki/Schlick%27s_approximation
-half Schlicks_Fresnel_Approximation (lm_input input) {
-    float n1 = 1;   // assuming air as refractive medium
-    float n2 = _SpecularIndexOfRefraction;
+// half Schlicks_Fresnel_Approximation_IOR (lm_input input) {
+//     float n1 = 1;   // assuming air as refractive medium
+//     float n2 = _SpecularIndexOfRefraction;
 
-    float sqrtR0 = (n1 - n2) / (n1 + n2);
-    float r0 = sqrtR0 * sqrtR0;
+//     float sqrtR0 = (n1 - n2) / (n1 + n2);
+//     float r0 = sqrtR0 * sqrtR0;
 
-    float cosTheta = input.nDotL;
-    return r0 + (1.0 - r0) * pow(1 - cosTheta, 5);
+//     float cosTheta = input.nDotL;
+//     return r0 + (1.0 - r0) * pow(1 - cosTheta, 5);
+// }
+
+// https://en.wikibooks.org/wiki/GLSL_Programming/Unity/Specular_Highlights_at_Silhouettes
+half Schlicks_Fresnel_Approximation_Intensity (lm_input input) {
+    float fLambda = _SpecularIntensity;
+    float hDotV = dot(input.halfVec, input.viewDir);
+    return fLambda + ((1.0 - fLambda) * pow(1.0 - hDotV, 5));
 }
 
 // https://en.wikipedia.org/wiki/Specular_highlight#Cook%E2%80%93Torrance_model
@@ -176,7 +184,8 @@ half Geometric_Attenuation (lm_input input) {
 // https://en.wikipedia.org/wiki/Specular_highlight#Cook%E2%80%93Torrance_model
 half Specular_Cook_Torrance (lm_input input) {
     half d = Beckmann_Distribution(input);
-    half f = Schlicks_Fresnel_Approximation(input);
+    // half f = Schlicks_Fresnel_Approximation_IOR(input);
+    half f = Schlicks_Fresnel_Approximation_Intensity(input);
     half g = Geometric_Attenuation(input);
     
     return (d * f * g) / (UNITY_PI * input.nDotV * input.nDotL);

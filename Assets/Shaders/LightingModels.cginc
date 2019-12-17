@@ -12,6 +12,10 @@ struct lm_input {
     half3 normal;
     half3 lightDir;
     half3 viewDir;
+    half3 halfVec;
+    half nDotL;
+    half nDotV;
+    half nDotH;
 };
 
 struct lm_appdata {
@@ -34,6 +38,10 @@ lm_input GetLMInput (lm_v2f i) {
     o.normal = normalize(i.worldNormal);
     o.lightDir = normalize(i.lightDir);
     o.viewDir = normalize(i.viewDir);
+    o.halfVec = normalize(o.lightDir + o.viewDir);
+    o.nDotL = dot(o.normal, o.lightDir);
+    o.nDotV = dot(o.normal, o.viewDir);
+    o.nDotH = dot(o.normal, o.halfVec);
     return o;
 }
 
@@ -59,6 +67,7 @@ float _MinnaertExp;
 fixed4 _SpecularColor;
 float _SpecularIntensity;
 float _SpecularHardness;
+float _SpecularIndexOfRefraction;
 
 // lighting models
 
@@ -67,7 +76,7 @@ half3 Diffuse_Ambient (lm_input input) {
 }
 
 half Diffuse_Lambert (lm_input input) {
-    return saturate(dot(input.normal, input.lightDir));
+    return saturate(input.nDotL);
 }
 
 // half3 Diffuse_Oren_Nayar (lm_input input) {
@@ -94,8 +103,8 @@ half Diffuse_Lambert (lm_input input) {
 // and this:
 // https://www.gamasutra.com/view/feature/131269/implementing_modular_hlsl_with_.php?page=3
 half Diffuse_Oren_Nayar (lm_input input) {
-    half nDotL = dot(input.normal, input.lightDir);
-    half nDotV = dot(input.normal, input.viewDir);
+    half nDotL = input.nDotL;
+    half nDotV = input.nDotV;
     
     half sigmaSQ = _Roughness * _Roughness;
     half a = 1 - (0.5 * (sigmaSQ / (sigmaSQ + 0.33)));
@@ -116,11 +125,7 @@ half Diffuse_Oren_Nayar (lm_input input) {
 }
 
 half Diffuse_Minnaert (lm_input input) {
-    half nDotL = dot(input.normal, input.lightDir);
-    half nDotV = dot(input.normal, input.viewDir);
-
-    half minnaert = pow(saturate(nDotL * nDotV), _MinnaertExp);
-    return minnaert;
+    return pow(saturate(input.nDotL * input.nDotV), _MinnaertExp);
 }
 
 half Specular_Phong (lm_input input) {
@@ -130,10 +135,51 @@ half Specular_Phong (lm_input input) {
     return _SpecularIntensity * pow(saturate(dot(r, e)), _SpecularHardness);
 }
 
-half3 Specular_Blinn_Phong (lm_input input) {
-    half3 h = normalize(input.lightDir + input.viewDir);
-    half3 n = input.normal;
-    return _SpecularIntensity * pow(saturate(dot(n, h)), _SpecularHardness);
+half Specular_Blinn_Phong (lm_input input) {
+    return _SpecularIntensity * pow(saturate(input.nDotH), _SpecularHardness);
+}
+
+// https://en.wikipedia.org/wiki/Specular_highlight#Beckmann_distribution
+half Beckmann_Distribution (lm_input input) {
+    half alpha = acos(input.nDotH);
+
+    half m = sqrt(2.0 / (_SpecularHardness + 2));   // from https://simonstechblog.blogspot.com/2011/12/microfacet-brdf.html
+    half m2 = m * m;
+    half tanAlpha = tan(alpha);
+    half tanAlpha2 = tanAlpha * tanAlpha;
+    half cosAlpha = cos(alpha);
+    half cosAlpha4 = cosAlpha * cosAlpha * cosAlpha * cosAlpha;
+
+    return exp(-tanAlpha2 / m2) / (UNITY_PI * m2 * cosAlpha4);
+}
+
+// https://en.wikipedia.org/wiki/Schlick%27s_approximation
+half Schlicks_Fresnel_Approximation (lm_input input) {
+    float n1 = 1;   // assuming air as refractive medium
+    float n2 = _SpecularIndexOfRefraction;
+
+    float sqrtR0 = (n1 - n2) / (n1 + n2);
+    float r0 = sqrtR0 * sqrtR0;
+
+    float cosTheta = input.nDotL;
+    return r0 + (1.0 - r0) * pow(1 - cosTheta, 5);
+}
+
+// https://en.wikipedia.org/wiki/Specular_highlight#Cook%E2%80%93Torrance_model
+half Geometric_Attenuation (lm_input input) {
+    half vDotH = dot(input.viewDir, input.halfVec);
+    half a = (2 * input.nDotH * input.nDotV) / vDotH;
+    half b = (2 * input.nDotH * input.nDotL) / vDotH;
+    return min(1, min(a, b));
+}
+
+// https://en.wikipedia.org/wiki/Specular_highlight#Cook%E2%80%93Torrance_model
+half Specular_Cook_Torrance (lm_input input) {
+    half d = Beckmann_Distribution(input);
+    half f = Schlicks_Fresnel_Approximation(input);
+    half g = Geometric_Attenuation(input);
+    
+    return (d * f * g) / (UNITY_PI * input.nDotV * input.nDotL);
 }
 
 // fragment shaders using the lighting models
@@ -174,6 +220,14 @@ fixed4 lm_frag_blinn_phong (lm_v2f i) : SV_TARGET {
     fixed4 col = _SpecularColor;
     lm_input li = GetLMInput(i);
     fixed3 spec = _LightColor0.rgb * Specular_Blinn_Phong(li);
+    col.rgb *= spec;
+    return col;
+}
+
+fixed4 lm_frag_cook_torrance (lm_v2f i) : SV_TARGET {
+    fixed4 col = _SpecularColor;
+    lm_input li = GetLMInput(i);
+    fixed3 spec = _LightColor0.rgb * Specular_Cook_Torrance(li);
     col.rgb *= spec;
     return col;
 }

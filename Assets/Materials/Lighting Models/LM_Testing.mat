@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: LM_Testing
-  m_Shader: {fileID: 4800000, guid: 1d2fb5917fee3d64eaa10b59308c447a, type: 3}
+  m_Shader: {fileID: 4800000, guid: e2a05cae3a633c04daee735f8a8777f6, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -55,6 +55,10 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _SpecGlossMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     m_Floats:
     - _BumpScale: 1
     - _Cull: 2
@@ -71,8 +75,9 @@ Material:
     - _Parallax: 0.02
     - _Roughness: 1
     - _SmoothnessTextureChannel: 0
-    - _SpecularHardness: 4
+    - _SpecularHardness: 10.8
     - _SpecularHighlights: 1
+    - _SpecularIndexOfRefraction: 4.02
     - _SpecularIntensity: 1
     - _SrcBlend: 1
     - _UVSec: 0
@@ -81,4 +86,5 @@ Material:
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _SpecColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
     - _SpecularColor: {r: 1, g: 1, b: 1, a: 1}

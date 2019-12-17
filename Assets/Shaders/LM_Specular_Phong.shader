@@ -1,8 +1,9 @@
-﻿Shader "Custom/LightingModels/LM_Minnaert" {
+﻿Shader "Custom/LightingModels/LM_Specular_Phong" {
 
     Properties {
-        _Color ("Main Color", Color) = (1,1,1,1)
-        _MinnaertExp ("Minnaert Exponent", Range(0,10)) = 1.0   // it just gets darker and darker the higher the exponent...
+        _SpecularColor ("Specular Color", Color) = (1,1,1,1)
+        _SpecularIntensity ("Specular Intensity", Range(0,1)) = 1
+        _SpecularHardness ("Specular Hardness", Range(0, 128)) = 64
         [Enum(UnityEngine.Rendering.BlendMode)]       _SrcBlend ("SrcBlend", Int) = 5.0 // SrcAlpha
         [Enum(UnityEngine.Rendering.BlendMode)]       _DstBlend ("DstBlend", Int) = 10.0 // OneMinusSrcAlpha
         [Enum(Off, 0, On, 1)]                         _ZWrite ("ZWrite", Int) = 1.0 // On
@@ -27,12 +28,10 @@
             CGPROGRAM
 			
             #pragma vertex lm_vert
-            #pragma fragment lm_frag_minnaert
+            #pragma fragment lm_frag_phong
             #pragma multi_compile_fwdbase
 
             #include "LightingModels.cginc"
-
-            #define LM_INCLUDE_AMBIENT
 			
             ENDCG
         }
@@ -49,7 +48,7 @@
             CGPROGRAM
 			
             #pragma vertex lm_vert
-            #pragma fragment lm_frag_minnaert
+            #pragma fragment lm_frag_phong
             #pragma multi_compile_fwdadd
 
             #include "LightingModels.cginc"

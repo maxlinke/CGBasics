@@ -31,8 +31,6 @@
             #pragma multi_compile_fwdbase
 
             #include "LightingModels.cginc"
-
-            #define LM_INCLUDE_AMBIENT
 			
             ENDCG
         }

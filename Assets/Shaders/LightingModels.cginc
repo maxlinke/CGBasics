@@ -56,6 +56,10 @@ fixed4 _Color;
 float _Roughness;
 float _MinnaertExp;
 
+fixed4 _SpecularColor;
+float _SpecularIntensity;
+float _SpecularHardness;
+
 // lighting models
 
 half3 Diffuse_Ambient (lm_input input) {
@@ -119,6 +123,19 @@ half Diffuse_Minnaert (lm_input input) {
     return minnaert;
 }
 
+half Specular_Phong (lm_input input) {
+    // half3 r = input.lightDir - 2 * input.normal * dot(input.normal, input.lightDir);
+    half3 r = reflect(input.lightDir, input.normal);     // the easy way
+    half3 e = -input.viewDir;
+    return _SpecularIntensity * pow(saturate(dot(r, e)), _SpecularHardness);
+}
+
+half3 Specular_Blinn_Phong (lm_input input) {
+    half3 h = normalize(input.lightDir + input.viewDir);
+    half3 n = input.normal;
+    return _SpecularIntensity * pow(saturate(dot(n, h)), _SpecularHardness);
+}
+
 // fragment shaders using the lighting models
 
 fixed4 lm_frag_lambert (lm_v2f i) : SV_TARGET {
@@ -142,5 +159,21 @@ fixed4 lm_frag_minnaert (lm_v2f i) : SV_TARGET {
     lm_input li = GetLMInput(i);
     fixed3 diff = _LightColor0.rgb * Diffuse_Minnaert(li) + Diffuse_Ambient(li);
     col.rgb *= diff;
+    return col;
+}
+
+fixed4 lm_frag_phong (lm_v2f i) : SV_TARGET {
+    fixed4 col = _SpecularColor;
+    lm_input li = GetLMInput(i);
+    fixed3 spec = _LightColor0.rgb * Specular_Phong(li);
+    col.rgb *= spec;
+    return col;
+}
+
+fixed4 lm_frag_blinn_phong (lm_v2f i) : SV_TARGET {
+    fixed4 col = _SpecularColor;
+    lm_input li = GetLMInput(i);
+    fixed3 spec = _LightColor0.rgb * Specular_Blinn_Phong(li);
+    col.rgb *= spec;
     return col;
 }

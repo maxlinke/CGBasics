@@ -61,7 +61,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Floats:
     - _BumpScale: 1
-    - _Cull: 2
+    - _Cull: 0
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
@@ -77,7 +77,7 @@ Material:
     - _SmoothnessTextureChannel: 0
     - _SpecularAnisoX: 0.41
     - _SpecularAnisoY: 0.063
-    - _SpecularHardness: 14.8
+    - _SpecularHardness: 24.5
     - _SpecularHighlights: 1
     - _SpecularIndexOfRefraction: 10
     - _SpecularIntensity: 1

@@ -222,15 +222,14 @@ half Ward (lm_input input, half roughness, half exponent) {
 
 half Specular_Ward_Iso (lm_input input) {
     half alpha = SlopeRMSFromHardness(_SpecularHardness);
-    half delta = input.nDotH;
+    
+    half delta = acos(input.nDotH);     // delta is the ANGLE!!! and the dot product is the cosine of the angle...
+    half tanD = tan(delta);
+    half exponent = -(tanD * tanD) / (alpha * alpha);
 
-    // half tanD = tan(delta);
-    // half exponent = -(tanD * tanD) / (alpha * alpha);
-
-    half tanD = tan(delta / (alpha * alpha));    // very trippy but wrong
-    half exponent = -(tanD * tanD);
-
-    // try inverting the input or saturating it, i dont know...
+    // half delta = input.nDotH;
+    // half tanD = tan(delta / (alpha * alpha));    // very trippy but wrong
+    // half exponent = -(tanD * tanD);
 
     return Ward(input, alpha, exponent);
 }

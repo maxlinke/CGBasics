@@ -144,6 +144,10 @@ half Diffuse_Lambert (lm_input input) {
     return saturate(input.nDotL);
 }
 
+half Diffuse_Wrap (lm_input input) {
+    return (input.nDotL + 1.0) / 2.0;
+}
+
 // half3 Diffuse_Oren_Nayar (lm_input input) {
 //     half nDotL = dot(input.normal, input.lightDir);
 //     half nDotV = dot(input.normal, input.viewDir);
@@ -180,12 +184,11 @@ half Diffuse_Oren_Nayar (lm_input input) {
     half alpha = max(thetaI, thetaR);
     half beta = min(thetaI, thetaR);
 
-    half3 phiR = normalize(input.viewDir - input.normal * nDotV);
-    half3 phiI = normalize(input.lightDir - input.normal * nDotL);
-    half cosC = dot(phiR, phiI);  // dot of vectors in place of cos(phiR - phiR)
+    half3 vProj = input.viewDir - (input.normal * input.nDotV);
+    half3 lProj = input.lightDir - (input.normal * input.nDotL);
+    half cosC = dot(vProj, lProj) / (length(vProj) * length(lProj));    // cosC is difference in azimuth angles (phiI - phiR). angle between projected vectors is the same.
 
-    // half orenNayar = saturate(nDotL) * saturate((a + (b * sin(alpha) * tan(beta) * max(0, cosC))));  // since cos(x) is only in [-1, 1] saturate(y) does the same job as max(0, y)
-    half orenNayar = saturate(nDotL) * saturate((a + (b * sin(alpha) * tan(beta) * saturate(cosC))));
+    half orenNayar = saturate(nDotL) * (a + (b * sin(alpha) * tan(beta) * max(0, cosC)));   // saturating the second term makes the edges darker. it's also not in the original formula (neither is saturating n*l though...)
     return orenNayar;
 }
 
@@ -214,7 +217,6 @@ half Specular_Cook_Torrance (lm_input input) {
     return (d * f * g) / (UNITY_PI * input.nDotV * input.nDotL);
 }
 
-// TODO incorporate the specular intensity into roughness/aniso somehow so that aniso x and y can be normalized
 half Ward (lm_input input, half roughness, half exponent) {
     half root = sqrt(input.nDotL * input.nDotV);
     return _SpecularIntensity * input.nDotL * exp(exponent) / (root * 4.0 * UNITY_PI * roughness * roughness);  // ndotl isn't in the original paper but it's necessary
@@ -241,8 +243,6 @@ half Specular_Ward_Aniso (lm_input input) {
     half expB = dot(input.halfVec, input.bitangent) / roughY;
     half expAB = -2.0 * (expA * expA + expB * expB) / (1.0 + input.nDotH);
     return Ward (input, sqrt(roughX * roughY), expAB);
-    // half expAB = exp(-2.0 * (expA * expA + expB * expB) / (1.0 + input.nDotH));
-    // return _SpecularIntensity * input.nDotL * expAB / (sqrt(input.nDotL * input.nDotV) * 4.0 * UNITY_PI * _SpecularAnisoX * _SpecularAnisoY);
 }
 
 // ----------------------------------------------------------------
@@ -253,6 +253,14 @@ fixed4 lm_frag_lambert (lm_v2f i) : SV_TARGET {
     fixed4 col = _Color * i.color;
     lm_input li = GetLMInput(i);
     fixed3 diff = _LightColor0.rgb * Diffuse_Lambert(li) + Diffuse_Ambient(li);
+    col.rgb *= diff;
+    return col;
+}
+
+fixed4 lm_frag_wrap (lm_v2f i) :SV_TARGET {
+    fixed4 col = _Color * i.color;
+    lm_input li = GetLMInput(i);
+    fixed3 diff = _LightColor0.rgb * Diffuse_Wrap(li) + Diffuse_Ambient(li);
     col.rgb *= diff;
     return col;
 }

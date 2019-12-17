@@ -656,7 +656,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 652972201}
-  m_Mesh: {fileID: 4300000, guid: c3c6b5539469aca489e18f35eccb759a, type: 3}
+  m_Mesh: {fileID: 4300000, guid: 4d9d1f146dacfe345ae01228bb9b4f47, type: 3}
 --- !u!1 &850501669
 GameObject:
   m_ObjectHideFlags: 0
@@ -684,7 +684,7 @@ Light:
   m_Enabled: 1
   serializedVersion: 8
   m_Type: 1
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.8, g: 0.8, b: 0.8, a: 1}
   m_Intensity: 1
   m_Range: 10
   m_SpotAngle: 30
@@ -1017,7 +1017,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1120459058}
-  m_Mesh: {fileID: 4300000, guid: 739838454524a2c4b87f6f53f31ee96b, type: 3}
+  m_Mesh: {fileID: 4300000, guid: 4d9d1f146dacfe345ae01228bb9b4f47, type: 3}
 --- !u!1 &1368756249
 GameObject:
   m_ObjectHideFlags: 0

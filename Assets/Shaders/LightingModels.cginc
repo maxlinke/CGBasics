@@ -224,11 +224,13 @@ half Specular_Ward_Iso (lm_input input) {
     half alpha = SlopeRMSFromHardness(_SpecularHardness);
     half delta = input.nDotH;
 
-    half tanD = tan(delta);
-    half exponent = -(tanD * tanD) / (alpha * alpha);
+    // half tanD = tan(delta);
+    // half exponent = -(tanD * tanD) / (alpha * alpha);
 
-    // half tanD = tan(delta / (alpha * alpha));    // very trippy but wrong
-    // half exponent = -(tanD * tanD);
+    half tanD = tan(delta / (alpha * alpha));    // very trippy but wrong
+    half exponent = -(tanD * tanD);
+
+    // try inverting the input or saturating it, i dont know...
 
     return Ward(input, alpha, exponent);
 }

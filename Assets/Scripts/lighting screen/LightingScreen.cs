@@ -11,12 +11,35 @@ public class LightingScreen : MonoBehaviour {
     [Header("Components")]
     [SerializeField] Image[] borders;
 
+    MeshRenderer targetMR;
+    MaterialPropertyBlock mpb;
+    // MaterialPropertyBlock diffPropBlock;
+    // MaterialPropertyBlock specPropBlock;
+
+    Color objectColor;
+    Color objectSpecColor;
+    // also sliders/scrollableinputfields for intensity? automatically clamp value (in inputfield) to [0, Infinity]?
+    Color ambientLightColor;
+    Color mainLightColor;
+    Color backLightColor;
+
     void Start () {
         
     }
 
     void Update () {
-        
+        if(mpb == null){
+            mpb = new MaterialPropertyBlock();
+        }
+
+        targetMR.SetPropertyBlock(mpb);
+    }
+
+    Material CreateDiffuseMaterial (Shader shader) {
+        var newMat = new Material(shader);
+        newMat.hideFlags = HideFlags.HideAndDontSave;
+        newMat.SetFloat(ShaderProps.ID._SrcBlend.ToString(), (int)UnityEngine.Rendering.BlendMode.One); // i don't like the tostring
+        return newMat;
     }
 	
 }

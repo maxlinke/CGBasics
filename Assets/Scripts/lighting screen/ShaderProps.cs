@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 public static class ShaderProps {
 
@@ -12,6 +13,10 @@ public static class ShaderProps {
     public static FloatProp specHardness { get; private set; }
     public static FloatProp specHardnessX { get; private set; }
     public static FloatProp specHardnessY { get; private set; }
+
+    // TODO should the colors be in the material settings (so lambert has at least ONE thing) or should the two colors be part of the object?
+    private static List<Prop> diffProps;
+    private static List<Prop> specProps;
 
     static ShaderProps () {
         diffuseColor = new ColorProp("_Color", "Diffuse Color", Color.white);
@@ -27,6 +32,30 @@ public static class ShaderProps {
         specHardness = new FloatProp("_SpecularHardness", "Hardness", specDefault, specMin, specMax);
         specHardnessX = new FloatProp("_SpecularHardnessX", "Hardness (X)", specDefault, specMin, specMax);
         specHardnessY = new FloatProp("_SpecularHardnessY", "Hardness (Y)", specDefault, specMin, specMax);
+
+        diffProps = new List<Prop>();
+        diffProps.Add(diffuseColor);
+        diffProps.Add(roughness);
+        diffProps.Add(minnaertExp);
+        
+        specProps = new List<Prop>();
+        specProps.Add(specularColor);
+        specProps.Add(specIntensity);
+        specProps.Add(specHardness);
+        specProps.Add(specHardnessX);
+        specProps.Add(specHardnessY);
+    }
+
+    public static IEnumerator<Prop> DiffuseProps () {
+        foreach(var prop in diffProps){
+            yield return prop;
+        }
+    }
+
+    public static IEnumerator<Prop> SpecularProps () {
+        foreach(var prop in specProps){
+            yield return prop;
+        }
     }
 
     public abstract class Prop {

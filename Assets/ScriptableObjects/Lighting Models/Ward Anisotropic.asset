@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5859b189b0df5e142b058c77dc346f41, type: 3}
+  m_Name: Ward Anisotropic
+  m_EditorClassIdentifier: 
+  m_type: 1
+  m_shader: {fileID: 4800000, guid: 0969ebe5f18c62e45a81d82f3613ae41, type: 3}
+  m_description: A model for anisotropic surfaces, such as brushed metal. Developed
+    by Gregory J. Ward and published in 1992.
+  m_usesRoughness: 0
+  m_usesMinnaertExp: 0
+  m_usesSpecIntensity: 1
+  m_usesSpecHardness: 0
+  m_usesSpecHardnessX: 1
+  m_usesSpecHardnessY: 1

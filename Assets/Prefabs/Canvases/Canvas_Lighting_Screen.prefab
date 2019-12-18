@@ -230,6 +230,17 @@ MonoBehaviour:
   - {fileID: 6781041731446101378}
   - {fileID: 93701480331422199}
   - {fileID: 5165682294816998557}
+  solidColorLM: {fileID: 11400000, guid: 632d985ace3995d429aa23853a9e8796, type: 2}
+  lightingModels:
+  - {fileID: 11400000, guid: a16cda9db628a644595ad6bdfa1d08a8, type: 2}
+  - {fileID: 11400000, guid: 4eb4a5730837c1c478166ba2b5c23183, type: 2}
+  - {fileID: 11400000, guid: 0c642922aaea18c4395b29ba2fc8afa0, type: 2}
+  - {fileID: 11400000, guid: a3ebe20ce21da084baeb3f60abbbbb10, type: 2}
+  - {fileID: 11400000, guid: 00d1f93f8888e4948989bac0a40cf4a2, type: 2}
+  - {fileID: 11400000, guid: 4c228059d1b1f1a48956fcc44ff97603, type: 2}
+  - {fileID: 11400000, guid: a24b7c067182356449ae153744b4b5a0, type: 2}
+  - {fileID: 11400000, guid: 77853b1b8ad6a6145a0a13855874df34, type: 2}
+  - {fileID: 11400000, guid: 240a88a9367acb843b002ecb4ba7339d, type: 2}
 --- !u!1 &3078392116233762998
 GameObject:
   m_ObjectHideFlags: 0

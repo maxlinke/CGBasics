@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5859b189b0df5e142b058c77dc346f41, type: 3}
+  m_Name: Minnaert
+  m_EditorClassIdentifier: 
+  m_type: 0
+  m_shader: {fileID: 4800000, guid: 586df25fe52aaa949ad526a4ab9a072f, type: 3}
+  m_description: Marcel Minnaert's contribution to this lighting model is the exponent.
+    In the range from 0 to 1 it can be used for more accurate simulations of the moon.
+    It has also found use in rendering topographic images and simulating materials
+    such as velvet, when using a higher exponent.
+  m_usesRoughness: 0
+  m_usesMinnaertExp: 1
+  m_usesSpecIntensity: 0
+  m_usesSpecHardness: 0
+  m_usesSpecHardnessX: 0
+  m_usesSpecHardnessY: 0

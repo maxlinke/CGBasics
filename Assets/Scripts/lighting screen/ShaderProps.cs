@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public static class ShaderProps {
 
@@ -16,7 +14,7 @@ public static class ShaderProps {
     public static FloatProp specHardnessY { get; private set; }
 
     static ShaderProps () {
-        diffuseColor = new ColorProp("_Color", "Diffuse Color", Color.white);    // gets overriden when model is loaded
+        diffuseColor = new ColorProp("_Color", "Diffuse Color", Color.white);
         specularColor = new ColorProp("_SpecularColor", "Specular Color", Color.white);
 
         roughness = new FloatProp("_Roughness", "Roughness", 0.5f, 0f, 1f);

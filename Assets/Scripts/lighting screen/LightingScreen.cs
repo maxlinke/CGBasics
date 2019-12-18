@@ -8,16 +8,34 @@ using UnityEngine.UI;
 
 public class LightingScreen : MonoBehaviour {
 
+    private enum LM {
+        None,           // diff: solid color, spec: null
+        DiffLambert,
+        DiffOrenNayer,
+        DiffMinnaert,
+        DiffWrap,
+        SpecPhong,
+        SpecBlinnPhong,
+        SpecCookTorr,
+        SpecWardIso,
+        SpecWardAniso
+    }
+
+    // class for lighting model? has name (for foldout) and material?
+    // two dictionaries<LM, LightingModel> ? diff and spec...
+
     [Header("Components")]
     [SerializeField] Image[] borders;
 
+    [Header("Lighting Models")]
+    [SerializeField] LightingModel solidColorLM;
+    [SerializeField] LightingModel[] lightingModels;
+
     MeshRenderer targetMR;
     MaterialPropertyBlock mpb;
-    // MaterialPropertyBlock diffPropBlock;
-    // MaterialPropertyBlock specPropBlock;
 
-    Color objectColor;
-    Color objectSpecColor;
+    Color diffColor;
+    Color specColor;
     // also sliders/scrollableinputfields for intensity? automatically clamp value (in inputfield) to [0, Infinity]?
     Color ambientLightColor;
     Color mainLightColor;
@@ -28,17 +46,39 @@ public class LightingScreen : MonoBehaviour {
     }
 
     void Update () {
+        
+        SetupMaterialPropertyBlock();
+        targetMR.SetPropertyBlock(mpb);
+    }
+
+    void SetupMaterialPropertyBlock () {
         if(mpb == null){
             mpb = new MaterialPropertyBlock();
         }
-
-        targetMR.SetPropertyBlock(mpb);
+        mpb.SetColor(ShaderProps.diffuseColor.propID, diffColor);
+        mpb.SetColor(ShaderProps.specularColor.propID, specColor);
+        // TODO the floats
     }
 
     Material CreateDiffuseMaterial (Shader shader) {
         var newMat = new Material(shader);
         newMat.hideFlags = HideFlags.HideAndDontSave;
-        newMat.SetFloat("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.One); // i don't like the tostring
+        newMat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.One);
+        newMat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.Zero);
+        newMat.SetInt("_Cull", (int)UnityEngine.Rendering.CullMode.Off);
+        newMat.SetInt("_ZWrite", 1);
+        newMat.SetInt("_ZTest", (int)UnityEngine.Rendering.CompareFunction.LessEqual);
+        return newMat;
+    }
+
+    Material CreateSpecularMaterial (Shader shader) {
+        var newMat = new Material(shader);
+        newMat.hideFlags = HideFlags.HideAndDontSave;
+        newMat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.One);
+        newMat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.One);
+        newMat.SetInt("_Cull", (int)UnityEngine.Rendering.CullMode.Off);
+        newMat.SetInt("_ZWrite", 0);
+        newMat.SetInt("_ZTest", (int)UnityEngine.Rendering.CompareFunction.Equal);
         return newMat;
     }
 

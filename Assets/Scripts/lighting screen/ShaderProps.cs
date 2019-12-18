@@ -4,50 +4,59 @@ using UnityEngine;
 
 public static class ShaderProps {
 
-    public enum ID {
-        _Color,
-        _Roughness,
-        _MinnaertExp,
+    public static ColorProp diffuseColor { get; private set; }
+    public static ColorProp specularColor { get; private set; }
 
-        _SpecularColor,
-        _SpecularIntensity,
-        _SpecularHardness,
-        _SpecularHardnessX,
-        _SpecularHardnessY,
+    public static FloatProp roughness { get; private set; }
+    public static FloatProp minnaertExp { get; private set; }
 
-        _SrcBlend,
-        _DstBlend,
-        _ZWrite,
-        _ZTest,
-        _Cull
+    public static FloatProp specIntensity { get; private set; }
+    public static FloatProp specHardness { get; private set; }
+    public static FloatProp specHardnessX { get; private set; }
+    public static FloatProp specHardnessY { get; private set; }
+
+    static ShaderProps () {
+        diffuseColor = new ColorProp("_Color", "Diffuse Color", Color.white);    // gets overriden when model is loaded
+        specularColor = new ColorProp("_SpecularColor", "Specular Color", Color.white);
+
+        roughness = new FloatProp("_Roughness", "Roughness", 0.5f, 0f, 1f);
+        minnaertExp = new FloatProp("_MinnaertExp", "Minneart Exponent", 1.5f, 0f, 4f);
+
+        float specMin = 0f;
+        float specMax = 128f;
+        float specDefault = 64f;
+        specIntensity = new FloatProp("_SpecularIntensity", "Intensity", 1f, 0f, 1f);
+        specHardness = new FloatProp("_SpecularHardness", "Hardness", specDefault, specMin, specMax);
+        specHardnessX = new FloatProp("_SpecularHardnessX", "Hardness (X)", specDefault, specMin, specMax);
+        specHardnessY = new FloatProp("_SpecularHardnessY", "Hardness (Y)", specDefault, specMin, specMax);
     }
 
-    // and hover tooltips?
-    public static string GetNameForID (ID id) {
-        switch(id){
-            case ID._Color: 
-                return "Diffuse Color";
-
-            default: throw new System.ArgumentException($"Unknown {nameof(ID)} \"{id}\"!");
+    public abstract class Prop {
+        public readonly string propName;
+        public readonly int propID;
+        public readonly string niceName;
+        public Prop (string propName, string niceName) {
+            this.propName = propName;
+            this.propID = Shader.PropertyToID(propName);
+            this.niceName = niceName;
         }
     }
 
-    public static (float min, float max) GetRange (ID id) {
-        (float min, float max) hardnessRange = (min: 0, max: 128);
-        switch(id){
-            case ID._Roughness: 
-                return (min: 0, max: 1);
-            case ID._MinnaertExp:
-                return (min: 0, max: 4);
-            case ID._SpecularIntensity:
-                return (min: 0, max: 1);
-            case ID._SpecularHardness:
-                return hardnessRange;
-            case ID._SpecularHardnessX:
-                return hardnessRange;
-            case ID._SpecularHardnessY:
-                return hardnessRange;
-            default: throw new System.ArgumentException($"{nameof(ID)} \"{id}\" doesn't have a range!");
+    public class FloatProp : Prop {
+        public readonly float defaultValue;
+        public readonly float minValue;
+        public readonly float maxValue;
+        public FloatProp (string propName, string niceName, float defaultVal, float minVal, float maxVal) : base(propName, niceName) {
+            this.defaultValue = defaultVal;
+            this.minValue = minVal;
+            this.maxValue = maxVal;
+        }
+    }
+
+    public class ColorProp : Prop {
+        public readonly Color defaultValue;
+        public ColorProp (string propName, string niceName, Color defaultVal) : base(propName, niceName) {
+            this.defaultValue = defaultVal;
         }
     }
 	

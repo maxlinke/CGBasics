@@ -38,8 +38,25 @@ public class LightingScreen : MonoBehaviour {
     Material CreateDiffuseMaterial (Shader shader) {
         var newMat = new Material(shader);
         newMat.hideFlags = HideFlags.HideAndDontSave;
-        newMat.SetFloat(ShaderProps.ID._SrcBlend.ToString(), (int)UnityEngine.Rendering.BlendMode.One); // i don't like the tostring
+        newMat.SetFloat("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.One); // i don't like the tostring
         return newMat;
+    }
+
+    void CreateModelGroup () {
+
+    }
+
+    void CreateLightGroup () {
+
+    }
+
+    void CreateDiffuseGroup () {
+        // enable config button (() => {...});
+        // create slider ("_Roughness", 0, 1, (value) => {this.roughness = value;});
+    }
+
+    void CreateSpecularGroup () {
+
     }
 	
 }

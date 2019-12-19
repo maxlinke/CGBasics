@@ -19,7 +19,7 @@ public class ColorPicker : MonoBehaviour {
     [SerializeField] Image colorDisplayOutline;
 
     [Header("Settings")]
-    [SerializeField] bool to255;
+    [SerializeField] float extraBottomYOffset;
 
     bool initialized = false;
     ColorPickerChannelSlider rSlider;
@@ -64,7 +64,9 @@ public class ColorPicker : MonoBehaviour {
     }
 
     void LoadColors (ColorScheme cs) {
-
+        containerBG.color = cs.ColorPickerBackground;
+        colorAlphaGrid.color = cs.ColorPickerAlphaGridTint;
+        colorDisplayOutline.color = cs.ColorPickerColorOutline;
         
         rSlider.LoadColors(cs);
         gSlider.LoadColors(cs);
@@ -85,19 +87,40 @@ public class ColorPicker : MonoBehaviour {
         }
         instance = this;
         sliderTemplate.SetGOActive(false);
-        CreateSliders();
+        rSlider = CreateSlider("R");
+        gSlider = CreateSlider("G");
+        bSlider = CreateSlider("B");
+        aSlider = CreateSlider("A");
         backgroundRaycastCatcher.gameObject.AddComponent<UIBackgroundAbortRaycastCatcher>().onClick += HideAndReset;
 
         gameObject.SetActive(false);
         this.initialized = true;
 
-        void CreateSliders () {
-
+        ColorPickerChannelSlider CreateSlider (string label) {
+            var newSlider = Instantiate(sliderTemplate);
+            newSlider.rectTransform.SetParent(containerRT, false);
+            newSlider.rectTransform.ResetLocalScale();
+            newSlider.Initialize(
+                labelText: label, 
+                maxValue: 1f, 
+                initValue: 0f
+            );
+            newSlider.SetGOActive(true);
+            return newSlider;
         }
     }
 
     void RebuildContent () {
-
+        float y = 0;
+        for(int i=0; i<containerRT.childCount; i++){
+            var child = (RectTransform)(containerRT.GetChild(i));
+            if(!child.gameObject.activeSelf){
+                continue;
+            }
+            child.anchoredPosition = new Vector2(child.anchoredPosition.x, y);
+            y -= child.rect.height;
+        }
+        containerRT.SetSizeDeltaY(Mathf.Abs(y) + extraBottomYOffset);
     }
     
     public static void Open (Color initColor, bool includeAlpha, System.Action<Color> onClose, System.Action<Color> whileOpen) {
@@ -109,8 +132,17 @@ public class ColorPicker : MonoBehaviour {
             Debug.LogWarning("Duplicate colorpickers aren't supported! Aborting...");
             return;
         }
+        rSlider.normalizedValue = initColor.r;
+        gSlider.normalizedValue = initColor.g;
+        bSlider.normalizedValue = initColor.b;
+        aSlider.normalizedValue = initColor.a;
+        aSlider.SetGOActive(includeAlpha);
+        RebuildContent();
+        var newPivot = UIUtils.GetFullscreenCursorBoxPivot(containerRT.sizeDelta);
+        containerRT.pivot = newPivot;
+        containerRT.anchoredPosition = Input.mousePosition;
+        containerRT.anchoredPosition -= new Vector2(Mathf.Sign(newPivot.x - 0.5f), Mathf.Sign(newPivot.y - 0.5f));
         gameObject.SetActive(true);
-
     }
 
     void HideAndReset () {

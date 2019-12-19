@@ -308,16 +308,31 @@ public class ColorScheme : ScriptableObject {
     [SerializeField] Color colorPickerColorOutline;
     [SerializeField] Color colorPickerAlphaGridTint;
     [SerializeField] Color colorPickerSliderLabel;
-    [SerializeField] Color colorPickerSliderHandle;
     [SerializeField] Color colorPickerSliderFill;
     [SerializeField] Color colorPickerSliderBackground;
-    [SerializeField] Color colorPickerSliderHover;
-    [SerializeField] Color colorPickerSliderClick;
+    [SerializeField] Color colorPickerSliderHandle;
+    [SerializeField] Color colorPickerSliderHandleHover;
+    [SerializeField] Color colorPickerSliderHandleClick;
     [SerializeField] Color colorPickerInputFieldText;
     [SerializeField] Color colorPickerInputFieldSelection;
     [SerializeField] Color colorPickerInputFieldBackground;
-    [SerializeField] Color colorPickerInputFieldHover;
-    [SerializeField] Color colorPickerInputFieldClick;
+    [SerializeField] Color colorPickerInputFieldBackgroundHover;
+    [SerializeField] Color colorPickerInputFieldBackgroundClick;
+
+    public Color ColorPickerBackground => colorPickerBackground;
+    public Color ColorPickerColorOutline => colorPickerColorOutline;
+    public Color ColorPickerAlphaGridTint => colorPickerAlphaGridTint;
+    public Color ColorPickerSliderLabel => colorPickerSliderLabel;
+    public Color ColorPickerSliderFill => colorPickerSliderFill;
+    public Color ColorPickerSliderBackground => colorPickerSliderBackground;
+    public Color ColorPickerSliderHandle => colorPickerSliderHandle;
+    public Color ColorPickerSliderHandleHover => colorPickerSliderHandleHover;
+    public Color ColorPickerSliderHandleClick => colorPickerSliderHandleClick;
+    public Color ColorPickerInputFieldText => colorPickerInputFieldText;
+    public Color ColorPickerInputFieldSelection => colorPickerInputFieldSelection;
+    public Color ColorPickerInputFieldBackground => colorPickerInputFieldBackground;
+    public Color ColorPickerInputFieldBackgroundHover => colorPickerInputFieldBackgroundHover;
+    public Color ColorPickerInputFieldBackgroundClick => colorPickerInputFieldBackgroundClick;
 
     
 }

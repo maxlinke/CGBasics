@@ -4,25 +4,41 @@ using TMPro;
 
 public class ColorPickerChannelSlider : MonoBehaviour {
 
+    [SerializeField] RectTransform m_rectTransform;
+
+    [Header("Label")]
     [SerializeField] TextMeshProUGUI channelLabel;
 
     [Header("Slider")]
-    [SerializeField] RectTransform sliderRT;
     [SerializeField] Slider slider;
     [SerializeField] Image sliderBG;
     [SerializeField] Image sliderFill;
     [SerializeField] Image sliderHandle;
 
     [Header("Input Field")]
-    [SerializeField] RectTransform inputFieldRT;
     [SerializeField] TMP_InputField inputField;
     [SerializeField] Image inputFieldBG;
     [SerializeField] Graphic inputFieldMainText;
 
     bool initialized = false;
     bool blockSyncCalls;
-    public float currentValue => slider.value;
-    public float normalizedValue => slider.normalizedValue;
+    public float currentValue {
+        get {
+            return slider.value;
+        } set {
+            slider.value = Mathf.Clamp(value, slider.minValue, slider.maxValue);
+        }
+    }
+
+    public float normalizedValue {
+        get {
+            return slider.normalizedValue;
+        } set {
+            slider.value = slider.minValue + (Mathf.Clamp01(value) * (slider.maxValue - slider.minValue));
+        }
+    }
+
+    public RectTransform rectTransform => m_rectTransform;
 
     public void Initialize (string labelText, float maxValue, float initValue) {
         if(initialized){
@@ -38,6 +54,7 @@ public class ColorPickerChannelSlider : MonoBehaviour {
         inputField.text = GetInputFieldText(slider.value);
         slider.onValueChanged.AddListener(SliderValueChanged);
         inputField.onEndEdit.AddListener(InputFieldEndEdit);
+        channelLabel.text = labelText.Trim();
         blockSyncCalls = false;
 
         void SliderValueChanged (float newVal) {
@@ -55,14 +72,14 @@ public class ColorPickerChannelSlider : MonoBehaviour {
                 return;
             }
             if(!float.TryParse(newStringVal, out var parsed)){
-                inputField.text = "0";
+                blockSyncCalls = true;
+                slider.value = 0f;
+                inputField.text = GetInputFieldText(slider.value);
+                blockSyncCalls = false;
                 return;
             }
             parsed = Mathf.Clamp(parsed, slider.minValue, slider.maxValue);
             var processed = GetInputFieldText(parsed);
-            if(processed.Equals(newStringVal)){
-                return;
-            }
             blockSyncCalls = true;
             inputField.text = processed;
             slider.value = parsed;
@@ -71,11 +88,19 @@ public class ColorPickerChannelSlider : MonoBehaviour {
     }
 
     string GetInputFieldText (float inputValue) {
-        return $"{inputValue:F3}";
+        return $"{inputValue:F3}".ShortenNumberString();
     }
 
     public void LoadColors (ColorScheme cs) {
-
+        channelLabel.color = cs.ColorPickerSliderLabel;
+        sliderBG.color = cs.ColorPickerSliderBackground;
+        sliderFill.color = cs.ColorPickerSliderFill;
+        sliderHandle.color = Color.white;
+        slider.SetFadeTransition(0f, cs.ColorPickerSliderHandle, cs.ColorPickerSliderHandleHover, cs.ColorPickerSliderHandleClick, Color.magenta);
+        inputFieldMainText.color = cs.ColorPickerInputFieldText;
+        inputField.selectionColor = cs.ColorPickerInputFieldSelection;
+        inputFieldBG.color = Color.white;
+        inputField.SetFadeTransition(0f, cs.ColorPickerInputFieldBackground, cs.ColorPickerInputFieldBackgroundHover, cs.ColorPickerInputFieldBackgroundClick, Color.magenta);
     }
 	
 }

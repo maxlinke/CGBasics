@@ -130,3 +130,17 @@ MonoBehaviour:
   bottomLogWarningText: {r: 1, g: 0.7, b: 0.3, a: 1}
   bottomLogErrorText: {r: 1, g: 0.2, b: 0.2, a: 1}
   bottomLogMessageFlash: {r: 1, g: 1, b: 1, a: 0.5019608}
+  colorPickerBackground: {r: 0.4, g: 0.4, b: 0.4, a: 1}
+  colorPickerColorOutline: {r: 1, g: 1, b: 1, a: 1}
+  colorPickerAlphaGridTint: {r: 1, g: 1, b: 1, a: 1}
+  colorPickerSliderLabel: {r: 1, g: 1, b: 1, a: 1}
+  colorPickerSliderFill: {r: 0.7, g: 0.7, b: 0.7, a: 1}
+  colorPickerSliderBackground: {r: 0.2, g: 0.2, b: 0.2, a: 1}
+  colorPickerSliderHandle: {r: 1, g: 1, b: 1, a: 1}
+  colorPickerSliderHandleHover: {r: 0.85, g: 0.85, b: 0.85, a: 1}
+  colorPickerSliderHandleClick: {r: 1, g: 1, b: 1, a: 1}
+  colorPickerInputFieldText: {r: 1, g: 1, b: 1, a: 1}
+  colorPickerInputFieldSelection: {r: 0.5, g: 0.6666, b: 1, a: 1}
+  colorPickerInputFieldBackground: {r: 0.2, g: 0.2, b: 0.2, a: 1}
+  colorPickerInputFieldBackgroundHover: {r: 0.3, g: 0.3, b: 0.3, a: 1}
+  colorPickerInputFieldBackgroundClick: {r: 0.2, g: 0.2, b: 0.2, a: 1}

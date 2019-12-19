@@ -361,6 +361,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Canvas_Lighting_Screen
       objectReference: {fileID: 0}
+    - target: {fileID: 2731747878600727013, guid: b6946066900d72b4d9568a3ab2d69386,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 2731747878600727017, guid: b6946066900d72b4d9568a3ab2d69386,
         type: 3}
       propertyPath: m_LocalPosition.x

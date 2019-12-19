@@ -137,9 +137,13 @@ public class LightingScreen : MonoBehaviour {
     }
 
     void Update () {
+
+        if(Input.GetKeyDown(KeyCode.C)){
+            ColorPicker.Open(Random.ColorHSV(), true, null, null);
+        }
         
         SetupMaterialPropertyBlock();
-        targetMR.SetPropertyBlock(mpb);
+        // targetMR.SetPropertyBlock(mpb);
 
         void SetupMaterialPropertyBlock () {
             if(mpb == null){

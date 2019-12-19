@@ -85,7 +85,9 @@ public class MatrixScreen : MonoBehaviour {
 
         void UpdateLinearWeight () {
             float delta = currentWeightTarget - currentLinearWeight;
-            currentLinearWeight += Mathf.Sign(delta) * Mathf.Min(Mathf.Abs(delta), weightLerpDeltaPerSecond * Time.deltaTime);
+            float appliedDeltaAmount = Mathf.Min(Mathf.Abs(delta), weightLerpDeltaPerSecond * Time.deltaTime * InputSystem.shiftCtrlMultiplier);
+            float appliedDelta = Mathf.Sign(delta) * appliedDeltaAmount;
+            currentLinearWeight += appliedDelta;
         }
 
         void ApplyIndividualWeights () {

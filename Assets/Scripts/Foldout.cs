@@ -62,8 +62,7 @@ public class Foldout : MonoBehaviour {
         backgroundRaycastCatcher.enabled = true;
         backgroundRaycastCatcher.raycastTarget = true;
         backgroundRaycastCatcher.color = Color.clear;
-        backgroundRaycastCatcher.gameObject.AddComponent(typeof(BackgroundRaycastCatcher));
-        backgroundRaycastCatcher.GetComponent<BackgroundRaycastCatcher>().Initialize(this);
+        backgroundRaycastCatcher.gameObject.AddComponent<UIBackgroundAbortRaycastCatcher>().onClick += AbortSelection;
         HideAndReset();
         initialized = true;
     }
@@ -145,19 +144,22 @@ public class Foldout : MonoBehaviour {
             float scaledWidth = scale * width;
             float scaledHeight = scale * height;
 
-            float leftSpace = Input.mousePosition.x;
-            float bottomSpace = Input.mousePosition.y;
-            float rightSpace = Screen.width - leftSpace;
-            float topSpace = Screen.height - bottomSpace;
+            // float leftSpace = Input.mousePosition.x;
+            // float bottomSpace = Input.mousePosition.y;
+            // float rightSpace = Screen.width - leftSpace;
+            // float topSpace = Screen.height - bottomSpace;
 
-            bool toRight = (rightSpace >= scaledWidth || leftSpace < scaledWidth);
-            bool toBottom = (bottomSpace >= scaledHeight ? true : ((topSpace >= scaledHeight) ? false : (bottomSpace >= topSpace)));
-            float pivotX = toRight ? 0 : 1;
-            float pivotY = toBottom ? 1 : 0;
+            // bool toRight = (rightSpace >= scaledWidth || leftSpace < scaledWidth);
+            // bool toBottom = (bottomSpace >= scaledHeight ? true : ((topSpace >= scaledHeight) ? false : (bottomSpace >= topSpace)));
+            // float pivotX = toRight ? 0 : 1;
+            // float pivotY = toBottom ? 1 : 0;
 
-            buttonParent.SetPivot(pivotX, pivotY);
+            buttonParent.pivot = UIUtils.GetFullscreenCursorBoxPivot(new Vector2(scaledWidth, scaledHeight));
             buttonParent.anchoredPosition = Input.mousePosition;
             buttonParent.localScale = Vector3.one * scale;
+
+            bool toRight = buttonParent.pivot.x < 0.5f;
+            bool toBottom = buttonParent.pivot.y > 0.5f;
 
             float offsetMultiplier = toBottom ? -1 : 1;
             float y, screenY;
@@ -329,15 +331,15 @@ public class Foldout : MonoBehaviour {
         }
     }
 
-    private class BackgroundRaycastCatcher : MonoBehaviour, IPointerClickHandler {
-        private Foldout parent;
-        public void Initialize (Foldout parent) {
-            this.parent = parent;
-        }
-        public void OnPointerClick (PointerEventData eventData) {
-            parent.AbortSelection();
-        }
-    }
+    // private class BackgroundRaycastCatcher : MonoBehaviour, IPointerClickHandler {
+    //     private Foldout parent;
+    //     public void Initialize (Foldout parent) {
+    //         this.parent = parent;
+    //     }
+    //     public void OnPointerClick (PointerEventData eventData) {
+    //         parent.AbortSelection();
+    //     }
+    // }
 
     private class FoldoutButton {
         public readonly GameObject gameObject;

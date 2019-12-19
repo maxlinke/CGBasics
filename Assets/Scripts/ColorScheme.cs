@@ -302,6 +302,23 @@ public class ColorScheme : ScriptableObject {
     public Color BottomLogWarningText => bottomLogWarningText;
     public Color BottomLogErrorText => bottomLogErrorText;
     public Color BottomLogMessageFlash => bottomLogMessageFlash;
+
+    [Header("Color Picker")]
+    [SerializeField] Color colorPickerBackground;
+    [SerializeField] Color colorPickerColorOutline;
+    [SerializeField] Color colorPickerAlphaGridTint;
+    [SerializeField] Color colorPickerSliderLabel;
+    [SerializeField] Color colorPickerSliderHandle;
+    [SerializeField] Color colorPickerSliderFill;
+    [SerializeField] Color colorPickerSliderBackground;
+    [SerializeField] Color colorPickerSliderHover;
+    [SerializeField] Color colorPickerSliderClick;
+    [SerializeField] Color colorPickerInputFieldText;
+    [SerializeField] Color colorPickerInputFieldSelection;
+    [SerializeField] Color colorPickerInputFieldBackground;
+    [SerializeField] Color colorPickerInputFieldHover;
+    [SerializeField] Color colorPickerInputFieldClick;
+
     
 }
 

@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -12,7 +11,10 @@ namespace LightingModels {
         [SerializeField] RectTransform m_rectTransform;
         [SerializeField] RectTransform headerArea;
         [SerializeField] RectTransform contentArea;
-        [SerializeField] TextMeshProUGUI m_header;
+        [SerializeField] TextMeshProUGUI header;
+        [SerializeField] TextMeshProUGUI bottomText;
+        [SerializeField] Image bottomImage;
+        [SerializeField] RectTransform bottomImageRT;
 
         [Header("Settings")]
         [SerializeField] float buttonSize;
@@ -23,8 +25,7 @@ namespace LightingModels {
         bool initialized = false;
         Button configButton;
         Image configButtonIcon;
-
-        // TODO list of "properties" (all have recttransforms)
+        List<UIProp> props;
 
         public void LoadColors (ColorScheme cs) {
 
@@ -51,28 +52,26 @@ namespace LightingModels {
                 Debug.LogError("Name can't be empty!");
                 return;
             }
-            m_header.text = newName;
+            header.text = newName;
         }
 
         public void RebuildContent () {
+            var activeCache = gameObject.activeSelf;
+            gameObject.SetActive(true);
+            if(!gameObject.activeInHierarchy){
+                Debug.LogWarning($"{nameof(PropGroup)} \"{gameObject.name}\" is not active in hierarchy! Heights of TMPs might be off!", this.gameObject);
+            }
             float y = 0;
             for(int i=0; i<contentArea.childCount; i++){
                 var child = (RectTransform)(contentArea.GetChild(i));
-                if(!child.gameObject.activeSelf){
+                if(!child.gameObject.activeSelf || child == bottomText.rectTransform || child == bottomImageRT){
                     continue;
                 }
                 child.anchoredPosition = new Vector2(child.anchoredPosition.x, y);
                 float deltaY = child.rect.height;
-                var childTMP = child.GetComponent<TextMeshProUGUI>();
-                if(childTMP != null){
-                    if(!childTMP.gameObject.activeSelf){
-                        Debug.LogWarning("Gameobject of TMP is not active, preferredheight will not be accurate!", childTMP.gameObject);
-                    }else{
-                        deltaY = childTMP.preferredHeight;
-                    }
-                }
                 y -= (deltaY + ((i+1 < contentArea.childCount) ? contentElementVerticalMargin : 0));
             }
+            gameObject.SetActive(activeCache);
         }
 
         public Button AddConfigButton (Sprite icon, System.Action onButtonClicked, string hoverMessage) {
@@ -112,21 +111,35 @@ namespace LightingModels {
             configButtonIcon = iconRT.GetComponent<Image>();
             configButtonIcon.sprite = icon;
             configButtonIcon.raycastTarget = false;
+            // spacing the header
+            header.rectTransform.SetToFillWithMargins(0f, headerArea.rect.height, 0f, 0f);
             // output
             return configButton;
         }
 
-        public GameObject AddSliderProperty (bool rebuildContent = true) {
+        public GameObject AddSliderProperty () {
             return null;
         }
 
-        public GameObject AddColorProperty (bool rebuildContent = true) {
+        public GameObject AddColorProperty () {
             return null;
         }
 
-    // TODO how do i handle all this...
-    
-        // public GameObject AddImage (
+        public void ShowImage (Sprite sprite) {
+
+        }
+
+        public void HideImage () {
+
+        }
+
+        public void ShowText (string textToShow) {
+
+        }
+
+        public void HideText () {
+
+        }
     
     }
 

@@ -18,6 +18,8 @@ public class SyncedSliderAndInputField : MonoBehaviour {
     [SerializeField] TMP_Text m_inputFieldText;
     [SerializeField] TMP_Text m_inputFieldPlaceholder;
 
+    public RectTransform rectTransform => m_rectTransform;
+
     public Slider slider => m_slider;
     public Graphic sliderBG => m_sliderBG;
     public Graphic sliderFill => m_sliderFill;

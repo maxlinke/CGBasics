@@ -13,6 +13,10 @@ namespace LightingModels {
         // public void Initialize (string name, SOMETHING propDriver) {     // TODO all this
 
         // }
+
+        public void LoadColors (ColorScheme cs) {
+
+        }
     
     }
 

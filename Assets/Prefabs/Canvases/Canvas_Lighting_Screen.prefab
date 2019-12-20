@@ -653,6 +653,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 58c20a64c261208489be2a42c46ad81f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  propertyGroupPrefab: {fileID: 0}
   borders:
   - {fileID: 58794423494168369}
   - {fileID: 8239698037728352329}
@@ -660,7 +661,8 @@ MonoBehaviour:
   - {fileID: 93701480331422199}
   - {fileID: 5165682294816998557}
   scrollRect: {fileID: 2797079221870307155}
-  scrollRectElementVerticalMargin: 0
+  scrollRectElementVerticalMargin: 30
+  modelPropsAlwaysVisible: 1
   solidColorLM: {fileID: 11400000, guid: 632d985ace3995d429aa23853a9e8796, type: 2}
   lightingModels:
   - {fileID: 11400000, guid: a16cda9db628a644595ad6bdfa1d08a8, type: 2}
@@ -672,8 +674,17 @@ MonoBehaviour:
   - {fileID: 11400000, guid: a24b7c067182356449ae153744b4b5a0, type: 2}
   - {fileID: 11400000, guid: 77853b1b8ad6a6145a0a13855874df34, type: 2}
   - {fileID: 11400000, guid: 240a88a9367acb843b002ecb4ba7339d, type: 2}
-  someImage: {fileID: 0}
-  lastColImage: {fileID: 0}
+  modelProps:
+  - {fileID: 11400000, guid: bdf75838d46d37d4d83a536bd970cb0e, type: 2}
+  - {fileID: 11400000, guid: 1d78e56dd2ef465478a3a3b3150541e8, type: 2}
+  diffuseProps:
+  - {fileID: 11400000, guid: ef670eaae682bd342b03547564e2424c, type: 2}
+  - {fileID: 11400000, guid: bc3cfcadeff11b947ab63cb8494111fa, type: 2}
+  specularProps:
+  - {fileID: 11400000, guid: 20359b17115bc414f858728129bcc77a, type: 2}
+  - {fileID: 11400000, guid: 807938ffa910cca488cb058528eb1b63, type: 2}
+  - {fileID: 11400000, guid: 99765e79110ba5d42a350e5c8d034091, type: 2}
+  - {fileID: 11400000, guid: 11bcf47d7e252144dac0ab1b4bdf8079, type: 2}
 --- !u!1 &3078392116233762998
 GameObject:
   m_ObjectHideFlags: 0

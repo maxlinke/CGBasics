@@ -28,26 +28,11 @@ namespace LightingModels {
         Image configButtonIcon;
         List<UIPropertyField> propfields;
 
-        void Update () {
-            // eh.. if the images are not too wide, it shouldn't be a problem on most devices. 480x640 is really low either way
-            // if(bottomImage.gameObject.activeSelf && bottomImage.sprite != null){
-            //     var tex = bottomImage.sprite.texture;
-            //     var texDimensions = new Vector2(tex.width, tex.height);
-            //     bool bottomImageFits = bottomImage.sprite.texture.width <= contentArea.rect.width;
-            //     bool bottomImageSetToFill = bottomImage.rectTransform.AverageAnchor() != bottomImage.rectTransform.anchorMin;
-            //     if(bottomImageFits && bottomImageSetToFill){
-            //         var newAnchor = new Vector2(0.5f, 0f);
-            //         bottomImage.rectTransform.SetAnchor(newAnchor);
-            //         bottomImage.rectTransform.pivot = newAnchor;
-            //         bottomImage.rectTransform.sizeDelta = texDimensions;
-            //     }else if(!bottomImageFits && !bottomImageSetToFill){
-
-            //     }
-            // }
-        }
-
         public void LoadColors (ColorScheme cs) {
-
+            // header.color = ...
+            foreach(var propfield in propfields){
+                propfield.LoadColors(cs);
+            }
         }
         
         // public void Initialize (string initName, IEnumerable<System.Func<) { // func prop, gameobject?

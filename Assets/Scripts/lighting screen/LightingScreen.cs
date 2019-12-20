@@ -36,12 +36,38 @@ public class LightingScreen : MonoBehaviour {
 
     Dictionary<LightingModel, Material> diffuseModels;
     Dictionary<LightingModel, Material> specularModels;
-    Dictionary<ShaderProperty, UIPropertyField> propertyFields;     // TODO one such dictionary for each group? how do i do this?
+    Dictionary<ShaderProperty, UIPropertyField> propertyFields;     // TODO one such dictionary for each group? how do i do this?    
 
     UIPropertyGroup modelGroup;
     UIPropertyGroup lightsGroup;
     UIPropertyGroup diffGroup;
     UIPropertyGroup specGroup;
+
+    private class ShaderVariable {
+        public readonly int id;
+        public readonly string name;
+        public ShaderVariable (string inputName) {
+            this.name = inputName;
+            this.id = Shader.PropertyToID(inputName);
+        }
+    }
+
+    private class FloatObject {
+        public float value;
+        public FloatObject (float inputValue) {
+            this.value = inputValue;
+        }
+    }
+
+    private class ColorObject {
+        public Color value;
+        public ColorObject (Color inputColor) {
+            this.value = inputColor;
+        }
+    }
+
+    Dictionary<ShaderVariable, FloatObject> shaderFloats;
+    Dictionary<ShaderVariable, ColorObject> shaderColors;
 
     void Start () {
 
@@ -52,11 +78,12 @@ public class LightingScreen : MonoBehaviour {
             Debug.LogError("Already initialized! Aborting...");
             return;
         }
-        CreateMaterialsAndSetupDictionaries();
+        CreateMaterialsAndSetupMaterialDictionaries();
+        SetupShaderVariableDictionaries();
 
         this.initialized = true;
 
-        void CreateMaterialsAndSetupDictionaries () {
+        void CreateMaterialsAndSetupMaterialDictionaries () {
             if(diffuseModels != null || specularModels != null){
                 Debug.Log("Either one or both of the dictionaries is null, this should not happen!");
             }
@@ -103,6 +130,54 @@ public class LightingScreen : MonoBehaviour {
             }
         }
 
+        void SetupShaderVariableDictionaries () {
+            if(shaderFloats != null || shaderColors != null){
+                Debug.LogError("wat");
+                return;
+            }
+            shaderFloats = new Dictionary<ShaderVariable, FloatObject>();
+            shaderColors = new Dictionary<ShaderVariable, ColorObject>();
+            AddVariables(modelProps);
+            AddVariables(diffuseProps);
+            AddVariables(specularProps);
+
+            void AddVariables (IEnumerable<ShaderProperty> propContainer) {
+                foreach(var prop in propContainer){
+                    var propName = prop.name;
+                    if(CheckForDuplicateName(propName)){
+                        Debug.LogError($"Duplicate key \"{propName}\"!");
+                    }else{
+                        var shaderVar = new ShaderVariable(propName);
+                        switch(prop.type){
+                            case ShaderProperty.Type.Float:
+                                shaderFloats.Add(shaderVar, new FloatObject(prop.defaultValue));
+                                break;
+                            case ShaderProperty.Type.Color:
+                                shaderColors.Add(shaderVar, new ColorObject(prop.defaultColor));
+                                break;
+                            default:
+                                Debug.Log($"Unknown type \"{prop.type}\"!");
+                                break;
+                        }
+                    }
+                }
+            }
+
+            bool CheckForDuplicateName (string inputName) {
+                foreach(var key in shaderFloats.Keys){
+                    if(key.name == inputName){
+                        return true;
+                    }
+                }
+                foreach(var key in shaderColors.Keys){
+                    if(key.name == inputName){
+                        return true;
+                    }
+                }
+                return false;
+            }
+        }
+
         UIPropertyGroup CreateNewPropGroup () {
 
             return null;
@@ -141,17 +216,21 @@ public class LightingScreen : MonoBehaviour {
     }
 
     void Update () {
-        
         SetupMaterialPropertyBlock();
-        // targetMR.SetPropertyBlock(mpb);
+        if(targetMR != null){
+            targetMR.SetPropertyBlock(mpb);
+        }
 
         void SetupMaterialPropertyBlock () {
             if(mpb == null){
                 mpb = new MaterialPropertyBlock();
             }
-            // mpb.SetColor(ShaderProps.diffuseColor.propID, diffColor);
-            // mpb.SetColor(ShaderProps.specularColor.propID, specColor);
-            // TODO the floats
+            foreach(var key in shaderColors.Keys){
+                mpb.SetColor(key.id, shaderColors[key].value);
+            }
+            foreach(var key in shaderFloats.Keys){
+                mpb.SetFloat(key.id, shaderFloats[key].value);
+            }
         }
     }
 

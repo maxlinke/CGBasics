@@ -8,17 +8,6 @@ public class ColorPickerChannelSlider : MonoBehaviour {
     [SerializeField] TextMeshProUGUI channelLabel;
     [SerializeField] SyncedSliderAndInputField sliderAndInputField;
 
-    // [Header("Slider")]
-    // [SerializeField] Slider slider;
-    // [SerializeField] Image sliderBG;
-    // [SerializeField] Image sliderFill;
-    // [SerializeField] Image sliderHandle;
-
-    // [Header("Input Field")]
-    // [SerializeField] TMP_InputField inputField;
-    // [SerializeField] Image inputFieldBG;
-    // [SerializeField] Graphic inputFieldMainText;
-
     bool initialized = false;
     public float currentValue {
         get {
@@ -51,48 +40,7 @@ public class ColorPickerChannelSlider : MonoBehaviour {
         sliderAndInputField.formatString = (s) => {return $"{s:F3}".ShortenNumberString();};
         sliderAndInputField.SetSliderRange(0, maxValue);
         sliderAndInputField.currentValue = initValue;
-        // slider.maxValue = maxValue;
-        // slider.value = initValue;
-        // inputField.text = GetInputFieldText(slider.value);
-        // inputField.gameObject.AddComponent<ScrollableNumberInputField>().Initialize(inputField);
-        // slider.onValueChanged.AddListener(SliderValueChanged);
-        // inputField.onEndEdit.AddListener(InputFieldEndEdit);
-        
-        // blockSyncCalls = false;
-
-        // void SliderValueChanged (float newVal) {
-        //     if(blockSyncCalls){
-        //         return;
-        //     }
-        //     newVal = Mathf.Clamp(newVal, slider.minValue, slider.maxValue);
-        //     blockSyncCalls = true;
-        //     inputField.text = GetInputFieldText(newVal);
-        //     blockSyncCalls = false;
-        // }
-
-        // void InputFieldEndEdit (string newStringVal) {
-        //     if(blockSyncCalls){
-        //         return;
-        //     }
-        //     if(!float.TryParse(newStringVal, out var parsed)){
-        //         blockSyncCalls = true;
-        //         slider.value = 0f;
-        //         inputField.text = GetInputFieldText(slider.value);
-        //         blockSyncCalls = false;
-        //         return;
-        //     }
-        //     parsed = Mathf.Clamp(parsed, slider.minValue, slider.maxValue);
-        //     var processed = GetInputFieldText(parsed);
-        //     blockSyncCalls = true;
-        //     inputField.text = processed;
-        //     slider.value = parsed;
-        //     blockSyncCalls = false;
-        // }
     }
-
-    // string GetInputFieldText (float inputValue) {
-    //     return $"{inputValue:F3}".ShortenNumberString();
-    // }
 
     public void LoadColors (ColorScheme cs) {
         channelLabel.color = cs.ColorPickerSliderLabel;

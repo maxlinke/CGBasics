@@ -25,7 +25,7 @@ namespace LightingModels {
         bool initialized = false;
         Button configButton;
         Image configButtonIcon;
-        List<UIProp> props;
+        List<UIPropertyField> propsFields;
 
         public void LoadColors (ColorScheme cs) {
 

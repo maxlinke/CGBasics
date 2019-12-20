@@ -3,7 +3,7 @@ using TMPro;
 
 namespace LightingModels {
 
-    public class UIProp : MonoBehaviour {
+    public class UIPropertyField : MonoBehaviour {
 
         [SerializeField] RectTransform m_rectTransform;
         [SerializeField] TextMeshProUGUI label;

@@ -40,7 +40,7 @@ public class ColorPicker : MonoBehaviour {
             );
 
             float GetSliderValue (ColorPickerChannelSlider slider) {
-                return (slider.gameObject.activeSelf ? slider.normalizedValue : 1f);
+                return (slider.gameObject.activeSelf ? slider.normalizedValue : (slider == aSlider ? 1f : 0f));
             }
         }
     }

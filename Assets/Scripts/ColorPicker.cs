@@ -20,12 +20,14 @@ public class ColorPicker : MonoBehaviour {
 
     [Header("Settings")]
     [SerializeField] float extraBottomYOffset;
+    [SerializeField] bool enableComparison;
 
     bool initialized = false;
     ColorPickerChannelSlider rSlider;
     ColorPickerChannelSlider gSlider;
     ColorPickerChannelSlider bSlider;
     ColorPickerChannelSlider aSlider;
+    Image compareImage;
 
     System.Action<Color> onClose;
     System.Action<Color> whileOpen;
@@ -92,7 +94,17 @@ public class ColorPicker : MonoBehaviour {
         bSlider = CreateSlider("B");
         aSlider = CreateSlider("A");
         backgroundRaycastCatcher.gameObject.AddComponent<UIBackgroundAbortRaycastCatcher>().onClick += HideAndReset;
-
+        if(enableComparison){
+            var oldRT = colorDisplay.GetComponent<RectTransform>();
+            oldRT.anchorMin = new Vector2(0.5f, 0f);
+            oldRT.anchorMax = new Vector2(1f, 1f);
+            compareImage = Instantiate(colorDisplay);
+            var newRT = compareImage.GetComponent<RectTransform>();
+            newRT.SetParent(oldRT.parent, false);
+            newRT.ResetLocalScale();
+            newRT.anchorMin = new Vector2(0f, 0f);
+            newRT.anchorMax = new Vector2(0.5f, 1f);
+        }
         gameObject.SetActive(false);
         this.initialized = true;
 
@@ -142,6 +154,9 @@ public class ColorPicker : MonoBehaviour {
         containerRT.pivot = newPivot;
         containerRT.anchoredPosition = Input.mousePosition;
         containerRT.anchoredPosition -= new Vector2(Mathf.Sign(newPivot.x - 0.5f), Mathf.Sign(newPivot.y - 0.5f));
+        if(enableComparison){
+            compareImage.color = initColor;
+        }
         gameObject.SetActive(true);
     }
 

@@ -155,6 +155,8 @@ public class ColorPicker : MonoBehaviour {
         if(enableComparison){
             compareImage.color = initColor;
         }
+        this.onClose = onClose;
+        this.whileOpen = whileOpen;
         gameObject.SetActive(true);
     }
 

@@ -136,7 +136,27 @@ public class LightingScreen : MonoBehaviour {
         scrollRect.content.SetSizeDeltaY(Mathf.Abs(y));
     }
 
+    [SerializeField] Image someImage;
+    [SerializeField] Image lastColImage;
+    Color lastCol = Color.white;
+
     void Update () {
+
+        if(Input.GetKeyDown(KeyCode.C)){
+            ColorPicker.Open(
+                initColor: lastCol, 
+                includeAlpha: true, 
+                onClose: (c) => {
+                    lastCol = c;
+                    someImage.color = c;
+                },
+                whileOpen: (c) => {
+                    someImage.color = c;
+                }
+            );
+        }
+
+        lastColImage.color = lastCol;
         
         SetupMaterialPropertyBlock();
         // targetMR.SetPropertyBlock(mpb);

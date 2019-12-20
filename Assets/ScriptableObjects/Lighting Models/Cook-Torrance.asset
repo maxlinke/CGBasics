@@ -17,9 +17,8 @@ MonoBehaviour:
   m_description: A phyically based specular lighting model simulating microfaceting
     and fresnel effecs, also sometimes reffered to under the name "Torrance-Sparrow".
     Developed by Robert L. Cook and Kenneth E. Torrance and published in 1982.
-  m_usesRoughness: 0
-  m_usesMinnaertExp: 0
-  m_usesSpecIntensity: 1
-  m_usesSpecHardness: 1
-  m_usesSpecHardnessX: 0
-  m_usesSpecHardnessY: 0
+  m_equation: {fileID: 0}
+  m_usedProperties:
+  - {fileID: 11400000, guid: 1d78e56dd2ef465478a3a3b3150541e8, type: 2}
+  - {fileID: 11400000, guid: 807938ffa910cca488cb058528eb1b63, type: 2}
+  - {fileID: 11400000, guid: 20359b17115bc414f858728129bcc77a, type: 2}

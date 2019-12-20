@@ -16,9 +16,6 @@ MonoBehaviour:
   m_shader: {fileID: 4800000, guid: 752dd953ab8c00b4ca9f85663f0400eb, type: 3}
   m_description: Non-physically-based lighting model. Found in older video games,
     such as the original Half-Life.
-  m_usesRoughness: 0
-  m_usesMinnaertExp: 0
-  m_usesSpecIntensity: 0
-  m_usesSpecHardness: 0
-  m_usesSpecHardnessX: 0
-  m_usesSpecHardnessY: 0
+  m_equation: {fileID: 0}
+  m_usedProperties:
+  - {fileID: 11400000, guid: bdf75838d46d37d4d83a536bd970cb0e, type: 2}

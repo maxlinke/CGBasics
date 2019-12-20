@@ -15,9 +15,6 @@ MonoBehaviour:
   m_type: 0
   m_shader: {fileID: 4800000, guid: 09ad47041e84d3042aa7ddf9ce25748e, type: 3}
   m_description: <color=#ff00ff>THIS SHOULD NEVER BE READ BY A USER!!!</color>
-  m_usesRoughness: 0
-  m_usesMinnaertExp: 0
-  m_usesSpecIntensity: 0
-  m_usesSpecHardness: 0
-  m_usesSpecHardnessX: 0
-  m_usesSpecHardnessY: 0
+  m_equation: {fileID: 0}
+  m_usedProperties:
+  - {fileID: 11400000, guid: bdf75838d46d37d4d83a536bd970cb0e, type: 2}

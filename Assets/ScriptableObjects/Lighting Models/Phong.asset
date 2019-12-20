@@ -16,9 +16,8 @@ MonoBehaviour:
   m_shader: {fileID: 4800000, guid: 1d2fb5917fee3d64eaa10b59308c447a, type: 3}
   m_description: A specular model using a reflected light ray and the direction to
     the viewer. Developed by Bui Tuong Phong and published in 1975.
-  m_usesRoughness: 0
-  m_usesMinnaertExp: 0
-  m_usesSpecIntensity: 1
-  m_usesSpecHardness: 1
-  m_usesSpecHardnessX: 0
-  m_usesSpecHardnessY: 0
+  m_equation: {fileID: 0}
+  m_usedProperties:
+  - {fileID: 11400000, guid: 1d78e56dd2ef465478a3a3b3150541e8, type: 2}
+  - {fileID: 11400000, guid: 807938ffa910cca488cb058528eb1b63, type: 2}
+  - {fileID: 11400000, guid: 20359b17115bc414f858728129bcc77a, type: 2}

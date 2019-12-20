@@ -1,11 +1,7 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using LightingModels;
-
-// TODO class "propertyGroup" or something like that
-// has a header, a "description" (optional image?) and a list of properties i guess (action to setup) AND an optional "configure"-button (mode, diffuse, specular but NOT light)
 
 public class LightingScreen : MonoBehaviour {
 
@@ -13,9 +9,6 @@ public class LightingScreen : MonoBehaviour {
     private const string lightsGroupName = "Lights";
     private const string diffGroupName = "Diffuse Model";
     private const string specGroupName = "Specular Model";
-
-    // class for lighting model? has name (for foldout) and material?
-    // two dictionaries<LM, LightingModel> ? diff and spec...
 
     [Header("Prefabs")]
     [SerializeField] PropGroup propertyGroupPrefab;
@@ -26,24 +19,24 @@ public class LightingScreen : MonoBehaviour {
 
     [Header("Settings")]
     [SerializeField] float scrollRectElementVerticalMargin;
+    [SerializeField] bool modelPropsAlwaysVisible;      // if the colors are to be part of the model group, then this should be on
 
     [Header("Lighting Models")]
     [SerializeField] LightingModel solidColorLM;
     [SerializeField] LightingModel[] lightingModels;
 
+    [Header("Shader Properties")]
+    [SerializeField] ShaderProperty[] modelProps;       // i can easily change whether i want the colors to be part of the model or the lighting models here
+    [SerializeField] ShaderProperty[] diffuseProps;
+    [SerializeField] ShaderProperty[] specularProps;
+
     bool initialized = false;
     MeshRenderer targetMR;
     MaterialPropertyBlock mpb;
 
-    Color diffColor;
-    Color specColor;
-    // also sliders/scrollableinputfields for intensity? automatically clamp value (in inputfield) to [0, Infinity]?
-    Color ambientLightColor;
-    Color mainLightColor;
-    Color backLightColor;
-
     Dictionary<LightingModel, Material> diffuseModels;
     Dictionary<LightingModel, Material> specularModels;
+    Dictionary<ShaderProperty, UIPropertyField> propertyFields;     // TODO one such dictionary for each group? how do i do this?
 
     PropGroup modelGroup;
     PropGroup lightsGroup;
@@ -156,8 +149,8 @@ public class LightingScreen : MonoBehaviour {
             if(mpb == null){
                 mpb = new MaterialPropertyBlock();
             }
-            mpb.SetColor(ShaderProps.diffuseColor.propID, diffColor);
-            mpb.SetColor(ShaderProps.specularColor.propID, specColor);
+            // mpb.SetColor(ShaderProps.diffuseColor.propID, diffColor);
+            // mpb.SetColor(ShaderProps.specularColor.propID, specColor);
             // TODO the floats
         }
     }
@@ -174,6 +167,9 @@ public class LightingScreen : MonoBehaviour {
         RebuildContent();
     }
 
-
+    // TODO this
+    void UpdateSliderPropVisibiltyAndRebuildContent () {
+        // foreach
+    }
 	
 }

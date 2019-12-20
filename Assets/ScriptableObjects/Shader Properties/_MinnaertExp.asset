@@ -17,4 +17,4 @@ MonoBehaviour:
   m_defaultColor: {r: 0, g: 0, b: 0, a: 0}
   m_minValue: 0
   m_maxValue: 4
-  m_defaultValue: 1
+  m_defaultValue: 1.5

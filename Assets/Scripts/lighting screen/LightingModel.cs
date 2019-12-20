@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 [CreateAssetMenu(fileName = "New Lighting Model", menuName = "Lighting Model")]
 public class LightingModel : ScriptableObject {
@@ -12,25 +13,26 @@ public class LightingModel : ScriptableObject {
     [SerializeField] Shader m_shader;
     [SerializeField, Multiline] string m_description;
     [SerializeField] Sprite m_equation;
-
-    [Header("Used Properties")]
-    [SerializeField] bool m_usesRoughness;
-    [SerializeField] bool m_usesMinnaertExp;
-    [SerializeField] bool m_usesSpecIntensity;
-    [SerializeField] bool m_usesSpecHardness;
-    [SerializeField] bool m_usesSpecHardnessX;
-    [SerializeField] bool m_usesSpecHardnessY;
+    [SerializeField] ShaderProperty[] m_usedProperties;
 
     public LightingModel.Type type => m_type;
     public Shader shader => m_shader;
     public string description => m_description;
     public Sprite equation => m_equation;
+    
+    public IEnumerator<ShaderProperty> UsedProperties () {
+        foreach(var prop in m_usedProperties){
+            yield return prop;
+        }
+    }
 
-    public bool usesRoughness => m_usesRoughness;
-    public bool usesMinnaertExp => m_usesMinnaertExp;
-    public bool usesSpecIntensity => m_usesSpecIntensity;
-    public bool usesSpecHardness => m_usesSpecHardness;
-    public bool usesSpecHardnessX => m_usesSpecHardnessX;
-    public bool usesSpecHardnessY => m_usesSpecHardnessY;
+    public bool UsesProperty (ShaderProperty inputProp) {
+        foreach(var prop in m_usedProperties){
+            if(prop == inputProp){
+                return true;
+            }
+        }
+        return false;
+    }
 	
 }

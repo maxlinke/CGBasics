@@ -11,7 +11,7 @@ public class LightingModel : ScriptableObject {
     [SerializeField] LightingModel.Type m_type;
     [SerializeField] Shader m_shader;
     [SerializeField, Multiline] string m_description;
-    // TODO formula/equation image?
+    [SerializeField] Sprite m_equation;
 
     [Header("Used Properties")]
     [SerializeField] bool m_usesRoughness;
@@ -24,6 +24,7 @@ public class LightingModel : ScriptableObject {
     public LightingModel.Type type => m_type;
     public Shader shader => m_shader;
     public string description => m_description;
+    public Sprite equation => m_equation;
 
     public bool usesRoughness => m_usesRoughness;
     public bool usesMinnaertExp => m_usesMinnaertExp;

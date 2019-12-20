@@ -9,19 +9,6 @@ using LightingModels;
 
 public class LightingScreen : MonoBehaviour {
 
-    private enum LM {
-        None,           // diff: solid color, spec: null
-        DiffLambert,
-        DiffOrenNayer,
-        DiffMinnaert,
-        DiffWrap,
-        SpecPhong,
-        SpecBlinnPhong,
-        SpecCookTorr,
-        SpecWardIso,
-        SpecWardAniso
-    }
-
     private const string modelGroupName = "Model";
     private const string lightsGroupName = "Lights";
     private const string diffGroupName = "Diffuse Model";
@@ -30,10 +17,12 @@ public class LightingScreen : MonoBehaviour {
     // class for lighting model? has name (for foldout) and material?
     // two dictionaries<LM, LightingModel> ? diff and spec...
 
+    [Header("Prefabs")]
+    [SerializeField] PropGroup propertyGroupPrefab;
+
     [Header("Components")]
     [SerializeField] Image[] borders;
     [SerializeField] ScrollRect scrollRect;
-    
 
     [Header("Settings")]
     [SerializeField] float scrollRectElementVerticalMargin;
@@ -120,6 +109,28 @@ public class LightingScreen : MonoBehaviour {
                 }
             }
         }
+
+        PropGroup CreateNewPropGroup () {
+
+            return null;
+        }
+
+        void CreateModelGroup () {
+
+        }
+
+        void CreateLightGroup () {
+
+        }
+
+        void CreateDiffuseGroup () {
+            // enable config button (() => {...});
+            // create slider ("_Roughness", 0, 1, (value) => {this.roughness = value;});
+        }
+
+        void CreateSpecularGroup () {
+
+        }
     }
 
     void RebuildContent () {
@@ -136,27 +147,7 @@ public class LightingScreen : MonoBehaviour {
         scrollRect.content.SetSizeDeltaY(Mathf.Abs(y));
     }
 
-    [SerializeField] Image someImage;
-    [SerializeField] Image lastColImage;
-    Color lastCol = Color.white;
-
     void Update () {
-
-        if(Input.GetKeyDown(KeyCode.C)){
-            ColorPicker.Open(
-                initColor: lastCol, 
-                includeAlpha: true, 
-                onClose: (c) => {
-                    lastCol = c;
-                    someImage.color = c;
-                },
-                whileOpen: (c) => {
-                    someImage.color = c;
-                }
-            );
-        }
-
-        lastColImage.color = lastCol;
         
         SetupMaterialPropertyBlock();
         // targetMR.SetPropertyBlock(mpb);
@@ -169,25 +160,6 @@ public class LightingScreen : MonoBehaviour {
             mpb.SetColor(ShaderProps.specularColor.propID, specColor);
             // TODO the floats
         }
-    }
-
-    // void CreateEmptyGroup (string name, System.Action onConfigButtonClicked, out TextMeshProUGUI 
-
-    void CreateModelGroup () {
-
-    }
-
-    void CreateLightGroup () {
-
-    }
-
-    void CreateDiffuseGroup () {
-        // enable config button (() => {...});
-        // create slider ("_Roughness", 0, 1, (value) => {this.roughness = value;});
-    }
-
-    void CreateSpecularGroup () {
-
     }
 
     string CreateGroupName (string prefix, string suffix) {

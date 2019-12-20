@@ -5,7 +5,7 @@ using TMPro;
 
 namespace LightingModels {
 
-    public class PropGroup : MonoBehaviour {
+    public class UIPropertyGroup : MonoBehaviour {
 
         [Header("Components")]
         [SerializeField] RectTransform m_rectTransform;
@@ -95,7 +95,7 @@ namespace LightingModels {
             var activeCache = gameObject.activeSelf;
             gameObject.SetActive(true);
             if(!gameObject.activeInHierarchy){
-                Debug.LogWarning($"{nameof(PropGroup)} \"{gameObject.name}\" is not active in hierarchy! Heights of TMPs might be off!", this.gameObject);
+                Debug.LogWarning($"{nameof(UIPropertyGroup)} \"{gameObject.name}\" is not active in hierarchy! Heights of TMPs might be off!", this.gameObject);
             }
             float y = 0;
             foreach(var field in propfields){

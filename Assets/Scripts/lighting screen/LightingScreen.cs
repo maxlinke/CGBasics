@@ -11,7 +11,7 @@ public class LightingScreen : MonoBehaviour {
     private const string specGroupName = "Specular Model";
 
     [Header("Prefabs")]
-    [SerializeField] PropGroup propertyGroupPrefab;
+    [SerializeField] UIPropertyGroup propertyGroupPrefab;
 
     [Header("Components")]
     [SerializeField] Image[] borders;
@@ -38,10 +38,10 @@ public class LightingScreen : MonoBehaviour {
     Dictionary<LightingModel, Material> specularModels;
     Dictionary<ShaderProperty, UIPropertyField> propertyFields;     // TODO one such dictionary for each group? how do i do this?
 
-    PropGroup modelGroup;
-    PropGroup lightsGroup;
-    PropGroup diffGroup;
-    PropGroup specGroup;
+    UIPropertyGroup modelGroup;
+    UIPropertyGroup lightsGroup;
+    UIPropertyGroup diffGroup;
+    UIPropertyGroup specGroup;
 
     void Start () {
 
@@ -103,7 +103,7 @@ public class LightingScreen : MonoBehaviour {
             }
         }
 
-        PropGroup CreateNewPropGroup () {
+        UIPropertyGroup CreateNewPropGroup () {
 
             return null;
         }

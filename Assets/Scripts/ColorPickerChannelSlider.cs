@@ -52,6 +52,7 @@ public class ColorPickerChannelSlider : MonoBehaviour {
         slider.maxValue = maxValue;
         slider.value = initValue;
         inputField.text = GetInputFieldText(slider.value);
+        inputField.gameObject.AddComponent<ScrollableNumberInputField>().Initialize(inputField);
         slider.onValueChanged.AddListener(SliderValueChanged);
         inputField.onEndEdit.AddListener(InputFieldEndEdit);
         channelLabel.text = labelText.Trim();

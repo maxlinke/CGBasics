@@ -131,7 +131,7 @@ MonoBehaviour:
   bottomLogErrorText: {r: 1, g: 0.2, b: 0.2, a: 1}
   bottomLogMessageFlash: {r: 1, g: 1, b: 1, a: 0.5019608}
   colorPickerBackground: {r: 0.4, g: 0.4, b: 0.4, a: 1}
-  colorPickerColorOutline: {r: 1, g: 1, b: 1, a: 1}
+  colorPickerColorOutline: {r: 0, g: 0, b: 0, a: 0}
   colorPickerAlphaGridTint: {r: 1, g: 1, b: 1, a: 1}
   colorPickerSliderLabel: {r: 1, g: 1, b: 1, a: 1}
   colorPickerSliderFill: {r: 0.7, g: 0.7, b: 0.7, a: 1}

@@ -14,7 +14,7 @@ public class ColorPicker : MonoBehaviour {
     [SerializeField] Image containerBG;
     [SerializeField] Image colorAlphaGrid;
     [SerializeField] Image colorDisplay;
-    [SerializeField] Image colorDisplayOutline;
+    [SerializeField] Image colorDropShadow;
 
     [Header("Settings")]
     [SerializeField] float extraBottomYOffset;
@@ -66,8 +66,7 @@ public class ColorPicker : MonoBehaviour {
     void LoadColors (ColorScheme cs) {
         containerBG.color = cs.ColorPickerBackground;
         colorAlphaGrid.color = cs.ColorPickerAlphaGridTint;
-        colorDisplayOutline.color = cs.ColorPickerColorOutline;
-        
+        colorDropShadow.color = cs.ColorPickerDropShadows;
         rSlider.LoadColors(cs);
         gSlider.LoadColors(cs);
         bSlider.LoadColors(cs);
@@ -99,6 +98,7 @@ public class ColorPicker : MonoBehaviour {
             compareImage = Instantiate(colorDisplay);
             var newRT = compareImage.GetComponent<RectTransform>();
             newRT.SetParent(oldRT.parent, false);
+            newRT.SetSiblingIndex(oldRT.GetSiblingIndex());
             newRT.ResetLocalScale();
             newRT.anchorMin = new Vector2(0f, 0f);
             newRT.anchorMax = new Vector2(0.5f, 1f);

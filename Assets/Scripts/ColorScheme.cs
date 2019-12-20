@@ -305,7 +305,7 @@ public class ColorScheme : ScriptableObject {
 
     [Header("Color Picker")]
     [SerializeField] Color colorPickerBackground;
-    [SerializeField] Color colorPickerColorOutline;
+    [SerializeField] Color colorPickerDropShadows;
     [SerializeField] Color colorPickerAlphaGridTint;
     [SerializeField] Color colorPickerSliderLabel;
     [SerializeField] Color colorPickerSliderFill;
@@ -320,7 +320,7 @@ public class ColorScheme : ScriptableObject {
     [SerializeField] Color colorPickerInputFieldBackgroundClick;
 
     public Color ColorPickerBackground => colorPickerBackground;
-    public Color ColorPickerColorOutline => colorPickerColorOutline;
+    public Color ColorPickerDropShadows => colorPickerDropShadows;
     public Color ColorPickerAlphaGridTint => colorPickerAlphaGridTint;
     public Color ColorPickerSliderLabel => colorPickerSliderLabel;
     public Color ColorPickerSliderFill => colorPickerSliderFill;

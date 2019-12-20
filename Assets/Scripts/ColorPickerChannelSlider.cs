@@ -1,11 +1,11 @@
 ﻿using UnityEngine;
-using UnityEngine.UI;
 using TMPro;
 
 public class ColorPickerChannelSlider : MonoBehaviour {
 
     [SerializeField] RectTransform m_rectTransform;
     [SerializeField] TextMeshProUGUI channelLabel;
+    [SerializeField] TextMeshProUGUI channelLabelDropShadow;
     [SerializeField] SyncedSliderAndInputField sliderAndInputField;
 
     bool initialized = false;
@@ -37,6 +37,7 @@ public class ColorPickerChannelSlider : MonoBehaviour {
             initValue = maxValue;
         }
         channelLabel.text = labelText.Trim();
+        channelLabelDropShadow.text = channelLabel.text;
         sliderAndInputField.formatString = (s) => {return $"{s:F3}".ShortenNumberString();};
         sliderAndInputField.SetSliderRange(0, maxValue);
         sliderAndInputField.currentValue = initValue;
@@ -44,6 +45,7 @@ public class ColorPickerChannelSlider : MonoBehaviour {
 
     public void LoadColors (ColorScheme cs) {
         channelLabel.color = cs.ColorPickerSliderLabel;
+        channelLabelDropShadow.color = cs.ColorPickerDropShadows;
         sliderAndInputField.sliderBG.color = cs.ColorPickerSliderBackground;
         sliderAndInputField.sliderFill.color = cs.ColorPickerSliderFill;
         sliderAndInputField.sliderHandle.color = Color.white;

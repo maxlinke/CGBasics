@@ -35,7 +35,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 8}
+  m_SizeDelta: {x: 0, y: 4}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8478378633185798691
 CanvasRenderer:
@@ -106,7 +106,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: -8, y: 12}
+  m_SizeDelta: {x: -8, y: 10}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1355533268433538928
 GameObject:
@@ -242,7 +242,7 @@ MonoBehaviour:
   m_MinValue: 0
   m_MaxValue: 1
   m_WholeNumbers: 0
-  m_Value: 0.5
+  m_Value: 1
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -346,8 +346,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Empty
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 7d5a3290111844c49b3364fbc9b10fa7, type: 2}
-  m_sharedMaterial: {fileID: 21654295092672208, guid: 7d5a3290111844c49b3364fbc9b10fa7,
+  m_fontAsset: {fileID: 11400000, guid: 57972368904d77c4fa1766f17a700ca0, type: 2}
+  m_sharedMaterial: {fileID: 21654295092672208, guid: 57972368904d77c4fa1766f17a700ca0,
     type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
@@ -471,7 +471,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
   m_AnchoredPosition: {x: -2, y: 0}
-  m_SizeDelta: {x: -8, y: 8}
+  m_SizeDelta: {x: -8, y: 4}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &6522146197773129739
 GameObject:
@@ -597,8 +597,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "\u200B"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 037fd4524978f72438b65626c1b6ed55, type: 2}
-  m_sharedMaterial: {fileID: 21654295092672208, guid: 037fd4524978f72438b65626c1b6ed55,
+  m_fontAsset: {fileID: 11400000, guid: 57972368904d77c4fa1766f17a700ca0, type: 2}
+  m_sharedMaterial: {fileID: 21654295092672208, guid: 57972368904d77c4fa1766f17a700ca0,
     type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
@@ -723,7 +723,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 12, y: 0}
+  m_SizeDelta: {x: 10, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &815075103014687229
 CanvasRenderer:
@@ -958,7 +958,7 @@ MonoBehaviour:
   m_HideSoftKeyboard: 0
   m_CharacterValidation: 3
   m_RegexValue: 
-  m_GlobalPointSize: 14
+  m_GlobalPointSize: 12
   m_CharacterLimit: 0
   m_OnEndEdit:
     m_PersistentCalls:
@@ -992,7 +992,7 @@ MonoBehaviour:
   m_CaretWidth: 1
   m_ReadOnly: 0
   m_RichText: 1
-  m_GlobalFontAsset: {fileID: 11400000, guid: 7d5a3290111844c49b3364fbc9b10fa7, type: 2}
+  m_GlobalFontAsset: {fileID: 11400000, guid: 57972368904d77c4fa1766f17a700ca0, type: 2}
   m_OnFocusSelectAll: 1
   m_ResetOnDeActivation: 1
   m_RestoreOriginalTextOnEscape: 1

@@ -27,7 +27,7 @@ public class ColorPickerChannelSlider : MonoBehaviour {
 
     public RectTransform rectTransform => m_rectTransform;
 
-    public void Initialize (string labelText, float maxValue, float initValue) {
+    public void Initialize (float maxValue, float initValue) {
         if(initialized){
             Debug.LogWarning("Duplicate init call, aborting!", this.gameObject);
             return;
@@ -36,11 +36,15 @@ public class ColorPickerChannelSlider : MonoBehaviour {
             Debug.LogWarning("Init value is greater than max value... U dun goofed!", this.gameObject);
             initValue = maxValue;
         }
-        channelLabel.text = labelText.Trim();
-        channelLabelDropShadow.text = channelLabel.text;
+        SetLabel(string.Empty);
         sliderAndInputField.formatString = (s) => {return $"{s:F3}".ShortenNumberString();};
         sliderAndInputField.SetSliderRange(0, maxValue);
         sliderAndInputField.currentValue = initValue;
+    }
+
+    public void SetLabel (string labelText) {
+        channelLabel.text = labelText.Trim();
+        channelLabelDropShadow.text = channelLabel.text;
     }
 
     public void LoadColors (ColorScheme cs) {

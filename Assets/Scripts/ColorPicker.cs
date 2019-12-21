@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class ColorPicker : MonoBehaviour {
 
@@ -15,15 +16,19 @@ public class ColorPicker : MonoBehaviour {
     [SerializeField] Image colorAlphaGrid;
     [SerializeField] Image colorDisplay;
     [SerializeField] Image colorDropShadow;
+    [SerializeField] Toggle rgbToggle;
+    [SerializeField] TextMeshProUGUI rgbToggleLabel;
+    [SerializeField] TextMeshProUGUI rgbToggleLabelDropShadow;
 
     [Header("Settings")]
     [SerializeField] float extraBottomYOffset;
     [SerializeField] bool enableComparison;
+    [SerializeField] bool rgbIsDefault;
 
     bool initialized = false;
-    ColorPickerChannelSlider rSlider;
-    ColorPickerChannelSlider gSlider;
-    ColorPickerChannelSlider bSlider;
+    ColorPickerChannelSlider rhSlider;
+    ColorPickerChannelSlider gsSlider;
+    ColorPickerChannelSlider bvSlider;
     ColorPickerChannelSlider aSlider;
     Image compareImage;
 
@@ -32,12 +37,21 @@ public class ColorPicker : MonoBehaviour {
 
     Color currentColor {
         get {
-            return new Color(
-                r: GetSliderValue(rSlider),
-                g: GetSliderValue(gSlider),
-                b: GetSliderValue(bSlider),
-                a: GetSliderValue(aSlider)
-            );
+            if(rgbToggle.isOn){
+                return new Color(
+                    r: GetSliderValue(rhSlider),
+                    g: GetSliderValue(gsSlider),
+                    b: GetSliderValue(bvSlider),
+                    a: GetSliderValue(aSlider)
+                );
+            }else{
+                var rgb = Color.HSVToRGB(
+                    H: GetSliderValue(rhSlider),
+                    S: GetSliderValue(gsSlider),
+                    V: GetSliderValue(bvSlider)
+                );
+                return new Color(rgb.r, rgb.g, rgb.b, GetSliderValue(aSlider));
+            }
 
             float GetSliderValue (ColorPickerChannelSlider slider) {
                 return (slider.gameObject.activeSelf ? slider.normalizedValue : (slider == aSlider ? 1f : 0f));
@@ -67,10 +81,15 @@ public class ColorPicker : MonoBehaviour {
         containerBG.color = cs.ColorPickerBackground;
         colorAlphaGrid.color = cs.ColorPickerAlphaGridTint;
         colorDropShadow.color = cs.ColorPickerDropShadows;
-        rSlider.LoadColors(cs);
-        gSlider.LoadColors(cs);
-        bSlider.LoadColors(cs);
+        rhSlider.LoadColors(cs);
+        gsSlider.LoadColors(cs);
+        bvSlider.LoadColors(cs);
         aSlider.LoadColors(cs);
+        rgbToggle.targetGraphic.color = Color.white;
+        rgbToggle.graphic.color = cs.ColorPickerSliderLabel;
+        rgbToggle.SetFadeTransition(0f, cs.ColorPickerInputFieldBackground, cs.ColorPickerInputFieldBackgroundHover, cs.ColorPickerInputFieldBackgroundClick, Color.magenta);
+        rgbToggleLabel.color = cs.ColorPickerSliderLabel;
+        rgbToggleLabelDropShadow.color = cs.ColorPickerDropShadows;
     }
 
     void Update () {
@@ -86,10 +105,10 @@ public class ColorPicker : MonoBehaviour {
         }
         instance = this;
         sliderTemplate.SetGOActive(false);
-        rSlider = CreateSlider("R");
-        gSlider = CreateSlider("G");
-        bSlider = CreateSlider("B");
-        aSlider = CreateSlider("A");
+        rhSlider = CreateSlider();
+        gsSlider = CreateSlider();
+        bvSlider = CreateSlider();
+        aSlider = CreateSlider();
         backgroundRaycastCatcher.gameObject.AddComponent<UIBackgroundAbortRaycastCatcher>().onClick += HideAndReset;
         if(enableComparison){
             var oldRT = colorDisplay.GetComponent<RectTransform>();
@@ -103,21 +122,42 @@ public class ColorPicker : MonoBehaviour {
             newRT.anchorMin = new Vector2(0f, 0f);
             newRT.anchorMax = new Vector2(0.5f, 1f);
         }
+        rgbToggle.isOn = rgbIsDefault;
+        rgbToggle.onValueChanged.AddListener(RGBToggleToggled);
+        RGBToggleToggled(rgbToggle.isOn);
         gameObject.SetActive(false);
         this.initialized = true;
 
-        ColorPickerChannelSlider CreateSlider (string label) {
+        ColorPickerChannelSlider CreateSlider () {
             var newSlider = Instantiate(sliderTemplate);
             newSlider.rectTransform.SetParent(containerRT, false);
             newSlider.rectTransform.ResetLocalScale();
             newSlider.Initialize(
-                labelText: label, 
                 maxValue: 1f, 
                 initValue: 0f
             );
             newSlider.SetGOActive(true);
             return newSlider;
         }
+    }
+
+    void RGBToggleToggled (bool newVal) {
+        rhSlider.SetLabel(rgbToggle.isOn ? "R" : "H");
+        gsSlider.SetLabel(rgbToggle.isOn ? "G" : "S");
+        bvSlider.SetLabel(rgbToggle.isOn ? "B" : "V");
+        var currentColor = colorDisplay.color;
+        if(rgbToggle.isOn){
+            rhSlider.normalizedValue = currentColor.r;
+            gsSlider.normalizedValue = currentColor.g;
+            bvSlider.normalizedValue = currentColor.b;
+        }else{
+            Color.RGBToHSV(currentColor, out var h, out var s, out var v);
+            rhSlider.normalizedValue = h;
+            gsSlider.normalizedValue = s;
+            bvSlider.normalizedValue = v;
+        }
+        aSlider.SetLabel("A");
+        aSlider.normalizedValue = currentColor.a;
     }
 
     void RebuildContent () {
@@ -127,7 +167,7 @@ public class ColorPicker : MonoBehaviour {
             if(!child.gameObject.activeSelf){
                 continue;
             }
-            child.anchoredPosition = new Vector2(child.anchoredPosition.x, y);
+            child.SetAnchoredPositionY(y);
             y -= child.rect.height;
         }
         containerRT.SetSizeDeltaY(Mathf.Abs(y) + extraBottomYOffset);
@@ -142,9 +182,8 @@ public class ColorPicker : MonoBehaviour {
             Debug.LogWarning("Duplicate colorpickers aren't supported! Aborting...");
             return;
         }
-        rSlider.normalizedValue = initColor.r;
-        gSlider.normalizedValue = initColor.g;
-        bSlider.normalizedValue = initColor.b;
+        colorDisplay.color = initColor;
+        RGBToggleToggled(rgbToggle.isOn);       // sets the sliders correctly
         aSlider.normalizedValue = initColor.a;
         aSlider.SetGOActive(includeAlpha);
         RebuildContent();

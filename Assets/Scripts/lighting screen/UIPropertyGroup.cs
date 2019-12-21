@@ -16,6 +16,7 @@ namespace LightingModels {
         [SerializeField] RectTransform headerArea;
         [SerializeField] RectTransform contentArea;
         [SerializeField] TextMeshProUGUI header;
+        [SerializeField] TextMeshProUGUI headerDropShadow;
         [SerializeField] TextMeshProUGUI bottomText;
         [SerializeField] Image bottomImage;
 
@@ -52,6 +53,9 @@ namespace LightingModels {
             }
             header.rectTransform.SetToFillWithMargins(0f, 0f, 0f, headerTextLeftMargin);
             header.text = initHeader;
+            headerDropShadow.text = header.text;
+            headerDropShadow.rectTransform.MatchOther(header.rectTransform);
+            headerDropShadow.rectTransform.anchoredPosition += new Vector2(1, -1);
             bottomImage.SetGOActive(false);
             bottomText.SetGOActive(false);
             propFields = new List<UIPropertyField>();
@@ -80,6 +84,7 @@ namespace LightingModels {
                 return;
             }
             header.text = newName;
+            headerDropShadow.text = newName;
         }
 
         public void RebuildContent () {
@@ -120,7 +125,9 @@ namespace LightingModels {
                 bottomImage.rectTransform.SetAnchoredPosition(0, y);
                 if(bottomImage.sprite != null){
                     var imgTex = bottomImage.sprite.texture;
-                    bottomImage.rectTransform.SetSizeDelta(imgTex.width, imgTex.height);
+                    var widthRatio = contentArea.rect.width / imgTex.width;
+                    var imgSizeDelta = new Vector2(imgTex.width, imgTex.height) * Mathf.Clamp01(widthRatio);
+                    bottomImage.rectTransform.sizeDelta = imgSizeDelta;
                 }
                 y -= bottomImage.rectTransform.rect.height;
             }
@@ -176,6 +183,8 @@ namespace LightingModels {
             configButtonIcon.raycastTarget = false;
             // spacing the header
             header.rectTransform.SetToFillWithMargins(0f, headerArea.rect.height, 0f, headerTextLeftMargin);
+            headerDropShadow.rectTransform.MatchOther(header.rectTransform);
+            headerDropShadow.rectTransform.anchoredPosition += new Vector2(1, -1);
             // output
             return configButton;
         }

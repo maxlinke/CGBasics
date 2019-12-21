@@ -34,7 +34,7 @@ public class LightingScreen : MonoBehaviour {
     [SerializeField] LightingModel defaultSpecularModel;
 
     bool initialized = false;
-    bool verticalScrollbarWasActive;
+    float lastScrollContentWidth;
     MeshRenderer targetMR;
     MaterialPropertyBlock mpb;
 
@@ -289,14 +289,17 @@ public class LightingScreen : MonoBehaviour {
                 if(shaderVar.lmType == lmType){
                     var floatObj = shaderFloats[shaderVar];
                     System.Func<float, string> customStringFormat;
-                    float scrollMultiplier;
-                    if(Mathf.Abs(shaderVar.prop.maxValue) <= 10){       // TODO this is some dodgy ass code...
+                    float absDelta = Mathf.Abs(shaderVar.prop.minValue - shaderVar.prop.maxValue);  // TODO this is some dodgy ass code...
+                    if(absDelta <= 1f){
+                        customStringFormat = (f) => { return $"{f:F3}".ShortenNumberString();};
+                    }else if(absDelta <= 10f){
                         customStringFormat = (f) => { return $"{f:F2}".ShortenNumberString();};
-                        scrollMultiplier = 1f;
-                    }else{
+                    }else if(absDelta <= 100f){
                         customStringFormat = (f) => { return $"{f:F1}".ShortenNumberString();};
-                        scrollMultiplier = 10f;
+                    }else{
+                        customStringFormat = (f) => { return $"{f:F0}";};
                     }
+                    float scrollMultiplier = absDelta;
                     newGroup.AddFloatProperty(shaderVar.prop, (f) => {floatObj.value = f;}, customStringFormat, scrollMultiplier);
                 }
             }
@@ -368,12 +371,12 @@ public class LightingScreen : MonoBehaviour {
         if(targetMR != null){
             targetMR.SetPropertyBlock(mpb);
         }
-        bool verticalScrollbarIsActiveNow = scrollRect.verticalScrollbar.gameObject.activeSelf; // TODO maybe check the entire dimensions and update if they changed?
-        if(verticalScrollbarWasActive != verticalScrollbarIsActiveNow){
+        float currentScrollContentWidth = scrollRect.content.rect.width;
+        if(currentScrollContentWidth != lastScrollContentWidth){
             RebuildGroups();
             RebuildContent();
         }
-        verticalScrollbarWasActive = verticalScrollbarIsActiveNow;
+        lastScrollContentWidth = currentScrollContentWidth;
 
         void SetupMaterialPropertyBlock () {
             if(mpb == null){
@@ -433,6 +436,11 @@ public class LightingScreen : MonoBehaviour {
         }else{
             diffusePropertyGroup.SetName(CreateGroupName(diffGroupName, lm.name));   
             diffusePropertyGroup.ShowText(lm.description, false);
+            if(lm.equation != null){
+                diffusePropertyGroup.ShowImage(lm.equation, false);
+            }else{
+                diffusePropertyGroup.HideImage(false);
+            }
         }
         currentDiffuseModel = lm;
         UpdatePropertyFieldActiveStatesAndRebuildContent();
@@ -446,6 +454,11 @@ public class LightingScreen : MonoBehaviour {
         }else{
             specularPropertyGroup.SetName(CreateGroupName(specGroupName, lm.name));
             specularPropertyGroup.ShowText(lm.description, false);
+            if(lm.equation != null){
+                specularPropertyGroup.ShowImage(lm.equation, false);
+            }else{
+                specularPropertyGroup.HideImage(false);
+            }
         }
         currentSpecularModel = lm;
         UpdatePropertyFieldActiveStatesAndRebuildContent();

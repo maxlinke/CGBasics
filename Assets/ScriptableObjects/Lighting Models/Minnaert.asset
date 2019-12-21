@@ -18,7 +18,7 @@ MonoBehaviour:
     In the range from 0 to 1 it can be used for more accurate simulations of the moon.
     It has also found use in rendering topographic images and simulating materials
     such as velvet, when using a higher exponent.
-  m_equation: {fileID: 0}
+  m_equation: {fileID: 21300000, guid: 4fca4c727281a1d4c885a5fc08d6cf5d, type: 3}
   m_usedProperties:
   - {fileID: 11400000, guid: bdf75838d46d37d4d83a536bd970cb0e, type: 2}
   - {fileID: 11400000, guid: bc3cfcadeff11b947ab63cb8494111fa, type: 2}

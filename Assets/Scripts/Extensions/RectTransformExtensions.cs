@@ -18,16 +18,16 @@ public static class RectTransformExtensions {
         rt.pivot = Vector2.one * 0.5f;
     }
 
-    public static void SetToFillWithMargins (this RectTransform rt, float marginTop, float marginRight, float marginBottom, float marginLeft) {
-        rt.anchorMin = Vector2.zero;
-        rt.anchorMax = Vector2.one;
-        rt.sizeDelta = new Vector2(-marginRight-marginLeft, -marginTop-marginBottom);
-        rt.anchoredPosition = new Vector2(marginLeft-marginRight, marginBottom-marginTop);
-        rt.pivot = 0.5f * Vector2.one;
-    }
+    // public static void SetToFillWithMargins (this RectTransform rt, float marginTop, float marginRight, float marginBottom, float marginLeft) {
+    //     rt.anchorMin = Vector2.zero;
+    //     rt.anchorMax = Vector2.one;
+    //     rt.sizeDelta = new Vector2(-marginRight-marginLeft, -marginTop-marginBottom);
+    //     rt.anchoredPosition = new Vector2(marginLeft-marginRight, marginBottom-marginTop);
+    //     rt.pivot = 0.5f * Vector2.one;
+    // }
 
     // TODO implement this everywhere
-    public static void SetToFillWithMarginsFixed (this RectTransform rt, float marginTop, float marginRight, float marginBottom, float marginLeft) {
+    public static void SetToFillWithMargins (this RectTransform rt, float marginTop, float marginRight, float marginBottom, float marginLeft) {
         rt.anchorMin = Vector2.zero;
         rt.anchorMax = Vector2.one;
         rt.sizeDelta = new Vector2(-marginRight-marginLeft, -marginTop-marginBottom);

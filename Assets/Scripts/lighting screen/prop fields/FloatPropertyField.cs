@@ -25,7 +25,7 @@ namespace LightingModels {
             float lerpFactor = (rectTransform.rect.width - minWidthRectTransformWidth) / (maxWidthRectTransformWidth - minWidthRectTransformWidth);
             float targetWidth = Mathf.Lerp(minSliderAndInputFieldWidth, maxSliderAndInputFieldWidth, lerpFactor);
             sliderAndInputField.rectTransform.SetSizeDeltaX(targetWidth);
-            m_label.rectTransform.SetToFillWithMarginsFixed(0f, labelRightMargin, 0f, 0f);
+            m_label.rectTransform.SetToFillWithMargins(0f, labelRightMargin, 0f, 0f);
         }
 
         public void Initialize (ShaderProperty prop, System.Action<float> onValueChanged, System.Func<float, string> formatString, float scrollMultiplier = 1f) {

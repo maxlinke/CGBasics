@@ -665,6 +665,7 @@ MonoBehaviour:
   scrollRectElementVerticalMargin: 30
   colorShaderPropsAreModelProps: 1
   modelPropsAreAlwaysVisible: 0
+  additionalSpaceAtTheBottom: 10
   solidColorLM: {fileID: 11400000, guid: 632d985ace3995d429aa23853a9e8796, type: 2}
   lightingModels:
   - {fileID: 11400000, guid: a16cda9db628a644595ad6bdfa1d08a8, type: 2}

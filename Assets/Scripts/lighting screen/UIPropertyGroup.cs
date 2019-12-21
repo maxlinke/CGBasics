@@ -50,7 +50,7 @@ namespace LightingModels {
                 Debug.LogError("already initialized! aborting!", this.gameObject);
                 return;
             }
-            header.rectTransform.SetToFillWithMarginsFixed(0f, 0f, 0f, headerTextLeftMargin);
+            header.rectTransform.SetToFillWithMargins(0f, 0f, 0f, headerTextLeftMargin);
             header.text = initHeader;
             bottomImage.SetGOActive(false);
             bottomText.SetGOActive(false);
@@ -175,7 +175,7 @@ namespace LightingModels {
             configButtonIcon.sprite = icon;
             configButtonIcon.raycastTarget = false;
             // spacing the header
-            header.rectTransform.SetToFillWithMarginsFixed(0f, headerArea.rect.height, 0f, headerTextLeftMargin);
+            header.rectTransform.SetToFillWithMargins(0f, headerArea.rect.height, 0f, headerTextLeftMargin);
             // output
             return configButton;
         }

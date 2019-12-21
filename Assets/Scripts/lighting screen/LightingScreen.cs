@@ -22,6 +22,7 @@ public class LightingScreen : MonoBehaviour {
     [SerializeField] float scrollRectElementVerticalMargin;
     [SerializeField] bool colorShaderPropsAreModelProps;
     [SerializeField] bool modelPropsAreAlwaysVisible;
+    [SerializeField] float additionalSpaceAtTheBottom;
 
     [Header("Lighting Models")]
     [SerializeField] LightingModel solidColorLM;
@@ -355,6 +356,7 @@ public class LightingScreen : MonoBehaviour {
             child.anchoredPosition = new Vector2(child.anchoredPosition.x, y);
             y -= (child.rect.height + ((i+1 < cCount) ? scrollRectElementVerticalMargin : 0));
         }
+        y -= additionalSpaceAtTheBottom;
         scrollRect.content.SetSizeDeltaY(Mathf.Abs(y));
     }
 
@@ -366,7 +368,7 @@ public class LightingScreen : MonoBehaviour {
         if(targetMR != null){
             targetMR.SetPropertyBlock(mpb);
         }
-        bool verticalScrollbarIsActiveNow = scrollRect.verticalScrollbar.gameObject.activeSelf;
+        bool verticalScrollbarIsActiveNow = scrollRect.verticalScrollbar.gameObject.activeSelf; // TODO maybe check the entire dimensions and update if they changed?
         if(verticalScrollbarWasActive != verticalScrollbarIsActiveNow){
             RebuildGroups();
             RebuildContent();

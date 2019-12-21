@@ -22,11 +22,18 @@ public class LightingModel : ScriptableObject {
     
     public IEnumerator<ShaderProperty> GetEnumerator () {
         foreach(var prop in m_usedProperties){
-            yield return prop;
+            if(prop != null){
+                yield return prop;
+            }else{
+                Debug.LogWarning($"There are null-properties in {this.name} ({nameof(LightingModel)}!");
+            }
         }
     }
 
     public bool UsesProperty (ShaderProperty inputProp) {
+        if(inputProp == null){
+            return false;
+        }
         foreach(var prop in m_usedProperties){
             if(prop == inputProp){
                 return true;

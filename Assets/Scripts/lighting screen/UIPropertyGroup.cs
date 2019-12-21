@@ -7,6 +7,10 @@ namespace LightingModels {
 
     public class UIPropertyGroup : MonoBehaviour {
 
+        [Header("Prefabs")]
+        [SerializeField] ColorPropertyField colorFieldPrefab;
+        [SerializeField] FloatPropertyField floatFieldPrefab; 
+
         [Header("Components")]
         [SerializeField] RectTransform m_rectTransform;
         [SerializeField] RectTransform headerArea;
@@ -26,26 +30,31 @@ namespace LightingModels {
         bool initialized = false;
         Button configButton;
         Image configButtonIcon;
-        List<UIPropertyField> propfields;
+        List<UIPropertyField> propFields;
+
+        public IEnumerator<UIPropertyField> GetEnumerator () {
+            foreach(var propField in propFields){
+                yield return propField;
+            }
+        }
 
         public void LoadColors (ColorScheme cs) {
             // header.color = ...
-            foreach(var propfield in propfields){
-                propfield.LoadColors(cs);
+            foreach(var propField in propFields){
+                propField.LoadColors(cs);
             }
         }
         
-        // public void Initialize (string initName, IEnumerable<System.Func<) { // func prop, gameobject?
         public void Initialize (string initHeader, bool rebuildContent = true) {
             if(initialized){
                 Debug.LogError("already initialized! aborting!", this.gameObject);
                 return;
             }
-            header.rectTransform.SetToFillWithMargins(0f, 0f, 0f, headerTextLeftMargin);
+            header.rectTransform.SetToFillWithMarginsFixed(0f, 0f, 0f, headerTextLeftMargin);
             header.text = initHeader;
             bottomImage.SetGOActive(false);
             bottomText.SetGOActive(false);
-            propfields = new List<UIPropertyField>();
+            propFields = new List<UIPropertyField>();
             this.initialized = true;
             ConditionalRebuildContent(rebuildContent);
         }
@@ -83,9 +92,9 @@ namespace LightingModels {
                 Debug.LogWarning($"{nameof(UIPropertyGroup)} \"{gameObject.name}\" is not active in hierarchy! Heights of TMPs might be off!", this.gameObject);
             }
             float y = 0;
-            foreach(var field in propfields){
+            foreach(var field in propFields){
                 if(field.gameObject.activeSelf){
-                    field.rectTransform.SetAnchoredPositionY(0);
+                    field.rectTransform.SetAnchoredPositionY(y);
                     y -= field.rectTransform.rect.height;
                 }
             }
@@ -95,8 +104,11 @@ namespace LightingModels {
                 y -= spaceBetweenPropsAndBottomThings;
             }
             if(textActive){
-                bottomText.rectTransform.SetAnchorAndPivot(0.5f, 1f);
+                bottomText.rectTransform.anchorMin = new Vector2(0f, 1f);
+                bottomText.rectTransform.anchorMax = new Vector2(1f, 1f);
+                bottomText.rectTransform.SetPivot(0.5f, 1f);
                 bottomText.rectTransform.SetAnchoredPosition(0, y);
+                bottomText.ForceMeshUpdate();
                 bottomText.rectTransform.SetSizeDeltaY(bottomText.preferredHeight);
                 y -= bottomText.rectTransform.rect.height;
                 if(imgActive){
@@ -163,23 +175,45 @@ namespace LightingModels {
             configButtonIcon.sprite = icon;
             configButtonIcon.raycastTarget = false;
             // spacing the header
-            header.rectTransform.SetToFillWithMargins(0f, headerArea.rect.height, 0f, headerTextLeftMargin);
+            header.rectTransform.SetToFillWithMarginsFixed(0f, headerArea.rect.height, 0f, headerTextLeftMargin);
             // output
             return configButton;
         }
 
-        public GameObject AddSliderProperty () {
+        public UIPropertyField AddFloatProperty (ShaderProperty prop, System.Action<float> onValueChanged, System.Func<float, string> formatString, float scrollMultiplier = 1f) {
             if(NotYetInitAbort()){
                 return null;
             }
-            return null;
+            var newField = Instantiate(floatFieldPrefab);
+            newField.rectTransform.SetParent(contentArea, false);
+            newField.rectTransform.ResetLocalScale();
+            newField.Initialize(prop, onValueChanged, formatString, scrollMultiplier);
+            propFields.Add(newField);
+            return newField;
         }
 
-        public GameObject AddColorProperty () {
+        public UIPropertyField AddColorProperty (ShaderProperty prop, System.Action<Color> onColorChanged) {
             if(NotYetInitAbort()){
                 return null;
             }
-            return null;
+            var newField = Instantiate(colorFieldPrefab);
+            newField.rectTransform.SetParent(contentArea, false);
+            newField.rectTransform.ResetLocalScale();
+            newField.Initialize(prop, onColorChanged);
+            propFields.Add(newField);
+            return newField;
+        }
+
+        public UIPropertyField AddColorProperty (string propName, Color initColor, System.Action<Color> onColorChanged) {
+            if(NotYetInitAbort()){
+                return null;
+            }
+            var newField = Instantiate(colorFieldPrefab);
+            newField.rectTransform.SetParent(contentArea, false);
+            newField.rectTransform.ResetLocalScale();
+            newField.Initialize(propName, initColor, onColorChanged);
+            propFields.Add(newField);
+            return newField;
         }
 
         public void ShowImage (Sprite sprite, bool rebuildContent = true) {

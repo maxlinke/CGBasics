@@ -33,6 +33,7 @@ public class UISprites : ScriptableObject {
     [SerializeField] Sprite uiDirUp;
     [SerializeField] Sprite uiDirRight;
     [SerializeField] Sprite uiDirDown;
+    [SerializeField] Sprite uiConfig;
 
     public static Sprite UITemp => instance.uiTemp;
     public static Sprite UICircle => instance.uiCircle;
@@ -43,6 +44,7 @@ public class UISprites : ScriptableObject {
     public static Sprite UIDirUp => instance.uiDirUp;
     public static Sprite UIDirRight => instance.uiDirRight;
     public static Sprite UIDirDown => instance.uiDirDown;
+    public static Sprite UIConfig => instance.uiConfig;
 
     [Header("Matrix Screen")]
     [SerializeField] Sprite matrixScreenGL;

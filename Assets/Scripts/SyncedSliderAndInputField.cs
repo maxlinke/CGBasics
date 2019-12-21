@@ -33,6 +33,15 @@ public class SyncedSliderAndInputField : MonoBehaviour {
     bool initialized = false;
     bool blockSyncCalls = false;
     float m_currentValue = 0f;
+    ScrollableNumberInputField scrollableInputField;
+    
+    public float inputFieldScrollMultiplier {
+        get {
+            return scrollableInputField.scrollMultiplier;
+        } set {
+            scrollableInputField.scrollMultiplier = value;
+        }
+    }
 
     public float currentValue {
         get {
@@ -59,7 +68,8 @@ public class SyncedSliderAndInputField : MonoBehaviour {
 
     void OnEnable () {
         if(!initialized){
-            inputField.gameObject.AddComponent<ScrollableNumberInputField>().Initialize(inputField);
+            scrollableInputField = inputField.gameObject.AddComponent<ScrollableNumberInputField>();
+            scrollableInputField.Initialize(inputField);
             inputField.onEndEdit.AddListener(InputFieldSubmit);
             slider.onValueChanged.AddListener(SliderValueChanged);
             initialized = true;

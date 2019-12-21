@@ -361,11 +361,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Canvas_Lighting_Screen
       objectReference: {fileID: 0}
-    - target: {fileID: 2731747878600727013, guid: b6946066900d72b4d9568a3ab2d69386,
-        type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 2731747878600727017, guid: b6946066900d72b4d9568a3ab2d69386,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -521,11 +516,6 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 4793448864368272646, guid: b6946066900d72b4d9568a3ab2d69386,
-        type: 3}
-      propertyPath: m_AnchorMin.y
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 5564017779073304000, guid: b6946066900d72b4d9568a3ab2d69386,
         type: 3}
       propertyPath: m_AnchorMax.x
@@ -534,16 +524,6 @@ PrefabInstance:
     - target: {fileID: 5564017779073304000, guid: b6946066900d72b4d9568a3ab2d69386,
         type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5564017779073304000, guid: b6946066900d72b4d9568a3ab2d69386,
-        type: 3}
-      propertyPath: m_AnchorMin.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5501412041251773094, guid: b6946066900d72b4d9568a3ab2d69386,
-        type: 3}
-      propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []

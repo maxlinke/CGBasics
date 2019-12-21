@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using LightingModels;
@@ -20,30 +21,43 @@ public class LightingScreen : MonoBehaviour {
     [Header("Settings")]
     [SerializeField] float scrollRectElementVerticalMargin;
     [SerializeField] bool colorShaderPropsAreModelProps;
+    [SerializeField] bool modelPropsAreAlwaysVisible;
 
     [Header("Lighting Models")]
     [SerializeField] LightingModel solidColorLM;
     [SerializeField] LightingModel[] lightingModels;
 
+    [Header("Defaults")]
+    [SerializeField] ModelPreset defaultModel;
+    [SerializeField] LightingModel defaultDiffuseModel;
+    [SerializeField] LightingModel defaultSpecularModel;
+
     bool initialized = false;
+    bool verticalScrollbarWasActive;
     MeshRenderer targetMR;
     MaterialPropertyBlock mpb;
 
+    LightingModel currentDiffuseModel;
+    LightingModel currentSpecularModel;
+
     Dictionary<LightingModel, Material> diffuseModels;
     Dictionary<LightingModel, Material> specularModels;
-    Dictionary<ShaderProperty, UIPropertyField> propertyFields;     // TODO one such dictionary for each group? how do i do this?    
 
-    UIPropertyGroup modelGroup;
-    UIPropertyGroup lightsGroup;
-    UIPropertyGroup diffGroup;
-    UIPropertyGroup specGroup;
+    UIPropertyGroup modelPropertyGroup;
+    UIPropertyGroup lightsPropertyGroup;
+    UIPropertyGroup diffusePropertyGroup;
+    UIPropertyGroup specularPropertyGroup;
 
     private class ShaderVariable {
         public readonly int id;
         public readonly string name;
-        public ShaderVariable (string inputName) {
+        public readonly LightingModel.Type lmType;
+        public readonly ShaderProperty prop;
+        public ShaderVariable (string inputName, LightingModel.Type inputLmType, ShaderProperty actualProp) {
             this.name = inputName;
             this.id = Shader.PropertyToID(inputName);
+            this.lmType = inputLmType;
+            this.prop = actualProp;
         }
     }
 
@@ -64,8 +78,12 @@ public class LightingScreen : MonoBehaviour {
     Dictionary<ShaderVariable, FloatObject> shaderFloats;
     Dictionary<ShaderVariable, ColorObject> shaderColors;
 
-    void Start () {
-
+    // THIS is why i need system.collections (not generic, that gives me lists etc)
+    IEnumerator Start () {
+        yield return null;  // because otherwise all the ui recttransforms won't be loaded yet (widths will be zero...)
+        if(!initialized){
+            Initialize();
+        }
     }
 
     void Initialize () {
@@ -75,6 +93,13 @@ public class LightingScreen : MonoBehaviour {
         }
         CreateMaterialsAndSetupMaterialDictionaries();
         SetupShaderVariableDictionaries();
+        CreateModelGroup();
+        CreateLightGroup();
+        CreateDiffuseGroup();
+        CreateSpecularGroup();
+        LoadModel(defaultModel.mesh, defaultModel.name);
+        LoadDiffuseLightingModel(defaultDiffuseModel);
+        LoadSpecularLightingModel(defaultSpecularModel);
 
         this.initialized = true;
 
@@ -134,14 +159,14 @@ public class LightingScreen : MonoBehaviour {
             shaderColors = new Dictionary<ShaderVariable, ColorObject>();
             foreach(var lm in lightingModels){
                 foreach(var prop in lm){
-                    AddIfNotDuplicate(prop);
+                    AddIfNotDuplicate(prop, lm.type);
                 }
             }
 
-            void AddIfNotDuplicate (ShaderProperty prop) {
+            void AddIfNotDuplicate (ShaderProperty prop, LightingModel.Type lmType) {
                 var propName = prop.name;
                 if(!CheckForDuplicateName(propName)){
-                    var shaderVar = new ShaderVariable(propName);
+                    var shaderVar = new ShaderVariable(propName, lmType, prop);
                     switch(prop.type){
                         case ShaderProperty.Type.Float:
                             shaderFloats.Add(shaderVar, new FloatObject(prop.defaultValue));
@@ -172,26 +197,151 @@ public class LightingScreen : MonoBehaviour {
         }
 
         UIPropertyGroup CreateNewPropGroup () {
-
-            return null;
+            var newGroup = Instantiate(propertyGroupPrefab);
+            newGroup.rectTransform.SetParent(scrollRect.content, false);
+            newGroup.rectTransform.ResetLocalScale();
+            return newGroup;
         }
 
         void CreateModelGroup () {
-
+            modelPropertyGroup = CreateNewPropGroup();
+            modelPropertyGroup.Initialize(modelGroupName, false);
+            if(colorShaderPropsAreModelProps){
+                foreach(var key in shaderColors.Keys){
+                    var prop = key.prop;
+                    var colObj = shaderColors[key];
+                    modelPropertyGroup.AddColorProperty(prop, (c) => {colObj.value = c;});
+                }
+            }
+            modelPropertyGroup.AddConfigButton(
+                icon: UISprites.UIConfig, 
+                onButtonClicked: () => {
+                    ModelPicker.Open(
+                        onMeshPicked: LoadModel,
+                        scale: 1f
+                    );
+                }, hoverMessage: "Select a model"
+            );
+            modelPropertyGroup.RebuildContent();
         }
 
         void CreateLightGroup () {
+            lightsPropertyGroup = CreateNewPropGroup();
+            lightsPropertyGroup.Initialize(lightsGroupName, false);
+            RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
+            lightsPropertyGroup.AddColorProperty("Ambient Color", Color.grey, (c) => {
+                RenderSettings.ambientLight = c;
+            });
+            lightsPropertyGroup.AddColorProperty("Light Color", Color.white, (c) => {
+                // Main light color = c;
+            });
+            // the other lights...
+            //TODO config button
+            lightsPropertyGroup.RebuildContent();
+        }
 
+        UIPropertyGroup CreateLightingModelGroup (
+            Dictionary<LightingModel, Material> lmDictionary, 
+            System.Action<LightingModel> loadModelAction,
+            Foldout.ButtonSetup nullSetup, 
+            string groupName, 
+            string configButtonHoverMessage
+        ) {
+            var newGroup = CreateNewPropGroup();
+            newGroup.Initialize(groupName, false);
+            List<Foldout.ButtonSetup> buttonSetups = new List<Foldout.ButtonSetup>();
+            buttonSetups.Add(nullSetup);
+            LightingModel firstLM = null;
+            foreach(var lm in lmDictionary.Keys){
+                if(firstLM == null){
+                    firstLM = lm;
+                }
+                var lmCopy = lm;
+                buttonSetups.Add(new Foldout.ButtonSetup(
+                    buttonName: lm.name,
+                    buttonHoverMessage: lm.name,
+                    buttonClickAction: () => {
+                        loadModelAction(lmCopy);
+                    }, buttonInteractable: true
+                ));
+            }
+            newGroup.AddConfigButton(
+                icon: UISprites.UIConfig,
+                onButtonClicked: () => {
+                    Foldout.Create(
+                        setups: buttonSetups, 
+                        onNotSelectAnything: null, 
+                        scale: 1f
+                    );
+                }, hoverMessage: configButtonHoverMessage
+            );
+            var lmType = firstLM.type;
+            if(!colorShaderPropsAreModelProps){
+                foreach(var shaderVar in shaderColors.Keys){
+                    if(shaderVar.lmType == lmType){
+                        var colObj = shaderColors[shaderVar];
+                        newGroup.AddColorProperty(shaderVar.prop, (c) => {colObj.value = c;});
+                    }
+                }
+            }
+            foreach(var shaderVar in shaderFloats.Keys){
+                if(shaderVar.lmType == lmType){
+                    var floatObj = shaderFloats[shaderVar];
+                    System.Func<float, string> customStringFormat;
+                    float scrollMultiplier;
+                    if(Mathf.Abs(shaderVar.prop.maxValue) <= 10){       // TODO this is some dodgy ass code...
+                        customStringFormat = (f) => { return $"{f:F2}".ShortenNumberString();};
+                        scrollMultiplier = 1f;
+                    }else{
+                        customStringFormat = (f) => { return $"{f:F1}".ShortenNumberString();};
+                        scrollMultiplier = 10f;
+                    }
+                    newGroup.AddFloatProperty(shaderVar.prop, (f) => {floatObj.value = f;}, customStringFormat, scrollMultiplier);
+                }
+            }
+            return newGroup;
         }
 
         void CreateDiffuseGroup () {
-            // enable config button (() => {...});
-            // create slider ("_Roughness", 0, 1, (value) => {this.roughness = value;});
+            var noDiffModelSetup = new Foldout.ButtonSetup(
+                buttonName: "None", 
+                buttonHoverMessage: "None", 
+                buttonClickAction: () => {
+                    LoadDiffuseLightingModel(solidColorLM);
+                    diffusePropertyGroup.SetName(CreateGroupName(diffGroupName, "None"));
+                }, buttonInteractable: true
+            );
+            diffusePropertyGroup = CreateLightingModelGroup(
+                lmDictionary: diffuseModels,
+                loadModelAction: LoadDiffuseLightingModel,
+                nullSetup: noDiffModelSetup,
+                groupName: diffGroupName,
+                configButtonHoverMessage: "Load diffuse lighting model"
+            );
         }
 
         void CreateSpecularGroup () {
-
+            var noSpecModelSetup = new Foldout.ButtonSetup(
+                buttonName: "None",
+                buttonHoverMessage: "None",
+                buttonClickAction: () => {LoadSpecularLightingModel(null);},
+                buttonInteractable: true
+            );
+            specularPropertyGroup = CreateLightingModelGroup(
+                lmDictionary: specularModels,
+                loadModelAction: LoadSpecularLightingModel,
+                nullSetup: noSpecModelSetup,
+                groupName: specGroupName,
+                configButtonHoverMessage: "Load specular lighting model"
+            );
         }
+    }
+
+    void RebuildGroups () {
+        modelPropertyGroup.RebuildContent();
+        lightsPropertyGroup.RebuildContent();
+        diffusePropertyGroup.RebuildContent();
+        specularPropertyGroup.RebuildContent();
     }
 
     void RebuildContent () {
@@ -209,10 +359,19 @@ public class LightingScreen : MonoBehaviour {
     }
 
     void Update () {
+        if(!initialized){
+            return;
+        }
         SetupMaterialPropertyBlock();
         if(targetMR != null){
             targetMR.SetPropertyBlock(mpb);
         }
+        bool verticalScrollbarIsActiveNow = scrollRect.verticalScrollbar.gameObject.activeSelf;
+        if(verticalScrollbarWasActive != verticalScrollbarIsActiveNow){
+            RebuildGroups();
+            RebuildContent();
+        }
+        verticalScrollbarWasActive = verticalScrollbarIsActiveNow;
 
         void SetupMaterialPropertyBlock () {
             if(mpb == null){
@@ -231,17 +390,63 @@ public class LightingScreen : MonoBehaviour {
         return $"{prefix}: {suffix}";
     }
 
-    void LoadSpecModel (LightingModel specModel) {
-        specGroup.SetName(CreateGroupName(modelGroupName, specModel.name));
-        targetMR.materials[1] = specularModels[specModel];
-        // show and hide the corresponing sliders n shit...
-        specGroup.RebuildContent();
+    void UpdatePropertyFieldActiveStatesAndRebuildContent () {
+        List<ShaderProperty> validProperties = new List<ShaderProperty>();
+        foreach(var prop in currentDiffuseModel){
+            validProperties.Add(prop);
+        }
+        if(currentSpecularModel != null){
+            foreach(var prop in currentSpecularModel){
+                validProperties.Add(prop);
+            }
+        }
+        foreach(var propField in modelPropertyGroup){
+            propField.SetGOActive(modelPropsAreAlwaysVisible || validProperties.Contains(propField.initProperty));
+        }
+        // foreach(var propField in lightsGroup){   // do this in the actual lights loading thingy
+        //     propField.SetGOActive(true);
+        // }
+        foreach(var propField in diffusePropertyGroup){
+            propField.SetGOActive(validProperties.Contains(propField.initProperty));
+        }
+        foreach(var propField in specularPropertyGroup){
+            propField.SetGOActive(validProperties.Contains(propField.initProperty));
+        }
+        modelPropertyGroup.RebuildContent();
+        diffusePropertyGroup.RebuildContent();
+        specularPropertyGroup.RebuildContent();
         RebuildContent();
     }
 
-    // TODO this
-    void UpdateSliderPropVisibiltyAndRebuildContent () {
-        // foreach
+    void LoadModel (Mesh newModel, string newModelName) {
+        // could do the color here...
+        modelPropertyGroup.SetName(CreateGroupName(modelGroupName, newModelName));
     }
-	
+
+    void LoadDiffuseLightingModel (LightingModel lm) {
+        if(lm == solidColorLM){
+            diffusePropertyGroup.SetName(CreateGroupName(diffGroupName, "None"));
+            diffusePropertyGroup.HideImage(false);
+            diffusePropertyGroup.ShowText("No lighting model selected", false);
+        }else{
+            diffusePropertyGroup.SetName(CreateGroupName(diffGroupName, lm.name));   
+            diffusePropertyGroup.ShowText(lm.description, false);
+        }
+        currentDiffuseModel = lm;
+        UpdatePropertyFieldActiveStatesAndRebuildContent();
+    }
+
+    void LoadSpecularLightingModel (LightingModel lm) {
+        if(lm == null){
+            specularPropertyGroup.SetName(CreateGroupName(specGroupName, "None"));
+            specularPropertyGroup.HideImage(false);
+            specularPropertyGroup.ShowText("No lighting model selected", false);
+        }else{
+            specularPropertyGroup.SetName(CreateGroupName(specGroupName, lm.name));
+            specularPropertyGroup.ShowText(lm.description, false);
+        }
+        currentSpecularModel = lm;
+        UpdatePropertyFieldActiveStatesAndRebuildContent();
+    }
+
 }

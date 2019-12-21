@@ -3,20 +3,16 @@ using TMPro;
 
 namespace LightingModels {
 
-    public class UIPropertyField : MonoBehaviour {
+    public abstract class UIPropertyField : MonoBehaviour {
 
-        [SerializeField] RectTransform m_rectTransform;
-        [SerializeField] TextMeshProUGUI label;
+        [SerializeField] protected RectTransform m_rectTransform;
+        [SerializeField] protected TextMeshProUGUI m_label;
 
         public RectTransform rectTransform => m_rectTransform;
 
-        // public void Initialize (string name, SOMETHING propDriver) {     // TODO all this
+        public ShaderProperty initProperty { get; protected set; }
 
-        // }
-
-        public void LoadColors (ColorScheme cs) {
-
-        }
+        public abstract void LoadColors (ColorScheme cs);
     
     }
 

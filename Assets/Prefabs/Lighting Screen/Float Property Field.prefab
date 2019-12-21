@@ -209,10 +209,10 @@ MonoBehaviour:
   m_rectTransform: {fileID: 2798668708517116464}
   m_label: {fileID: 8853435179619062828}
   sliderAndInputField: {fileID: 4860339371899628358}
-  minSliderAndInputFieldWidth: 120
-  maxSliderAndInputFieldWidth: 200
-  maxWidthRectTransformWidth: 600
-  minWidthRectTransformWidth: 400
+  minSliderAndInputFieldWidth: 150
+  maxSliderAndInputFieldWidth: 210
+  maxWidthRectTransformWidth: 400
+  minWidthRectTransformWidth: 250
   labelRightMargin: 20
 --- !u!1001 &8324778030084997255
 PrefabInstance:

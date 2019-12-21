@@ -19,16 +19,11 @@ public class LightingScreen : MonoBehaviour {
 
     [Header("Settings")]
     [SerializeField] float scrollRectElementVerticalMargin;
-    [SerializeField] bool modelPropsAlwaysVisible;      // if the colors are to be part of the model group, then this should be on
+    [SerializeField] bool colorShaderPropsAreModelProps;
 
     [Header("Lighting Models")]
     [SerializeField] LightingModel solidColorLM;
     [SerializeField] LightingModel[] lightingModels;
-
-    [Header("Shader Properties")]
-    [SerializeField] ShaderProperty[] modelProps;       // i can easily change whether i want the colors to be part of the model or the lighting models here
-    [SerializeField] ShaderProperty[] diffuseProps;
-    [SerializeField] ShaderProperty[] specularProps;
 
     bool initialized = false;
     MeshRenderer targetMR;
@@ -137,28 +132,26 @@ public class LightingScreen : MonoBehaviour {
             }
             shaderFloats = new Dictionary<ShaderVariable, FloatObject>();
             shaderColors = new Dictionary<ShaderVariable, ColorObject>();
-            AddVariables(modelProps);
-            AddVariables(diffuseProps);
-            AddVariables(specularProps);
+            foreach(var lm in lightingModels){
+                foreach(var prop in lm){
+                    AddIfNotDuplicate(prop);
+                }
+            }
 
-            void AddVariables (IEnumerable<ShaderProperty> propContainer) {
-                foreach(var prop in propContainer){
-                    var propName = prop.name;
-                    if(CheckForDuplicateName(propName)){
-                        Debug.LogError($"Duplicate key \"{propName}\"!");
-                    }else{
-                        var shaderVar = new ShaderVariable(propName);
-                        switch(prop.type){
-                            case ShaderProperty.Type.Float:
-                                shaderFloats.Add(shaderVar, new FloatObject(prop.defaultValue));
-                                break;
-                            case ShaderProperty.Type.Color:
-                                shaderColors.Add(shaderVar, new ColorObject(prop.defaultColor));
-                                break;
-                            default:
-                                Debug.Log($"Unknown type \"{prop.type}\"!");
-                                break;
-                        }
+            void AddIfNotDuplicate (ShaderProperty prop) {
+                var propName = prop.name;
+                if(!CheckForDuplicateName(propName)){
+                    var shaderVar = new ShaderVariable(propName);
+                    switch(prop.type){
+                        case ShaderProperty.Type.Float:
+                            shaderFloats.Add(shaderVar, new FloatObject(prop.defaultValue));
+                            break;
+                        case ShaderProperty.Type.Color:
+                            shaderColors.Add(shaderVar, new ColorObject(prop.defaultColor));
+                            break;
+                        default:
+                            Debug.Log($"Unknown type \"{prop.type}\"!");
+                            break;
                     }
                 }
             }

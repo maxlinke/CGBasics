@@ -32,25 +32,45 @@ namespace LightingModels {
 
         bool initialized = false;
 
+        LightingScreen lightingScreen;
         Camera cam;
         Transform lightsParent;
+        List<Light> lights;
         GameObject renderObject;
         MeshFilter renderObjectMF;
-        public MeshRenderer renderObjectMR { get; private set; }
+        MeshRenderer renderObjectMR;
 
         PointerType currentPointerType;
         Vector3 lastMousePos;
 
         Vector3 pivotPoint => Vector3.zero;
 
-        public void Initialize () {
+        void OnDestroy () {         // these nullchecks are basically only here for the editor...
+            if(cam != null){
+                Destroy(cam.gameObject);
+            }
+            if(lightsParent != null){
+                Destroy(lightsParent.gameObject);
+            }
+            if(renderObject != null){
+                Destroy(renderObject);
+            }
+        }
+
+        public void LoadColors (ColorScheme cs) {
+
+        }
+
+        public void Initialize (LightingScreen lightingScreen) {
             if(initialized){
                 Debug.LogError("Duplicate init call, aborting!");
                 return;
             }
+            this.lightingScreen = lightingScreen;
             CreateCam();
             CreateRenderObject();
             CreateLightsParent();
+            lights = new List<Light>();
 
             this.initialized = true;
             ResetCamera();
@@ -58,6 +78,7 @@ namespace LightingModels {
             void CreateCam () {
                 cam = new GameObject("Render Cam", typeof(Camera)).GetComponent<Camera>();
                 cam.cullingMask = 1 << renderLayer;
+                cam.backgroundColor = Color.black;
             }
 
             void CreateRenderObject () {
@@ -70,11 +91,6 @@ namespace LightingModels {
             void CreateLightsParent () {
                 lightsParent = new GameObject("Lights parent").transform;
                 lightsParent.gameObject.layer = renderLayer;
-                // this is temporary
-                var newLight = lightsParent.gameObject.AddComponent<Light>();
-                newLight.type = LightType.Directional;
-                newLight.color = Color.white;
-                newLight.intensity = 1f;
             }
         }
 
@@ -119,6 +135,13 @@ namespace LightingModels {
                 }
                 cam.transform.LookAt(pivotPoint, customUp);
             }
+        }
+
+        void LateUpdate () {
+            if(!initialized){
+                return;
+            }
+            renderObjectMR.SetPropertyBlock(lightingScreen.GetMaterialPropertyBlock());
         }
 
         void OrbitCam (Vector3 mouseDelta) {
@@ -194,6 +217,41 @@ namespace LightingModels {
                 Debug.LogWarning("No materials, are you sure?");
             }
             renderObjectMR.sharedMaterials = newMats.ToArray();
+        }
+
+        public void LoadLightingSetup (LightingSetup setup, bool applyEuler = true) {
+            for(int i=lightsParent.childCount-1; i>=0; i--){
+                Destroy(lightsParent.GetChild(i).gameObject);
+            }
+            lights.Clear();
+            int lightIndex = 0;
+            foreach(var l in setup){
+                var newLight = new GameObject($"Light {lightIndex}", typeof(Light)).GetComponent<Light>();
+                newLight.type = LightType.Directional;
+                newLight.shadows = LightShadows.None;
+                newLight.intensity = 1f;
+                newLight.color = l.color;
+                lights.Add(newLight);
+                newLight.transform.SetParent(lightsParent, false);
+                var normedLPos = l.position.normalized;
+                newLight.transform.localPosition = normedLPos;
+                newLight.transform.localRotation = Quaternion.LookRotation(-normedLPos);
+                lightIndex++;
+            }
+            RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
+            RenderSettings.ambientIntensity = 1f;
+            RenderSettings.ambientLight = setup.ambientColor;
+            if(applyEuler){
+                lightsParent.localEulerAngles = setup.defaultEuler;
+            }
+        }
+
+        public void UpdateLightColor (int lightIndex, Color newColor) {
+            if(lightIndex < 0 || lightIndex >= lights.Count){
+                Debug.LogError("Light index out of bounds! Aborting!", this.gameObject);
+                return;
+            }
+            lights[lightIndex].color = newColor;
         }
 
         float GetPivotDistanceScale () {

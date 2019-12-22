@@ -272,6 +272,18 @@ namespace LightingModels {
             bottomText.SetGOActive(false);
             ConditionalRebuildContent(rebuildContent);
         }
+
+        public void DestroyPropFields (int startIndex = 0, bool rebuildContent = true) {
+            if(startIndex < 0 || startIndex >= propFields.Count){
+                Debug.LogError("Index out of bounds! Aborting...", this.gameObject);
+                return;
+            }
+            for(int i=propFields.Count-1; i>=startIndex; i--){
+                Destroy(propFields[i].gameObject);
+                propFields.RemoveAt(i);
+            }
+            ConditionalRebuildContent(rebuildContent);
+        }
     
     }
 

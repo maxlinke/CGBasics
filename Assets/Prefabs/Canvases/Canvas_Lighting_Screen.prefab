@@ -209,7 +209,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &5716436090326242443
 RectTransform:
   m_ObjectHideFlags: 0
@@ -437,7 +437,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &8732992497008622722
 RectTransform:
   m_ObjectHideFlags: 0
@@ -681,10 +681,18 @@ MonoBehaviour:
   - {fileID: 11400000, guid: a24b7c067182356449ae153744b4b5a0, type: 2}
   - {fileID: 11400000, guid: 77853b1b8ad6a6145a0a13855874df34, type: 2}
   - {fileID: 11400000, guid: 240a88a9367acb843b002ecb4ba7339d, type: 2}
+  lightingSetups:
+  - {fileID: 11400000, guid: 50a7abb293f72854b8ac5ba0bd3fd085, type: 2}
+  - {fileID: 11400000, guid: f0f68b3435eceae47bd9c685a2331a01, type: 2}
+  - {fileID: 11400000, guid: 83a0212fec7095146983fd82abb73714, type: 2}
+  - {fileID: 11400000, guid: cf9f185f895490e42903aa07e7af5aa8, type: 2}
+  applyLightingSetupRotation: 1
   defaultModel: {fileID: 11400000, guid: a2024be66dde725468f5aab9adc32c74, type: 2}
   defaultDiffuseModel: {fileID: 11400000, guid: a16cda9db628a644595ad6bdfa1d08a8,
     type: 2}
   defaultSpecularModel: {fileID: 11400000, guid: 4c228059d1b1f1a48956fcc44ff97603,
+    type: 2}
+  defaultLightingSetup: {fileID: 11400000, guid: f0f68b3435eceae47bd9c685a2331a01,
     type: 2}
 --- !u!1 &3078392116233762998
 GameObject:
@@ -863,7 +871,7 @@ RectTransform:
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -1442,7 +1450,7 @@ RectTransform:
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}

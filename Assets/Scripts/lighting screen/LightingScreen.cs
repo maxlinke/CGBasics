@@ -31,14 +31,19 @@ public class LightingScreen : MonoBehaviour {
     [SerializeField] LightingModel nullSpecularLM;
     [SerializeField] LightingModel[] lightingModels;
 
+    [Header("Lighting Setups")]
+    [SerializeField] LightingSetup[] lightingSetups;
+    [SerializeField] bool applyLightingSetupRotation;
+
     [Header("Defaults")]
     [SerializeField] ModelPreset defaultModel;
     [SerializeField] LightingModel defaultDiffuseModel;
     [SerializeField] LightingModel defaultSpecularModel;
+    [SerializeField] LightingSetup defaultLightingSetup;
 
     bool initialized = false;
-    float lastScrollContentWidth;
-    MeshRenderer targetMR => renderViewController.renderObjectMR;
+    float lastScrollContentWidth = -1f;
+    bool mpbUpToDate = false;
     MaterialPropertyBlock mpb;
 
     LightingModel currentDiffuseModel;
@@ -101,10 +106,11 @@ public class LightingScreen : MonoBehaviour {
         CreateLightGroup();
         CreateDiffuseGroup();
         CreateSpecularGroup();
-        renderViewController.Initialize();
+        renderViewController.Initialize(this);
         LoadModel(defaultModel.mesh, defaultModel.name);
         LoadDiffuseLightingModel(defaultDiffuseModel);
         LoadSpecularLightingModel(defaultSpecularModel);
+        LoadLightingSetup(defaultLightingSetup, true, false);
         this.initialized = true;
         LoadColors(ColorScheme.current);
 
@@ -237,18 +243,12 @@ public class LightingScreen : MonoBehaviour {
         void CreateLightGroup () {
             lightsPropertyGroup = CreateNewPropGroup();
             lightsPropertyGroup.Initialize(lightsGroupName, false);
-            var ambClr = new Color(0.2f, 0.2f, 0.2f);
-            RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
-            RenderSettings.ambientLight = ambClr;
-            RenderSettings.ambientIntensity = 1f;
-            lightsPropertyGroup.AddColorProperty("Ambient Color", ambClr, (c) => {
-                RenderSettings.ambientLight = c;
-            });
-            lightsPropertyGroup.AddColorProperty("Light Color", Color.white, (c) => {
-                // Main light color = c;
-            });
-            // the other lights...
-            //TODO config button
+            var foldoutSetups = new List<Foldout.ButtonSetup>();
+            foreach(var setup in lightingSetups){
+                var setupCopy = setup;
+                foldoutSetups.Add(new Foldout.ButtonSetup(setup.name, setup.name, () => {LoadLightingSetup(setupCopy);}, true));
+            }
+            lightsPropertyGroup.AddConfigButton(UISprites.UIConfig, () => {Foldout.Create(foldoutSetups, null);}, "Load a lighting setup");
             lightsPropertyGroup.RebuildContent();
         }
 
@@ -341,6 +341,7 @@ public class LightingScreen : MonoBehaviour {
         foreach(var pg in allPropertyGroups){
             pg.LoadColors(cs);
         }
+        renderViewController.LoadColors(cs);
     }
 
     void RebuildGroups () {
@@ -368,11 +369,8 @@ public class LightingScreen : MonoBehaviour {
         if(!initialized){
             return;
         }
+        mpbUpToDate = false;
         CheckForWidthChangeAndRebuildIfNeccessary();
-        SetupMaterialPropertyBlock();
-        if(targetMR != null){
-            targetMR.SetPropertyBlock(mpb);
-        }
 
         void CheckForWidthChangeAndRebuildIfNeccessary () {
             float currentScrollContentWidth = scrollRect.content.rect.width;
@@ -382,18 +380,22 @@ public class LightingScreen : MonoBehaviour {
             }
             lastScrollContentWidth = currentScrollContentWidth;
         }
+    }
 
-        void SetupMaterialPropertyBlock () {
-            if(mpb == null){
-                mpb = new MaterialPropertyBlock();
-            }
+    public MaterialPropertyBlock GetMaterialPropertyBlock () {
+        if(mpb == null){
+            mpb = new MaterialPropertyBlock();
+        }
+        if(initialized && !mpbUpToDate){
             foreach(var key in shaderColors.Keys){
                 mpb.SetColor(key.id, shaderColors[key].value);
             }
             foreach(var key in shaderFloats.Keys){
                 mpb.SetFloat(key.id, shaderFloats[key].value);
             }
+            mpbUpToDate = true;
         }
+        return mpb;
     }
 
     string CreateGroupName (string prefix, string suffix) {
@@ -477,6 +479,24 @@ public class LightingScreen : MonoBehaviour {
 
     void LoadSpecularLightingModel (LightingModel lm) {
         LoadLightingModel(lm, nullSpecularLM, specularPropertyGroup, specGroupName, ref currentSpecularModel);
+    }
+
+    void LoadLightingSetup (LightingSetup setup, bool forceApplyRotation = false, bool callDestroy = true) {
+        renderViewController.LoadLightingSetup(setup, applyLightingSetupRotation || forceApplyRotation);
+        if(callDestroy){
+            lightsPropertyGroup.DestroyPropFields(0, false);
+        }
+        lightsPropertyGroup.AddColorProperty("Ambient Light", setup.ambientColor, (c) => {
+            RenderSettings.ambientLight = c;
+        });
+        int i=0;
+        foreach(var l in setup){
+            int iCopy = i;
+            lightsPropertyGroup.AddColorProperty(l.name, l.color, (c) => {renderViewController.UpdateLightColor(iCopy, c);});
+        }
+        lightsPropertyGroup.RebuildContent();
+        lightsPropertyGroup.LoadColors(ColorScheme.current);
+        RebuildContent();
     }
 
 }

@@ -17,6 +17,7 @@ public class LightingScreen : MonoBehaviour {
     [Header("Components")]
     [SerializeField] Image[] borders;
     [SerializeField] ScrollRect scrollRect;
+    [SerializeField] UIRenderViewController renderViewController;
 
     [Header("Settings")]
     [SerializeField] float scrollRectElementVerticalMargin;
@@ -25,7 +26,8 @@ public class LightingScreen : MonoBehaviour {
     [SerializeField] float additionalSpaceAtTheBottom;
 
     [Header("Lighting Models")]
-    [SerializeField] LightingModel solidColorLM;
+    [SerializeField] LightingModel nullDiffuseLM;
+    [SerializeField] LightingModel nullSpecularLM;
     [SerializeField] LightingModel[] lightingModels;
 
     [Header("Defaults")]
@@ -35,14 +37,16 @@ public class LightingScreen : MonoBehaviour {
 
     bool initialized = false;
     float lastScrollContentWidth;
-    MeshRenderer targetMR;
+    MeshRenderer targetMR => renderViewController.renderObjectMR;
     MaterialPropertyBlock mpb;
 
     LightingModel currentDiffuseModel;
     LightingModel currentSpecularModel;
 
-    Dictionary<LightingModel, Material> diffuseModels;
-    Dictionary<LightingModel, Material> specularModels;
+    Material defaultDiffuseMat;
+    Material defaultSpecularMat;
+    Dictionary<LightingModel, Material> diffuseMaterials;
+    Dictionary<LightingModel, Material> specularMaterials;
 
     UIPropertyGroup modelPropertyGroup;
     UIPropertyGroup lightsPropertyGroup;
@@ -98,6 +102,7 @@ public class LightingScreen : MonoBehaviour {
         CreateLightGroup();
         CreateDiffuseGroup();
         CreateSpecularGroup();
+        renderViewController.Initialize();
         LoadModel(defaultModel.mesh, defaultModel.name);
         LoadDiffuseLightingModel(defaultDiffuseModel);
         LoadSpecularLightingModel(defaultSpecularModel);
@@ -105,16 +110,19 @@ public class LightingScreen : MonoBehaviour {
         this.initialized = true;
 
         void CreateMaterialsAndSetupMaterialDictionaries () {
-            if(diffuseModels != null || specularModels != null){
+            if(diffuseMaterials != null || specularMaterials != null){
                 Debug.Log("Either one or both of the dictionaries is null, this should not happen!");
             }
-            diffuseModels = new Dictionary<LightingModel, Material>();
-            specularModels = new Dictionary<LightingModel, Material>();
+            defaultDiffuseMat = CreateDiffuseMaterial(nullDiffuseLM.shader);
+            defaultSpecularMat = CreateSpecularMaterial(nullSpecularLM.shader);
+            diffuseMaterials = new Dictionary<LightingModel, Material>();
+            specularMaterials = new Dictionary<LightingModel, Material>();
+            
             foreach(var lm in lightingModels){
                 if(lm.type == LightingModel.Type.Diffuse){
-                    CreateMatAndAddToDictionary(CreateDiffuseMaterial, diffuseModels);
+                    CreateMatAndAddToDictionary(CreateDiffuseMaterial, diffuseMaterials);
                 }else if(lm.type == LightingModel.Type.Specular){
-                    CreateMatAndAddToDictionary(CreateSpecularMaterial, specularModels);
+                    CreateMatAndAddToDictionary(CreateSpecularMaterial, specularMaterials);
                 }else{
                     Debug.LogError($"Unknown {nameof(LightingModel.Type)} \"{lm.type}\"!");
                 }
@@ -126,28 +134,28 @@ public class LightingScreen : MonoBehaviour {
                     }
                     dictionary.Add(lm, createMat(lm.shader));
                 }
+            }
 
-                Material CreateDiffuseMaterial (Shader shader) {
-                    var newMat = new Material(shader);
-                    newMat.hideFlags = HideFlags.HideAndDontSave;
-                    newMat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.One);
-                    newMat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.Zero);
-                    newMat.SetInt("_Cull", (int)UnityEngine.Rendering.CullMode.Off);
-                    newMat.SetInt("_ZWrite", 1);
-                    newMat.SetInt("_ZTest", (int)UnityEngine.Rendering.CompareFunction.LessEqual);
-                    return newMat;
-                }
+            Material CreateDiffuseMaterial (Shader shader) {
+                var newMat = new Material(shader);
+                newMat.hideFlags = HideFlags.HideAndDontSave;
+                newMat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.One);
+                newMat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.Zero);
+                newMat.SetInt("_Cull", (int)UnityEngine.Rendering.CullMode.Off);
+                newMat.SetInt("_ZWrite", 1);
+                newMat.SetInt("_ZTest", (int)UnityEngine.Rendering.CompareFunction.LessEqual);
+                return newMat;
+            }
 
-                Material CreateSpecularMaterial (Shader shader) {
-                    var newMat = new Material(shader);
-                    newMat.hideFlags = HideFlags.HideAndDontSave;
-                    newMat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.One);
-                    newMat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.One);
-                    newMat.SetInt("_Cull", (int)UnityEngine.Rendering.CullMode.Off);
-                    newMat.SetInt("_ZWrite", 0);
-                    newMat.SetInt("_ZTest", (int)UnityEngine.Rendering.CompareFunction.Equal);
-                    return newMat;
-                }
+            Material CreateSpecularMaterial (Shader shader) {
+                var newMat = new Material(shader);
+                newMat.hideFlags = HideFlags.HideAndDontSave;
+                newMat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.One);
+                newMat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.One);
+                newMat.SetInt("_Cull", (int)UnityEngine.Rendering.CullMode.Off);
+                newMat.SetInt("_ZWrite", 0);
+                newMat.SetInt("_ZTest", (int)UnityEngine.Rendering.CompareFunction.Equal);
+                return newMat;
             }
         }
 
@@ -229,8 +237,11 @@ public class LightingScreen : MonoBehaviour {
         void CreateLightGroup () {
             lightsPropertyGroup = CreateNewPropGroup();
             lightsPropertyGroup.Initialize(lightsGroupName, false);
+            var ambClr = new Color(0.2f, 0.2f, 0.2f);
             RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
-            lightsPropertyGroup.AddColorProperty("Ambient Color", Color.grey, (c) => {
+            RenderSettings.ambientLight = ambClr;
+            RenderSettings.ambientIntensity = 1f;
+            lightsPropertyGroup.AddColorProperty("Ambient Color", ambClr, (c) => {
                 RenderSettings.ambientLight = c;
             });
             lightsPropertyGroup.AddColorProperty("Light Color", Color.white, (c) => {
@@ -244,13 +255,19 @@ public class LightingScreen : MonoBehaviour {
         UIPropertyGroup CreateLightingModelGroup (
             Dictionary<LightingModel, Material> lmDictionary, 
             System.Action<LightingModel> loadModelAction,
-            Foldout.ButtonSetup nullSetup, 
+            LightingModel defaultLM,
             string groupName, 
             string configButtonHoverMessage
         ) {
             var newGroup = CreateNewPropGroup();
             newGroup.Initialize(groupName, false);
             List<Foldout.ButtonSetup> buttonSetups = new List<Foldout.ButtonSetup>();
+            var nullSetup = new Foldout.ButtonSetup(
+                buttonName: "None",
+                buttonHoverMessage: "None",
+                buttonClickAction: () => {loadModelAction(defaultLM);},
+                buttonInteractable: true
+            );
             buttonSetups.Add(nullSetup);
             LightingModel firstLM = null;
             foreach(var lm in lmDictionary.Keys){
@@ -269,11 +286,7 @@ public class LightingScreen : MonoBehaviour {
             newGroup.AddConfigButton(
                 icon: UISprites.UIConfig,
                 onButtonClicked: () => {
-                    Foldout.Create(
-                        setups: buttonSetups, 
-                        onNotSelectAnything: null, 
-                        scale: 1f
-                    );
+                    Foldout.Create(buttonSetups, null, 1f);
                 }, hoverMessage: configButtonHoverMessage
             );
             var lmType = firstLM.type;
@@ -307,34 +320,20 @@ public class LightingScreen : MonoBehaviour {
         }
 
         void CreateDiffuseGroup () {
-            var noDiffModelSetup = new Foldout.ButtonSetup(
-                buttonName: "None", 
-                buttonHoverMessage: "None", 
-                buttonClickAction: () => {
-                    LoadDiffuseLightingModel(solidColorLM);
-                    diffusePropertyGroup.SetName(CreateGroupName(diffGroupName, "None"));
-                }, buttonInteractable: true
-            );
             diffusePropertyGroup = CreateLightingModelGroup(
-                lmDictionary: diffuseModels,
+                lmDictionary: diffuseMaterials,
                 loadModelAction: LoadDiffuseLightingModel,
-                nullSetup: noDiffModelSetup,
+                defaultLM: nullDiffuseLM,
                 groupName: diffGroupName,
                 configButtonHoverMessage: "Load diffuse lighting model"
             );
         }
 
         void CreateSpecularGroup () {
-            var noSpecModelSetup = new Foldout.ButtonSetup(
-                buttonName: "None",
-                buttonHoverMessage: "None",
-                buttonClickAction: () => {LoadSpecularLightingModel(null);},
-                buttonInteractable: true
-            );
             specularPropertyGroup = CreateLightingModelGroup(
-                lmDictionary: specularModels,
+                lmDictionary: specularMaterials,
                 loadModelAction: LoadSpecularLightingModel,
-                nullSetup: noSpecModelSetup,
+                defaultLM: nullSpecularLM,
                 groupName: specGroupName,
                 configButtonHoverMessage: "Load specular lighting model"
             );
@@ -397,8 +396,10 @@ public class LightingScreen : MonoBehaviour {
 
     void UpdatePropertyFieldActiveStatesAndRebuildContent () {
         List<ShaderProperty> validProperties = new List<ShaderProperty>();
-        foreach(var prop in currentDiffuseModel){
-            validProperties.Add(prop);
+        if(currentDiffuseModel != null){
+            foreach(var prop in currentDiffuseModel){
+                validProperties.Add(prop);
+            }
         }
         if(currentSpecularModel != null){
             foreach(var prop in currentSpecularModel){
@@ -423,45 +424,84 @@ public class LightingScreen : MonoBehaviour {
         RebuildContent();
     }
 
+    void UpdateMaterialsOnRenderController () {
+        Material diffMat, specMat;
+        if(currentDiffuseModel == null || !diffuseMaterials.TryGetValue(currentDiffuseModel, out diffMat)){
+            diffMat = defaultDiffuseMat;
+        }
+        if(currentSpecularModel == null || !specularMaterials.TryGetValue(currentSpecularModel, out specMat)){
+            specMat = null;
+        }
+        renderViewController.LoadMaterials(diffMat, specMat);
+    }
+
     void LoadModel (Mesh newModel, string newModelName) {
         // could do the color here...
         modelPropertyGroup.SetName(CreateGroupName(modelGroupName, newModelName));
+        renderViewController.LoadMesh(newModel);
+    }
+
+    void LoadLightingModel (LightingModel lm, LightingModel defaultLM, UIPropertyGroup propertyGroup, string groupName, ref LightingModel lmField) {
+        if(lm == null){
+            Debug.LogError("NULL!");
+            return;
+        }
+        if(lm == defaultLM){
+            propertyGroup.SetName(CreateGroupName(groupName, "None"));
+            propertyGroup.ShowText("No lighting model selected", false);
+        }else{
+            propertyGroup.SetName(CreateGroupName(groupName, lm.name));
+            propertyGroup.ShowText(lm.description, false);
+        }
+        if(lm.equation != null){                            // TODO remove this check when i have equations for all...
+            propertyGroup.ShowImage(lm.equation, false);    // move this into the non-default
+        }else{
+            propertyGroup.HideImage(false);                 // move this into the default
+        }
+        
+        lmField = lm;
+        UpdatePropertyFieldActiveStatesAndRebuildContent();
+        UpdateMaterialsOnRenderController();
     }
 
     void LoadDiffuseLightingModel (LightingModel lm) {
-        if(lm == solidColorLM){
-            diffusePropertyGroup.SetName(CreateGroupName(diffGroupName, "None"));
-            diffusePropertyGroup.HideImage(false);
-            diffusePropertyGroup.ShowText("No lighting model selected", false);
-        }else{
-            diffusePropertyGroup.SetName(CreateGroupName(diffGroupName, lm.name));   
-            diffusePropertyGroup.ShowText(lm.description, false);
-            if(lm.equation != null){
-                diffusePropertyGroup.ShowImage(lm.equation, false);
-            }else{
-                diffusePropertyGroup.HideImage(false);
-            }
-        }
-        currentDiffuseModel = lm;
-        UpdatePropertyFieldActiveStatesAndRebuildContent();
+        LoadLightingModel(lm, nullDiffuseLM, diffusePropertyGroup, diffGroupName, ref currentDiffuseModel);
+        // if(lm == null){
+        //     diffusePropertyGroup.SetName(CreateGroupName(diffGroupName, "None"));
+        //     diffusePropertyGroup.HideImage(false);
+        //     diffusePropertyGroup.ShowText("No lighting model selected", false);
+        // }else{
+        //     diffusePropertyGroup.SetName(CreateGroupName(diffGroupName, lm.name));   
+        //     diffusePropertyGroup.ShowText(lm.description, false);
+        //     if(lm.equation != null){
+        //         diffusePropertyGroup.ShowImage(lm.equation, false);
+        //     }else{
+        //         diffusePropertyGroup.HideImage(false);
+        //     }
+        // }
+        // currentDiffuseModel = lm;
+        // UpdatePropertyFieldActiveStatesAndRebuildContent();
+        // UpdateMaterialsOnRenderController();
     }
 
     void LoadSpecularLightingModel (LightingModel lm) {
-        if(lm == null){
-            specularPropertyGroup.SetName(CreateGroupName(specGroupName, "None"));
-            specularPropertyGroup.HideImage(false);
-            specularPropertyGroup.ShowText("No lighting model selected", false);
-        }else{
-            specularPropertyGroup.SetName(CreateGroupName(specGroupName, lm.name));
-            specularPropertyGroup.ShowText(lm.description, false);
-            if(lm.equation != null){
-                specularPropertyGroup.ShowImage(lm.equation, false);
-            }else{
-                specularPropertyGroup.HideImage(false);
-            }
-        }
-        currentSpecularModel = lm;
-        UpdatePropertyFieldActiveStatesAndRebuildContent();
+        LoadLightingModel(lm, nullSpecularLM, specularPropertyGroup, specGroupName, ref currentSpecularModel);
+        // if(lm == null){
+        //     specularPropertyGroup.SetName(CreateGroupName(specGroupName, "None"));
+        //     specularPropertyGroup.HideImage(false);
+        //     specularPropertyGroup.ShowText("No lighting model selected", false);
+        // }else{
+        //     specularPropertyGroup.SetName(CreateGroupName(specGroupName, lm.name));
+        //     specularPropertyGroup.ShowText(lm.description, false);
+        //     if(lm.equation != null){
+        //         specularPropertyGroup.ShowImage(lm.equation, false);
+        //     }else{
+        //         specularPropertyGroup.HideImage(false);
+        //     }
+        // }
+        // currentSpecularModel = lm;
+        // UpdatePropertyFieldActiveStatesAndRebuildContent();
+        // UpdateMaterialsOnRenderController();
     }
 
 }

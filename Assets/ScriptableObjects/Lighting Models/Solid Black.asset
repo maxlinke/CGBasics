@@ -10,11 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5859b189b0df5e142b058c77dc346f41, type: 3}
-  m_Name: SPECIAL_Unlit
+  m_Name: Solid Black
   m_EditorClassIdentifier: 
-  m_type: 0
-  m_shader: {fileID: 4800000, guid: 09ad47041e84d3042aa7ddf9ce25748e, type: 3}
+  m_type: 1
+  m_shader: {fileID: 4800000, guid: 409d76a8e4c9ce0479cda5b825c73589, type: 3}
   m_description: <color=#ff00ff>THIS SHOULD NEVER BE READ BY A USER!!!</color>
   m_equation: {fileID: 0}
-  m_usedProperties:
-  - {fileID: 11400000, guid: bdf75838d46d37d4d83a536bd970cb0e, type: 2}
+  m_usedProperties: []

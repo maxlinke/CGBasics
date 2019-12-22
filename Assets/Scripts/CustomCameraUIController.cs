@@ -8,11 +8,11 @@ public class CustomCameraUIController : ClickDragScrollHandler {
     const string externalCamLabelText = "External View";
     const string renderCamLockedSuffix = "(Locked, use the matrices or deactivate free mode)";
 
-    const float scrollSensitivity = 0.2f;
-    const float smoothScrollSensitivity = 0.2f;
-    const float orbitSensitivity = 0.8f;
-    const float orthoMoveSensitivity = 0.01f;
-    const float perspMoveSensitivity = 0.0025f;
+    public const float scrollSensitivity = 0.2f;
+    public const float smoothScrollSensitivity = 0.2f;
+    public const float orbitSensitivity = 0.8f;
+    public const float orthoMoveSensitivity = 0.01f;
+    public const float perspMoveSensitivity = 0.0025f;
 
     [Header("Prefabs")]
     [SerializeField] CustomGLCamera targetCamPrefab;

@@ -21,6 +21,12 @@ public class LightingModel : ScriptableObject {
     public Sprite equation => m_equation;
     
     public IEnumerator<ShaderProperty> GetEnumerator () {
+        foreach(var prop in UsedProperties()){
+            yield return prop;
+        }
+    }
+
+    public IEnumerable<ShaderProperty> UsedProperties () {
         foreach(var prop in m_usedProperties){
             if(prop != null){
                 yield return prop;

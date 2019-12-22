@@ -219,7 +219,7 @@ half Specular_Cook_Torrance (lm_input input) {
 
 half Ward (lm_input input, half roughness, half exponent) {
     half root = sqrt(input.nDotL * input.nDotV);
-    return _SpecularIntensity * input.nDotL * exp(exponent) / (root * 4.0 * UNITY_PI * roughness * roughness);  // ndotl isn't in the original paper but it's necessary
+    return _SpecularIntensity * saturate(input.nDotL * exp(exponent) / (root * 4.0 * UNITY_PI * roughness * roughness));  // ndotl isn't in the original paper but it's necessary
 }
 
 half Specular_Ward_Iso (lm_input input) {

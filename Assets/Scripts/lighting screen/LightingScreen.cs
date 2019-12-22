@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using LightingModels;
@@ -84,18 +83,8 @@ public class LightingScreen : MonoBehaviour {
     Dictionary<ShaderVariable, FloatObject> shaderFloats;
     Dictionary<ShaderVariable, ColorObject> shaderColors;
 
-    // THIS is why i need system.collections (not generic, that gives me lists etc)
-    // IEnumerator Start () {
-    //     yield return null;  // because otherwise all the ui recttransforms won't be loaded yet (widths will be zero...)
-    //     if(!initialized){
-    //         Initialize();
-    //     }
-    // }
-
     void Start () {
-        if(!initialized){
-            Initialize();
-        }
+        Initialize();
     }
 
     void Initialize () {

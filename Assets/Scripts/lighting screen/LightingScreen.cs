@@ -15,6 +15,7 @@ public class LightingScreen : MonoBehaviour {
     [SerializeField] UIPropertyGroup propertyGroupPrefab;
 
     [Header("Components")]
+    [SerializeField] Image background;
     [SerializeField] Image[] borders;
     [SerializeField] ScrollRect scrollRect;
     [SerializeField] UIRenderViewController renderViewController;
@@ -84,8 +85,14 @@ public class LightingScreen : MonoBehaviour {
     Dictionary<ShaderVariable, ColorObject> shaderColors;
 
     // THIS is why i need system.collections (not generic, that gives me lists etc)
-    IEnumerator Start () {
-        yield return null;  // because otherwise all the ui recttransforms won't be loaded yet (widths will be zero...)
+    // IEnumerator Start () {
+    //     yield return null;  // because otherwise all the ui recttransforms won't be loaded yet (widths will be zero...)
+    //     if(!initialized){
+    //         Initialize();
+    //     }
+    // }
+
+    void Start () {
         if(!initialized){
             Initialize();
         }
@@ -316,6 +323,10 @@ public class LightingScreen : MonoBehaviour {
             );
             AddPropertyFieldsToGroup(LightingModel.Type.Specular, specularPropertyGroup);
         }
+    }
+
+    void LoadColors (ColorScheme cs) {
+
     }
 
     void RebuildGroups () {

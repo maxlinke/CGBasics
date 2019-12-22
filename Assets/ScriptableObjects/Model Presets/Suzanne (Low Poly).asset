@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1fe0aafb42bd6b145a6c31b73812d444, type: 3}
-  m_Name: Suzanne
+  m_Name: Suzanne (Low Poly)
   m_EditorClassIdentifier: 
-  m_mesh: {fileID: 4300000, guid: 9fb69de5da2d39c4abfcd4ed54c83c98, type: 3}
+  m_mesh: {fileID: 4300000, guid: bc69fc385493a1d40914a08df80842c5, type: 3}
   m_color: {r: 0.7075472, g: 0.53784615, b: 0.44388574, a: 1}

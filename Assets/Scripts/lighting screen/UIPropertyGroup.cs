@@ -51,7 +51,7 @@ namespace LightingModels {
                 Debug.LogError("already initialized! aborting!", this.gameObject);
                 return;
             }
-            header.rectTransform.SetToFillWithMargins(0f, 0f, 0f, headerTextLeftMargin);
+            RebuildHeader();
             header.text = initHeader;
             headerDropShadow.text = header.text;
             headerDropShadow.rectTransform.MatchOther(header.rectTransform);
@@ -132,7 +132,14 @@ namespace LightingModels {
                 y -= bottomImage.rectTransform.rect.height;
             }
             rectTransform.SetSizeDeltaY(headerArea.rect.height + Mathf.Abs(y));
+            RebuildHeader();
             gameObject.SetActive(activeCache);
+        }
+
+        void RebuildHeader () {
+            header.rectTransform.SetToFillWithMargins(0f, configButton != null ? headerArea.rect.height : 0f, 0f, headerTextLeftMargin);
+            headerDropShadow.rectTransform.MatchOther(header.rectTransform);
+            headerDropShadow.rectTransform.anchoredPosition += new Vector2(1, -1);
         }
 
         void ConditionalRebuildContent (bool rebuildContent) {
@@ -182,9 +189,7 @@ namespace LightingModels {
             configButtonIcon.sprite = icon;
             configButtonIcon.raycastTarget = false;
             // spacing the header
-            header.rectTransform.SetToFillWithMargins(0f, headerArea.rect.height, 0f, headerTextLeftMargin);
-            headerDropShadow.rectTransform.MatchOther(header.rectTransform);
-            headerDropShadow.rectTransform.anchoredPosition += new Vector2(1, -1);
+            RebuildHeader();
             // output
             return configButton;
         }

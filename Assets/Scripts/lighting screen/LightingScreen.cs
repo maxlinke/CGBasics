@@ -493,6 +493,7 @@ public class LightingScreen : MonoBehaviour {
         foreach(var l in setup){
             int iCopy = i;
             lightsPropertyGroup.AddColorProperty(l.name, l.color, (c) => {renderViewController.UpdateLightColor(iCopy, c);});
+            i++;
         }
         lightsPropertyGroup.RebuildContent();
         lightsPropertyGroup.LoadColors(ColorScheme.current);

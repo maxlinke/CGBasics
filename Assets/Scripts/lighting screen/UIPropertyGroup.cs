@@ -40,7 +40,15 @@ namespace LightingModels {
         }
 
         public void LoadColors (ColorScheme cs) {
-            // header.color = ...
+            header.color = cs.LightingScreenPropGroupHeaders;
+            headerDropShadow.color = cs.LightingScreenDropShadows;
+            bottomText.color = cs.LightingScreenPropGroupBottomText;
+            bottomImage.color = cs.LightingScreenPropGroupBottomImage;
+            if(configButton != null){
+                configButtonIcon.color = cs.LighitngScreenButtonIcon;
+                configButton.targetGraphic.color = Color.white;
+                configButton.SetFadeTransition(0f, cs.LightingScreenButton, cs.LightingScreenButtonHover, cs.LightingScreenButtonClick, Color.magenta);
+            }
             foreach(var propField in propFields){
                 propField.LoadColors(cs);
             }
@@ -171,6 +179,7 @@ namespace LightingModels {
             newBtnBG.raycastTarget = true;
             // the actual button
             configButton = newBtnRT.GetComponent<Button>();
+            configButton.targetGraphic = newBtnBG;
             configButton.onClick.AddListener(() => {onButtonClicked?.Invoke();});
             // potential hover message
             if(hoverMessage != null){

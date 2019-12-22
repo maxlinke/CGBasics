@@ -23,6 +23,7 @@ public class LightingScreen : MonoBehaviour {
     [SerializeField] float scrollRectElementVerticalMargin;
     [SerializeField] bool colorPropertiesAreModelProperties;
     [SerializeField] bool modelPropsAreAlwaysVisible;
+    [SerializeField] float additionalSpaceAtTheTop;
     [SerializeField] float additionalSpaceAtTheBottom;
 
     [Header("Lighting Models")]
@@ -52,6 +53,7 @@ public class LightingScreen : MonoBehaviour {
     UIPropertyGroup lightsPropertyGroup;
     UIPropertyGroup diffusePropertyGroup;
     UIPropertyGroup specularPropertyGroup;
+    List<UIPropertyGroup> allPropertyGroups;
 
     private class ShaderVariable {
         public readonly int id;
@@ -94,6 +96,7 @@ public class LightingScreen : MonoBehaviour {
         }
         CreateMaterialsAndSetupMaterialDictionaries();
         SetupShaderVariableDictionaries();
+        allPropertyGroups = new List<UIPropertyGroup>();
         CreateModelGroup();
         CreateLightGroup();
         CreateDiffuseGroup();
@@ -102,12 +105,12 @@ public class LightingScreen : MonoBehaviour {
         LoadModel(defaultModel.mesh, defaultModel.name);
         LoadDiffuseLightingModel(defaultDiffuseModel);
         LoadSpecularLightingModel(defaultSpecularModel);
-
         this.initialized = true;
+        LoadColors(ColorScheme.current);
 
         void CreateMaterialsAndSetupMaterialDictionaries () {
             if(diffuseMatMap != null || specularMatMap != null){
-                Debug.Log("Either one or both of the dictionaries is null, this should not happen!");
+                Debug.Log("Either one or both of the dictionaries isn't null, this should not happen!");
             }
             nullDiffuseMat = CreateDiffuseMaterial(nullDiffuseLM.shader);
             nullSpecularMat = CreateSpecularMaterial(nullSpecularLM.shader);
@@ -205,6 +208,7 @@ public class LightingScreen : MonoBehaviour {
             var newGroup = Instantiate(propertyGroupPrefab);
             newGroup.rectTransform.SetParent(scrollRect.content, false);
             newGroup.rectTransform.ResetLocalScale();
+            allPropertyGroups.Add(newGroup);
             return newGroup;
         }
 
@@ -314,19 +318,39 @@ public class LightingScreen : MonoBehaviour {
         }
     }
 
-    void LoadColors (ColorScheme cs) {
+    void OnEnable () {
+        LoadColors(ColorScheme.current);
+        ColorScheme.onChange += LoadColors;
+    }
 
+    void OnDisable () {
+        ColorScheme.onChange -= LoadColors;
+    }
+
+    void LoadColors (ColorScheme cs) {
+        if(!initialized){
+            return;
+        }
+        background.color = cs.LightingScreenBackground;
+        scrollRect.verticalScrollbar.GetComponent<Image>().color = cs.LightingScreenScrollbarBackground;
+        scrollRect.verticalScrollbar.targetGraphic.color = Color.white;
+        scrollRect.verticalScrollbar.SetFadeTransition(0f, cs.LightingScreenScrollbar, cs.LightingScreenScrollbarHover, cs.LightingScreenScrollbarClick, Color.magenta);
+        foreach(var b in borders){
+            b.color = cs.LightingScreenBorders;
+        }
+        foreach(var pg in allPropertyGroups){
+            pg.LoadColors(cs);
+        }
     }
 
     void RebuildGroups () {
-        modelPropertyGroup.RebuildContent();
-        lightsPropertyGroup.RebuildContent();
-        diffusePropertyGroup.RebuildContent();
-        specularPropertyGroup.RebuildContent();
+        foreach(var pg in allPropertyGroups){
+            pg.RebuildContent();
+        }
     }
 
     void RebuildContent () {
-        float y = 0;
+        float y = -Mathf.Max(0, additionalSpaceAtTheTop);
         int cCount = scrollRect.content.childCount;
         for(int i=0; i<cCount; i++){
             var child = (RectTransform)(scrollRect.content.GetChild(i));
@@ -376,7 +400,7 @@ public class LightingScreen : MonoBehaviour {
         return $"{prefix}: {suffix}";
     }
 
-    void UpdatePropertyFieldActiveStatesAndRebuildContent () {
+    void UpdatePropertyFieldActiveStatesAndRebuildEverything () {
         List<ShaderProperty> validProperties = new List<ShaderProperty>();
         if(currentDiffuseModel != null){
             foreach(var prop in currentDiffuseModel){
@@ -400,9 +424,7 @@ public class LightingScreen : MonoBehaviour {
         foreach(var propField in specularPropertyGroup){
             propField.SetGOActive(validProperties.Contains(propField.initProperty));
         }
-        modelPropertyGroup.RebuildContent();
-        diffusePropertyGroup.RebuildContent();
-        specularPropertyGroup.RebuildContent();
+        RebuildGroups();
         RebuildContent();
     }
 
@@ -418,6 +440,9 @@ public class LightingScreen : MonoBehaviour {
     }
 
     void LoadModel (Mesh newModel, string newModelName) {
+        if(newModel == null){
+            return;
+        }
         // could do the color here...
         modelPropertyGroup.SetName(CreateGroupName(modelGroupName, newModelName));
         renderViewController.LoadMesh(newModel);
@@ -442,7 +467,7 @@ public class LightingScreen : MonoBehaviour {
         }
         
         lmField = lm;
-        UpdatePropertyFieldActiveStatesAndRebuildContent();
+        UpdatePropertyFieldActiveStatesAndRebuildEverything();
         UpdateMaterialsOnRenderController();
     }
 

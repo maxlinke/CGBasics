@@ -144,3 +144,28 @@ MonoBehaviour:
   colorPickerInputFieldBackground: {r: 0.2, g: 0.2, b: 0.2, a: 1}
   colorPickerInputFieldBackgroundHover: {r: 0.3, g: 0.3, b: 0.3, a: 1}
   colorPickerInputFieldBackgroundClick: {r: 0.2, g: 0.2, b: 0.2, a: 1}
+  lightingScreenBackground: {r: 0.1, g: 0.1, b: 0.1, a: 1}
+  lightingScreenBorders: {r: 0.35, g: 0.35, b: 0.35, a: 1}
+  lightingScreenPropGroupHeaders: {r: 0.9, g: 0.9, b: 0.9, a: 1}
+  lightingScreenPropGroupPropertyLabels: {r: 0.667, g: 0.667, b: 0.667, a: 1}
+  lightingScreenPropGroupBottomText: {r: 0.667, g: 0.667, b: 0.667, a: 1}
+  lightingScreenPropGroupBottomImage: {r: 0.667, g: 0.667, b: 0.667, a: 1}
+  lightingScreenDropShadows: {r: 0, g: 0, b: 0, a: 0.33333334}
+  lightingScreenScrollbar: {r: 0.4, g: 0.4, b: 0.4, a: 1}
+  lightingScreenScrollbarHover: {r: 0.3, g: 0.3, b: 0.3, a: 1}
+  lightingScreenScrollbarClick: {r: 0.4, g: 0.4, b: 0.4, a: 1}
+  lightingScreenScrollbarBackground: {r: 0.2, g: 0.2, b: 0.2, a: 1}
+  lighitngScreenButtonIcon: {r: 0.9, g: 0.9, b: 0.9, a: 1}
+  lightingScreenButton: {r: 0.2, g: 0.2, b: 0.2, a: 1}
+  lightingScreenButtonHover: {r: 0.3, g: 0.3, b: 0.3, a: 1}
+  lightingScreenButtonClick: {r: 0.2, g: 0.2, b: 0.2, a: 1}
+  lightingScreenSliderHandle: {r: 1, g: 1, b: 1, a: 1}
+  lightingScreenSliderHandleHover: {r: 0.85, g: 0.85, b: 0.85, a: 1}
+  lightingScreenSliderHandleClick: {r: 1, g: 1, b: 1, a: 1}
+  lightingScreenSliderFill: {r: 0.7, g: 0.7, b: 0.7, a: 1}
+  lightingScreenSliderBackground: {r: 0.2, g: 0.2, b: 0.2, a: 1}
+  lightingScreenInputFieldText: {r: 0.9, g: 0.9, b: 0.9, a: 1}
+  lightingScreenInputField: {r: 0.2, g: 0.2, b: 0.2, a: 1}
+  lightingScreenInputFieldHover: {r: 0.3, g: 0.3, b: 0.3, a: 1}
+  lightingScreenInputFieldClick: {r: 0.2, g: 0.2, b: 0.2, a: 1}
+  lightingScreenInputFieldSelection: {r: 0.333, g: 0.5, b: 0.67, a: 1}

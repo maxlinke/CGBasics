@@ -12,7 +12,16 @@ namespace LightingModels {
         [SerializeField] float labelRightMargin;
 
         public override void LoadColors (ColorScheme cs) {
-            // TODO color loading
+            base.LoadColors(cs);
+            sliderAndInputField.sliderBG.color = cs.LightingScreenSliderBackground;
+            sliderAndInputField.sliderFill.color = cs.LightingScreenSliderFill;
+            sliderAndInputField.sliderHandle.color = Color.white;
+            sliderAndInputField.slider.SetFadeTransition(0f, cs.LightingScreenSliderHandle, cs.LightingScreenSliderHandleHover, cs.LightingScreenSliderHandleClick, Color.magenta);
+            sliderAndInputField.inputFieldPlaceholder.color = Color.clear;
+            sliderAndInputField.inputFieldBG.color = Color.white;
+            sliderAndInputField.inputFieldText.color = cs.LightingScreenInputFieldText;
+            sliderAndInputField.inputField.SetFadeTransition(0f, cs.LightingScreenInputField, cs.LightingScreenInputFieldHover, cs.LightingScreenInputFieldClick, Color.magenta);
+            sliderAndInputField.inputField.selectionColor = cs.LightingScreenInputFieldSelection;
         }
 
         void Update () {

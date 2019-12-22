@@ -12,7 +12,9 @@ namespace LightingModels {
         bool initialized = false;
 
         public override void LoadColors (ColorScheme cs) {
-            // TODO color loading
+            base.LoadColors(cs);
+            colorPickerOpenButton.SetFadeTransition(0f, Color.white, Color.white, Color.white, Color.magenta);
+            colorDisplayDropShadow.color = cs.LightingScreenDropShadows;
         }
 
         public void Initialize (ShaderProperty prop, System.Action<Color> onColorChanged) {

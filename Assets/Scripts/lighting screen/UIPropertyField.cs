@@ -12,7 +12,9 @@ namespace LightingModels {
 
         public ShaderProperty initProperty { get; protected set; }
 
-        public abstract void LoadColors (ColorScheme cs);
+        public virtual void LoadColors (ColorScheme cs) {
+            m_label.color = cs.LightingScreenPropGroupPropertyLabels;
+        }
     
     }
 

@@ -334,6 +334,58 @@ public class ColorScheme : ScriptableObject {
     public Color ColorPickerInputFieldBackgroundHover => colorPickerInputFieldBackgroundHover;
     public Color ColorPickerInputFieldBackgroundClick => colorPickerInputFieldBackgroundClick;
 
+    [Header("Lighting Screen")]
+    [SerializeField] Color lightingScreenBackground;
+    [SerializeField] Color lightingScreenBorders;
+    [SerializeField] Color lightingScreenPropGroupHeaders;
+    [SerializeField] Color lightingScreenPropGroupPropertyLabels;
+    [SerializeField] Color lightingScreenPropGroupBottomText;
+    [SerializeField] Color lightingScreenPropGroupBottomImage;
+    [SerializeField] Color lightingScreenDropShadows;
+    [SerializeField] Color lightingScreenScrollbar;
+    [SerializeField] Color lightingScreenScrollbarHover;
+    [SerializeField] Color lightingScreenScrollbarClick;
+    [SerializeField] Color lightingScreenScrollbarBackground;
+    [SerializeField] Color lighitngScreenButtonIcon;
+    [SerializeField] Color lightingScreenButton;
+    [SerializeField] Color lightingScreenButtonHover;
+    [SerializeField] Color lightingScreenButtonClick;
+    [SerializeField] Color lightingScreenSliderHandle;
+    [SerializeField] Color lightingScreenSliderHandleHover;
+    [SerializeField] Color lightingScreenSliderHandleClick;
+    [SerializeField] Color lightingScreenSliderFill;
+    [SerializeField] Color lightingScreenSliderBackground;
+    [SerializeField] Color lightingScreenInputFieldText;
+    [SerializeField] Color lightingScreenInputField;
+    [SerializeField] Color lightingScreenInputFieldHover;
+    [SerializeField] Color lightingScreenInputFieldClick;
+    [SerializeField] Color lightingScreenInputFieldSelection;
+
+    public Color LightingScreenBackground => lightingScreenBackground;
+    public Color LightingScreenBorders => lightingScreenBorders;
+    public Color LightingScreenPropGroupHeaders => lightingScreenPropGroupHeaders;
+    public Color LightingScreenPropGroupPropertyLabels => lightingScreenPropGroupPropertyLabels;
+    public Color LightingScreenPropGroupBottomText => lightingScreenPropGroupBottomText;
+    public Color LightingScreenPropGroupBottomImage => lightingScreenPropGroupBottomImage;
+    public Color LightingScreenDropShadows => lightingScreenDropShadows;
+    public Color LightingScreenScrollbar => lightingScreenScrollbar;
+    public Color LightingScreenScrollbarHover => lightingScreenScrollbarHover;
+    public Color LightingScreenScrollbarClick => lightingScreenScrollbarClick;
+    public Color LightingScreenScrollbarBackground => lightingScreenScrollbarBackground;
+    public Color LighitngScreenButtonIcon => lighitngScreenButtonIcon;
+    public Color LightingScreenButton => lightingScreenButton;
+    public Color LightingScreenButtonHover => lightingScreenButtonHover;
+    public Color LightingScreenButtonClick => lightingScreenButtonClick;
+    public Color LightingScreenSliderHandle => lightingScreenSliderHandle;
+    public Color LightingScreenSliderHandleHover => lightingScreenSliderHandleHover;
+    public Color LightingScreenSliderHandleClick => lightingScreenSliderHandleClick;
+    public Color LightingScreenSliderFill => lightingScreenSliderFill;
+    public Color LightingScreenSliderBackground => lightingScreenSliderBackground;
+    public Color LightingScreenInputFieldText => lightingScreenInputFieldText;
+    public Color LightingScreenInputField => lightingScreenInputField;
+    public Color LightingScreenInputFieldHover => lightingScreenInputFieldHover;
+    public Color LightingScreenInputFieldClick => lightingScreenInputFieldClick;
+    public Color LightingScreenInputFieldSelection => lightingScreenInputFieldSelection;
     
 }
 

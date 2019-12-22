@@ -100,6 +100,10 @@ public class CustomCameraUIController : ClickDragScrollHandler {
         currentPointerType = PointerType.None;
     }
 
+    void OnDestroy () {
+        Destroy(targetCam.gameObject);
+    }
+
     void LoadColors (ColorScheme cs) {
         if(!initialized){
             return;

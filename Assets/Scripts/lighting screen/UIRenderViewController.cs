@@ -14,6 +14,7 @@ namespace LightingModels {
         float orbitSensitivity => CustomCameraUIController.orbitSensitivity;
 
         // TODO window overlay 
+        // or not. don't need any buttons tbh...
 
         [Header("Settings")]
         [SerializeField] int renderLayer;

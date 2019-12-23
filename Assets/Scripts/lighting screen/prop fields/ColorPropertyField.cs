@@ -11,6 +11,7 @@ namespace LightingModels {
         [SerializeField] Image colorDisplayOutlineOutside;
 
         bool initialized = false;
+        System.Action<Color> onColorChanged;
 
         public override void LoadColors (ColorScheme cs) {
             base.LoadColors(cs);
@@ -36,21 +37,22 @@ namespace LightingModels {
             m_label.text = labelText;
             colorDisplay.color = initColor;
             colorPickerOpenButton.onClick.AddListener(ButtonClicked);
+            this.onColorChanged = onColorChanged;
             initialized = true;
 
             void ButtonClicked () {
                 ColorPicker.Open(
                     initColor: colorDisplay.color,
                     includeAlpha: false,
-                    onClose: (c) => {
-                        colorDisplay.color = c;
-                        onColorChanged?.Invoke(c);
-                    }, whileOpen: (c) => {
-                        colorDisplay.color = c;
-                        onColorChanged?.Invoke(c);
-                    }
+                    onClose: UpdateColor,
+                    whileOpen: UpdateColor
                 );
             }
+        }
+
+        public void UpdateColor (Color newColor) {
+            colorDisplay.color = newColor;
+            onColorChanged?.Invoke(newColor);
         }
 
     }

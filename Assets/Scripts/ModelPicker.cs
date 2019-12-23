@@ -27,19 +27,29 @@ public class ModelPicker : MonoBehaviour {
         loadedModels = null;
     }
 
-    public static void Open (System.Action<Mesh, string> onMeshPicked, float scale) {
+    private static List<Foldout.ButtonSetup> GetButtonSetups (System.Action<LoadedModel> buttonClick) {
         var buttonSetups = new List<Foldout.ButtonSetup>();
-        foreach(var defaultMesh in loadedModels){
-            string meshName = defaultMesh.name;
-            Mesh mesh = defaultMesh.mesh;
+        foreach(var model in loadedModels){
+            string modelName = model.name;
+            LoadedModel modelCopy = model;
             buttonSetups.Add(new Foldout.ButtonSetup(
-                buttonName: meshName,
-                buttonHoverMessage: meshName,
-                buttonClickAction: () => {onMeshPicked?.Invoke(mesh, meshName);},
+                buttonName: modelName,
+                buttonHoverMessage: modelName,
+                buttonClickAction: () => {buttonClick?.Invoke(modelCopy);},
                 buttonInteractable: true
             ));
         }
+        return buttonSetups;
+    }
+
+    public static void Open (System.Action<Mesh, string> onMeshPicked, float scale) {
+        var buttonSetups = GetButtonSetups((m) => {onMeshPicked?.Invoke(m.mesh, m.name);});
         Foldout.Create(buttonSetups, () => {onMeshPicked?.Invoke(null, null);}, scale);
+    }
+
+    public static void Open (System.Action<LoadedModel> onModelPicked, float scale) {
+        var buttonSetups = GetButtonSetups(onModelPicked);
+        Foldout.Create(buttonSetups, () => {onModelPicked?.Invoke(null);}, scale);
     }
 	
 }
@@ -49,17 +59,20 @@ public class LoadedModel {
     public readonly Mesh mesh;
     public readonly string name;
     public readonly Color color;
+    public readonly Color specularColor;
 
-    public LoadedModel (Mesh mesh, string name, Color color) {
+    public LoadedModel (Mesh mesh, string name, Color color, Color specularColor) {
         this.mesh = mesh;
         this.name = name;
         this.color = color;
+        this.specularColor = color;
     }
 
     public LoadedModel (ModelPreset preset) {
         this.mesh = preset.mesh;
         this.name = preset.name;
         this.color = preset.color;
+        this.specularColor = preset.specColor;
     }
 
 }

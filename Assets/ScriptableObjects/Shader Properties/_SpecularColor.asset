@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: _SpecularColor
   m_EditorClassIdentifier: 
   m_type: 1
+  m_specialIdentifier: 2
   m_niceName: Specular Color
   m_defaultColor: {r: 1, g: 1, b: 1, a: 1}
   m_minValue: 0

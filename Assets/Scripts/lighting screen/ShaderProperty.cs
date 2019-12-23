@@ -12,7 +12,14 @@ public class ShaderProperty : ScriptableObject {
         Color
     }
 
+    public enum SpecialIdentifier {
+        None,
+        DiffuseColor,
+        SpecularColor
+    }
+
     [SerializeField] Type m_type;
+    [SerializeField] SpecialIdentifier m_specialIdentifier;
     [SerializeField] string m_niceName;
     [SerializeField] Color m_defaultColor;
     [SerializeField] float m_minValue;
@@ -20,6 +27,7 @@ public class ShaderProperty : ScriptableObject {
     [SerializeField] float m_defaultValue;
 
     public Type type => m_type;
+    public SpecialIdentifier specialIdentifier => m_specialIdentifier;
     public string niceName => m_niceName;
     public Color defaultColor => TypeCheckedColor(m_defaultColor);
     public float minValue => TypeCheckedNumber(m_minValue);
@@ -67,6 +75,7 @@ public class ShaderPropertyEditor : Editor {
         GUI.enabled = true;
         var typeProp = serializedObject.FindProperty("m_type");
         EditorGUILayout.PropertyField(typeProp);
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("m_specialIdentifier"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("m_niceName"));
         switch(typeProp.enumValueIndex){
             case (int)(ShaderProperty.Type.Color):

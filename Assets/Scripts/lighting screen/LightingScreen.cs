@@ -25,6 +25,9 @@ public class LightingScreen : MonoBehaviour {
     [SerializeField] bool modelPropsAreAlwaysVisible;
     [SerializeField] float additionalSpaceAtTheTop;
     [SerializeField] float additionalSpaceAtTheBottom;
+    [SerializeField] float groupLabelPrefixSize;
+    [SerializeField] float groupLabelSuffixSize;
+    [SerializeField] bool applyModelPresetColors;
 
     [Header("Lighting Models")]
     [SerializeField] LightingModel nullDiffuseLM;
@@ -59,6 +62,8 @@ public class LightingScreen : MonoBehaviour {
     UIPropertyGroup diffusePropertyGroup;
     UIPropertyGroup specularPropertyGroup;
     List<UIPropertyGroup> allPropertyGroups;
+    ColorPropertyField diffuseColorPropertyField;
+    ColorPropertyField specularColorPropertyField;
 
     private class ShaderVariable {
         public readonly int id;
@@ -106,8 +111,13 @@ public class LightingScreen : MonoBehaviour {
         CreateLightGroup();
         CreateDiffuseGroup();
         CreateSpecularGroup();
+        bool diffOK = diffuseColorPropertyField != null;
+        bool specOK = specularColorPropertyField != null;
+        if(!diffOK || !specOK){
+            Debug.LogError($"Either no shaderproperties for diffuse or specular color found! Diff OK: {diffOK}, Spec OK: {specOK}.");
+        }
         renderViewController.Initialize(this);
-        LoadModel(defaultModel.mesh, defaultModel.name);
+        LoadModel(new LoadedModel(defaultModel));
         LoadDiffuseLightingModel(defaultDiffuseModel);
         LoadSpecularLightingModel(defaultSpecularModel);
         LoadLightingSetup(defaultLightingSetup, true, false);
@@ -227,14 +237,15 @@ public class LightingScreen : MonoBehaviour {
                 foreach(var key in shaderColors.Keys){
                     var prop = key.prop;
                     var colObj = shaderColors[key];
-                    modelPropertyGroup.AddColorProperty(prop, (c) => {colObj.value = c;});
+                    var newField = modelPropertyGroup.AddColorProperty(prop, (c) => {colObj.value = c;});
+                    SetColorPropAsDiffOrSpecPropIfApplicable(key, newField);
                 }
             }
             modelPropertyGroup.AddConfigButton(
                 icon: UISprites.UIConfig, 
                 onButtonClicked: () => {
                     ModelPicker.Open(
-                        onMeshPicked: LoadModel,
+                        onModelPicked: LoadModel,
                         scale: 1f
                     );
                 }, hoverMessage: "Select a model"
@@ -268,12 +279,28 @@ public class LightingScreen : MonoBehaviour {
             return newGroup;
         }
 
+        void SetColorPropAsDiffOrSpecPropIfApplicable (ShaderVariable shaderVar, UIPropertyField propField) {
+            if(shaderVar.prop.specialIdentifier == ShaderProperty.SpecialIdentifier.DiffuseColor){
+                if(diffuseColorPropertyField != null){
+                    Debug.LogError("Duplicate diffuse color fields!");
+                }
+                diffuseColorPropertyField = (ColorPropertyField)propField;
+            }
+            if(shaderVar.prop.specialIdentifier == ShaderProperty.SpecialIdentifier.SpecularColor){
+                if(specularColorPropertyField != null){
+                    Debug.LogError("Duplicate specular color fields!");
+                }
+                specularColorPropertyField = (ColorPropertyField)propField;
+            }
+        }
+
         void AddPropertyFieldsToGroup (LightingModel.Type lmType, UIPropertyGroup propGroup) {
             if(!colorPropertiesAreModelProperties){
                 foreach(var shaderVar in shaderColors.Keys){
                     if(shaderVar.lmType == lmType){
                         var colObj = shaderColors[shaderVar];
-                        propGroup.AddColorProperty(shaderVar.prop, (c) => {colObj.value = c;});
+                        var newField = propGroup.AddColorProperty(shaderVar.prop, (c) => {colObj.value = c;});
+                        SetColorPropAsDiffOrSpecPropIfApplicable(shaderVar, newField);
                     }
                 }
             }
@@ -401,7 +428,7 @@ public class LightingScreen : MonoBehaviour {
     }
 
     string CreateGroupName (string prefix, string suffix) {
-        return $"{prefix}: {suffix}";
+        return $"<size={groupLabelPrefixSize}%>{prefix}: <size={groupLabelSuffixSize}%>{suffix}";
     }
 
     void UpdatePropertyFieldActiveStatesAndRebuildEverything () {
@@ -416,12 +443,10 @@ public class LightingScreen : MonoBehaviour {
                 validProperties.Add(prop);
             }
         }
+        // lighting props are independent from this
         foreach(var propField in modelPropertyGroup){
             propField.SetGOActive(modelPropsAreAlwaysVisible || validProperties.Contains(propField.initProperty));
         }
-        // foreach(var propField in lightsGroup){   // do this in the actual lights loading thingy
-        //     propField.SetGOActive(true);
-        // }
         foreach(var propField in diffusePropertyGroup){
             propField.SetGOActive(validProperties.Contains(propField.initProperty));
         }
@@ -443,13 +468,16 @@ public class LightingScreen : MonoBehaviour {
         renderViewController.LoadMaterials(diffMat, specMat);
     }
 
-    void LoadModel (Mesh newModel, string newModelName) {
+    void LoadModel (LoadedModel newModel) {
         if(newModel == null){
             return;
         }
-        // could do the color here...
-        modelPropertyGroup.SetName(CreateGroupName(modelGroupName, newModelName));
-        renderViewController.LoadMesh(newModel);
+        if(applyModelPresetColors){
+            diffuseColorPropertyField.UpdateColor(newModel.color);
+            specularColorPropertyField.UpdateColor(newModel.specularColor);
+        }
+        modelPropertyGroup.SetName(CreateGroupName(modelGroupName, newModel.name));
+        renderViewController.LoadMesh(newModel.mesh);
     }
 
     void LoadLightingModel (LightingModel lm, LightingModel defaultLM, UIPropertyGroup propertyGroup, string groupName, ref LightingModel lmField) {
@@ -497,6 +525,7 @@ public class LightingScreen : MonoBehaviour {
             lightsPropertyGroup.AddColorProperty(l.name, l.color, (c) => {renderViewController.UpdateLightColor(iCopy, c);});
             i++;
         }
+        lightsPropertyGroup.SetName(CreateGroupName(lightsGroupName, setup.name));
         lightsPropertyGroup.RebuildContent();
         lightsPropertyGroup.LoadColors(ColorScheme.current);
         RebuildContent();

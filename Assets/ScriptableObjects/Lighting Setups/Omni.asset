@@ -12,18 +12,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 172d6aa1f40de6b4ea296f9a5e901777, type: 3}
   m_Name: Omni
   m_EditorClassIdentifier: 
-  m_ambientColor: {r: 0.1, g: 0.1, b: 0.1, a: 1}
+  m_ambientColor: {r: 0, g: 0, b: 0, a: 1}
   m_defaultEuler: {x: 0, y: 0, z: 0}
   m_lights:
   - m_color: {r: 0.7, g: 0.7, b: 0.7, a: 1}
     m_position: {x: 0, y: 0, z: -1}
     m_name: Front Light
-  - m_color: {r: 0.7, g: 0.5, b: 0.5, a: 1}
+  - m_color: {r: 0.5, g: 0.3, b: 0.3, a: 1}
     m_position: {x: 0, y: 0.942809, z: 0.33333334}
     m_name: Rear Top Light
-  - m_color: {r: 0.5, g: 0.7, b: 0.5, a: 1}
+  - m_color: {r: 0.3, g: 0.5, b: 0.3, a: 1}
     m_position: {x: 0.816499, y: -0.471408, z: 0.3333333}
     m_name: Rear Right Light
-  - m_color: {r: 0.5, g: 0.5, b: 0.7, a: 1}
+  - m_color: {r: 0.3, g: 0.3, b: 0.5, a: 1}
     m_position: {x: -0.816499, y: -0.471408, z: 0.3333333}
     m_name: Rear Left Right

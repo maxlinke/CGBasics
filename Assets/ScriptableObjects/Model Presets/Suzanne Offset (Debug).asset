@@ -14,3 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_mesh: {fileID: 4300000, guid: d95fda01c44530d439ec11e12fbc5f8f, type: 3}
   m_color: {r: 0.7075472, g: 0.53784615, b: 0.44388574, a: 1}
+  m_specColor: {r: 1, g: 1, b: 1, a: 1}

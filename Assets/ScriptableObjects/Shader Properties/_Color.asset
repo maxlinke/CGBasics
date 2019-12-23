@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: _Color
   m_EditorClassIdentifier: 
   m_type: 1
+  m_specialIdentifier: 1
   m_niceName: Diffuse Color
   m_defaultColor: {r: 1, g: 1, b: 1, a: 1}
   m_minValue: 0

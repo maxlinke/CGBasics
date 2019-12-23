@@ -15,9 +15,9 @@ MonoBehaviour:
   m_ambientColor: {r: 0.1, g: 0.1, b: 0.1, a: 1}
   m_defaultEuler: {x: 0, y: 0, z: 0}
   m_lights:
-  - m_color: {r: 1, g: 0.1, b: 0, a: 1}
+  - m_color: {r: 0.8, g: 0.1, b: 0, a: 1}
     m_position: {x: -1, y: 0, z: -1}
     m_name: Left Light
-  - m_color: {r: 0, g: 0.5, b: 1, a: 1}
+  - m_color: {r: 0, g: 0.5, b: 0.8, a: 1}
     m_position: {x: 1, y: 0, z: -1}
     m_name: Right Light

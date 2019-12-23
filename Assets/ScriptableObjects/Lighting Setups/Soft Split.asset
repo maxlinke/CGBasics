@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 172d6aa1f40de6b4ea296f9a5e901777, type: 3}
-  m_Name: Split Hard
+  m_Name: Soft Split
   m_EditorClassIdentifier: 
-  m_ambientColor: {r: 0, g: 0, b: 0, a: 1}
+  m_ambientColor: {r: 0.3, g: 0.3, b: 0.3, a: 1}
   m_defaultEuler: {x: 40, y: 50, z: 0}
   m_lights:
-  - m_color: {r: 1, g: 1, b: 1, a: 1}
+  - m_color: {r: 0.7, g: 0.7, b: 0.7, a: 1}
     m_position: {x: 0, y: 0, z: -1}
     m_name: Main Light
   - m_color: {r: 0.4, g: 0.5, b: 0.6, a: 1}

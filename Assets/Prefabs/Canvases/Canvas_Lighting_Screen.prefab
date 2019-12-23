@@ -669,6 +669,9 @@ MonoBehaviour:
   modelPropsAreAlwaysVisible: 0
   additionalSpaceAtTheTop: 8
   additionalSpaceAtTheBottom: 20
+  groupLabelPrefixSize: 90
+  groupLabelSuffixSize: 120
+  applyModelPresetColors: 1
   nullDiffuseLM: {fileID: 11400000, guid: 632d985ace3995d429aa23853a9e8796, type: 2}
   nullSpecularLM: {fileID: 11400000, guid: 0d18cd5f03713bf43b1f92146881d9e4, type: 2}
   lightingModels:

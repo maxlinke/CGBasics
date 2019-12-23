@@ -18,6 +18,8 @@ namespace LightingModels {
 
         [Header("Settings")]
         [SerializeField] int renderLayer;
+        [SerializeField] float lightGizmoDistance;
+        [SerializeField] float lightGizmoRayLength;
 
         [Header("Cam Settings")]
         [SerializeField] Vector2 camRectPosition;
@@ -47,7 +49,6 @@ namespace LightingModels {
         Material glMatSolid;
         Material glMatTransparent;
         Color wireFloorColor;
-        Color lightOutlineColor;
 
         PointerType currentPointerType;
         Vector3 lastMousePos;
@@ -69,7 +70,6 @@ namespace LightingModels {
         public void LoadColors (ColorScheme cs) {
             cam.backgroundColor = cs.LightingScreenRenderBackground;
             wireFloorColor = cs.LightingScreenRenderGrid;
-            lightOutlineColor = cs.LightingScreenRenderLightOutline;
         }
 
         public void Initialize (LightingScreen lightingScreen) {
@@ -127,9 +127,11 @@ namespace LightingModels {
                 glMatTransparent.renderQueue = (int)(UnityEngine.Rendering.RenderQueue.Geometry) + 11;
             }
             GL.PushMatrix();
+            var proj = GLMatrixCreator.GetProjectionMatrix(cam.fieldOfView, cam.aspect, cam.nearClipPlane, cam.farClipPlane);
+            var view = GLMatrixCreator.GetViewMatrix(cam.transform.position - pivotPoint, cam.transform.forward, cam.transform.up);
             GL.LoadIdentity();
-            GL.LoadProjectionMatrix(GLMatrixCreator.GetProjectionMatrix(cam.fieldOfView, cam.aspect, cam.nearClipPlane, cam.farClipPlane));
-            GL.MultMatrix(GLMatrixCreator.GetViewMatrix(cam.transform.position - pivotPoint, cam.transform.forward, cam.transform.up));
+            GL.LoadProjectionMatrix(proj);
+            GL.MultMatrix(view);
             DrawTheThings(true);
             DrawTheThings(false);
             GL.PopMatrix();
@@ -141,6 +143,26 @@ namespace LightingModels {
                     glMatSolid.SetPass(0);
                 }
                 CustomGLCamera.DrawWireFloor(wireFloorColor, seeThrough, false);
+                foreach(var l in lights){
+                    Vector3 pos = pivotPoint - (l.transform.forward * lightGizmoDistance);
+                    Vector3 rayEnd = pos + (l.transform.forward * lightGizmoRayLength);
+                    var lCol = CustomGLCamera.GetConditionalSeeThroughColor(l.color, seeThrough);
+                    CustomGLCamera.GLDraw(GL.LINES, () => {
+                        GL.Color(lCol);
+                        GL.Vertex(pos);
+                        GL.Vertex(rayEnd);
+                    });
+                    CustomGLCamera.DrawWithNewMVPMatrix(Matrix4x4.identity, () => {
+                        CustomGLCamera.DrawClipspacePoint(GetClipPoint(pos), lCol, lCol);
+                    });
+
+                    Vector3 GetClipPoint (Vector3 inputPoint) {
+                        Vector4 p4 = new Vector4(inputPoint.x, inputPoint.y, inputPoint.z, 1);
+                        p4 = proj * view * p4;
+                        p4 /= p4.w;
+                        return new Vector3(p4.x, p4.y, p4.z);
+                    }
+                }
             }
         }
 

@@ -398,11 +398,9 @@ public class ColorScheme : ScriptableObject {
     [Header("Lighting Screen Render")]
     [SerializeField] Color lightingScreenRenderBackground;
     [SerializeField] Color lightingScreenRenderGrid;
-    [SerializeField] Color lightingScreenRenderLightOutline;
 
     public Color LightingScreenRenderBackground => lightingScreenRenderBackground;
     public Color LightingScreenRenderGrid => lightingScreenRenderGrid;
-    public Color LightingScreenRenderLightOutline => lightingScreenRenderLightOutline;
     
 }
 

@@ -575,7 +575,7 @@ public class CustomGLCamera : MonoBehaviour {
         return new Color(inputColor.r, inputColor.g, inputColor.b, inputColor.a * seeThroughAlphaMultiplier);
     }
 
-    void DrawWithNewMVPMatrix (Matrix4x4 newMVP, System.Action drawAction) {
+    public static void DrawWithNewMVPMatrix (Matrix4x4 newMVP, System.Action drawAction) {
         GL.PushMatrix();
         GL.LoadProjectionMatrix(Matrix4x4.identity);
         GL.LoadIdentity();
@@ -584,7 +584,7 @@ public class CustomGLCamera : MonoBehaviour {
         GL.PopMatrix();
     }
 
-    static void GLDraw (int drawMode, System.Action drawAction) {
+    public static void GLDraw (int drawMode, System.Action drawAction) {
         GL.Begin(drawMode);
         drawAction.Invoke();
         GL.End();

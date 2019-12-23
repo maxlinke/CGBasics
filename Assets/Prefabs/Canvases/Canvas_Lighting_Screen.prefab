@@ -692,7 +692,7 @@ MonoBehaviour:
     type: 2}
   defaultSpecularModel: {fileID: 11400000, guid: 4c228059d1b1f1a48956fcc44ff97603,
     type: 2}
-  defaultLightingSetup: {fileID: 11400000, guid: f0f68b3435eceae47bd9c685a2331a01,
+  defaultLightingSetup: {fileID: 11400000, guid: 83a0212fec7095146983fd82abb73714,
     type: 2}
 --- !u!1 &3195666640026194070
 GameObject:
@@ -1121,6 +1121,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   renderLayer: 10
+  lightGizmoDistance: 1.5
+  lightGizmoRayLength: 0.333
   camRectPosition: {x: 0.5, y: 0}
   camRectDimensions: {x: 0.5, y: 0.5}
   defaultEuler: {x: 10, y: -30, z: 0}

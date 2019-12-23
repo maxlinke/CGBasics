@@ -35,5 +35,9 @@ public class ImageFlasher : MonoBehaviour {
         image.color = Color.Lerp(Color.clear, flashColor, currentBlend);
         currentBlend -= currentFlashSpeedMultiplier * (Time.deltaTime / flashDuration); 
     }
+
+    void OnDisable () {
+        currentBlend = 0f;
+    }
 	
 }

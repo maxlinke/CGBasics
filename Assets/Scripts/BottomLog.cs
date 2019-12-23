@@ -1,15 +1,22 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 using TMPro;
 
-public class BottomLog : MonoBehaviour {
+public class BottomLog : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler {
 
     private static BottomLog instance;
 
+    [Header("Components")]
+    [SerializeField] GameObject bottomBarContentParent;
     [SerializeField] Image bottomBackgroundImage;
     [SerializeField] ImageFlasher messageFlasher;
     [SerializeField] TextMeshProUGUI bottomTextField;
+
+    [Header("Settings")]
+    [SerializeField] bool flashOnMessage;
+    [SerializeField] bool hideWhenNotNeeded;
 
     private Log currentlyDisplayedMessage;
     private List<Log> logs;
@@ -18,8 +25,17 @@ public class BottomLog : MonoBehaviour {
     private Color errorColor;
 
     float hideTime;
+    bool pointerHover = false;
 
     // TODO the expanded log thing, the counters for the actual LOGS, flashing...
+
+    public void OnPointerEnter (PointerEventData eventData) {
+        pointerHover = true;
+    }
+
+    public void OnPointerExit (PointerEventData eventData) {
+        pointerHover = false;
+    }
 
     void Awake () {
         if(instance != null){
@@ -37,6 +53,12 @@ public class BottomLog : MonoBehaviour {
         if(Time.time > hideTime){
             ClearDisplay();
             hideTime = Mathf.Infinity;
+        }
+        bool noMessage = currentlyDisplayedMessage == null || currentlyDisplayedMessage.message == null || currentlyDisplayedMessage.message.Length < 1;
+        if(pointerHover || !noMessage || !hideWhenNotNeeded){
+            bottomBarContentParent.SetActive(true);
+        }else{
+            bottomBarContentParent.SetActive(false);
         }
     }
 
@@ -104,11 +126,11 @@ public class BottomLog : MonoBehaviour {
         Display(log.message, log.type, duration);
     }
 
-    void Display (string message, LogType logType, float duration, bool flash = true) {
+    void Display (string message, LogType logType, float duration) {
         bottomTextField.text = GetColoredString(message, logType);
         currentlyDisplayedMessage = new Log(message, logType);
         hideTime = Time.time + duration;
-        if(flash && message.Trim().Length > 0){
+        if(flashOnMessage && message.Trim().Length > 0){
             messageFlasher.Flash(0.5f);
         }
     }

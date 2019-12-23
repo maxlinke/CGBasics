@@ -101,7 +101,9 @@ public class CustomCameraUIController : ClickDragScrollHandler {
     }
 
     void OnDestroy () {
-        Destroy(targetCam.gameObject);
+        if(targetCam != null){   // because the unity editor sometimes destroys the camera before it destroy this thing...
+            Destroy(targetCam.gameObject);
+        }
     }
 
     void LoadColors (ColorScheme cs) {

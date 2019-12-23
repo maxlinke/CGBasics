@@ -149,6 +149,7 @@ public class LightingScreen : MonoBehaviour {
                 newMat.SetInt("_Cull", (int)UnityEngine.Rendering.CullMode.Off);
                 newMat.SetInt("_ZWrite", 1);
                 newMat.SetInt("_ZTest", (int)UnityEngine.Rendering.CompareFunction.LessEqual);
+                newMat.renderQueue = (int)(UnityEngine.Rendering.RenderQueue.Geometry);
                 return newMat;
             }
 
@@ -160,6 +161,7 @@ public class LightingScreen : MonoBehaviour {
                 newMat.SetInt("_Cull", (int)UnityEngine.Rendering.CullMode.Off);
                 newMat.SetInt("_ZWrite", 0);
                 newMat.SetInt("_ZTest", (int)UnityEngine.Rendering.CompareFunction.Equal);
+                newMat.renderQueue = (int)(UnityEngine.Rendering.RenderQueue.Geometry) + 1;
                 return newMat;
             }
         }

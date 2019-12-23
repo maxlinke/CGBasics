@@ -87,12 +87,22 @@ namespace MatrixScreenUtils {
             resetButton.targetGraphic = resetButtonBackground;
             resetButton.onClick.AddListener(() => { onResetButtonClicked.Invoke(); });
             // the label
+            CreateLabel(initialLabelText);
+            windowDresser.End();
+        }
+
+        protected virtual void CreateOnlyLabel (string initialLabelText) {
+            windowDresser.Begin(uiParent, new Vector2(0, 1), new Vector2(1, 0), Vector2.zero);
+            CreateLabel(initialLabelText);
+            windowDresser.End();
+        }
+
+        private void CreateLabel (string initialLabelText) {
             label = windowDresser.CreateLabel();
             labelDropShadow = Instantiate(label, label.rectTransform.parent);
             labelDropShadow.rectTransform.SetSiblingIndex(label.rectTransform.GetSiblingIndex());
             labelDropShadow.rectTransform.anchoredPosition += new Vector2(1, -1);
             labelText = initialLabelText;
-            windowDresser.End();
         }
 
         protected virtual Toggle CreateSpecialToggle (ref int toggleIndex, Sprite icon, string toggleName, string hoverMessage, System.Action<bool> onStateChange, bool initialState, bool offsetAfter = false, bool invokeStateChange = true) {

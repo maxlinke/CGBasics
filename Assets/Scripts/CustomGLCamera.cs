@@ -219,22 +219,36 @@ public class CustomGLCamera : MonoBehaviour {
 
     void SetupPremadeUnityColoredMaterials () {
         // modified from https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnPostRender.html
-        var shader = Shader.Find("Custom/InternalColoredWithCulling");
-        lineMaterialSolid = new Material(shader);
-        lineMaterialSolid.hideFlags = HideFlags.HideAndDontSave;
-        lineMaterialSolid.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.One);
-        lineMaterialSolid.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.Zero);
-        lineMaterialSolid.SetInt("_Cull", (int)UnityEngine.Rendering.CullMode.Off);
-        lineMaterialSolid.SetInt("_ZWrite", 1);
-        lineMaterialSolid.SetInt("_ZTest", (int)UnityEngine.Rendering.CompareFunction.LessEqual);
+        // var shader = Shader.Find("Custom/InternalColoredWithCulling");
+        // lineMaterialSolid = new Material(shader);
+        // lineMaterialSolid.hideFlags = HideFlags.HideAndDontSave;
+        // lineMaterialSolid.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.One);
+        // lineMaterialSolid.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.Zero);
+        // lineMaterialSolid.SetInt("_Cull", (int)UnityEngine.Rendering.CullMode.Off);
+        // lineMaterialSolid.SetInt("_ZWrite", 1);
+        // lineMaterialSolid.SetInt("_ZTest", (int)UnityEngine.Rendering.CompareFunction.LessEqual);
+        lineMaterialSolid = GetLineMaterial(false);
 
-        lineMaterialSeeThrough = new Material(shader);
-        lineMaterialSeeThrough.hideFlags = HideFlags.HideAndDontSave;
-        lineMaterialSeeThrough.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
-        lineMaterialSeeThrough.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-        lineMaterialSeeThrough.SetInt("_Cull", (int)UnityEngine.Rendering.CullMode.Off);
-        lineMaterialSeeThrough.SetInt("_ZWrite", 0);
-        lineMaterialSeeThrough.SetInt("_ZTest", (int)UnityEngine.Rendering.CompareFunction.Always);
+        // lineMaterialSeeThrough = new Material(shader);
+        // lineMaterialSeeThrough.hideFlags = HideFlags.HideAndDontSave;
+        // lineMaterialSeeThrough.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+        // lineMaterialSeeThrough.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+        // lineMaterialSeeThrough.SetInt("_Cull", (int)UnityEngine.Rendering.CullMode.Off);
+        // lineMaterialSeeThrough.SetInt("_ZWrite", 0);
+        // lineMaterialSeeThrough.SetInt("_ZTest", (int)UnityEngine.Rendering.CompareFunction.Always);
+        lineMaterialSeeThrough = GetLineMaterial(true);
+    }
+
+    public static Material GetLineMaterial (bool seeThrough) {
+        var shader = Shader.Find("Custom/InternalColoredWithCulling");
+        var output = new Material(shader);
+        output.hideFlags = HideFlags.HideAndDontSave;
+        output.SetInt("_SrcBlend", seeThrough ? (int)UnityEngine.Rendering.BlendMode.SrcAlpha : (int)UnityEngine.Rendering.BlendMode.One);
+        output.SetInt("_DstBlend", seeThrough ? (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha : (int)UnityEngine.Rendering.BlendMode.Zero);
+        output.SetInt("_Cull", (int)UnityEngine.Rendering.CullMode.Off);
+        output.SetInt("_ZWrite", seeThrough ? 0 : 1);
+        output.SetInt("_ZTest", seeThrough ? (int)UnityEngine.Rendering.CompareFunction.Always : (int)UnityEngine.Rendering.CompareFunction.LessEqual);
+        return output;
     }
 
     void Update () {
@@ -417,7 +431,7 @@ public class CustomGLCamera : MonoBehaviour {
             drawMat.DisableKeyword(clippingKeyword);
             drawMat.SetPass(0);
             if(drawGridFloor){
-                DrawWireFloor(seeThrough, drawOrigin);
+                DrawWireFloor(wireGridColor, seeThrough, drawOrigin);
             }
             if(drawOrigin){
                 DrawAxes(seeThrough);
@@ -439,7 +453,7 @@ public class CustomGLCamera : MonoBehaviour {
                     }
                     DrawWithNewMVPMatrix(cameraMatrix * otherCamera.cameraMatrix, () => {
                         if(otherCamera.drawGridFloor){
-                            DrawWireFloor(seeThrough, otherCamera.drawOrigin || (this.drawOrigin && !matrixScreen.CameraMatrixNotUnweighted()));
+                            DrawWireFloor(wireGridColor, seeThrough, otherCamera.drawOrigin || (this.drawOrigin && !matrixScreen.CameraMatrixNotUnweighted()));
                         }
                         if(otherCamera.drawOrigin){
                             DrawAxes(seeThrough);
@@ -452,9 +466,9 @@ public class CustomGLCamera : MonoBehaviour {
 
 #region GL_Drawing
 
-    void DrawWireFloor (bool seeThrough, bool holdOutOrigin) {
+    public static void DrawWireFloor (Color inputColor, bool seeThrough, bool holdOutOrigin) {
         GLDraw(GL.LINES, () => {
-            GL.Color(GetConditionalSeeThroughColor(wireGridColor, seeThrough));
+            GL.Color(GetConditionalSeeThroughColor(inputColor, seeThrough));
             for(int x=-10; x<=10; x++){
                 if(x == 0 && holdOutOrigin){
                     GL.Vertex3(x, 0, -10);
@@ -523,7 +537,7 @@ public class CustomGLCamera : MonoBehaviour {
         });
     }
 
-    void DrawClipspacePoint (Vector3 point, Color mainColor, Color outlineColor) {
+    public static void DrawClipspacePoint (Vector3 point, Color mainColor, Color outlineColor) {
         float fOffsetV = 2f * pointSize / Screen.height;
         float fOffsetH = 2f * pointSize / Screen.width;
         Vector3 offsetV = new Vector3(0f, fOffsetV, 0f);
@@ -553,11 +567,11 @@ public class CustomGLCamera : MonoBehaviour {
 
 #endregion
 
-    Color GetConditionalSeeThroughColor (Color inputColor, bool seeThrough) {
+    public static Color GetConditionalSeeThroughColor (Color inputColor, bool seeThrough) {
         return (seeThrough ? GetSeeThroughColor(inputColor) : inputColor);
     }
 
-    Color GetSeeThroughColor (Color inputColor) {
+    public static Color GetSeeThroughColor (Color inputColor) {
         return new Color(inputColor.r, inputColor.g, inputColor.b, inputColor.a * seeThroughAlphaMultiplier);
     }
 

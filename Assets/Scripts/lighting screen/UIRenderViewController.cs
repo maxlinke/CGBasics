@@ -44,6 +44,11 @@ namespace LightingModels {
         MeshFilter renderObjectMF;
         MeshRenderer renderObjectMR;
 
+        Material glMatSolid;
+        Material glMatTransparent;
+        Color wireFloorColor;
+        Color lightOutlineColor;
+
         PointerType currentPointerType;
         Vector3 lastMousePos;
 
@@ -62,7 +67,9 @@ namespace LightingModels {
         }
 
         public void LoadColors (ColorScheme cs) {
-
+            cam.backgroundColor = cs.LightingScreenRenderBackground;
+            wireFloorColor = cs.LightingScreenRenderGrid;
+            lightOutlineColor = cs.LightingScreenRenderLightOutline;
         }
 
         public void Initialize (LightingScreen lightingScreen) {
@@ -90,6 +97,7 @@ namespace LightingModels {
                 cam.backgroundColor = Color.black;
                 cam.transform.SetParent(camXRotParent, false);
                 cam.transform.ResetLocalScale();
+                cam.gameObject.AddComponent<ControlledCamera>().onPostRender += OnCamPostRender;
             }
 
             void CreateRenderObject () {
@@ -103,6 +111,36 @@ namespace LightingModels {
                 lightsParent = new GameObject("Lights parent").transform;
                 lightsParent.position = pivotPoint;
                 lightsParent.gameObject.layer = renderLayer;
+            }
+        }
+
+        void OnCamPostRender () {
+            if(!initialized || currentPointerType == PointerType.None){
+                return;
+            }
+            if(glMatSolid == null){
+                glMatSolid = CustomGLCamera.GetLineMaterial(false);
+                glMatSolid.renderQueue = (int)(UnityEngine.Rendering.RenderQueue.Geometry) + 10;
+            }
+            if(glMatTransparent == null){
+                glMatTransparent = CustomGLCamera.GetLineMaterial(true);
+                glMatTransparent.renderQueue = (int)(UnityEngine.Rendering.RenderQueue.Geometry) + 11;
+            }
+            GL.PushMatrix();
+            GL.LoadIdentity();
+            GL.LoadProjectionMatrix(GLMatrixCreator.GetProjectionMatrix(cam.fieldOfView, cam.aspect, cam.nearClipPlane, cam.farClipPlane));
+            GL.MultMatrix(GLMatrixCreator.GetViewMatrix(cam.transform.position - pivotPoint, cam.transform.forward, cam.transform.up));
+            DrawTheThings(true);
+            DrawTheThings(false);
+            GL.PopMatrix();
+
+            void DrawTheThings (bool seeThrough) {
+                if(seeThrough){
+                    glMatTransparent.SetPass(0);
+                }else{
+                    glMatSolid.SetPass(0);
+                }
+                CustomGLCamera.DrawWireFloor(wireFloorColor, seeThrough, false);
             }
         }
 
@@ -278,6 +316,16 @@ namespace LightingModels {
 
         protected override void Scroll (PointerEventData eventData) {
             ZoomCam(eventData.scrollDelta.y);
+        }
+
+        private class ControlledCamera : MonoBehaviour {
+
+            public event System.Action onPostRender = delegate {};
+
+            void OnPostRender () {
+                onPostRender.Invoke();
+            }
+
         }
         
     }

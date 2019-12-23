@@ -15,7 +15,8 @@ public class ColorPicker : MonoBehaviour {
     [SerializeField] Image containerBG;
     [SerializeField] Image colorAlphaGrid;
     [SerializeField] Image colorDisplay;
-    [SerializeField] Image colorDropShadow;
+    [SerializeField] Image colorOutlineInside;
+    [SerializeField] Image colorOutlineOutside;
     [SerializeField] Toggle rgbToggle;
     [SerializeField] TextMeshProUGUI rgbToggleLabel;
     [SerializeField] TextMeshProUGUI rgbToggleLabelDropShadow;
@@ -80,7 +81,8 @@ public class ColorPicker : MonoBehaviour {
     void LoadColors (ColorScheme cs) {
         containerBG.color = cs.ColorPickerBackground;
         colorAlphaGrid.color = cs.ColorPickerAlphaGridTint;
-        colorDropShadow.color = cs.ColorPickerDropShadows;
+        colorOutlineInside.color = cs.ColorPickerColorOutlineInside;
+        colorOutlineOutside.color = cs.ColorPickerColorOutlineOutside;
         rhSlider.LoadColors(cs);
         gsSlider.LoadColors(cs);
         bvSlider.LoadColors(cs);

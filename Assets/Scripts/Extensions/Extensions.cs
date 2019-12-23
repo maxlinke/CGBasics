@@ -115,6 +115,20 @@ public static class Extensions {
             Mathf.Clamp01(col.a + otherCol.a * (1f - col.a)));
     }
 
+    public static Color InvertRGBA (this Color col) {
+        return new Color(1 - col.r, 1 - col.g, 1 - col.b, 1 - col.a);
+    }
+
+    public static Color InvertRGB (this Color col) {
+        return new Color(1 - col.r, 1 - col.g, 1 - col.b, col.a);
+    }
+
+    public static Color InvertValue (this Color col) {
+        Color.RGBToHSV(col, out var h, out var s, out var v);
+        var inv = Color.HSVToRGB(h, s, 1 - v);
+        return new Color(inv.r, inv.g, inv.b, col.a);
+    }
+
     public static float Luminance (this Color col) {
         return 0.299f * col.r + 0.587f * col.g + 0.114f * col.b;
     }

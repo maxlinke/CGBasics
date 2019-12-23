@@ -306,6 +306,8 @@ public class ColorScheme : ScriptableObject {
     [Header("Color Picker")]
     [SerializeField] Color colorPickerBackground;
     [SerializeField] Color colorPickerDropShadows;
+    [SerializeField] Color colorPickerColorOutlineInside;
+    [SerializeField] Color colorPickerColorOutlineOutside;
     [SerializeField] Color colorPickerAlphaGridTint;
     [SerializeField] Color colorPickerSliderLabel;
     [SerializeField] Color colorPickerSliderFill;
@@ -321,6 +323,8 @@ public class ColorScheme : ScriptableObject {
 
     public Color ColorPickerBackground => colorPickerBackground;
     public Color ColorPickerDropShadows => colorPickerDropShadows;
+    public Color ColorPickerColorOutlineInside => colorPickerColorOutlineInside;
+    public Color ColorPickerColorOutlineOutside => colorPickerColorOutlineOutside;
     public Color ColorPickerAlphaGridTint => colorPickerAlphaGridTint;
     public Color ColorPickerSliderLabel => colorPickerSliderLabel;
     public Color ColorPickerSliderFill => colorPickerSliderFill;
@@ -341,6 +345,8 @@ public class ColorScheme : ScriptableObject {
     [SerializeField] Color lightingScreenPropGroupPropertyLabels;
     [SerializeField] Color lightingScreenPropGroupBottomText;
     [SerializeField] Color lightingScreenPropGroupBottomImage;
+    [SerializeField] Color lightingScreenColorPropOutlineInside;
+    [SerializeField] Color lightingScreenColorPropOutlineOutside;
     [SerializeField] Color lightingScreenDropShadows;
     [SerializeField] Color lightingScreenScrollbar;
     [SerializeField] Color lightingScreenScrollbarHover;
@@ -367,6 +373,8 @@ public class ColorScheme : ScriptableObject {
     public Color LightingScreenPropGroupPropertyLabels => lightingScreenPropGroupPropertyLabels;
     public Color LightingScreenPropGroupBottomText => lightingScreenPropGroupBottomText;
     public Color LightingScreenPropGroupBottomImage => lightingScreenPropGroupBottomImage;
+    public Color LightingScreenColorPropOutlineInside => lightingScreenColorPropOutlineInside;
+    public Color LightingScreenColorPropOutlineOutside => lightingScreenColorPropOutlineOutside;
     public Color LightingScreenDropShadows => lightingScreenDropShadows;
     public Color LightingScreenScrollbar => lightingScreenScrollbar;
     public Color LightingScreenScrollbarHover => lightingScreenScrollbarHover;

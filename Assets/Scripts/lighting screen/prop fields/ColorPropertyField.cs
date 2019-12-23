@@ -7,14 +7,16 @@ namespace LightingModels {
 
         [SerializeField] Button colorPickerOpenButton;
         [SerializeField] Image colorDisplay;
-        [SerializeField] Image colorDisplayDropShadow;
+        [SerializeField] Image colorDisplayOutlineInside;
+        [SerializeField] Image colorDisplayOutlineOutside;
 
         bool initialized = false;
 
         public override void LoadColors (ColorScheme cs) {
             base.LoadColors(cs);
             colorPickerOpenButton.SetFadeTransition(0f, Color.white, Color.white, Color.white, Color.magenta);
-            colorDisplayDropShadow.color = cs.LightingScreenDropShadows;
+            colorDisplayOutlineInside.color = cs.LightingScreenColorPropOutlineInside;
+            colorDisplayOutlineOutside.color = cs.LightingScreenColorPropOutlineOutside;
         }
 
         public void Initialize (ShaderProperty prop, System.Action<Color> onColorChanged) {

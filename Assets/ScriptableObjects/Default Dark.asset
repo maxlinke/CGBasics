@@ -132,6 +132,8 @@ MonoBehaviour:
   bottomLogMessageFlash: {r: 1, g: 1, b: 1, a: 0.5019608}
   colorPickerBackground: {r: 0.4, g: 0.4, b: 0.4, a: 1}
   colorPickerDropShadows: {r: 0, g: 0, b: 0, a: 0.33333334}
+  colorPickerColorOutlineInside: {r: 0, g: 0, b: 0, a: 1}
+  colorPickerColorOutlineOutside: {r: 0.667, g: 0.667, b: 0.667, a: 1}
   colorPickerAlphaGridTint: {r: 1, g: 1, b: 1, a: 1}
   colorPickerSliderLabel: {r: 1, g: 1, b: 1, a: 1}
   colorPickerSliderFill: {r: 0.7, g: 0.7, b: 0.7, a: 1}
@@ -150,14 +152,16 @@ MonoBehaviour:
   lightingScreenPropGroupPropertyLabels: {r: 0.667, g: 0.667, b: 0.667, a: 1}
   lightingScreenPropGroupBottomText: {r: 0.667, g: 0.667, b: 0.667, a: 1}
   lightingScreenPropGroupBottomImage: {r: 0.667, g: 0.667, b: 0.667, a: 1}
+  lightingScreenColorPropOutlineInside: {r: 0, g: 0, b: 0, a: 1}
+  lightingScreenColorPropOutlineOutside: {r: 0.667, g: 0.667, b: 0.667, a: 1}
   lightingScreenDropShadows: {r: 0, g: 0, b: 0, a: 0.33333334}
   lightingScreenScrollbar: {r: 0.4, g: 0.4, b: 0.4, a: 1}
   lightingScreenScrollbarHover: {r: 0.3, g: 0.3, b: 0.3, a: 1}
   lightingScreenScrollbarClick: {r: 0.4, g: 0.4, b: 0.4, a: 1}
   lightingScreenScrollbarBackground: {r: 0.2, g: 0.2, b: 0.2, a: 1}
   lighitngScreenButtonIcon: {r: 0.7, g: 0.7, b: 0.7, a: 1}
-  lightingScreenButton: {r: 0.2, g: 0.2, b: 0.2, a: 1}
-  lightingScreenButtonHover: {r: 0.3, g: 0.3, b: 0.3, a: 1}
+  lightingScreenButton: {r: 0.25, g: 0.25, b: 0.25, a: 1}
+  lightingScreenButtonHover: {r: 0.35, g: 0.35, b: 0.35, a: 1}
   lightingScreenButtonClick: {r: 0.2, g: 0.2, b: 0.2, a: 1}
   lightingScreenSliderHandle: {r: 1, g: 1, b: 1, a: 1}
   lightingScreenSliderHandleHover: {r: 0.85, g: 0.85, b: 0.85, a: 1}

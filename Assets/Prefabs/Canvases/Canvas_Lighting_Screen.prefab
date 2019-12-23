@@ -1123,11 +1123,11 @@ MonoBehaviour:
   renderLayer: 10
   camRectPosition: {x: 0.5, y: 0}
   camRectDimensions: {x: 0.5, y: 0.5}
-  defaultDirection: {x: 2, y: 1, z: -4}
+  defaultEuler: {x: 10, y: -30, z: 0}
   defaultFOV: 60
   defaultNearClip: 0.1
   defaultFarClip: 10
-  defaultDist: 2
+  defaultDist: 1.5
   minDist: 1
   maxDist: 3
 --- !u!1 &7600718481190607674

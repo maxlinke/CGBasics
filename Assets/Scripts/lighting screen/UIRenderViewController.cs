@@ -22,7 +22,7 @@ namespace LightingModels {
         [Header("Cam Settings")]
         [SerializeField] Vector2 camRectPosition;
         [SerializeField] Vector2 camRectDimensions;
-        [SerializeField] Vector3 defaultDirection;
+        [SerializeField] Vector3 defaultEuler;
         [SerializeField] float defaultFOV;
         [SerializeField] float defaultNearClip;
         [SerializeField] float defaultFarClip;
@@ -34,6 +34,10 @@ namespace LightingModels {
 
         LightingScreen lightingScreen;
         Camera cam;
+        Transform camYRotParent;
+        Transform camXRotParent;
+        float camRotX;
+        float camRotY;
         Transform lightsParent;
         List<Light> lights;
         GameObject renderObject;
@@ -46,8 +50,8 @@ namespace LightingModels {
         Vector3 pivotPoint => Vector3.zero;
 
         void OnDestroy () {         // these nullchecks are basically only here for the editor...
-            if(cam != null){
-                Destroy(cam.gameObject);
+            if(camYRotParent != null){
+                Destroy(camYRotParent.gameObject);
             }
             if(lightsParent != null){
                 Destroy(lightsParent.gameObject);
@@ -76,9 +80,16 @@ namespace LightingModels {
             ResetCamera();
 
             void CreateCam () {
+                camYRotParent = new GameObject("Cam Y Rotation Parent").transform;
+                camYRotParent.position = pivotPoint;
+                camXRotParent = new GameObject("Cam X Rotation Parent").transform;
+                camXRotParent.SetParent(camYRotParent, false);
+                camXRotParent.ResetLocalScale();
                 cam = new GameObject("Render Cam", typeof(Camera)).GetComponent<Camera>();
                 cam.cullingMask = 1 << renderLayer;
                 cam.backgroundColor = Color.black;
+                cam.transform.SetParent(camXRotParent, false);
+                cam.transform.ResetLocalScale();
             }
 
             void CreateRenderObject () {
@@ -90,6 +101,7 @@ namespace LightingModels {
 
             void CreateLightsParent () {
                 lightsParent = new GameObject("Lights parent").transform;
+                lightsParent.position = pivotPoint;
                 lightsParent.gameObject.layer = renderLayer;
             }
         }
@@ -116,25 +128,6 @@ namespace LightingModels {
                 }
                 lastMousePos = currentMousePos;
             }
-            KeepCamInDistanceBounds();
-            EnsureCamLookingAtPivot();
-
-            void KeepCamInDistanceBounds () {
-                var dir = cam.transform.position - pivotPoint;
-                float dist = dir.magnitude;
-                cam.transform.position = pivotPoint + (dir.normalized * Mathf.Clamp(dist, minDist, maxDist));
-            }
-            
-            void EnsureCamLookingAtPivot () {
-                Vector3 origUp = cam.transform.up;
-                Vector3 customUp;
-                if(Mathf.Abs(origUp.y) > 0.1f){
-                    customUp = Vector3.up * Mathf.Sign(origUp.y);
-                }else{
-                    customUp = Vector3.ProjectOnPlane(origUp, Vector3.up);
-                }
-                cam.transform.LookAt(pivotPoint, customUp);
-            }
         }
 
         void LateUpdate () {
@@ -146,23 +139,27 @@ namespace LightingModels {
 
         void OrbitCam (Vector3 mouseDelta) {
             mouseDelta *= InputSystem.shiftCtrlMultiplier * orbitSensitivity;
-            cam.transform.RotateAround(pivotPoint, Vector3.up, mouseDelta.x);
-            cam.transform.RotateAround(pivotPoint, cam.transform.right, -mouseDelta.y);
+            camRotY = Mathf.Repeat(camRotY + mouseDelta.x, 360f);
+            camRotX = Mathf.Clamp(camRotX - mouseDelta.y, -90f, 90f);
+            ApplyCamRotation();
+        }
+
+        void ApplyCamRotation () {
+            camYRotParent.localEulerAngles = new Vector3(0f, camRotY, 0f);
+            camXRotParent.localEulerAngles = new Vector3(camRotX, 0f, 0f);
         }
 
         void ZoomCam (float zoomAmount) {
             zoomAmount *= InputSystem.shiftCtrlMultiplier;
             float moveDist = zoomAmount * scrollSensitivity * GetPivotDistanceScale();
-            float currentDist = (pivotPoint - cam.transform.position).magnitude;
-            moveDist = Mathf.Clamp(moveDist, -(maxDist - currentDist), currentDist - minDist);
-            cam.transform.position += cam.transform.forward * moveDist;
+            float currentDist = -cam.transform.localPosition.z;
+            cam.transform.localPosition = new Vector3(0f, 0f, -Mathf.Clamp(currentDist - moveDist, minDist, maxDist));
         }
 
-        // TODO this certainly doesn't work as intended, right?
         void RotateLights (Vector3 mouseDelta) {
             mouseDelta *= InputSystem.shiftCtrlMultiplier * orbitSensitivity;
-            lightsParent.Rotate(Vector3.up, -mouseDelta.x, Space.World);
-            lightsParent.Rotate(lightsParent.transform.right, mouseDelta.y, Space.World);
+            lightsParent.Rotate(cam.transform.up, -mouseDelta.x, Space.World);
+            lightsParent.Rotate(cam.transform.right, mouseDelta.y, Space.World);
         }
 
         bool NotYetInitAbort () {
@@ -176,7 +173,13 @@ namespace LightingModels {
             if(NotYetInitAbort()){
                 return;
             }
-            cam.transform.position = defaultDirection.normalized * defaultDist;
+            camYRotParent.position = pivotPoint;
+            camXRotParent.localPosition = Vector3.zero;
+            camRotY = defaultEuler.y;
+            camRotX = defaultEuler.x;
+            ApplyCamRotation();
+            cam.transform.localPosition = new Vector3(0f, 0f, -defaultDist);
+            cam.transform.localRotation = Quaternion.identity;
             cam.rect = new Rect(camRectPosition, camRectDimensions);
             cam.orthographic = false;
             cam.fieldOfView = defaultFOV;
@@ -199,7 +202,7 @@ namespace LightingModels {
             renderObjectMF.sharedMesh = newMesh;
             float size = newMesh.bounds.extents.magnitude;
             renderObject.transform.localScale = Vector3.one / size;
-            renderObject.transform.localPosition = pivotPoint + (-newMesh.bounds.center / size);
+            renderObject.transform.position = pivotPoint + (-newMesh.bounds.center / size);
         }
 
         public void LoadMaterials (Material diffMat, Material specMat) {

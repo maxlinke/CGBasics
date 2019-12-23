@@ -386,6 +386,11 @@ public class ColorScheme : ScriptableObject {
     public Color LightingScreenInputFieldHover => lightingScreenInputFieldHover;
     public Color LightingScreenInputFieldClick => lightingScreenInputFieldClick;
     public Color LightingScreenInputFieldSelection => lightingScreenInputFieldSelection;
+
+    [Header("Lighting Screen Render")]
+    [SerializeField] Color lsRenderBackground;
+    [SerializeField] Color lsRenderGrid;
+    [SerializeField] Color lsRenderLightOutline;
     
 }
 

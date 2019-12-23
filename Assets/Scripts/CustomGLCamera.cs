@@ -243,8 +243,10 @@ public class CustomGLCamera : MonoBehaviour {
         var shader = Shader.Find("Custom/InternalColoredWithCulling");
         var output = new Material(shader);
         output.hideFlags = HideFlags.HideAndDontSave;
-        output.SetInt("_SrcBlend", seeThrough ? (int)UnityEngine.Rendering.BlendMode.SrcAlpha : (int)UnityEngine.Rendering.BlendMode.One);
-        output.SetInt("_DstBlend", seeThrough ? (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha : (int)UnityEngine.Rendering.BlendMode.Zero);
+        // output.SetInt("_SrcBlend", seeThrough ? (int)UnityEngine.Rendering.BlendMode.SrcAlpha : (int)UnityEngine.Rendering.BlendMode.One);
+        // output.SetInt("_DstBlend", seeThrough ? (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha : (int)UnityEngine.Rendering.BlendMode.Zero);
+        output.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+        output.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
         output.SetInt("_Cull", (int)UnityEngine.Rendering.CullMode.Off);
         output.SetInt("_ZWrite", seeThrough ? 0 : 1);
         output.SetInt("_ZTest", seeThrough ? (int)UnityEngine.Rendering.CompareFunction.Always : (int)UnityEngine.Rendering.CompareFunction.LessEqual);

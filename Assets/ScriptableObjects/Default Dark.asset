@@ -174,5 +174,4 @@ MonoBehaviour:
   lightingScreenInputFieldClick: {r: 0.2, g: 0.2, b: 0.2, a: 1}
   lightingScreenInputFieldSelection: {r: 0.333, g: 0.5, b: 0.67, a: 1}
   lightingScreenRenderBackground: {r: 0.1, g: 0.1, b: 0.1, a: 1}
-  lightingScreenRenderGrid: {r: 0.25, g: 0.25, b: 0.25, a: 1}
-  lightingScreenRenderLightOutline: {r: 0, g: 0, b: 0, a: 1}
+  lightingScreenRenderGrid: {r: 0.5, g: 0.5, b: 0.5, a: 0.33333334}

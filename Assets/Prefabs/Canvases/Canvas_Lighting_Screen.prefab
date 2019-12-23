@@ -686,6 +686,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: f0f68b3435eceae47bd9c685a2331a01, type: 2}
   - {fileID: 11400000, guid: 83a0212fec7095146983fd82abb73714, type: 2}
   - {fileID: 11400000, guid: cf9f185f895490e42903aa07e7af5aa8, type: 2}
+  - {fileID: 11400000, guid: 9e0da460daaca114799ba4be07e7f4e2, type: 2}
+  - {fileID: 11400000, guid: 954fc2a480bd53442a7df7118e8124e0, type: 2}
   applyLightingSetupRotation: 1
   defaultModel: {fileID: 11400000, guid: a2024be66dde725468f5aab9adc32c74, type: 2}
   defaultDiffuseModel: {fileID: 11400000, guid: a16cda9db628a644595ad6bdfa1d08a8,
@@ -1121,8 +1123,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   renderLayer: 10
-  lightGizmoDistance: 1.5
-  lightGizmoRayLength: 0.333
+  lightGizmoDistance: 1.4142135
+  lightGizmoRayLength: 0.3
   camRectPosition: {x: 0.5, y: 0}
   camRectDimensions: {x: 0.5, y: 0.5}
   defaultEuler: {x: 10, y: -30, z: 0}

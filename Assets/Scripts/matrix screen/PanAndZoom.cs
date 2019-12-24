@@ -19,6 +19,7 @@ namespace MatrixScreenUtils {
 
         PointerType currentPointerType;
         Vector3 lastMousePos;
+        Vector3 lastZoomMousePos;
 
         public float zoomLevel => zoomRT.UniformLocalScale();
         public float maxZoomLevel => maxZoom;
@@ -43,6 +44,7 @@ namespace MatrixScreenUtils {
                 lastMousePos = currentMousePos;
             }
             KeepEverythingKindaOnscreen();
+            // Debug.Log(LocalMousePos(Input.mousePosition));
 
             void KeepEverythingKindaOnscreen () {
                 float minX = Mathf.Infinity;
@@ -72,6 +74,9 @@ namespace MatrixScreenUtils {
             if(currentPointerType == PointerType.None){
                 currentPointerType = PointerIDToType(ped.pointerId);
                 lastMousePos = Input.mousePosition;
+                if(currentPointerType == PointerType.Middle){
+                    lastZoomMousePos = Input.mousePosition;
+                }
             }
         }
 
@@ -82,6 +87,7 @@ namespace MatrixScreenUtils {
         }
 
         protected override void Scroll (PointerEventData ped) {
+            lastZoomMousePos = Input.mousePosition;
             Zoom(ped.scrollDelta.y);
         }
 
@@ -93,12 +99,26 @@ namespace MatrixScreenUtils {
 
         void Zoom (float zoomDelta) {
             zoomDelta *= InputSystem.shiftCtrlMultiplier;
+            if(zoomDelta < 0){
+                Pan(-LocalMousePos(lastZoomMousePos) * zoomDelta / 4);
+            }else{
+                Pan(-LocalMousePos(lastZoomMousePos) * zoomDelta / 6);  // ?!?!?!?
+            }
             zoomRT.localScale = Vector3.one * Mathf.Clamp(zoomLevel + (zoomSensitivity * zoomDelta * zoomLevel), minZoom, maxZoom);
         }
 
         public void ResetView () {
             zoomRT.localScale = Vector3.one;
             panRT.anchoredPosition = Vector2.zero;
+        }
+
+        Vector2 LocalMousePos (Vector3 inputMPos) {
+            var mPos = inputMPos;
+            var x = mPos.x;
+            var y = mPos.y;
+            y -= Screen.height / 2;      // because the rect of the area is the upper half
+            var output = new Vector2(x - (Screen.width / 2), y - (Screen.height / 4));  // because it's the entire width and half the height
+            return output;
         }
     
     }

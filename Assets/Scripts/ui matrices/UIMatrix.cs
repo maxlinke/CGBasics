@@ -482,9 +482,10 @@ public class UIMatrix : MonoBehaviour {
     }
 
     public void SetIdentity () {
-        VariableContainer.RemoveAllVariables(false);
-        SetStringFieldValuesFromMatrix(Matrix4x4.identity, true);
-        SetName("New Matrix");
+        // VariableContainer.RemoveAllVariables(false);
+        // SetStringFieldValuesFromMatrix(Matrix4x4.identity, true);
+        // SetName("New Matrix");
+        LoadConfig(MatrixConfig.identityConfig);
     }
 
     public void Invert () {

@@ -17,12 +17,19 @@ public class BottomLog : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
     [Header("Settings")]
     [SerializeField] bool flashOnMessage;
     [SerializeField] bool hideWhenNotNeeded;
+    [SerializeField] bool lowerOpacityWhenNotNeeded;
+    [SerializeField] float opacityWhenNotNeeded;
+    [SerializeField] float opacityFadeOutTime;
 
     private Log currentlyDisplayedMessage;
     private List<Log> logs;
     private Color messageColor;
     private Color warningColor;
     private Color errorColor;
+
+    private float backgroundLerp;
+    private Color backgroundColor;
+    private Color backgroundColorNotNeeded;
 
     float hideTime;
     bool pointerHover = false;
@@ -55,10 +62,19 @@ public class BottomLog : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
             hideTime = Mathf.Infinity;
         }
         bool noMessage = currentlyDisplayedMessage == null || currentlyDisplayedMessage.message == null || currentlyDisplayedMessage.message.Length < 1;
-        if(pointerHover || !noMessage || !hideWhenNotNeeded){
-            bottomBarContentParent.SetActive(true);
+        bool notNeeded = !pointerHover && noMessage;
+        if(notNeeded){
+            if(hideWhenNotNeeded){
+                bottomBarContentParent.SetActive(false);
+            }
+            backgroundLerp = Mathf.Clamp01(backgroundLerp - (Time.deltaTime / opacityFadeOutTime));
+            if(lowerOpacityWhenNotNeeded){
+                bottomBackgroundImage.color = Color.Lerp(backgroundColorNotNeeded, backgroundColor, backgroundLerp);
+            }
         }else{
-            bottomBarContentParent.SetActive(false);
+            bottomBarContentParent.SetActive(true);
+            bottomBackgroundImage.color = backgroundColor;
+            backgroundLerp = 1f;
         }
     }
 
@@ -72,7 +88,8 @@ public class BottomLog : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
     }
 
     void LoadColors (ColorScheme cs) {
-        bottomBackgroundImage.color = cs.BottomLogBackground;
+        backgroundColor = cs.BottomLogBackground;
+        backgroundColorNotNeeded = backgroundColor * new Color(1, 1, 1, opacityWhenNotNeeded);
         // cs.BottomLogExpandedBackground
         messageColor = cs.BottomLogRegularText;
         warningColor = cs.BottomLogWarningText;

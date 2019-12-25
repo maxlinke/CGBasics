@@ -275,7 +275,10 @@ MonoBehaviour:
   messageFlasher: {fileID: 4991509214024614694}
   bottomTextField: {fileID: 5946522147847946902}
   flashOnMessage: 0
-  hideWhenNotNeeded: 1
+  hideWhenNotNeeded: 0
+  lowerOpacityWhenNotNeeded: 1
+  opacityWhenNotNeeded: 0.2
+  opacityFadeOutTime: 0.2
 --- !u!1 &5946522147847946897
 GameObject:
   m_ObjectHideFlags: 0

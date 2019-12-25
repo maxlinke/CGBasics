@@ -55,6 +55,13 @@ namespace UIMatrices {
                 var funcInsert = (allFuncs[ind].paramNumber == 0) ? $"{funcName}()" : $"{funcName}(";
                 btn.Setup(funcCall, funcDesc, funcInsert);
             });
+
+            expressionInputField.onEndTextSelection.AddListener((s, i1, i2) => {
+                Debug.Log($"On END TextSelection: ({s}, {i1}, {i2})");
+            });
+            expressionInputField.onTextSelection.AddListener((s, i1, i2) => {       // i should account for the possibility of this being called before the insert button onclick...
+                Debug.Log($"OnTextSelection: ({s}, {i1}, {i2})");                   // have the selection always persist for one frame? don't listen for the end edit?
+            });
         }
 
         public void LoadColors (ColorScheme cs) {
@@ -196,12 +203,20 @@ namespace UIMatrices {
                 this.m_backgroundImage = backgroundImage;
             }
 
+            void Update () {
+                // int cPos = targetInputField.caretPosition;
+                // int cPos2 = targetInputField.selectionFocusPosition;
+                // Debug.Log($"{cPos}, {cPos2}");
+            }
+
             public void Setup (string labelText, string hoverMessage, string insert) {
                 m_label.text = labelText;
                 this.hoverMessage = hoverMessage;
                 m_button.onClick.RemoveAllListeners();
                 m_button.onClick.AddListener(() => {
                     int cPos = targetInputField.caretPosition;
+                    // int cPos2 = targetInputField.selectionFocusPosition;
+                    // Debug.Log($"{cPos}, {cPos2}");
                     targetInputField.text = targetInputField.text.Insert(cPos, insert);
                     EventSystem.current.SetSelectedGameObject(targetInputField.gameObject);
                     targetInputField.caretPosition = cPos + insert.Length;

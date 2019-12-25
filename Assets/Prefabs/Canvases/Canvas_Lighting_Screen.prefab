@@ -1133,7 +1133,7 @@ MonoBehaviour:
   defaultEuler: {x: 10, y: -30, z: 0}
   defaultFOV: 60
   defaultNearClip: 0.1
-  defaultFarClip: 10
+  defaultFarClip: 6.67
   defaultDist: 1.5
   minDist: 1
   maxDist: 3

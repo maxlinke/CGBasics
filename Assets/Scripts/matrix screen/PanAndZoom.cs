@@ -93,12 +93,10 @@ namespace MatrixScreenUtils {
 
         void Zoom (float zoomDelta, bool onCursor) {
             if(onCursor){
-                zoomDelta = Mathf.Sign(zoomDelta);  // TODO this is just a band-aid because a higher scrolldelta causes issues 
-            }
-            zoomDelta *= InputSystem.shiftCtrlMultiplier;   // and this doesn't work properly either...
-            if(onCursor){
+                zoomDelta = Mathf.Sign(zoomDelta);  // TODO this is just a band-aid because a higher scrolldelta causes issues
                 Pan(-LocalMousePos(Input.mousePosition) * zoomDelta / (zoomDelta < 0 ? 4 : 6)); // that ternary fucks with me...
             }
+            zoomDelta *= InputSystem.shiftCtrlMultiplier;   // and this doesn't work properly either...
             zoomRT.localScale = Vector3.one * Mathf.Clamp(zoomLevel + (zoomSensitivity * zoomDelta * zoomLevel), minZoom, maxZoom);
         }
 

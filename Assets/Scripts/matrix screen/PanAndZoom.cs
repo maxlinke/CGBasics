@@ -93,7 +93,7 @@ namespace MatrixScreenUtils {
 
         void Zoom (float zoomDelta, bool onCursor) {
             if(onCursor){
-                zoomDelta = Mathf.Sign(zoomDelta);  // TODO this is just a band-aid because a higher scrolldelta 
+                zoomDelta = Mathf.Sign(zoomDelta);  // TODO this is just a band-aid because a higher scrolldelta causes issues 
             }
             zoomDelta *= InputSystem.shiftCtrlMultiplier;   // and this doesn't work properly either...
             if(onCursor){

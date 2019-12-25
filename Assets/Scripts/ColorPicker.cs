@@ -27,6 +27,7 @@ public class ColorPicker : MonoBehaviour {
     [SerializeField] bool rgbIsDefault;
 
     bool initialized = false;
+    bool subscribedToInputSystem = false;
     ColorPickerChannelSlider rhSlider;
     ColorPickerChannelSlider gsSlider;
     ColorPickerChannelSlider bvSlider;
@@ -198,10 +199,15 @@ public class ColorPicker : MonoBehaviour {
         }
         this.onClose = onClose;
         this.whileOpen = whileOpen;
+        InputSystem.Subscribe(this, new InputSystem.KeyEvent(KeyCode.Escape, HideAndReset));
+        subscribedToInputSystem = true;
         gameObject.SetActive(true);
     }
 
     void HideAndReset () {
+        if(subscribedToInputSystem){
+            InputSystem.UnSubscribe(this);
+        }
         var cachedOnClose = onClose;
         gameObject.SetActive(false);
         onClose = null;

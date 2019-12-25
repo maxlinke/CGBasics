@@ -19,7 +19,6 @@ namespace MatrixScreenUtils {
 
         PointerType currentPointerType;
         Vector3 lastMousePos;
-        Vector3 lastZoomMousePos;
 
         public float zoomLevel => zoomRT.UniformLocalScale();
         public float maxZoomLevel => maxZoom;
@@ -36,7 +35,7 @@ namespace MatrixScreenUtils {
                         Pan(mouseDelta);
                         break;
                     case PointerType.Middle:
-                        Zoom(mouseDelta.y * smoothZoomMultiplier);
+                        Zoom(mouseDelta.y * smoothZoomMultiplier, false);
                         break;
                     default:
                         break;
@@ -44,9 +43,8 @@ namespace MatrixScreenUtils {
                 lastMousePos = currentMousePos;
             }
             KeepEverythingKindaOnscreen();
-            // Debug.Log(LocalMousePos(Input.mousePosition));
 
-            void KeepEverythingKindaOnscreen () {
+            void KeepEverythingKindaOnscreen () {       // TODO depth
                 float minX = Mathf.Infinity;
                 float minY = Mathf.Infinity;
                 float maxX = Mathf.NegativeInfinity;
@@ -74,9 +72,6 @@ namespace MatrixScreenUtils {
             if(currentPointerType == PointerType.None){
                 currentPointerType = PointerIDToType(ped.pointerId);
                 lastMousePos = Input.mousePosition;
-                if(currentPointerType == PointerType.Middle){
-                    lastZoomMousePos = Input.mousePosition;
-                }
             }
         }
 
@@ -87,8 +82,7 @@ namespace MatrixScreenUtils {
         }
 
         protected override void Scroll (PointerEventData ped) {
-            lastZoomMousePos = Input.mousePosition;
-            Zoom(ped.scrollDelta.y);
+            Zoom(ped.scrollDelta.y, true);
         }
 
         void Pan (Vector2 mouseDelta) {
@@ -97,12 +91,13 @@ namespace MatrixScreenUtils {
             panRT.anchoredPosition += panDelta;
         }
 
-        void Zoom (float zoomDelta) {
-            zoomDelta *= InputSystem.shiftCtrlMultiplier;
-            if(zoomDelta < 0){
-                Pan(-LocalMousePos(lastZoomMousePos) * zoomDelta / 4);
-            }else{
-                Pan(-LocalMousePos(lastZoomMousePos) * zoomDelta / 6);  // ?!?!?!?
+        void Zoom (float zoomDelta, bool onCursor) {
+            if(onCursor){
+                zoomDelta = Mathf.Sign(zoomDelta);  // TODO this is just a band-aid because a higher scrolldelta 
+            }
+            zoomDelta *= InputSystem.shiftCtrlMultiplier;   // and this doesn't work properly either...
+            if(onCursor){
+                Pan(-LocalMousePos(Input.mousePosition) * zoomDelta / (zoomDelta < 0 ? 4 : 6)); // that ternary fucks with me...
             }
             zoomRT.localScale = Vector3.one * Mathf.Clamp(zoomLevel + (zoomSensitivity * zoomDelta * zoomLevel), minZoom, maxZoom);
         }

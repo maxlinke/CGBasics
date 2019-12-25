@@ -241,7 +241,7 @@ public class LightingScreen : MonoBehaviour {
                     SetColorPropAsDiffOrSpecPropIfApplicable(key, newField);
                 }
             }
-            modelPropertyGroup.AddConfigButton(
+            modelPropertyGroup.AddHeaderButton(
                 icon: UISprites.UIConfig, 
                 onButtonClicked: () => {
                     ModelPicker.Open(
@@ -261,7 +261,7 @@ public class LightingScreen : MonoBehaviour {
                 var setupCopy = setup;
                 foldoutSetups.Add(new Foldout.ButtonSetup(setup.name, setup.name, () => {LoadLightingSetup(setupCopy);}, true));
             }
-            lightsPropertyGroup.AddConfigButton(UISprites.UIConfig, () => {Foldout.Create(foldoutSetups, null);}, "Load a lighting setup");
+            lightsPropertyGroup.AddHeaderButton(UISprites.UIConfig, () => {Foldout.Create(foldoutSetups, null);}, "Load a lighting setup");
             lightsPropertyGroup.RebuildContent();
         }
 
@@ -275,7 +275,7 @@ public class LightingScreen : MonoBehaviour {
                 var lmCopy = lm;
                 buttonSetups.Add(new Foldout.ButtonSetup(lm.name, lm.name, () => {loadModelAction(lmCopy);}, true));
             }
-            newGroup.AddConfigButton( UISprites.UIConfig, () => {Foldout.Create(buttonSetups, null, 1f);}, hoverMessage: configButtonHoverMessage);
+            newGroup.AddHeaderButton( UISprites.UIConfig, () => {Foldout.Create(buttonSetups, null, 1f);}, hoverMessage: configButtonHoverMessage);
             return newGroup;
         }
 

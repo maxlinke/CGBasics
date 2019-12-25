@@ -29,9 +29,11 @@ namespace LightingModels {
         public RectTransform rectTransform => m_rectTransform;
         
         bool initialized = false;
-        Button configButton;
-        Image configButtonIcon;
+        List<Selectable> headerSelectables;
+        List<Image> headerSelectableIcons;
         List<UIPropertyField> propFields;
+        Color toggleOnColor;
+        Color toggleOffColor;
 
         public IEnumerator<UIPropertyField> GetEnumerator () {
             foreach(var propField in propFields){
@@ -44,10 +46,18 @@ namespace LightingModels {
             headerDropShadow.color = cs.LightingScreenDropShadows;
             bottomText.color = cs.LightingScreenPropGroupBottomText;
             bottomImage.color = cs.LightingScreenPropGroupBottomImage;
-            if(configButton != null){
-                configButtonIcon.color = cs.LighitngScreenButtonIcon;
-                configButton.targetGraphic.color = Color.white;
-                configButton.SetFadeTransition(0f, cs.LightingScreenButton, cs.LightingScreenButtonHover, cs.LightingScreenButtonClick, Color.magenta);
+            toggleOnColor = cs.LighitngScreenButtonIcon;
+            toggleOffColor = toggleOnColor * new Color(1, 1, 1, 0.5f);
+            for(int i=0; i<headerSelectables.Count; i++){
+                var hs = headerSelectables[i];
+                var hsi = headerSelectableIcons[i];
+                hs.targetGraphic.color = Color.white;
+                hs.SetFadeTransition(0f, cs.LightingScreenButton, cs.LightingScreenButtonHover, cs.LightingScreenButtonClick, Color.magenta);
+                if(hs is Toggle hsToggle){
+                    hsi.color = hsToggle.isOn ? toggleOnColor : toggleOffColor;
+                }else{
+                    hsi.color = cs.LighitngScreenButtonIcon;
+                }
             }
             foreach(var propField in propFields){
                 propField.LoadColors(cs);
@@ -59,6 +69,9 @@ namespace LightingModels {
                 Debug.LogError("already initialized! aborting!", this.gameObject);
                 return;
             }
+            propFields = new List<UIPropertyField>();
+            headerSelectables = new List<Selectable>();
+            headerSelectableIcons = new List<Image>();
             RebuildHeader();
             header.text = initHeader;
             headerDropShadow.text = header.text;
@@ -66,7 +79,6 @@ namespace LightingModels {
             headerDropShadow.rectTransform.anchoredPosition += new Vector2(1, -1);
             bottomImage.SetGOActive(false);
             bottomText.SetGOActive(false);
-            propFields = new List<UIPropertyField>();
             this.initialized = true;
             ConditionalRebuildContent(rebuildContent);
         }
@@ -145,7 +157,17 @@ namespace LightingModels {
         }
 
         void RebuildHeader () {
-            header.rectTransform.SetToFillWithMargins(0f, configButton != null ? headerArea.rect.height : 0f, 0f, headerTextLeftMargin);
+            int i = 0;
+            float offset = headerArea.rect.height;
+            foreach(var hs in headerSelectables){
+                var hsRT = hs.GetComponent<RectTransform>();
+                hsRT.pivot = 0.5f * Vector2.one;
+                hsRT.SetAnchor(1f, 0.5f);
+                hsRT.sizeDelta = Vector2.one * buttonSize;
+                hsRT.anchoredPosition = new Vector2(-(i + 1) * (offset / 2f), 0f);
+                i++;
+            }
+            header.rectTransform.SetToFillWithMargins(0f, i * offset, 0f, headerTextLeftMargin);
             headerDropShadow.rectTransform.MatchOther(header.rectTransform);
             headerDropShadow.rectTransform.anchoredPosition += new Vector2(1, -1);
         }
@@ -156,51 +178,76 @@ namespace LightingModels {
             }
         }
 
-        public Button AddConfigButton (Sprite icon, System.Action onButtonClicked, string hoverMessage) {
+        Selectable AddHeaderSelectable (Sprite icon, System.Func<GameObject, (Image bg, Image icon), Selectable> setupSelectable, string hoverMessage) {
             if(NotYetInitAbort()){
                 return null;
             }
-            if(configButton != null){
-                Debug.LogError("Asked to add button, but there was already one! Aborting...");
-                return null;
-            }
             // main rectTransform. this is a lot of repeated code, i know but maaayyybbeeee i want to change it up later... maybe...
-            var newBtnRT = new GameObject("Config Button", typeof(RectTransform), typeof(Button), typeof(Image)).GetComponent<RectTransform>();
-            newBtnRT.SetParent(headerArea, false);
-            newBtnRT.ResetLocalScale();
-            newBtnRT.SetAnchor(1f, 0.5f);
-            newBtnRT.pivot = newBtnRT.AverageAnchor();
-            newBtnRT.sizeDelta = Vector2.one * buttonSize;
-            newBtnRT.anchoredPosition = new Vector2(-1f * ((headerArea.rect.height - buttonSize) / 2f), 0f);
+            var newSelectableRT = new GameObject("Header Selectable", typeof(RectTransform), typeof(Image)).GetComponent<RectTransform>();
+            newSelectableRT.SetParent(headerArea, false);
+            newSelectableRT.ResetLocalScale();
             // background image
-            var newBtnBG = newBtnRT.GetComponent<Image>();
-            newBtnBG.sprite = UISprites.UICircle;
-            newBtnBG.color = Color.white;
-            newBtnBG.raycastTarget = true;
-            // the actual button
-            configButton = newBtnRT.GetComponent<Button>();
-            configButton.targetGraphic = newBtnBG;
-            configButton.onClick.AddListener(() => {onButtonClicked?.Invoke();});
-            // potential hover message
-            if(hoverMessage != null){
-                newBtnRT.gameObject.AddComponent<UIHoverEventCaller>().SetActions(
-                    (ped) => {if(configButton.interactable) BottomLog.DisplayMessage(hoverMessage);},
-                    (ped) => {if(configButton.interactable) BottomLog.ClearDisplay();}
-                );
-            }
+            var newSelectableBG = newSelectableRT.GetComponent<Image>();
+            newSelectableBG.sprite = UISprites.UICircle;
+            newSelectableBG.color = Color.white;
+            newSelectableBG.raycastTarget = true;
             // icon rt
             var iconRT = new GameObject("Icon", typeof(RectTransform), typeof(Image)).GetComponent<RectTransform>();
-            iconRT.SetParent(newBtnRT, false);
+            iconRT.SetParent(newSelectableRT, false);
             iconRT.ResetLocalScale();
             iconRT.SetToFill();
             // the actual icon
-            configButtonIcon = iconRT.GetComponent<Image>();
-            configButtonIcon.sprite = icon;
-            configButtonIcon.raycastTarget = false;
+            var newSelectableIcon = iconRT.GetComponent<Image>();
+            newSelectableIcon.sprite = icon;
+            newSelectableIcon.raycastTarget = false;
+            // the actual selectable
+            var newSelectable = setupSelectable(newSelectableRT.gameObject, (bg: newSelectableBG, icon: newSelectableIcon));
+            // potential hover message
+            if(hoverMessage != null && hoverMessage.Length > 0){
+                newSelectableRT.gameObject.AddComponent<UIHoverEventCaller>().SetActions(
+                    (ped) => {if(newSelectable.interactable) BottomLog.DisplayMessage(hoverMessage);},
+                    (ped) => {if(newSelectable.interactable) BottomLog.ClearDisplay();}
+                );
+            }
+            // list entries
+            headerSelectables.Add(newSelectable);
+            headerSelectableIcons.Add(newSelectableIcon);
             // spacing the header
             RebuildHeader();
             // output
-            return configButton;
+            return newSelectable;
+        }
+
+        public Button AddHeaderButton (Sprite icon, System.Action onButtonClicked, string hoverMessage) {
+            return (Button)(AddHeaderSelectable(icon, SetupButton, hoverMessage));
+
+            Button SetupButton (GameObject btnGO, (Image bg, Image icon) imgs) {
+                var newBtn = btnGO.AddComponent<Button>();
+                newBtn.targetGraphic = imgs.bg;
+                newBtn.onClick.AddListener(() => {onButtonClicked?.Invoke();});
+                return newBtn;
+            }
+        }
+
+        public Toggle AddHeaderToggle (Sprite icon, bool initialState, System.Action<bool> onStateChanged, string hoverMessage) {
+            return (Toggle)(AddHeaderSelectable(icon, SetupToggle, hoverMessage));
+
+            Selectable SetupToggle (GameObject toggleGO, (Image bg, Image icon) imgs) {
+                var newToggle = toggleGO.AddComponent<Toggle>();
+                newToggle.targetGraphic = imgs.bg;
+                newToggle.isOn = initialState;
+                newToggle.onValueChanged.AddListener((newVal) => {
+                    UpdateToggleIconColor(newToggle);
+                    onStateChanged?.Invoke(newVal);
+                });
+                return newToggle;
+
+            }
+
+            void UpdateToggleIconColor (Toggle inputToggle) {
+                var toggleIndex = headerSelectables.IndexOf(inputToggle);
+                headerSelectableIcons[toggleIndex].color = inputToggle.isOn ? toggleOnColor : toggleOffColor;
+            }
         }
 
         public UIPropertyField AddFloatProperty (ShaderProperty prop, System.Action<float> onValueChanged, System.Func<float, string> formatString, float scrollMultiplier = 1f) {

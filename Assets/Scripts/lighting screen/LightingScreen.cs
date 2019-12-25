@@ -265,7 +265,7 @@ public class LightingScreen : MonoBehaviour {
             lightsPropertyGroup.RebuildContent();
         }
 
-        UIPropertyGroup CreateLightingModelGroup (Dictionary<LightingModel, Material> lmDictionary, System.Action<LightingModel> loadModelAction, LightingModel nullLM, string groupName, string configButtonHoverMessage) {
+        UIPropertyGroup CreateLightingModelGroup (Dictionary<LightingModel, Material> lmDictionary, System.Action<LightingModel> loadModelAction, LightingModel nullLM, string groupName, string configButtonHoverMessage, string infoToggleHoverMessage) {
             var newGroup = CreateNewPropGroup();
             newGroup.Initialize(groupName, false);
             List<Foldout.ButtonSetup> buttonSetups = new List<Foldout.ButtonSetup>();
@@ -275,7 +275,8 @@ public class LightingScreen : MonoBehaviour {
                 var lmCopy = lm;
                 buttonSetups.Add(new Foldout.ButtonSetup(lm.name, lm.name, () => {loadModelAction(lmCopy);}, true));
             }
-            newGroup.AddHeaderButton( UISprites.UIConfig, () => {Foldout.Create(buttonSetups, null, 1f);}, hoverMessage: configButtonHoverMessage);
+            newGroup.AddHeaderButton(UISprites.UIConfig, () => {Foldout.Create(buttonSetups, null, 1f);}, hoverMessage: configButtonHoverMessage);
+            newGroup.AddHeaderToggle(UISprites.UIInfo, false, (b) => {newGroup.SetBottomImageShown(b); newGroup.SetBottomTextShown(b); newGroup.RebuildContent(); RebuildContent();}, infoToggleHoverMessage);
             return newGroup;
         }
 
@@ -330,7 +331,8 @@ public class LightingScreen : MonoBehaviour {
                 loadModelAction: LoadDiffuseLightingModel,
                 nullLM: nullDiffuseLM,
                 groupName: diffGroupName,
-                configButtonHoverMessage: "Load diffuse lighting model"
+                configButtonHoverMessage: "Load diffuse lighting model",
+                infoToggleHoverMessage: "Show information"
             );
             AddPropertyFieldsToGroup(LightingModel.Type.Diffuse, diffusePropertyGroup);
         }
@@ -341,7 +343,8 @@ public class LightingScreen : MonoBehaviour {
                 loadModelAction: LoadSpecularLightingModel,
                 nullLM: nullSpecularLM,
                 groupName: specGroupName,
-                configButtonHoverMessage: "Load specular lighting model"
+                configButtonHoverMessage: "Load specular lighting model",
+                infoToggleHoverMessage: "Show information"
             );
             AddPropertyFieldsToGroup(LightingModel.Type.Specular, specularPropertyGroup);
         }
@@ -487,17 +490,14 @@ public class LightingScreen : MonoBehaviour {
         }
         if(lm == defaultLM){
             propertyGroup.SetName(CreateGroupName(groupName, "None"));
-            propertyGroup.ShowText("No lighting model selected", false);
+            propertyGroup.UpdateBottomText("No lighting model selected", false);
+            propertyGroup.forceHideBottomImage = true;
         }else{
             propertyGroup.SetName(CreateGroupName(groupName, lm.name));
-            propertyGroup.ShowText(lm.description, false);
+            propertyGroup.UpdateBottomText(lm.description, false);
+            propertyGroup.UpdateBottomImage(lm.equation);
+            propertyGroup.forceHideBottomImage = (lm.equation == null);
         }
-        if(lm.equation != null){                            // TODO remove this check when i have equations for all...
-            propertyGroup.ShowImage(lm.equation, false);    // move this into the non-default
-        }else{
-            propertyGroup.HideImage(false);                 // move this into the default
-        }
-        
         lmField = lm;
         UpdatePropertyFieldActiveStatesAndRebuildEverything();
         UpdateMaterialsOnRenderController();

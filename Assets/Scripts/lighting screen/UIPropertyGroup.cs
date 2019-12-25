@@ -29,11 +29,21 @@ namespace LightingModels {
         public RectTransform rectTransform => m_rectTransform;
         
         bool initialized = false;
-        List<Selectable> headerSelectables;
-        List<Image> headerSelectableIcons;
+        List<(Selectable selectable, Image icon)> headerSelectables;
         List<UIPropertyField> propFields;
         Color toggleOnColor;
         Color toggleOffColor;
+
+        bool m_bottomImageShouldBeShown;
+        bool m_forceHideBottomImage;
+        public bool forceHideBottomImage {
+            get {
+                return m_forceHideBottomImage;
+            } set {
+                m_forceHideBottomImage = value;
+                UpdateBottomImageVisibility();
+            }
+        }
 
         public IEnumerator<UIPropertyField> GetEnumerator () {
             foreach(var propField in propFields){
@@ -46,17 +56,17 @@ namespace LightingModels {
             headerDropShadow.color = cs.LightingScreenDropShadows;
             bottomText.color = cs.LightingScreenPropGroupBottomText;
             bottomImage.color = cs.LightingScreenPropGroupBottomImage;
-            toggleOnColor = cs.LighitngScreenButtonIcon;
-            toggleOffColor = toggleOnColor * new Color(1, 1, 1, 0.5f);
+            toggleOnColor = cs.LightingScreenButtonIcon;
+            toggleOffColor = toggleOnColor * new Color(1, 1, 1, 0.333f);
             for(int i=0; i<headerSelectables.Count; i++){
-                var hs = headerSelectables[i];
-                var hsi = headerSelectableIcons[i];
+                var hs = headerSelectables[i].selectable;
+                var hsi = headerSelectables[i].icon;
                 hs.targetGraphic.color = Color.white;
                 hs.SetFadeTransition(0f, cs.LightingScreenButton, cs.LightingScreenButtonHover, cs.LightingScreenButtonClick, Color.magenta);
                 if(hs is Toggle hsToggle){
                     hsi.color = hsToggle.isOn ? toggleOnColor : toggleOffColor;
                 }else{
-                    hsi.color = cs.LighitngScreenButtonIcon;
+                    hsi.color = cs.LightingScreenButtonIcon;
                 }
             }
             foreach(var propField in propFields){
@@ -70,8 +80,7 @@ namespace LightingModels {
                 return;
             }
             propFields = new List<UIPropertyField>();
-            headerSelectables = new List<Selectable>();
-            headerSelectableIcons = new List<Image>();
+            headerSelectables = new List<(Selectable selectable, Image icon)>();
             RebuildHeader();
             header.text = initHeader;
             headerDropShadow.text = header.text;
@@ -79,6 +88,7 @@ namespace LightingModels {
             headerDropShadow.rectTransform.anchoredPosition += new Vector2(1, -1);
             bottomImage.SetGOActive(false);
             bottomText.SetGOActive(false);
+            this.m_forceHideBottomImage = false;
             this.initialized = true;
             ConditionalRebuildContent(rebuildContent);
         }
@@ -160,11 +170,11 @@ namespace LightingModels {
             int i = 0;
             float offset = headerArea.rect.height;
             foreach(var hs in headerSelectables){
-                var hsRT = hs.GetComponent<RectTransform>();
+                var hsRT = hs.selectable.GetComponent<RectTransform>();
                 hsRT.pivot = 0.5f * Vector2.one;
                 hsRT.SetAnchor(1f, 0.5f);
                 hsRT.sizeDelta = Vector2.one * buttonSize;
-                hsRT.anchoredPosition = new Vector2(-(i + 1) * (offset / 2f), 0f);
+                hsRT.anchoredPosition = new Vector2(-(i + 0.5f) * offset, 0f);
                 i++;
             }
             header.rectTransform.SetToFillWithMargins(0f, i * offset, 0f, headerTextLeftMargin);
@@ -209,9 +219,8 @@ namespace LightingModels {
                     (ped) => {if(newSelectable.interactable) BottomLog.ClearDisplay();}
                 );
             }
-            // list entries
-            headerSelectables.Add(newSelectable);
-            headerSelectableIcons.Add(newSelectableIcon);
+            // list entry
+            headerSelectables.Add((newSelectable, newSelectableIcon));
             // spacing the header
             RebuildHeader();
             // output
@@ -237,16 +246,14 @@ namespace LightingModels {
                 newToggle.targetGraphic = imgs.bg;
                 newToggle.isOn = initialState;
                 newToggle.onValueChanged.AddListener((newVal) => {
-                    UpdateToggleIconColor(newToggle);
+                    UpdateToggleIconColor(newToggle, imgs.icon);
                     onStateChanged?.Invoke(newVal);
                 });
                 return newToggle;
-
             }
 
-            void UpdateToggleIconColor (Toggle inputToggle) {
-                var toggleIndex = headerSelectables.IndexOf(inputToggle);
-                headerSelectableIcons[toggleIndex].color = inputToggle.isOn ? toggleOnColor : toggleOffColor;
+            void UpdateToggleIconColor (Toggle inputToggle, Image inputImage) {
+                inputImage.color = inputToggle.isOn ? toggleOnColor : toggleOffColor;
             }
         }
 
@@ -286,38 +293,32 @@ namespace LightingModels {
             return newField;
         }
 
-        public void ShowImage (Sprite sprite, bool rebuildContent = true) {
+        void NotYetInitAbortConditionalUpdateThingy (System.Action ifNotAborted, bool rebuildContent) {
             if(NotYetInitAbort()){
                 return;
             }
-            bottomImage.SetGOActive(true);
-            bottomImage.sprite = sprite;
+            ifNotAborted?.Invoke();
             ConditionalRebuildContent(rebuildContent);
         }
 
-        public void HideImage (bool rebuildContent = true) {
-            if(NotYetInitAbort()){
-                return;
-            }
-            bottomImage.SetGOActive(false);
-            ConditionalRebuildContent(rebuildContent);
+        public void SetBottomImageShown (bool value, bool rebuildContent = true) {
+            NotYetInitAbortConditionalUpdateThingy(() => {m_bottomImageShouldBeShown = value; UpdateBottomImageVisibility();}, rebuildContent);
         }
 
-        public void ShowText (string textToShow, bool rebuildContent = true) {
-            if(NotYetInitAbort()){
-                return;
-            }
-            bottomText.SetGOActive(true);
-            bottomText.text = textToShow;
-            ConditionalRebuildContent(rebuildContent);
+        void UpdateBottomImageVisibility (bool rebuildContent = true) {
+            bottomImage.SetGOActive(m_bottomImageShouldBeShown && !m_forceHideBottomImage);
         }
 
-        public void HideText (bool rebuildContent = true) {
-            if(NotYetInitAbort()){
-                return;
-            }
-            bottomText.SetGOActive(false);
-            ConditionalRebuildContent(rebuildContent);
+        public void SetBottomTextShown (bool value, bool rebuildContent = true) {
+            NotYetInitAbortConditionalUpdateThingy(() => {bottomText.SetGOActive(value);}, rebuildContent);
+        }
+
+        public void UpdateBottomImage (Sprite newImageSprite, bool rebuildContent = true) {
+            NotYetInitAbortConditionalUpdateThingy(() => {bottomImage.sprite = newImageSprite;}, rebuildContent);
+        }
+
+        public void UpdateBottomText (string newText, bool rebuildContent = true) {
+            NotYetInitAbortConditionalUpdateThingy(() => {bottomText.text = newText;}, rebuildContent);
         }
 
         public void DestroyPropFields (int startIndex = 0, bool rebuildContent = true) {

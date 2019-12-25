@@ -352,7 +352,7 @@ public class ColorScheme : ScriptableObject {
     [SerializeField] Color lightingScreenScrollbarHover;
     [SerializeField] Color lightingScreenScrollbarClick;
     [SerializeField] Color lightingScreenScrollbarBackground;
-    [SerializeField] Color lighitngScreenButtonIcon;
+    [SerializeField] Color lightingScreenButtonIcon;
     [SerializeField] Color lightingScreenButton;
     [SerializeField] Color lightingScreenButtonHover;
     [SerializeField] Color lightingScreenButtonClick;
@@ -380,7 +380,7 @@ public class ColorScheme : ScriptableObject {
     public Color LightingScreenScrollbarHover => lightingScreenScrollbarHover;
     public Color LightingScreenScrollbarClick => lightingScreenScrollbarClick;
     public Color LightingScreenScrollbarBackground => lightingScreenScrollbarBackground;
-    public Color LighitngScreenButtonIcon => lighitngScreenButtonIcon;
+    public Color LightingScreenButtonIcon => lightingScreenButtonIcon;
     public Color LightingScreenButton => lightingScreenButton;
     public Color LightingScreenButtonHover => lightingScreenButtonHover;
     public Color LightingScreenButtonClick => lightingScreenButtonClick;

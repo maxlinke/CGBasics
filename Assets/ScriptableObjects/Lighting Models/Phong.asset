@@ -19,5 +19,5 @@ MonoBehaviour:
   m_equation: {fileID: 0}
   m_usedProperties:
   - {fileID: 11400000, guid: 1d78e56dd2ef465478a3a3b3150541e8, type: 2}
-  - {fileID: 11400000, guid: 807938ffa910cca488cb058528eb1b63, type: 2}
   - {fileID: 11400000, guid: 20359b17115bc414f858728129bcc77a, type: 2}
+  - {fileID: 11400000, guid: 807938ffa910cca488cb058528eb1b63, type: 2}

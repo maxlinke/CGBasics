@@ -31,10 +31,11 @@ public class ModelPicker : MonoBehaviour {
         var buttonSetups = new List<Foldout.ButtonSetup>();
         foreach(var model in loadedModels){
             string modelName = model.name;
+            string modelDesc = model.description;
             LoadedModel modelCopy = model;
             buttonSetups.Add(new Foldout.ButtonSetup(
                 buttonName: modelName,
-                buttonHoverMessage: modelName,
+                buttonHoverMessage: modelDesc,
                 buttonClickAction: () => {buttonClick?.Invoke(modelCopy);},
                 buttonInteractable: true
             ));
@@ -60,12 +61,14 @@ public class LoadedModel {
     public readonly string name;
     public readonly Color color;
     public readonly Color specularColor;
+    public readonly string description;
 
-    public LoadedModel (Mesh mesh, string name, Color color, Color specularColor) {
+    public LoadedModel (Mesh mesh, string name, Color color, Color specularColor, string description) {
         this.mesh = mesh;
         this.name = name;
         this.color = color;
-        this.specularColor = color;
+        this.specularColor = specularColor;
+        this.description = description;
     }
 
     public LoadedModel (ModelPreset preset) {
@@ -73,6 +76,7 @@ public class LoadedModel {
         this.name = preset.name;
         this.color = preset.color;
         this.specularColor = preset.specColor;
+        this.description = preset.description;
     }
 
 }

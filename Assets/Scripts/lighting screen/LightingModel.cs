@@ -11,7 +11,7 @@ public class LightingModel : ScriptableObject {
 
     [SerializeField] LightingModel.Type m_type;
     [SerializeField] Shader m_shader;
-    [SerializeField, Multiline] string m_description;
+    [SerializeField, TextArea(3, 10)] string m_description;
     [SerializeField] Sprite m_equation;
     [SerializeField] ShaderProperty[] m_usedProperties;
 

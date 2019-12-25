@@ -45,6 +45,18 @@ namespace LightingModels {
             }
         }
 
+        bool m_bottomTextShouldBeShown;
+        bool m_forceShowBottomText;
+        public bool forceShowBottomText {
+            get {
+                return m_forceShowBottomText;
+            } set {
+                m_forceShowBottomText = value;
+                UpdateBottomTextVisibility();
+            }
+        }
+
+
         public IEnumerator<UIPropertyField> GetEnumerator () {
             foreach(var propField in propFields){
                 yield return propField;
@@ -88,6 +100,8 @@ namespace LightingModels {
             headerDropShadow.rectTransform.anchoredPosition += new Vector2(1, -1);
             bottomImage.SetGOActive(false);
             bottomText.SetGOActive(false);
+            bottomImage.sprite = null;
+            bottomText.text = string.Empty;
             this.m_forceHideBottomImage = false;
             this.initialized = true;
             ConditionalRebuildContent(rebuildContent);
@@ -310,7 +324,11 @@ namespace LightingModels {
         }
 
         public void SetBottomTextShown (bool value, bool rebuildContent = true) {
-            NotYetInitAbortConditionalUpdateThingy(() => {bottomText.SetGOActive(value);}, rebuildContent);
+            NotYetInitAbortConditionalUpdateThingy(() => {m_bottomTextShouldBeShown = value; UpdateBottomTextVisibility();}, rebuildContent);
+        }
+
+        void UpdateBottomTextVisibility (bool rebuildContent = true) {
+            bottomText.SetGOActive(m_bottomTextShouldBeShown || m_forceShowBottomText);
         }
 
         public void UpdateBottomImage (Sprite newImageSprite, bool rebuildContent = true) {

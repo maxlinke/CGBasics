@@ -480,7 +480,10 @@ public class LightingScreen : MonoBehaviour {
             specularColorPropertyField.UpdateColor(newModel.specularColor);
         }
         modelPropertyGroup.SetName(CreateGroupName(modelGroupName, newModel.name));
+        modelPropertyGroup.SetBottomTextShown(true);
+        modelPropertyGroup.UpdateBottomText(newModel.description);
         renderViewController.LoadMesh(newModel.mesh);
+        RebuildContent();
     }
 
     void LoadLightingModel (LightingModel lm, LightingModel defaultLM, UIPropertyGroup propertyGroup, string groupName, ref LightingModel lmField) {
@@ -492,11 +495,13 @@ public class LightingScreen : MonoBehaviour {
             propertyGroup.SetName(CreateGroupName(groupName, "None"));
             propertyGroup.UpdateBottomText("No lighting model selected", false);
             propertyGroup.forceHideBottomImage = true;
+            propertyGroup.forceShowBottomText = true;
         }else{
             propertyGroup.SetName(CreateGroupName(groupName, lm.name));
             propertyGroup.UpdateBottomText(lm.description, false);
             propertyGroup.UpdateBottomImage(lm.equation);
             propertyGroup.forceHideBottomImage = (lm.equation == null);
+            propertyGroup.forceShowBottomText = false;
         }
         lmField = lm;
         UpdatePropertyFieldActiveStatesAndRebuildEverything();

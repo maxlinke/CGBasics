@@ -421,7 +421,7 @@ public class LightingScreen : MonoBehaviour {
         }
         mpbUpToDate = false;
         CheckForWidthChangeAndRebuildIfNeccessary();
-        windowOverlay.SetHeaderShown(scrollRect.content.anchoredPosition.y < scrollYForHidingPropWindowHeader);
+        windowOverlay.headerShouldBeVisible = (scrollRect.content.anchoredPosition.y < scrollYForHidingPropWindowHeader);
 
         void CheckForWidthChangeAndRebuildIfNeccessary () {
             float currentScrollContentWidth = scrollRect.content.rect.width;

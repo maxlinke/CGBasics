@@ -214,7 +214,7 @@ half Specular_Cook_Torrance (lm_input input) {
     half f = Schlicks_Fresnel_Approximation_Intensity(input);
     half g = Geometric_Attenuation(input);
     
-    return (d * f * g) / (UNITY_PI * input.nDotV * input.nDotL);
+    return saturate((d * f * g) / (UNITY_PI * input.nDotV * input.nDotL));
 }
 
 half Ward (lm_input input, half roughness, half exponent) {

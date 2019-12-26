@@ -14,9 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_type: 0
   m_shader: {fileID: 4800000, guid: 84539e2353c24fb48843ef791947a797, type: 3}
-  m_description: A model of a "perfectly diffuse" surface. The standard model for
-    diffuse reflections in real-time CG. Named after Johann Heinrich Lambert and dating
-    back to the mid-18th century.
+  m_description: The standard model for diffuse reflections in real-time CG. Named
+    after Johann Heinrich Lambert and dating back to the mid-18th century.
   m_equation: {fileID: 0}
   m_usedProperties:
   - {fileID: 11400000, guid: bdf75838d46d37d4d83a536bd970cb0e, type: 2}

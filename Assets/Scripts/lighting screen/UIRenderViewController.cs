@@ -24,6 +24,7 @@ namespace LightingModels {
         [SerializeField] float lightGizmoRayLength;
 
         [Header("Cam Settings")]
+        [SerializeField] bool camAllowAA;
         [SerializeField] Vector2 camRectPosition;
         [SerializeField] Vector2 camRectDimensions;
         [SerializeField] Vector3 defaultEuler;
@@ -101,6 +102,7 @@ namespace LightingModels {
                 cam = new GameObject("Render Cam", typeof(Camera)).GetComponent<Camera>();
                 cam.cullingMask = 1 << renderLayer;
                 cam.backgroundColor = Color.black;
+                cam.allowMSAA = camAllowAA;             // TODO disable in web-version?
                 cam.transform.SetParent(camXRotParent, false);
                 cam.transform.ResetLocalScale();
                 var camScript = cam.gameObject.AddComponent<ControlledCamera>();

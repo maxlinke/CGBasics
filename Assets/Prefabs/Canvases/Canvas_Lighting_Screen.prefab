@@ -740,10 +740,11 @@ MonoBehaviour:
   colorPropertiesAreModelProperties: 0
   modelPropsAreAlwaysVisible: 0
   additionalSpaceAtTheTop: 30
-  additionalSpaceAtTheBottom: 20
+  additionalSpaceAtTheBottom: 40
   groupLabelPrefixSize: 90
   groupLabelSuffixSize: 120
   applyModelPresetColors: 1
+  scrollYForHidingPropWindowHeader: 10
   nullDiffuseLM: {fileID: 11400000, guid: 0d18cd5f03713bf43b1f92146881d9e4, type: 2}
   nullSpecularLM: {fileID: 11400000, guid: 0d18cd5f03713bf43b1f92146881d9e4, type: 2}
   lightingModels:
@@ -1127,6 +1128,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   windowDresser: {fileID: 2428496727129315204}
   uiParent: {fileID: 5768577790569926954}
+  headerHideUnhideTime: 0.1
 --- !u!1 &6264553686162952787
 GameObject:
   m_ObjectHideFlags: 0
@@ -1219,6 +1221,7 @@ MonoBehaviour:
   renderLayer: 10
   lightGizmoDistance: 1.4142135
   lightGizmoRayLength: 0.3
+  camAllowAA: 1
   camRectPosition: {x: 0.5, y: 0}
   camRectDimensions: {x: 0.5, y: 0.5}
   defaultEuler: {x: 10, y: -30, z: 0}

@@ -20,6 +20,7 @@ public abstract class WindowOverlay : MonoBehaviour {
     protected List<Image> toggleIcons;
 
     protected Button resetButton;
+    protected RectTransform resetButtonRT;
     protected Image resetButtonBackground;
     protected Image resetButtonIcon;
 
@@ -117,9 +118,9 @@ public abstract class WindowOverlay : MonoBehaviour {
     protected virtual void CreateResetButtonAndLabel (string initialLabelText, string hoverMessage, System.Action onResetButtonClicked) {
         windowDresser.Begin(uiParent, new Vector2(0, 1), new Vector2(1, 0), Vector2.zero);
         // the reset button
-        var resetRT = windowDresser.CreateCircleWithIcon(UISprites.UIReset, "Reset", hoverMessage, out resetButtonIcon, out resetButtonBackground);
-        resetRT.gameObject.AddComponent<Button>();
-        resetButton = resetRT.GetComponent<Button>();
+        resetButtonRT = windowDresser.CreateCircleWithIcon(UISprites.UIReset, "Reset", hoverMessage, out resetButtonIcon, out resetButtonBackground);
+        resetButtonRT.gameObject.AddComponent<Button>();
+        resetButton = resetButtonRT.GetComponent<Button>();
         resetButton.targetGraphic = resetButtonBackground;
         resetButton.onClick.AddListener(() => { onResetButtonClicked.Invoke(); });
         // the label

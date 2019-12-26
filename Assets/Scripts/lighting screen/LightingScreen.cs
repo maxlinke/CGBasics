@@ -29,6 +29,7 @@ public class LightingScreen : MonoBehaviour {
     [SerializeField] float groupLabelPrefixSize;
     [SerializeField] float groupLabelSuffixSize;
     [SerializeField] bool applyModelPresetColors;
+    [SerializeField] float scrollYForHidingPropWindowHeader;
 
     [Header("Lighting Models")]
     [SerializeField] LightingModel nullDiffuseLM;
@@ -389,7 +390,6 @@ public class LightingScreen : MonoBehaviour {
         LoadDiffuseLightingModel(defaultDiffuseModel);
         LoadSpecularLightingModel(defaultSpecularModel);
         LoadLightingSetup(defaultLightingSetup, true, !isInit);
-        // renderViewController.ResetCamera();
         diffuseInfoToggle.isOn = false;
         specularInfoToggle.isOn = false;
     }
@@ -421,15 +421,7 @@ public class LightingScreen : MonoBehaviour {
         }
         mpbUpToDate = false;
         CheckForWidthChangeAndRebuildIfNeccessary();
-        if(scrollRect.content.anchoredPosition.y == 0){
-            if(!windowOverlay.labelGOActive){
-                windowOverlay.SetHeaderShown(true);
-            }
-        }else{
-            if(windowOverlay.labelGOActive){
-                windowOverlay.SetHeaderShown(false);
-            }
-        }
+        windowOverlay.SetHeaderShown(scrollRect.content.anchoredPosition.y < scrollYForHidingPropWindowHeader);
 
         void CheckForWidthChangeAndRebuildIfNeccessary () {
             float currentScrollContentWidth = scrollRect.content.rect.width;

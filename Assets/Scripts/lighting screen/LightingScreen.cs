@@ -386,6 +386,11 @@ public class LightingScreen : MonoBehaviour {
     }
 
     void LoadDefaultState (bool isInit) {
+        foreach(var propGroup in allPropertyGroups){
+            foreach(var propField in propGroup){
+                propField.ResetToDefault();
+            }
+        }
         LoadModel(new LoadedModel(defaultModel));
         LoadDiffuseLightingModel(defaultDiffuseModel);
         LoadSpecularLightingModel(defaultSpecularModel);

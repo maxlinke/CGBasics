@@ -11,6 +11,10 @@ namespace LightingModels {
         [SerializeField] float minWidthRectTransformWidth;
         [SerializeField] float labelRightMargin;
 
+        float initMin;
+        float initMax;
+        float initValue;
+
         public override void LoadColors (ColorScheme cs) {
             base.LoadColors(cs);
             sliderAndInputField.sliderBG.color = cs.LightingScreenSliderBackground;
@@ -59,6 +63,14 @@ namespace LightingModels {
             sliderAndInputField.onValueUpdated += onValueChanged;
             sliderAndInputField.clampInputFieldValues = clampInputField;
             sliderAndInputField.inputFieldScrollMultiplier = scrollMultiplier;
+            this.initMin = initMin;
+            this.initMax = initMax;
+            this.initValue = initValue;
+        }
+
+        public override void ResetToDefault () {
+            sliderAndInputField.SetSliderRange(initMin, initMax);
+            sliderAndInputField.currentValue = initValue;
         }
 
     }

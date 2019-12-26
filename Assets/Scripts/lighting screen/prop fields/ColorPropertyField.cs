@@ -12,6 +12,7 @@ namespace LightingModels {
 
         bool initialized = false;
         System.Action<Color> onColorChanged;
+        Color initColor;
 
         public override void LoadColors (ColorScheme cs) {
             base.LoadColors(cs);
@@ -38,6 +39,7 @@ namespace LightingModels {
             colorDisplay.color = initColor;
             colorPickerOpenButton.onClick.AddListener(ButtonClicked);
             this.onColorChanged = onColorChanged;
+            this.initColor = initColor;
             initialized = true;
 
             void ButtonClicked () {
@@ -53,6 +55,11 @@ namespace LightingModels {
         public void UpdateColor (Color newColor) {
             colorDisplay.color = newColor;
             onColorChanged?.Invoke(newColor);
+        }
+
+        public override void ResetToDefault () {
+            colorDisplay.color = initColor;
+            onColorChanged?.Invoke(initColor);
         }
 
     }

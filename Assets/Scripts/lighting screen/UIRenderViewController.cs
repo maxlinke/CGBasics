@@ -16,6 +16,8 @@ namespace LightingModels {
         // TODO window overlay 
         // or not. don't need any buttons tbh...
 
+        [SerializeField] RenderViewWindowOverlay windowOverlay;
+
         [Header("Settings")]
         [SerializeField] int renderLayer;
         [SerializeField] float lightGizmoDistance;
@@ -70,6 +72,7 @@ namespace LightingModels {
         public void LoadColors (ColorScheme cs) {
             cam.backgroundColor = cs.LightingScreenRenderBackground;
             wireFloorColor = cs.LightingScreenRenderGrid;
+            windowOverlay.LoadColors(cs);
         }
 
         public void Initialize (LightingScreen lightingScreen) {
@@ -82,6 +85,7 @@ namespace LightingModels {
             CreateRenderObject();
             CreateLightsParent();
             lights = new List<Light>();
+            windowOverlay.Initialize(ResetCamera);
 
             this.initialized = true;
             ResetCamera();

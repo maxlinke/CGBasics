@@ -10,6 +10,7 @@
             this.initialized = true;
         }
 
+        // TODO a small blend-in (from the top) coroutine?
         public void SetHeaderShown (bool value) {
             if(!initialized){
                 return;

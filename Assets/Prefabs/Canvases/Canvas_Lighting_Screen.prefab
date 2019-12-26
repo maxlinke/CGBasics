@@ -454,6 +454,41 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &2328334392044646634
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6034692407904005004}
+  m_Layer: 5
+  m_Name: Overlay Parent
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &6034692407904005004
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2328334392044646634}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 2693358137620880214}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: -20, y: -20}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &2413075083802852638
 GameObject:
   m_ObjectHideFlags: 0
@@ -1104,6 +1139,7 @@ GameObject:
   - component: {fileID: 1346933917619732419}
   - component: {fileID: 5846869415186036417}
   - component: {fileID: 839271745386528298}
+  - component: {fileID: 8023073832735854105}
   m_Layer: 5
   m_Name: Bottom Right (Render View)
   m_TagString: Untagged
@@ -1123,6 +1159,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 2056087932560592824}
+  - {fileID: 6034692407904005004}
   m_Father: {fileID: 4165017083622523319}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1178,6 +1215,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 348112853452de2468b4d09c44c3932c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  windowOverlay: {fileID: 8023073832735854105}
   renderLayer: 10
   lightGizmoDistance: 1.4142135
   lightGizmoRayLength: 0.3
@@ -1190,6 +1228,20 @@ MonoBehaviour:
   defaultDist: 1.5
   minDist: 1
   maxDist: 3
+--- !u!114 &8023073832735854105
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6264553686162952787}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 48e9d0aab9c03dd42a7da607c9b0328d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  windowDresser: {fileID: 2428496727129315204}
+  uiParent: {fileID: 6034692407904005004}
 --- !u!1 &7600718481190607674
 GameObject:
   m_ObjectHideFlags: 0

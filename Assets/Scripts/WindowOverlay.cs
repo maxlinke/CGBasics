@@ -40,7 +40,7 @@ public abstract class WindowOverlay : MonoBehaviour {
             return resetButton.interactable;
         } set {
             resetButton.interactable = value;
-            SetColorsForActiveState(resetButtonBackground, resetButtonIcon, value);
+            SetColorsForActiveState(resetButtonBackground, resetButtonIcon, value, resetButton);
             OnResetButtonActiveStateChanged(value);
         }
     }
@@ -72,11 +72,11 @@ public abstract class WindowOverlay : MonoBehaviour {
 
     protected void ApplyLoadedColorsToTogglesAndButtons () {
         for(int i=0; i<toggles.Count; i++){
-            toggles[i].SetFadeTransition(0f, Color.white, buttonHover, buttonClick, Color.magenta);
-            SetColorsForActiveState(toggleBackgrounds[i], toggleIcons[i], toggles[i].isOn);
+            // toggles[i].SetFadeTransition(0f, Color.white, buttonHover, buttonClick, Color.magenta);
+            SetColorsForActiveState(toggleBackgrounds[i], toggleIcons[i], toggles[i].isOn, toggles[i]);
         }
-        resetButton.SetFadeTransition(0f, Color.white, buttonHover, buttonClick, Color.white);
-        SetColorsForActiveState(resetButtonBackground, resetButtonIcon, resetButton.interactable);
+        // resetButton.SetFadeTransition(0f, Color.white, buttonHover, buttonClick, Color.white);
+        SetColorsForActiveState(resetButtonBackground, resetButtonIcon, resetButton.interactable, resetButton);
     }
 
     // public virtual void LoadColors (ColorScheme cs) {
@@ -96,18 +96,22 @@ public abstract class WindowOverlay : MonoBehaviour {
     //     SetColorsForActiveState(resetButtonBackground, resetButtonIcon, resetButton.interactable);
     // }
 
-    protected void SetColorsForActiveState (Image backgroundImage, Image iconImage, bool activeState) {
+    protected void SetColorsForActiveState (Image backgroundImage, Image iconImage, bool activeState, Selectable targetSelectable) {
         if(activeState){
-            backgroundImage.color = buttonBackgroundActive;
+            // backgroundImage.color = buttonBackgroundActive;
+            backgroundImage.color = Color.white;
             iconImage.color = buttonIconActive;
+            targetSelectable.SetFadeTransition(0f, buttonBackgroundActive, buttonHover, buttonClick, Color.magenta);
         }else{
-            backgroundImage.color = buttonBackgroundInactive;
+            // backgroundImage.color = buttonBackgroundInactive;
+            backgroundImage.color = Color.white;
             iconImage.color = buttonIconInactive;
+            targetSelectable.SetFadeTransition(0f, buttonBackgroundInactive, buttonHover, buttonClick, Color.magenta);
         }
     }
 
     protected void SetToggleColors (int toggleIndex) {
-        SetColorsForActiveState(toggleBackgrounds[toggleIndex], toggleIcons[toggleIndex], toggles[toggleIndex].isOn);
+        SetColorsForActiveState(toggleBackgrounds[toggleIndex], toggleIcons[toggleIndex], toggles[toggleIndex].isOn, toggles[toggleIndex]);
     }
 
     protected virtual void CreateResetButtonAndLabel (string initialLabelText, string hoverMessage, System.Action onResetButtonClicked) {

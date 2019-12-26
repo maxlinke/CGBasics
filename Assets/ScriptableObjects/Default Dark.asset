@@ -180,6 +180,6 @@ MonoBehaviour:
   lswoButtonIconActive: {r: 0.8, g: 0.8, b: 0.8, a: 1}
   lswoButtonIconInactive: {r: 0.8, g: 0.8, b: 0.8, a: 0.33333334}
   lswoButtonBackgroundActive: {r: 0.4, g: 0.4, b: 0.4, a: 0.5019608}
-  lswoButtonBackgroundInactive: {r: 1, g: 0, b: 1, a: 0.5019608}
+  lswoButtonBackgroundInactive: {r: 0.4, g: 0.4, b: 0.4, a: 0.5019608}
   lswoButtonHover: {r: 0.8, g: 0.8, b: 0.8, a: 0.33333334}
   lswoButtonClick: {r: 0.5, g: 0.5, b: 0.5, a: 0.5019608}

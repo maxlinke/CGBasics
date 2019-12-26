@@ -50,3 +50,7 @@ MonoBehaviour:
     type: 3}
   mCamCtrlShowCulling: {fileID: 21300000, guid: 1ff0354b05ecd6c43b842abc803147b0,
     type: 3}
+  lsRenderAmbientLight: {fileID: 21300000, guid: 35af0c75a1e4a9740a17df834a9b9e24,
+    type: 3}
+  lsGraphRGB: {fileID: 0}
+  lsGraphSobel: {fileID: 0}

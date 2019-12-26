@@ -103,4 +103,13 @@ public class UISprites : ScriptableObject {
     public static Sprite MCamCtrlDrawClipBox => instance.mCamCtrlDrawClipBox;
     public static Sprite MCamCtrlShowCulling => instance.mCamCtrlShowCulling;
 
+    [Header("Lighting Screen")]
+    [SerializeField] Sprite lsRenderAmbientLight;
+    [SerializeField] Sprite lsGraphRGB;
+    [SerializeField] Sprite lsGraphSobel;
+
+    public static Sprite LSRenderAmbientLight => instance.lsRenderAmbientLight;
+    public static Sprite LSGraphRGB => instance.lsGraphRGB;
+    public static Sprite LSGraphSobel => instance.lsGraphSobel;
+
 }

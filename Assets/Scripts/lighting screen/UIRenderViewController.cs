@@ -51,6 +51,7 @@ namespace LightingModels {
         Material glMatSolid;
         Material glMatTransparent;
         Color wireFloorColor;
+        Color camBackgroundColor;
 
         PointerType currentPointerType;
         Vector3 lastMousePos;
@@ -70,7 +71,8 @@ namespace LightingModels {
         }
 
         public void LoadColors (ColorScheme cs) {
-            cam.backgroundColor = cs.LightingScreenRenderBackground;
+            // cam.backgroundColor = cs.LightingScreenRenderBackground;
+            camBackgroundColor = cs.LightingScreenRenderBackground;
             wireFloorColor = cs.LightingScreenRenderGrid;
             windowOverlay.LoadColors(cs);
         }
@@ -85,7 +87,7 @@ namespace LightingModels {
             CreateRenderObject();
             CreateLightsParent();
             lights = new List<Light>();
-            windowOverlay.Initialize(ResetCamera);
+            windowOverlay.Initialize(ResetCamera, initialAmbientToggleState: false);
 
             this.initialized = true;
             ResetCamera();
@@ -101,7 +103,9 @@ namespace LightingModels {
                 cam.backgroundColor = Color.black;
                 cam.transform.SetParent(camXRotParent, false);
                 cam.transform.ResetLocalScale();
-                cam.gameObject.AddComponent<ControlledCamera>().onPostRender += OnCamPostRender;
+                var camScript = cam.gameObject.AddComponent<ControlledCamera>();
+                camScript.onPreRender += OnCamPreRender;
+                camScript.onPostRender += OnCamPostRender;
             }
 
             void CreateRenderObject () {
@@ -116,6 +120,10 @@ namespace LightingModels {
                 lightsParent.position = pivotPoint;
                 lightsParent.gameObject.layer = renderLayer;
             }
+        }
+
+        void OnCamPreRender () {
+            cam.backgroundColor = windowOverlay.bgIsAmientColorToggle.isOn ? RenderSettings.ambientLight : camBackgroundColor;
         }
 
         void OnCamPostRender () {
@@ -346,7 +354,12 @@ namespace LightingModels {
 
         private class ControlledCamera : MonoBehaviour {
 
+            public event System.Action onPreRender = delegate {};
             public event System.Action onPostRender = delegate {};
+
+            void OnPreRender () {
+                onPreRender.Invoke();
+            }
 
             void OnPostRender () {
                 onPostRender.Invoke();

@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 namespace MatrixScreenUtils {
@@ -15,10 +14,7 @@ namespace MatrixScreenUtils {
         public Toggle vectorToggle { get; private set; }
 
         public void Initialize (MatrixScreen matrixScreen, bool glInit, System.Action<bool> onGLToggled, bool orthoInit, System.Action<bool> onOrthoToggled, bool vectorInit, System.Action<bool> onVectorToggled) {
-            toggles = new List<Toggle>();
-            toggleBackgrounds = new List<Image>();
-            toggleIcons = new List<Image>();
-
+            InitializeLists();
             int toggleIndex = 0;
             windowDresser.Begin(uiParent, new Vector2(1, 1), new Vector2(0, -1), new Vector2(0, 0));
             glToggle = CreateSpecialToggle(

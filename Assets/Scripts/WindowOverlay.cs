@@ -45,7 +45,39 @@ public abstract class WindowOverlay : MonoBehaviour {
         }
     }
 
+    public bool labelGOActive {
+        get {
+            return label.gameObject.activeSelf;
+        } set {
+            label.SetGOActive(value);
+            labelDropShadow.SetGOActive(value);
+        }
+    }
+
+    public bool resetButtonGOActive {
+        get {
+            return resetButton.gameObject.activeSelf;
+        } set {
+            resetButton.SetGOActive(value);
+        }
+    }
+
+    protected void InitializeLists () {
+        toggles = new List<Toggle>();
+        toggleBackgrounds = new List<Image>();
+        toggleIcons = new List<Image>();
+    }
+
     public abstract void LoadColors (ColorScheme cs);
+
+    protected void ApplyLoadedColorsToTogglesAndButtons () {
+        for(int i=0; i<toggles.Count; i++){
+            toggles[i].SetFadeTransition(0f, Color.white, buttonHover, buttonClick, Color.magenta);
+            SetColorsForActiveState(toggleBackgrounds[i], toggleIcons[i], toggles[i].isOn);
+        }
+        resetButton.SetFadeTransition(0f, Color.white, buttonHover, buttonClick, Color.white);
+        SetColorsForActiveState(resetButtonBackground, resetButtonIcon, resetButton.interactable);
+    }
 
     // public virtual void LoadColors (ColorScheme cs) {
     //     label.color = cs.MatrixWindowLabel;

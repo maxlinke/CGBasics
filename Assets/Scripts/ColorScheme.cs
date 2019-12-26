@@ -401,6 +401,25 @@ public class ColorScheme : ScriptableObject {
 
     public Color LightingScreenRenderBackground => lightingScreenRenderBackground;
     public Color LightingScreenRenderGrid => lightingScreenRenderGrid;
+
+    [Header("Lighting Screen Window Overlays")]
+    [SerializeField] Color lswoLabel;
+    [SerializeField] Color lswoDropShadow;
+    [SerializeField] Color lswoButtonIconActive;
+    [SerializeField] Color lswoButtonIconInactive;
+    [SerializeField] Color lswoButtonBackgroundActive;
+    [SerializeField] Color lswoButtonBackgroundInactive;
+    [SerializeField] Color lswoButtonHover;
+    [SerializeField] Color lswoButtonClick;
+
+    public Color LSWOLabel => lswoLabel;
+    public Color LSWODropShadow => lswoDropShadow;
+    public Color LSWOButtonIconActive => lswoButtonIconActive;
+    public Color LSWOButtonIconInactive => lswoButtonIconInactive;
+    public Color LSWOButtonBackgroundActive => lswoButtonBackgroundActive;
+    public Color LSWOButtonBackgroundInactive => lswoButtonBackgroundInactive;
+    public Color LSWOButtonHover => lswoButtonHover;
+    public Color LSWOButtonClick => lswoButtonClick;
     
 }
 

@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 namespace MatrixScreenUtils {
@@ -19,10 +17,7 @@ namespace MatrixScreenUtils {
 
         public void Initialize (CustomCameraUIController camController) {
             this.camController = camController;
-
-            toggles = new List<Toggle>();
-            toggleBackgrounds = new List<Image>();
-            toggleIcons = new List<Image>();
+            InitializeLists();
             CreateRightSideToggles();
             var initLabelText = camController.IsExternalCamController ? externalCamLabelText : renderCamLabelText;
             CreateResetButtonAndLabel(initLabelText, "Resets the view", camController.ResetCamera);

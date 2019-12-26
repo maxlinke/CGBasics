@@ -18,6 +18,7 @@ public class LightingScreen : MonoBehaviour {
     [SerializeField] Image[] borders;
     [SerializeField] ScrollRect scrollRect;
     [SerializeField] UIRenderViewController renderViewController;
+    [SerializeField] PropertyWindowOverlay windowOverlay;
 
     [Header("Settings")]
     [SerializeField] float scrollRectElementVerticalMargin;
@@ -64,6 +65,8 @@ public class LightingScreen : MonoBehaviour {
     List<UIPropertyGroup> allPropertyGroups;
     ColorPropertyField diffuseColorPropertyField;
     ColorPropertyField specularColorPropertyField;
+    Toggle diffuseInfoToggle;
+    Toggle specularInfoToggle;
 
     private class ShaderVariable {
         public readonly int id;
@@ -117,10 +120,12 @@ public class LightingScreen : MonoBehaviour {
             Debug.LogError($"Either no shaderproperties for diffuse or specular color found! Diff OK: {diffOK}, Spec OK: {specOK}.");
         }
         renderViewController.Initialize(this);
-        LoadModel(new LoadedModel(defaultModel));
-        LoadDiffuseLightingModel(defaultDiffuseModel);
-        LoadSpecularLightingModel(defaultSpecularModel);
-        LoadLightingSetup(defaultLightingSetup, true, false);
+        windowOverlay.Initialize(() => {LoadDefaultState(isInit: false);});
+        LoadDefaultState(isInit: true);
+        // LoadModel(new LoadedModel(defaultModel));
+        // LoadDiffuseLightingModel(defaultDiffuseModel);
+        // LoadSpecularLightingModel(defaultSpecularModel);
+        // LoadLightingSetup(defaultLightingSetup, true, false);
         this.initialized = true;
         LoadColors(ColorScheme.current);
 
@@ -265,7 +270,7 @@ public class LightingScreen : MonoBehaviour {
             lightsPropertyGroup.RebuildContent();
         }
 
-        UIPropertyGroup CreateLightingModelGroup (Dictionary<LightingModel, Material> lmDictionary, System.Action<LightingModel> loadModelAction, LightingModel nullLM, string groupName, string configButtonHoverMessage, string infoToggleHoverMessage) {
+        UIPropertyGroup CreateLightingModelGroup (Dictionary<LightingModel, Material> lmDictionary, System.Action<LightingModel> loadModelAction, LightingModel nullLM, string groupName, string configButtonHoverMessage, string infoToggleHoverMessage, ref Toggle infoToggle) {
             var newGroup = CreateNewPropGroup();
             newGroup.Initialize(groupName, false);
             List<Foldout.ButtonSetup> buttonSetups = new List<Foldout.ButtonSetup>();
@@ -276,7 +281,7 @@ public class LightingScreen : MonoBehaviour {
                 buttonSetups.Add(new Foldout.ButtonSetup(lm.name, lm.name, () => {loadModelAction(lmCopy);}, true));
             }
             newGroup.AddHeaderButton(UISprites.UIConfig, () => {Foldout.Create(buttonSetups, null, 1f);}, hoverMessage: configButtonHoverMessage);
-            newGroup.AddHeaderToggle(UISprites.UIInfo, false, (b) => {newGroup.SetBottomImageShown(b); newGroup.SetBottomTextShown(b); newGroup.RebuildContent(); RebuildContent();}, infoToggleHoverMessage);
+            infoToggle = newGroup.AddHeaderToggle(UISprites.UIInfo, false, (b) => {newGroup.SetBottomImageShown(b); newGroup.SetBottomTextShown(b); newGroup.RebuildContent(); RebuildContent();}, infoToggleHoverMessage);
             return newGroup;
         }
 
@@ -332,7 +337,8 @@ public class LightingScreen : MonoBehaviour {
                 nullLM: nullDiffuseLM,
                 groupName: diffGroupName,
                 configButtonHoverMessage: "Load diffuse lighting model",
-                infoToggleHoverMessage: "Show information"
+                infoToggleHoverMessage: "Show information",
+                infoToggle: ref diffuseInfoToggle
             );
             AddPropertyFieldsToGroup(LightingModel.Type.Diffuse, diffusePropertyGroup);
         }
@@ -344,7 +350,8 @@ public class LightingScreen : MonoBehaviour {
                 nullLM: nullSpecularLM,
                 groupName: specGroupName,
                 configButtonHoverMessage: "Load specular lighting model",
-                infoToggleHoverMessage: "Show information"
+                infoToggleHoverMessage: "Show information",
+                infoToggle: ref specularInfoToggle
             );
             AddPropertyFieldsToGroup(LightingModel.Type.Specular, specularPropertyGroup);
         }
@@ -374,6 +381,17 @@ public class LightingScreen : MonoBehaviour {
             pg.LoadColors(cs);
         }
         renderViewController.LoadColors(cs);
+        windowOverlay.LoadColors(cs);
+    }
+
+    void LoadDefaultState (bool isInit) {
+        LoadModel(new LoadedModel(defaultModel));
+        LoadDiffuseLightingModel(defaultDiffuseModel);
+        LoadSpecularLightingModel(defaultSpecularModel);
+        LoadLightingSetup(defaultLightingSetup, true, !isInit);
+        // renderViewController.ResetCamera();
+        diffuseInfoToggle.isOn = false;
+        specularInfoToggle.isOn = false;
     }
 
     void RebuildGroups () {
@@ -403,6 +421,15 @@ public class LightingScreen : MonoBehaviour {
         }
         mpbUpToDate = false;
         CheckForWidthChangeAndRebuildIfNeccessary();
+        if(scrollRect.content.anchoredPosition.y == 0){
+            if(!windowOverlay.labelGOActive){
+                windowOverlay.SetHeaderShown(true);
+            }
+        }else{
+            if(windowOverlay.labelGOActive){
+                windowOverlay.SetHeaderShown(false);
+            }
+        }
 
         void CheckForWidthChangeAndRebuildIfNeccessary () {
             float currentScrollContentWidth = scrollRect.content.rect.width;

@@ -175,3 +175,11 @@ MonoBehaviour:
   lightingScreenInputFieldSelection: {r: 0.333, g: 0.5, b: 0.67, a: 1}
   lightingScreenRenderBackground: {r: 0.1, g: 0.1, b: 0.1, a: 1}
   lightingScreenRenderGrid: {r: 0.5, g: 0.5, b: 0.5, a: 0.33333334}
+  lswoLabel: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  lswoDropShadow: {r: 0, g: 0, b: 0, a: 0.33333334}
+  lswoButtonIconActive: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  lswoButtonIconInactive: {r: 0.8, g: 0.8, b: 0.8, a: 1}
+  lswoButtonBackgroundActive: {r: 0.333, g: 0.333, b: 0.333, a: 0.5019608}
+  lswoButtonBackgroundInactive: {r: 0.45, g: 0.45, b: 0.45, a: 0.5019608}
+  lswoButtonHover: {r: 0.8, g: 0.8, b: 0.8, a: 1}
+  lswoButtonClick: {r: 0.5, g: 0.5, b: 0.5, a: 1}

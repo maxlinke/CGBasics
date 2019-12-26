@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 namespace MatrixScreenUtils {
 
-    public class MatrixWindowOverlay : WindowOverlay {
+    public class MatrixWindowOverlay : MatrixScreenWindowOverlay {
 
         private const string resetWarning = "(Resets matrix view)";
 

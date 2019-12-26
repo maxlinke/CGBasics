@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 namespace MatrixScreenUtils {
 
-    public class CamControllerWindowOverlay : WindowOverlay {
+    public class CamControllerWindowOverlay : MatrixScreenWindowOverlay {
 
         const string renderCamLabelText = "Render View";
         const string externalCamLabelText = "External View";

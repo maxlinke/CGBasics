@@ -1,30 +1,92 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class IntensityGraphDrawer : MonoBehaviour {
 
-    [SerializeField] Camera targetCam;
+    [Header("Components")]
     [SerializeField] Material blitMatTemplate;
+
+    [Header("Settings")]
+    [SerializeField] Vector2 camRectPos;
+    [SerializeField] Vector2 camRectSize;
     [SerializeField] float graphScale;
+    [SerializeField] float lineWidth;   // TODO this might have to be scaled with the screen size...
+
+    [Header("TODO REMOVE")]             // TODO remove
     [SerializeField] float lightAngle;
     [SerializeField] float viewAngle;
-    [SerializeField] float roughness;
 
+    bool initialized = false;
+    List<ShaderProperty> shaderProperties;
+    Camera targetCam;
     Material blitMat;
+    LightingScreen lightingScreen;
 
-    void Start () {
-        targetCam.gameObject.AddComponent<IntensityGraphCam>().onRenderImage += BlitGraphEffect;
-        blitMat = Instantiate(blitMatTemplate);
-        blitMat.hideFlags = HideFlags.HideAndDontSave;
+    public void Initialize (LightingScreen lightingScreen) {
+        CreateCamera();
+        CreateBlitMat();
+        CollectShaderProperties();
+        this.lightingScreen = lightingScreen;
+        this.initialized = true;
+
+        void CreateCamera () {
+            targetCam = new GameObject("Intensity Graph Cam", typeof(Camera)).GetComponent<Camera>();
+            targetCam.cullingMask = 0;
+            targetCam.rect = new Rect(camRectPos, camRectSize);
+            targetCam.gameObject.AddComponent<IntensityGraphCam>().onRenderImage += BlitGraphEffect;
+        }
+
+        void CreateBlitMat () {
+            blitMat = Instantiate(blitMatTemplate);
+            blitMat.hideFlags = HideFlags.HideAndDontSave;
+        }
+
+        void CollectShaderProperties () {
+            shaderProperties = new List<ShaderProperty>();
+            string debugOut = string.Empty;
+            foreach(var sp in Resources.FindObjectsOfTypeAll<ShaderProperty>()){        // TODO does this work 100% of the time?
+                shaderProperties.Add(sp);
+                debugOut += $"{sp.name}, ";
+            }
+            if(debugOut.Length > 0){
+                debugOut = debugOut.Remove(debugOut.Length - 2);     // to remove the last ", "
+                Debug.Log($"Found obects of type {nameof(ShaderProperty)}: {debugOut}.");
+            }
+        }
     }
 
-    void Update () {
-        blitMat.SetFloat("_GraphScale", graphScale);
-        blitMat.SetVector("_LightDir", new Vector4(Mathf.Sin(lightAngle), Mathf.Cos(lightAngle), 0, 0));
-        blitMat.SetVector("_ViewDir", new Vector4(Mathf.Sin(viewAngle), Mathf.Cos(viewAngle), 0, 0));
-        blitMat.SetFloat("_Roughness", roughness);
+    public void UpdateLightingModels (LightingModel diffLM, LightingModel specLM) {
+        string diffName = diffLM != null ? diffLM.name : "null";
+        string specName = specLM != null ? specLM.name : "null";
+        Debug.Log($"Diff: {diffName}, Spec: {specName}");
     }
+
+    void OnDestroy () {
+        if(targetCam != null && targetCam.gameObject != null){
+            Destroy(targetCam.gameObject);
+        }
+    }
+
+    void LateUpdate () {
+        if(!initialized){
+            return;
+        }
+        UpdateGraphMatValues(lightingScreen.GetMaterialPropertyBlock());
+
+        void UpdateGraphMatValues (MaterialPropertyBlock mpb) {
+            blitMat.SetFloat("_GraphScale", graphScale);
+            blitMat.SetFloat("_LineWidth", lineWidth);
+            blitMat.SetVector("_LightDir", new Vector4(Mathf.Sin(lightAngle), Mathf.Cos(lightAngle), 0, 0));
+            blitMat.SetVector("_ViewDir", new Vector4(Mathf.Sin(viewAngle), Mathf.Cos(viewAngle), 0, 0));
+            foreach(var sp in shaderProperties){
+                if(sp.type == ShaderProperty.Type.Float){
+                    blitMat.SetFloat(sp.name, mpb.GetFloat(sp.name));
+                }
+            }
+        }
+    }
+
+    public 
 
     void BlitGraphEffect (RenderTexture src, RenderTexture dst) {
         Graphics.Blit(src, dst, blitMat);

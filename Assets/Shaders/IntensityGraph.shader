@@ -5,9 +5,12 @@
 // be different for neighboring pixels...
 
     Properties {
-        // _GraphScale ("Graph Scale", Float) = 1.0
-        // _LightDir ("Light Dir", Vector) = (1.0, 1.0, 0.0, 0.0)
-        // _ViewDir ("View Dir", Vector) = (-1.0, 1.0, 0.0, 0.0)
+        _GraphScale ("Graph Scale", Float) = 1.0
+        _LightDir ("Light Dir", Vector) = (1.0, 1.0, 0.0, 0.0)
+        _ViewDir ("View Dir", Vector) = (-1.0, 1.0, 0.0, 0.0)
+        _ForegroundColor ("Foreground Color", Color) = (0.8, 0.8, 0.8, 1.0)
+        _BackgroundColor ("Background Color", Color) = (0.2, 0.2, 0.2, 1.0)
+        _LineWidth ("Line Width", Float) = 0.1
     }
 	
     SubShader {
@@ -38,6 +41,9 @@
             float _GraphScale;
             float4 _LightDir;
             float4 _ViewDir;
+            fixed4 _ForegroundColor;
+            fixed4 _BackgroundColor;
+            float _LineWidth;
 
             v2f vert (appdata v) {
                 v2f o;
@@ -73,9 +79,14 @@
                 // the spicy part
                 lm_input li = GetLMInput(t);
                 float eval = Diffuse_Oren_Nayar(li);
-                fixed colVal = eval <= distToCenter ? 1 : 0;
-                fixed4 col = fixed4(colVal, colVal, colVal, 1); 
-
+                // fixed colVal = eval <= distToCenter ? 1 : 0;
+                // fixed4 col = fixed4(colVal, colVal, colVal, 1);
+                float lerpMin = -_LineWidth / 2;
+                float lerpMax = +_LineWidth / 2;
+                float lerpVal = saturate(((distToCenter - eval) - lerpMin) / (lerpMax - lerpMin));
+                fixed4 col = lerp(_ForegroundColor, _BackgroundColor, lerpVal);
+                // col = frac(col);
+                
                 // fixed4 col = fixed4(i.uv.x, i.uv.y, 1, 1);
                 // fixed4 col = fixed4(distToCenter, distToCenter, distToCenter, 1);
                 // col = frac(col);

@@ -420,6 +420,11 @@ public class ColorScheme : ScriptableObject {
     public Color LSWOButtonBackgroundInactive => lswoButtonBackgroundInactive;
     public Color LSWOButtonHover => lswoButtonHover;
     public Color LSWOButtonClick => lswoButtonClick;
+
+    [Header("Lighting Screen Intensity Graph")]
+    [SerializeField] Color lsigBackground;
+    [SerializeField] Color lsigGraph;
+    [SerializeField] Color lsigUIElements;
     
 }
 

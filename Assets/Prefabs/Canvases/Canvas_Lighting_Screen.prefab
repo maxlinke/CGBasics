@@ -244,7 +244,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &5716436090326242443
 RectTransform:
   m_ObjectHideFlags: 0
@@ -507,7 +507,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &8732992497008622722
 RectTransform:
   m_ObjectHideFlags: 0
@@ -736,6 +736,7 @@ MonoBehaviour:
   scrollRect: {fileID: 2797079221870307155}
   renderViewController: {fileID: 839271745386528298}
   windowOverlay: {fileID: 6680443972947134815}
+  intensityGraphDrawer: {fileID: 3920902180817336182}
   scrollRectElementVerticalMargin: 20
   colorPropertiesAreModelProperties: 0
   modelPropsAreAlwaysVisible: 0
@@ -913,7 +914,7 @@ RectTransform:
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -962,9 +963,9 @@ GameObject:
   m_Component:
   - component: {fileID: 6589594033421234603}
   - component: {fileID: 4582669763428904655}
-  - component: {fileID: 6963303346003606614}
+  - component: {fileID: 3920902180817336182}
   m_Layer: 5
-  m_Name: Top Right
+  m_Name: Top Right (Intensity Graph)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -998,7 +999,7 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5375525189668706787}
   m_CullTransparentMesh: 0
---- !u!114 &6963303346003606614
+--- !u!114 &3920902180817336182
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1007,24 +1008,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 5375525189668706787}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: -765806418, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Script: {fileID: 11500000, guid: 39c7fe85a4468984294355572c4d9bc9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
-  m_Color: {r: 0.5, g: 0.5, b: 0.5, a: 1}
-  m_RaycastTarget: 0
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Sprite: {fileID: 0}
-  m_Type: 0
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
+  blitMatTemplate: {fileID: 2100000, guid: de5486dc68af2e843ad6fd67704fda38, type: 2}
+  camRectPos: {x: 0.5, y: 0.5}
+  camRectSize: {x: 0.5, y: 0.5}
+  graphScale: 1.5
+  lineWidth: 0.01
+  lightAngle: 0
+  viewAngle: 0
 --- !u!1 &5952719929888262804
 GameObject:
   m_ObjectHideFlags: 0
@@ -1529,7 +1522,7 @@ RectTransform:
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}

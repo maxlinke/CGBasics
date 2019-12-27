@@ -19,6 +19,7 @@ public class LightingScreen : MonoBehaviour {
     [SerializeField] ScrollRect scrollRect;
     [SerializeField] UIRenderViewController renderViewController;
     [SerializeField] PropertyWindowOverlay windowOverlay;
+    [SerializeField] IntensityGraphDrawer intensityGraphDrawer;
 
     [Header("Settings")]
     [SerializeField] float scrollRectElementVerticalMargin;
@@ -121,12 +122,9 @@ public class LightingScreen : MonoBehaviour {
             Debug.LogError($"Either no shaderproperties for diffuse or specular color found! Diff OK: {diffOK}, Spec OK: {specOK}.");
         }
         renderViewController.Initialize(this);
+        intensityGraphDrawer.Initialize(this);
         windowOverlay.Initialize(() => {LoadDefaultState(isInit: false);});
         LoadDefaultState(isInit: true);
-        // LoadModel(new LoadedModel(defaultModel));
-        // LoadDiffuseLightingModel(defaultDiffuseModel);
-        // LoadSpecularLightingModel(defaultSpecularModel);
-        // LoadLightingSetup(defaultLightingSetup, true, false);
         this.initialized = true;
         LoadColors(ColorScheme.current);
 
@@ -484,7 +482,7 @@ public class LightingScreen : MonoBehaviour {
         RebuildContent();
     }
 
-    void UpdateMaterialsOnRenderController () {
+    (Material diffMat, Material specMat) GetCurrentMaterials () {
         Material diffMat, specMat;
         if(currentDiffuseModel == null || !diffuseMatMap.TryGetValue(currentDiffuseModel, out diffMat)){
             diffMat = nullDiffuseMat;
@@ -492,8 +490,19 @@ public class LightingScreen : MonoBehaviour {
         if(currentSpecularModel == null || !specularMatMap.TryGetValue(currentSpecularModel, out specMat)){
             specMat = null;
         }
-        renderViewController.LoadMaterials(diffMat, specMat);
+        return (diffMat: diffMat, specMat: specMat);
     }
+
+    // void UpdateMaterialsOnRenderController () {
+    //     Material diffMat, specMat;
+    //     if(currentDiffuseModel == null || !diffuseMatMap.TryGetValue(currentDiffuseModel, out diffMat)){
+    //         diffMat = nullDiffuseMat;
+    //     }
+    //     if(currentSpecularModel == null || !specularMatMap.TryGetValue(currentSpecularModel, out specMat)){
+    //         specMat = null;
+    //     }
+    //     renderViewController.LoadMaterials(diffMat, specMat);
+    // }
 
     void LoadModel (LoadedModel newModel) {
         if(newModel == null){
@@ -529,7 +538,10 @@ public class LightingScreen : MonoBehaviour {
         }
         lmField = lm;
         UpdatePropertyFieldActiveStatesAndRebuildEverything();
-        UpdateMaterialsOnRenderController();
+        // UpdateMaterialsOnRenderController();
+        var newMats = GetCurrentMaterials();
+        renderViewController.LoadMaterials(newMats.diffMat, newMats.specMat);
+        intensityGraphDrawer.UpdateLightingModels(currentDiffuseModel, currentSpecularModel);
     }
 
     void LoadDiffuseLightingModel (LightingModel lm) {

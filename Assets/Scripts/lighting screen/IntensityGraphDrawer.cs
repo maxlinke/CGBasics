@@ -84,8 +84,6 @@ public class IntensityGraphDrawer : MonoBehaviour {
         void UpdateGraphMatValues (MaterialPropertyBlock mpb) {
             blitMat.SetFloat("_GraphScale", graphScale);
             blitMat.SetFloat("_LineWidth", lineWidth);
-            blitMat.SetVector("_LightDir", new Vector4(Mathf.Sin(lightAngle), Mathf.Cos(lightAngle), 0, 0));
-            blitMat.SetVector("_ViewDir", new Vector4(Mathf.Sin(viewAngle), Mathf.Cos(viewAngle), 0, 0));
             foreach(var sp in shaderProperties){
                 if(sp.type == ShaderProperty.Type.Float){
                     blitMat.SetFloat(sp.name, mpb.GetFloat(sp.name));
@@ -97,6 +95,15 @@ public class IntensityGraphDrawer : MonoBehaviour {
             }
             blitMat.SetColor("_AmbientCol", RenderSettings.ambientLight);
             blitMat.SetColor("_LightCol", lightingScreen.GetMainLightColor());
+
+            var lDir = lightingScreen.GetMainLightDir();
+            var vDir = lightingScreen.GetCamViewDir();
+            viewAngle = Mathf.Deg2Rad * Vector3.Angle(vDir, Vector3.forward);
+            var angleBetween = Mathf.Deg2Rad * Vector3.Angle(lDir, vDir);
+            lightAngle = viewAngle + angleBetween;
+            
+            blitMat.SetVector("_LightDir", new Vector4(Mathf.Sin(lightAngle), Mathf.Cos(lightAngle), 0, 0));
+            blitMat.SetVector("_ViewDir", new Vector4(Mathf.Sin(viewAngle), Mathf.Cos(viewAngle), 0, 0));
         }
     }
 

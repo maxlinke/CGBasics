@@ -59,6 +59,12 @@ namespace LightingModels {
 
         Vector3 pivotPoint => Vector3.zero;
 
+        public int lightCount => lights.Count;
+        public Light this[int index] => lights[index];
+        public Vector3 mainLightDir => lights[0].transform.forward;
+        public Color mainLightColor => lights[0].color;
+        public Vector3 camDir => cam.transform.forward;
+
         void OnDestroy () {         // these nullchecks are basically only here for the editor...
             if(camYRotParent != null){
                 Destroy(camYRotParent.gameObject);

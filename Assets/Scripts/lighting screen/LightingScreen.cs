@@ -453,10 +453,25 @@ public class LightingScreen : MonoBehaviour {
     }
 
     public Color GetMainLightColor () {
-        if(lightsPropertyGroup.PropertyCount < 2){
-            return Color.black;
+        // if(lightsPropertyGroup.PropertyCount < 2){
+        //     return Color.black;
+        // }
+        // return ((ColorPropertyField)(lightsPropertyGroup[1])).currentColor;
+        if(renderViewController.lightCount > 0){
+            return renderViewController.mainLightColor;
         }
-        return ((ColorPropertyField)(lightsPropertyGroup[1])).currentColor;
+        return Color.black;
+    }
+
+    public Vector3 GetCamViewDir () {
+        return renderViewController.camDir;
+    }
+
+    public Vector3 GetMainLightDir () {
+        if(renderViewController.lightCount > 0){
+            return renderViewController.mainLightDir;
+        }
+        return Vector3.zero;
     }
 
     string CreateGroupName (string prefix, string suffix) {

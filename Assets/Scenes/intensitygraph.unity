@@ -143,7 +143,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   targetCam: {fileID: 851351085}
-  blitMat: {fileID: 2100000, guid: de5486dc68af2e843ad6fd67704fda38, type: 2}
+  blitMatTemplate: {fileID: 2100000, guid: de5486dc68af2e843ad6fd67704fda38, type: 2}
+  graphScale: 1.5
+  lightAngle: 0
+  viewAngle: 0
+  roughness: 0.5
 --- !u!20 &851351085
 Camera:
   m_ObjectHideFlags: 0

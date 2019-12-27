@@ -11,6 +11,16 @@
         _ForegroundColor ("Foreground Color", Color) = (0.8, 0.8, 0.8, 1.0)
         _BackgroundColor ("Background Color", Color) = (0.2, 0.2, 0.2, 1.0)
         _LineWidth ("Line Width", Float) = 0.1
+        // the conditions
+        _SpecBlinnPhong ("_SpecBlinnPhong", Range(0, 1)) = 0
+        _SpecCookTorr ("_SpecCookTorr", Range(0, 1)) = 0
+        _DiffWrap ("_DiffWrap", Range(0, 1)) = 0
+        _DiffLambert ("_DiffLambert", Range(0, 1)) = 0
+        _DiffMinnaert ("_DiffMinnaert", Range(0, 1)) = 0
+        _DiffOrenNayar ("_DiffOrenNayar", Range(0, 1)) = 0
+        _SpecPhong ("_SpecPhong", Range(0, 1)) = 0
+        _SpecWardAniso ("_SpecWardAniso", Range(0, 1)) = 0
+        _SpecWardIso ("_SpecWardIso", Range(0, 1)) = 0
     }
 	
     SubShader {
@@ -45,6 +55,16 @@
             fixed4 _BackgroundColor;
             float _LineWidth;
 
+            float _SpecBlinnPhong;
+            float _SpecCookTorr;
+            float _DiffWrap;
+            float _DiffLambert;
+            float _DiffMinnaert;
+            float _DiffOrenNayar;
+            float _SpecPhong;
+            float _SpecWardAniso;
+            float _SpecWardIso;
+
             v2f vert (appdata v) {
                 v2f o;
                 o.vertex = UnityObjectToClipPos(v.vertex);
@@ -78,9 +98,36 @@
                 t.worldTangent = tangent;
                 // the spicy part
                 lm_input li = GetLMInput(t);
-                float eval = Diffuse_Oren_Nayar(li);
-                // fixed colVal = eval <= distToCenter ? 1 : 0;
-                // fixed4 col = fixed4(colVal, colVal, colVal, 1);
+                float eval = 0;
+                if(_SpecBlinnPhong > 0.5){
+                    eval += Specular_Blinn_Phong(li);
+                }
+                if(_SpecCookTorr > 0.5){
+                    eval += Specular_Cook_Torrance(li);
+                }
+                if(_DiffWrap > 0.5){
+                    eval += Diffuse_Wrap(li);
+                }
+                if(_DiffLambert > 0.5){
+                    eval += Diffuse_Lambert(li);
+                }
+                if(_DiffMinnaert > 0.5){
+                    eval += Diffuse_Minnaert(li);
+                }
+                if(_DiffOrenNayar > 0.5){
+                    eval += Diffuse_Oren_Nayar(li);
+                }
+                if(_SpecPhong > 0.5){
+                    eval += Specular_Phong(li);
+                }
+                if(_SpecWardAniso > 0.5){
+                    eval += Specular_Ward_Aniso(li);
+                }
+                if(_SpecWardIso > 0.5){
+                    eval += Specular_Ward_Iso(li);
+                }
+
+
                 float lerpMin = -_LineWidth / 2;
                 float lerpMax = +_LineWidth / 2;
                 float lerpVal = saturate(((distToCenter - eval) - lerpMin) / (lerpMax - lerpMin));

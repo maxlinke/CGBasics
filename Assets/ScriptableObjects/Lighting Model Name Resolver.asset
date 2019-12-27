@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f58436182f772594d9a97791a42fbcee, type: 3}
+  m_Name: Lighting Model Name Resolver
+  m_EditorClassIdentifier: 
+  links:
+  - m_lm: {fileID: 11400000, guid: 4c228059d1b1f1a48956fcc44ff97603, type: 2}
+    m_propName: _SpecBlinnPhong
+  - m_lm: {fileID: 11400000, guid: a24b7c067182356449ae153744b4b5a0, type: 2}
+    m_propName: _SpecCookTorr
+  - m_lm: {fileID: 11400000, guid: f8a878e6fef66b74f82e8abc2b3cf8aa, type: 2}
+    m_propName: _DiffWrap
+  - m_lm: {fileID: 11400000, guid: a16cda9db628a644595ad6bdfa1d08a8, type: 2}
+    m_propName: _DiffLambert
+  - m_lm: {fileID: 11400000, guid: a3ebe20ce21da084baeb3f60abbbbb10, type: 2}
+    m_propName: _DiffMinnaert
+  - m_lm: {fileID: 11400000, guid: 0c642922aaea18c4395b29ba2fc8afa0, type: 2}
+    m_propName: _DiffOrenNayar
+  - m_lm: {fileID: 11400000, guid: 00d1f93f8888e4948989bac0a40cf4a2, type: 2}
+    m_propName: _SpecPhong
+  - m_lm: {fileID: 11400000, guid: 77853b1b8ad6a6145a0a13855874df34, type: 2}
+    m_propName: _SpecWardAniso
+  - m_lm: {fileID: 11400000, guid: 240a88a9367acb843b002ecb4ba7339d, type: 2}
+    m_propName: _SpecWardIso

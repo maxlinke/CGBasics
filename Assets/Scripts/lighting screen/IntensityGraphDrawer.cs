@@ -5,6 +5,7 @@ public class IntensityGraphDrawer : MonoBehaviour {
 
     [Header("Components")]
     [SerializeField] Material blitMatTemplate;
+    [SerializeField] LightingModelGraphPropNameResolver nameResolver;
 
     [Header("Settings")]
     [SerializeField] Vector2 camRectPos;
@@ -58,7 +59,14 @@ public class IntensityGraphDrawer : MonoBehaviour {
     public void UpdateLightingModels (LightingModel diffLM, LightingModel specLM) {
         string diffName = diffLM != null ? diffLM.name : "null";
         string specName = specLM != null ? specLM.name : "null";
-        Debug.Log($"Diff: {diffName}, Spec: {specName}");
+        // Debug.Log($"Diff: {diffName}, Spec: {specName}");
+        foreach(var link in nameResolver){
+            if(link.lm == diffLM || link.lm == specLM){
+                blitMat.SetFloat(link.propName, 1f);
+            }else{
+                blitMat.SetFloat(link.propName, 0f);
+            }
+        }
     }
 
     void OnDestroy () {
@@ -85,8 +93,6 @@ public class IntensityGraphDrawer : MonoBehaviour {
             }
         }
     }
-
-    public 
 
     void BlitGraphEffect (RenderTexture src, RenderTexture dst) {
         Graphics.Blit(src, dst, blitMat);

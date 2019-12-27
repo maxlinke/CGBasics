@@ -200,11 +200,12 @@ half Specular_Phong (lm_input input) {
     // half3 r = input.lightDir - 2 * input.normal * dot(input.normal, input.lightDir);
     half3 r = reflect(input.lightDir, input.normal);     // the easy way
     half3 e = -input.viewDir;
-    return saturate(_SpecularIntensity * pow(saturate(dot(r, e)), _SpecularHardness));
+    return saturate(_SpecularIntensity * pow(saturate(dot(r, e)), _SpecularHardness));  //  * step(0, input.nDotV) ? 
 }
 
 half Specular_Blinn_Phong (lm_input input) {
     return saturate(_SpecularIntensity * pow(saturate(input.nDotH), _SpecularHardness));
+    // return saturate(_SpecularIntensity * pow(input.nDotH, _SpecularHardness));       // doesn't change anything...
 }
 
 // https://en.wikipedia.org/wiki/Specular_highlight#Cook%E2%80%93Torrance_model
@@ -214,7 +215,8 @@ half Specular_Cook_Torrance (lm_input input) {
     half f = Schlicks_Fresnel_Approximation_Intensity(input);
     half g = Geometric_Attenuation(input);
     
-    return saturate((d * f * g) / (UNITY_PI * input.nDotV * input.nDotL));
+    // return saturate((d * f * g) / (UNITY_PI * input.nDotV * input.nDotL));  //  * step(0, input.nDotV) ? 
+    return (d * f * g) / (UNITY_PI * input.nDotV * input.nDotL);  //  * step(0, input.nDotV) ? 
 }
 
 half Ward (lm_input input, half roughness, half exponent) {

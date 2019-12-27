@@ -56,6 +56,9 @@ namespace LightingModels {
             }
         }
 
+        public int PropertyCount => propFields.Count;
+
+        public UIPropertyField this[int index] => propFields[index];
 
         public IEnumerator<UIPropertyField> GetEnumerator () {
             foreach(var propField in propFields){

@@ -452,6 +452,13 @@ public class LightingScreen : MonoBehaviour {
         return mpb;
     }
 
+    public Color GetMainLightColor () {
+        if(lightsPropertyGroup.PropertyCount < 2){
+            return Color.black;
+        }
+        return ((ColorPropertyField)(lightsPropertyGroup[1])).currentColor;
+    }
+
     string CreateGroupName (string prefix, string suffix) {
         return $"<size={groupLabelPrefixSize}%>{prefix}: <size={groupLabelSuffixSize}%>{suffix}";
     }

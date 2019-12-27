@@ -46,6 +46,7 @@
             struct v2f {
                 float4 vertex : SV_POSITION;
                 float2 uv : TEXCOORD0;
+                float2 pixelUV : TEXCOORD1;
             };
 
             float _GraphScale;
@@ -65,6 +66,9 @@
             float _SpecWardAniso;
             float _SpecWardIso;
 
+            fixed4 _LightCol;
+            fixed4 _AmbientCol;
+
             v2f vert (appdata v) {
                 v2f o;
                 o.vertex = UnityObjectToClipPos(v.vertex);
@@ -77,6 +81,7 @@
                     o.uv *= float2(1.0, _ScreenParams.y / _ScreenParams.x);
                 }
                 o.uv *= _GraphScale;
+                o.pixelUV = v.uv * _ScreenParams.xy;
                 return o;
             }
 
@@ -98,40 +103,63 @@
                 t.worldTangent = tangent;
                 // the spicy part
                 lm_input li = GetLMInput(t);
-                float eval = 0;
+                float3 evalCol = float3(0, 0, 0);
                 if(_SpecBlinnPhong > 0.5){
-                    eval += Specular_Blinn_Phong(li);
+                    evalCol += _LightCol * Specular_Blinn_Phong(li) * _SpecularColor;
                 }
                 if(_SpecCookTorr > 0.5){
-                    eval += Specular_Cook_Torrance(li);
+                    evalCol += _LightCol * Specular_Cook_Torrance(li) * _SpecularColor;
                 }
                 if(_DiffWrap > 0.5){
-                    eval += Diffuse_Wrap(li);
+                    evalCol += (_LightCol * Diffuse_Wrap(li) + _AmbientCol) * _Color;
                 }
                 if(_DiffLambert > 0.5){
-                    eval += Diffuse_Lambert(li);
+                    evalCol += (_LightCol * Diffuse_Lambert(li) + _AmbientCol) * _Color;
                 }
                 if(_DiffMinnaert > 0.5){
-                    eval += Diffuse_Minnaert(li);
+                    evalCol += (_LightCol * Diffuse_Minnaert(li) + _AmbientCol) * _Color;
                 }
                 if(_DiffOrenNayar > 0.5){
-                    eval += Diffuse_Oren_Nayar(li);
+                    evalCol += (_LightCol * Diffuse_Oren_Nayar(li) + _AmbientCol) * _Color;
                 }
                 if(_SpecPhong > 0.5){
-                    eval += Specular_Phong(li);
+                    evalCol += _LightCol * Specular_Phong(li) * _SpecularColor;
                 }
                 if(_SpecWardAniso > 0.5){
-                    eval += Specular_Ward_Aniso(li);
+                    evalCol += _LightCol * Specular_Ward_Aniso(li) * _SpecularColor;
                 }
                 if(_SpecWardIso > 0.5){
-                    eval += Specular_Ward_Iso(li);
+                    evalCol += _LightCol * Specular_Ward_Iso(li) * _SpecularColor;
                 }
 
+                float evalLum = 0.299 * evalCol.x + 0.587 * evalCol.y + 0.114 * evalCol.z;
 
                 float lerpMin = -_LineWidth / 2;
                 float lerpMax = +_LineWidth / 2;
-                float lerpVal = saturate(((distToCenter - eval) - lerpMin) / (lerpMax - lerpMin));
-                fixed4 col = lerp(_ForegroundColor, _BackgroundColor, lerpVal);
+                float lerpVal = ((distToCenter - evalLum) - lerpMin) / (lerpMax - lerpMin);
+
+                float2 pixelFrac = frac(i.pixelUV / 2) * 2;
+                float pixelID = abs(pixelFrac.x - pixelFrac.y);
+                
+                float colorLookup;
+                if((evalLum > 1) && (distToCenter < evalLum) && (distToCenter > 1)){
+                    colorLookup = pixelID;
+                }else{
+                    colorLookup = saturate(lerpVal);
+                }
+                
+
+                // debug
+                float2 vPos = viewDir.xy * 1.3f;
+                float distToVPos = length(vPos - i.uv);
+                float s = step(0.02, distToVPos);
+                colorLookup *= s;
+                float2 lPos = lightDir.xy * 1.4f;
+                float distToLPos = length(lPos - i.uv);
+                s = step(0.02, distToLPos);
+                colorLookup *= s;
+
+                fixed4 col = lerp(_ForegroundColor, _BackgroundColor, colorLookup);
                 // col = frac(col);
                 
                 // fixed4 col = fixed4(i.uv.x, i.uv.y, 1, 1);

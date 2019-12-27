@@ -89,8 +89,14 @@ public class IntensityGraphDrawer : MonoBehaviour {
             foreach(var sp in shaderProperties){
                 if(sp.type == ShaderProperty.Type.Float){
                     blitMat.SetFloat(sp.name, mpb.GetFloat(sp.name));
+                }else if(sp.type == ShaderProperty.Type.Color){
+                    blitMat.SetColor(sp.name, mpb.GetColor(sp.name));
+                }else{
+                    Debug.LogError($"WAT?!?!?! {sp.type}");
                 }
             }
+            blitMat.SetColor("_AmbientCol", RenderSettings.ambientLight);
+            blitMat.SetColor("_LightCol", lightingScreen.GetMainLightColor());
         }
     }
 

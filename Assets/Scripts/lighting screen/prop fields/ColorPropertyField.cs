@@ -14,6 +14,8 @@ namespace LightingModels {
         System.Action<Color> onColorChanged;
         Color initColor;
 
+        public Color currentColor => colorDisplay.color;
+
         public override void LoadColors (ColorScheme cs) {
             base.LoadColors(cs);
             colorPickerOpenButton.SetFadeTransition(0f, Color.white, Color.white, Color.white, Color.magenta);

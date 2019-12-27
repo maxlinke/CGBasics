@@ -92,26 +92,35 @@ namespace MatrixScreenUtils {
         }
 
         void Zoom (float zoomDelta, bool onCursor) {
+            zoomDelta *= InputSystem.shiftCtrlMultiplier;
+            var origZoom = zoomLevel;
+            var newZoom = Mathf.Clamp(zoomLevel + (zoomSensitivity * zoomDelta * zoomLevel), minZoom, maxZoom);
+            zoomRT.localScale = Vector3.one * newZoom;
             if(onCursor){
-                zoomDelta = Mathf.Sign(zoomDelta);  // TODO this is just a band-aid because a higher scrolldelta causes issues
-                Pan(-LocalMousePos(Input.mousePosition) * zoomDelta / (zoomDelta < 0 ? 4 : 6)); // that ternary fucks with me...
+                var realDelta = newZoom - origZoom;
+                var scaledOrigAPos = panRT.anchoredPosition * origZoom;
+                var scaledNewAPos = panRT.anchoredPosition * newZoom;
+                var implicitAPosDelta = scaledNewAPos - scaledOrigAPos;
+                panRT.anchoredPosition -= implicitAPosDelta / newZoom;      // as if it was always scaled around the pivot (removes the "offset" that comes from scaling)
+                var cursorPos = LocalMousePos(Input.mousePosition);
+                var offset = panRT.anchoredPosition * newZoom - cursorPos;
+                var deltaOffset = offset * ((newZoom / origZoom) - 1);
+                panRT.anchoredPosition += deltaOffset / newZoom;
+            }            
+
+            Vector2 LocalMousePos (Vector3 inputMPos) {
+                var mPos = inputMPos;
+                var x = mPos.x;
+                var y = mPos.y;
+                y -= Screen.height / 2;      // because the rect of the area is the upper half
+                var output = new Vector2(x - (Screen.width / 2), y - (Screen.height / 4));  // because it's the entire width and half the height
+                return output;
             }
-            zoomDelta *= InputSystem.shiftCtrlMultiplier;   // and this doesn't work properly either...
-            zoomRT.localScale = Vector3.one * Mathf.Clamp(zoomLevel + (zoomSensitivity * zoomDelta * zoomLevel), minZoom, maxZoom);
         }
 
         public void ResetView () {
             zoomRT.localScale = Vector3.one;
             panRT.anchoredPosition = Vector2.zero;
-        }
-
-        Vector2 LocalMousePos (Vector3 inputMPos) {
-            var mPos = inputMPos;
-            var x = mPos.x;
-            var y = mPos.y;
-            y -= Screen.height / 2;      // because the rect of the area is the upper half
-            var output = new Vector2(x - (Screen.width / 2), y - (Screen.height / 4));  // because it's the entire width and half the height
-            return output;
         }
     
     }

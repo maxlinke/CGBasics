@@ -16,4 +16,4 @@ MonoBehaviour:
   m_color: {r: 0.636, g: 0.531, b: 0.755, a: 1}
   m_specColor: {r: 0.7583418, g: 0.9622642, b: 0.6127626, a: 1}
   m_description: The famous "Lorem Ipsum" as a 3D-model. Useful for checking whether
-    objects are rendered correctly or if they are flipped in any axis.
+    objects are rendered correctly or if they are flipped on any axis.

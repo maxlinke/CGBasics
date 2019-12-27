@@ -394,8 +394,6 @@ public class CustomGLCamera : MonoBehaviour {
                         oCol = oCol.AlphaOver(clipOverlayColor);
                     }
                     RenderPoint(vmVec, mCol, oCol, true);
-                }else{
-                    Debug.LogWarning("not drawing the vector!");
                 }
             }else{
                 vmVec = modelMatrix * matrixScreen.VectorModeVector;

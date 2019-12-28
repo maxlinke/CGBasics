@@ -13,15 +13,13 @@ namespace LightingModels {
         float smoothScrollSensitivity => CustomCameraUIController.smoothScrollSensitivity;
         float orbitSensitivity => CustomCameraUIController.orbitSensitivity;
 
-        // TODO window overlay 
-        // or not. don't need any buttons tbh...
-
         [SerializeField] RenderViewWindowOverlay windowOverlay;
 
         [Header("Settings")]
         [SerializeField] int renderLayer;
         [SerializeField] float lightGizmoDistance;
         [SerializeField] float lightGizmoRayLength;
+        [SerializeField, Range(0, 90)] float topBottomLimit;
 
         [Header("Cam Settings")]
         [SerializeField] bool camAllowAA;
@@ -220,7 +218,7 @@ namespace LightingModels {
         void OrbitCam (Vector3 mouseDelta) {
             mouseDelta *= InputSystem.shiftCtrlMultiplier * orbitSensitivity;
             camRotY = Mathf.Repeat(camRotY + mouseDelta.x, 360f);
-            camRotX = Mathf.Clamp(camRotX - mouseDelta.y, -90f, 90f);
+            camRotX = Mathf.Clamp(camRotX - mouseDelta.y, -topBottomLimit, topBottomLimit);
             ApplyCamRotation();
         }
 

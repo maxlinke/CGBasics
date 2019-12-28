@@ -143,19 +143,26 @@ namespace LightingModels {
                 blitMat.SetColor("_AmbientCol", RenderSettings.ambientLight);
                 blitMat.SetColor("_LightCol", lightingScreen.GetMainLightColor());
 
-                var lDir = lightingScreen.GetMainLightDir();
-                var vDir = lightingScreen.GetCamViewDir();
-                var viewAngle = Mathf.Deg2Rad * Vector3.Angle(vDir, Vector3.forward);
-                var angleBetween = Mathf.Deg2Rad * Vector3.Angle(lDir, vDir);
-                var lightAngle = viewAngle + angleBetween;
-                
-                blitMat.SetVector("_LightDir", new Vector4(Mathf.Sin(lightAngle), Mathf.Cos(lightAngle), 0, 0));
-                blitMat.SetVector("_ViewDir", new Vector4(Mathf.Sin(viewAngle), Mathf.Cos(viewAngle), 0, 0));
+                var lv = CalculateLightAndViewAngles();
+                blitMat.SetVector("_LightDir", new Vector4(Mathf.Sin(lv.lightAngle), Mathf.Cos(lv.lightAngle), 0, 0));
+                blitMat.SetVector("_ViewDir", new Vector4(Mathf.Sin(lv.viewAngle), Mathf.Cos(lv.viewAngle), 0, 0));
 
-                lightGizmoParent.localEulerAngles = new Vector3(0, 0, -lightAngle * Mathf.Rad2Deg);
+                lightGizmoParent.localEulerAngles = new Vector3(0, 0, -lv.lightAngle * Mathf.Rad2Deg);
                 lightGizmoParent.GetChild(0).localEulerAngles = -lightGizmoParent.localEulerAngles;
-                viewGizmoParent.localEulerAngles = new Vector3(0, 0, -viewAngle * Mathf.Rad2Deg);
+                viewGizmoParent.localEulerAngles = new Vector3(0, 0, -lv.viewAngle * Mathf.Rad2Deg);
                 viewGizmoParent.GetChild(0).localEulerAngles = -viewGizmoParent.localEulerAngles;
+
+                // works well enough
+                (float lightAngle, float viewAngle) CalculateLightAndViewAngles () {
+                    var lDir = lightingScreen.GetMainLightDir();
+                    var vDir = lightingScreen.GetCamViewDir();
+                    var avg = (0.8f * lDir + vDir).normalized;
+                    var refAngle = Mathf.Atan2(avg.x, avg.y);
+                    var deltaAngle = Mathf.Deg2Rad * Vector3.Angle(lDir, vDir);
+                    var lightAngle = refAngle - deltaAngle / 2;
+                    var viewAngle = refAngle + deltaAngle / 2;
+                    return (lightAngle, viewAngle);
+                }
             }
         }
 

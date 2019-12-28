@@ -166,15 +166,15 @@
                     colorLookup = step(0, (distToCenter - evalLum));
                 }
                 
-                // // debug
-                // float2 vPos = viewDir.xy * 1.3f;
-                // float distToVPos = length(vPos - i.uv);
-                // float s = step(0.02, distToVPos);
-                // colorLookup *= s;
-                // float2 lPos = lightDir.xy * 1.4f;
-                // float distToLPos = length(lPos - i.uv);
-                // s = step(0.02, distToLPos);
-                // colorLookup *= s;
+                // debug
+                float2 vPos = viewDir.xy * 1.3f;
+                float distToVPos = length(vPos - i.uv);
+                float s = step(0.02, distToVPos);
+                colorLookup *= s;
+                float2 lPos = lightDir.xy * 1.4f;
+                float distToLPos = length(lPos - i.uv);
+                s = step(0.02, distToLPos);
+                colorLookup *= s;
 
                 colorLookup *= concentricLineMultiplier(distToCenter + 0.5, _MajorLineWidth, _MajorLineOpacity);
                 float lineSubdivCount = 10;

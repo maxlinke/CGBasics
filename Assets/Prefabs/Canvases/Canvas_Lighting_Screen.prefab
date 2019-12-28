@@ -412,7 +412,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 4793448864368272646}
   m_Direction: 2
   m_Value: 0
-  m_Size: 1
+  m_Size: 0.512987
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -1570,6 +1570,7 @@ MonoBehaviour:
   renderLayer: 10
   lightGizmoDistance: 1.4142135
   lightGizmoRayLength: 0.3
+  topBottomLimit: 89.9
   camAllowAA: 1
   camRectPosition: {x: 0.5, y: 0}
   camRectDimensions: {x: 0.5, y: 0.5}

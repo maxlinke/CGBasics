@@ -1,4 +1,5 @@
 http://rogercortesi.com/eqn/index.php
+text space offset (photoshop) : 4px
 
 lambert: 
 k_{diff} = max(0, \vec{n} \cdot \vec{l})
@@ -7,11 +8,11 @@ wrap:
 k_{diff} = ((\vec{n} \cdot \vec{l})+1)/2
 
 minnaert: 
-k_{diff} = max(0, (\vec{n} \cdot \vec{l}*\vec{n} \cdot \vec{v}))^{k}
+k_{diff} = max(0, (\vec{n} \cdot \vec{l})(\vec{n} \cdot \vec{v}))^{k}
 k=Minnaert's Exponent
 
 oren-nayar:
-k_{diff} = max(0, (\vec{n} \cdot \vec{l}) * (A + B * sin(\alpha}))*tan(\beta)*max(0, cos(\phi_{\vec{l}}-\phi_{\vec{v}})))
+k_{diff} = max(0, (\vec{n} \cdot \vec{l})(A + B \cdot sin(\alpha})) \cdot tan(\beta) \cdot max(0, cos(\phi_{\vec{l}}-\phi_{\vec{v}})))
 A=1-0.5\frac{\sigma^{2}}{\sigma^{2}+0.33}
 B=0.45\frac{\sigma^{2}}{{\sigma^{2}+0.09}
 \alpha=max(acos(\vec{n}\cdot\vec{l}), acos(\vec{n}\cdot\vec{v}))
@@ -19,3 +20,32 @@ B=0.45\frac{\sigma^{2}}{{\sigma^{2}+0.09}
 \sigma=Roughness
 \phi_{\vec{l}}=Azimuth angle of light vector
 \phi_{\vec{v}}=Azimuth angle of view vector
+
+phong:
+k_{spec}= max(0, \zeta (\vec{r}\cdot\vec{e})^{\psi})
+\vec{r} = \vec{l} - 2 \vec{n} (\vec{n}\cdot\vec{l})
+\vec{e} = -\vec{v}
+\zeta = Specular intensity
+\psi = Specular hardness
+
+blinn-phong:
+k_{spec}= max(0, \zeta (\vec{n}\cdot\vec{h})^{\psi})
+\vec{h} = \frac{\vec{l}+\vec{v}}{\vbar\vbar\vec{l}+\vec{v}\vbar\vbar}
+
+cook-torr:
+k_{spec}= \frac{DFG}{\pi(\vec{n}\cdot\vec{v})(\vec{n}\cdot\vec{l})}
+m = \sqrt{\frac{2}{\psi+2}}
+D=\frac{e^{-tan^{2}(\alpha)/m^{2}{\pi m^{2}cos^{4}(\alpha)}
+F=\zeta+(1-\zeta)(1-(\vec{h}\cdot\vec{v}))^{5}
+G = min(1, \frac{ 2(\vec{n} \cdot \vec{h})(\vec{n} \cdot \vec{v}) }{(\vec{v} \cdot \vec{h})}, \frac{ 2(\vec{n} \cdot \vec{h})(\vec{n} \cdot \vec{l}) }{(\vec{v} \cdot \vec{h})})
+\alpha = arccos(\vec{n} \cdot \vec{h})
+
+ward aniso:
+k_{spec} = \frac {\zeta (\vec{n} \cdot \vec{l})} {\sqrt{(\vec{n} \cdot \vec{l}) (\vec{n} \cdot \vec{v})} 4 \pi m_{x} m_{y}} exp(-2 \frac {(\frac {\vec{h} \cdot \vec{t_{x}}} {m_{x}})^{2} + (\frac {\vec{h} \cdot \vec{t_{y}}} {m_{y}})^{2} } {1+(\vec{n} \cdot \vec{h})} )
+t_{x, y} = Surface tangent and bitangent
+
+ward iso:
+k_{spec} = \frac {\zeta (\vec{n} \cdot \vec{l})} {\sqrt{(\vec{n} \cdot \vec{l}) (\vec{n} \cdot \vec{v})} 4 \pi m^{2}} exp( \frac {-tan^{2}(acos(\vec{n} \cdot \vec{h}))} {m^{2}} )
+
+
+

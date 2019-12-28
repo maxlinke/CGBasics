@@ -16,7 +16,7 @@ MonoBehaviour:
   m_shader: {fileID: 4800000, guid: e2a05cae3a633c04daee735f8a8777f6, type: 3}
   m_description: Modification of the Phong-model by James F. (a.k.a. "Jim") Blinn,
     published in 1977.
-  m_equation: {fileID: 0}
+  m_equation: {fileID: 21300000, guid: 88c72fb05fdbc594284164e00cf7aa57, type: 3}
   m_usedProperties:
   - {fileID: 11400000, guid: 20359b17115bc414f858728129bcc77a, type: 2}
   - {fileID: 11400000, guid: 807938ffa910cca488cb058528eb1b63, type: 2}

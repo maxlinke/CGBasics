@@ -679,3 +679,4 @@ MonoBehaviour:
   headerTextLeftMargin: 8
   spaceBetweenPropsAndBottomThings: 10
   spaceBetweenBottomTextAndImage: 10
+  imageScale: 0.85

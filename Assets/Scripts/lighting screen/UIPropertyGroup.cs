@@ -25,6 +25,7 @@ namespace LightingModels {
         [SerializeField] float headerTextLeftMargin;
         [SerializeField] float spaceBetweenPropsAndBottomThings;
         [SerializeField] float spaceBetweenBottomTextAndImage;
+        [SerializeField, Range(0, 1)] float imageScale;
         
         public RectTransform rectTransform => m_rectTransform;
         
@@ -172,8 +173,9 @@ namespace LightingModels {
                 bottomImage.rectTransform.SetAnchoredPosition(0, y);
                 if(bottomImage.sprite != null){
                     var imgTex = bottomImage.sprite.texture;
-                    var widthRatio = contentArea.rect.width / imgTex.width;
-                    var imgSizeDelta = new Vector2(imgTex.width, imgTex.height) * Mathf.Clamp01(widthRatio);
+                    var imgDims = new Vector2(imgTex.width, imgTex.height) * imageScale;
+                    var widthRatio = contentArea.rect.width / imgDims.x;
+                    var imgSizeDelta = imgDims * Mathf.Clamp01(widthRatio);
                     bottomImage.rectTransform.sizeDelta = imgSizeDelta;
                 }
                 y -= bottomImage.rectTransform.rect.height;

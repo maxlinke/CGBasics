@@ -200,8 +200,10 @@ half Specular_Phong (lm_input input) {
     // half3 r = input.lightDir - 2 * input.normal * dot(input.normal, input.lightDir);
     half3 r = reflect(input.lightDir, input.normal);     // the easy way
     half3 e = -input.viewDir;
-    return saturate(_SpecularIntensity * pow(saturate(dot(r, e)), _SpecularHardness));  //  * step(0, input.nDotV) ? 
+    // return saturate(_SpecularIntensity * pow(saturate(dot(r, e)), _SpecularHardness));  //  * step(0, input.nDotV) ? 
+    return saturate(_SpecularIntensity * pow(dot(r, e), _SpecularHardness));  //  * step(0, input.nDotV) ? 
 }
+
 
 half Specular_Blinn_Phong (lm_input input) {
     return saturate(_SpecularIntensity * pow(saturate(input.nDotH), _SpecularHardness));
@@ -220,7 +222,8 @@ half Specular_Cook_Torrance (lm_input input) {
 
 half Ward (lm_input input, half roughness, half exponent) {
     half root = sqrt(input.nDotL * input.nDotV);
-    return saturate(_SpecularIntensity * input.nDotL * exp(exponent) / (root * 4.0 * UNITY_PI * roughness * roughness));  // ndotl isn't in the original paper but it's necessary
+    // return saturate(_SpecularIntensity * input.nDotL * exp(exponent) / (root * 4.0 * UNITY_PI * roughness * roughness));  // ndotl isn't in the original paper but it's necessary
+    return max(0, _SpecularIntensity * input.nDotL * exp(exponent) / (root * 4.0 * UNITY_PI * roughness * roughness));  // ndotl isn't in the original paper but it's necessary
 }
 
 half Specular_Ward_Iso (lm_input input) {

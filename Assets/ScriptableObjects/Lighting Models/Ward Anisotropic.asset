@@ -16,7 +16,7 @@ MonoBehaviour:
   m_shader: {fileID: 4800000, guid: 0969ebe5f18c62e45a81d82f3613ae41, type: 3}
   m_description: A model for anisotropic surfaces, such as brushed metal. Developed
     by Gregory J. Ward and published in 1992.
-  m_equation: {fileID: 21300000, guid: fb863d6ea72d8de4b8ec825daa157001, type: 3}
+  m_equation: {fileID: 21300000, guid: fff47528406c1b040984e19b4e07df55, type: 3}
   m_usedProperties:
   - {fileID: 11400000, guid: 1d78e56dd2ef465478a3a3b3150541e8, type: 2}
   - {fileID: 11400000, guid: 20359b17115bc414f858728129bcc77a, type: 2}

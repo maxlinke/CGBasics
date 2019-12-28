@@ -998,7 +998,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2938218928448155187}
   m_Layer: 5
-  m_Name: TEST
+  m_Name: Rotating Gizmos
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1348,7 +1348,8 @@ MonoBehaviour:
   planarModeDropShadow: {fileID: 8434698081902452807}
   sphericalModeImage: {fileID: 8696483577069799637}
   sphericalModeDropShadow: {fileID: 5259177898893274897}
-  gizmoParent: {fileID: 2938218928448155187}
+  gizmoContainer: {fileID: 8632456591858962514}
+  rotatingGizmoParent: {fileID: 2938218928448155187}
   lightGizmoSprite: {fileID: 21300000, guid: 35af0c75a1e4a9740a17df834a9b9e24, type: 3}
   lightGizmoMargins: 20
   viewGizmoSprite: {fileID: 21300000, guid: f745db58eacb0c54b98d22b0e30f6e47, type: 3}
@@ -1886,7 +1887,7 @@ GameObject:
   - component: {fileID: 4882076449012944630}
   - component: {fileID: 812552742330837235}
   m_Layer: 5
-  m_Name: Gizmo Overlay Parent
+  m_Name: Gizmo Container
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

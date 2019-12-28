@@ -9,6 +9,10 @@ public static class Extensions {
         component.gameObject.SetActive(newActiveState);
     }
 
+    public static bool GOActiveSelf (this Component component) {
+        return component.gameObject.activeSelf;
+    }
+
     public static string ShortenNumberString (this string inputString) {
         string output = inputString;
         if(float.TryParse(inputString, out var parsed)){

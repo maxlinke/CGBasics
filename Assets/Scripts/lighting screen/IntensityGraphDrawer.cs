@@ -21,7 +21,8 @@ namespace LightingModels {
         [SerializeField] Image sphericalModeDropShadow;
 
         [Header("Gizmo Settings")]
-        [SerializeField] RectTransform gizmoParent;
+        [SerializeField] GameObject gizmoContainer;
+        [SerializeField] RectTransform rotatingGizmoParent;
         [SerializeField] Sprite lightGizmoSprite;
         [SerializeField] float lightGizmoMargins;
         [SerializeField] Sprite viewGizmoSprite;
@@ -99,7 +100,7 @@ namespace LightingModels {
             }
 
             IntensityGraphGizmo CreateGizmo (Sprite sprite, float margins) {
-                var newGizmo = Instantiate(gizmoPrefab, gizmoParent);
+                var newGizmo = Instantiate(gizmoPrefab, rotatingGizmoParent);
                 // newGizmo.rectTransform.SetParent(gizmoParent, false);
                 newGizmo.rectTransform.ResetLocalScale();
                 newGizmo.rectTransform.SetToFillWithMargins(margins);
@@ -186,15 +187,20 @@ namespace LightingModels {
                 lightGizmo.SetRotation(-lv.lightAngle * Mathf.Rad2Deg);
                 viewGizmo.SetRotation(-lv.viewAngle * Mathf.Rad2Deg);
                 bool updateImages = false;
-                updateImages |= (planarMode && (!planarModeImage.gameObject.activeSelf || sphericalModeImage.gameObject.activeSelf));
-                updateImages |= (!planarMode && (planarModeImage.gameObject.activeSelf || !sphericalModeImage.gameObject.activeSelf));
+                updateImages |= (planarMode && (!planarModeImage.GOActiveSelf() || sphericalModeImage.GOActiveSelf()));
+                updateImages |= (!planarMode && (planarModeImage.GOActiveSelf() || !sphericalModeImage.GOActiveSelf()));
                 if(updateImages){
                     UpdateModeImages();     
                 }
-                if(planarMode && viewGizmo.gameObject.activeSelf){
+                if(planarMode && viewGizmo.GOActiveSelf()){
                     viewGizmo.gameObject.SetActive(false);
-                }else if(!planarMode && !viewGizmo.gameObject.activeSelf){
+                }else if(!planarMode && !viewGizmo.GOActiveSelf()){
                     viewGizmo.gameObject.SetActive(true);
+                }
+                if(windowOverlay.gizmoToggle.isOn && !gizmoContainer.activeSelf){
+                    gizmoContainer.SetActive(true);
+                }else if(!windowOverlay.gizmoToggle.isOn && gizmoContainer.activeSelf){
+                    gizmoContainer.SetActive(false);
                 }
 
                 void UpdateModeImages () {

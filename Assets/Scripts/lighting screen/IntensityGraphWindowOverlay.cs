@@ -7,6 +7,7 @@ namespace LightingModels {
 
         public Toggle planarModeToggle { get; private set; }
         public Toggle concentricLineToggle { get; private set; }
+        public Toggle gizmoToggle { get; private set; }
 
         public void Initialize (string resetButtonHoverMessage, System.Action onResetButtonClicked) {
             InitializeLists();
@@ -15,6 +16,7 @@ namespace LightingModels {
             int tInd = 0;
             planarModeToggle = CreateSpecialToggle(ref tInd, UISprites.LSPlanarModeToggle, "Planar", "Activates planar mode, where the normal is fixed and the view direction is the pixel direction", null, true, false, false);
             concentricLineToggle = CreateSpecialToggle(ref tInd, UISprites.LSConcentricCircles, "Circles", "Toggles the concentric reference circles", null, true, false, false);
+            gizmoToggle = CreateSpecialToggle(ref tInd, UISprites.UIInfo, "Gizmos", "Toggles drawing the gizmos", null, true, false, false);
             windowDresser.End();
         }
         

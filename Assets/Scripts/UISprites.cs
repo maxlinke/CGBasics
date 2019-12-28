@@ -106,8 +106,10 @@ public class UISprites : ScriptableObject {
     [Header("Lighting Screen")]
     [SerializeField] Sprite lsRenderAmbientLight;
     [SerializeField] Sprite lsConcentricCircles;
+    [SerializeField] Sprite lsPlanarModeToggle;
 
     public static Sprite LSRenderAmbientLight => instance.lsRenderAmbientLight;
     public static Sprite LSConcentricCircles => instance.lsConcentricCircles;
+    public static Sprite LSPlanarModeToggle => instance.lsPlanarModeToggle;
 
 }

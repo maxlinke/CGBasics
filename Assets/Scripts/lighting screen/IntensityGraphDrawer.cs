@@ -7,24 +7,34 @@ namespace LightingModels {
 
     public class IntensityGraphDrawer : MonoBehaviour {
 
+        [Header("Prefabs")]
+        [SerializeField] IntensityGraphGizmo gizmoPrefab;
+
         [Header("Components")]
         [SerializeField] Material blitMatTemplate;
         [SerializeField] LightingModelGraphPropNameResolver nameResolver;
         [SerializeField] Image scrollTargetImage;
         [SerializeField] IntensityGraphWindowOverlay windowOverlay;
-        [SerializeField] RectTransform lightGizmoParent;
-        [SerializeField] RectTransform viewGizmoParent;
-        [SerializeField] List<Graphic> regularColorUIElements;
-        [SerializeField] List<Graphic> dropShadowUIElements;
+        [SerializeField] Image planarModeImage;
+        [SerializeField] Image planarModeDropShadow;
+        [SerializeField] Image sphericalModeImage;
+        [SerializeField] Image sphericalModeDropShadow;
 
-        [Header("Settings")]
+        [Header("Gizmo Settings")]
+        [SerializeField] RectTransform gizmoParent;
+        [SerializeField] Sprite lightGizmoSprite;
+        [SerializeField] float lightGizmoMargins;
+        [SerializeField] Sprite viewGizmoSprite;
+        [SerializeField] float viewGizmoMargins;
+
+        [Header("\"Camera\" Settings")]
         [SerializeField] Vector2 camRectPos;
         [SerializeField] Vector2 camRectSize;
 
+        [Header("Graph Settings")]
         [SerializeField] float defaultGraphScale;
         [SerializeField] float minGraphScale;
         [SerializeField] float maxGraphScale;
-
         [SerializeField] float majorLineWidth;
         [SerializeField] float majorLineOpacity;
         [SerializeField] float minorLineWidth;
@@ -37,12 +47,19 @@ namespace LightingModels {
         Material blitMat;
         LightingScreen lightingScreen;
 
+        IntensityGraphGizmo viewGizmo;
+        IntensityGraphGizmo lightGizmo;
+
+        bool planarMode => windowOverlay.planarModeToggle.isOn;
+
         public void Initialize (LightingScreen lightingScreen) {
             CreateCamera();
             CreateBlitMat();
             CollectShaderProperties();
             SetupBackgroundScoll();
             windowOverlay.Initialize("Reset the zoom", ResetToDefault);
+            viewGizmo = CreateGizmo(viewGizmoSprite, viewGizmoMargins);
+            lightGizmo = CreateGizmo(lightGizmoSprite, lightGizmoMargins);
             this.lightingScreen = lightingScreen;
             this.initialized = true;
             ResetToDefault();
@@ -77,6 +94,15 @@ namespace LightingModels {
                 scrollTargetImage.color = Color.clear;
                 scrollTargetImage.gameObject.AddComponent<BackgroundScroll>().onScroll += (delta) => {graphScale = Mathf.Clamp(graphScale - (delta * graphScale), minGraphScale, maxGraphScale);};
             }
+
+            IntensityGraphGizmo CreateGizmo (Sprite sprite, float margins) {
+                var newGizmo = Instantiate(gizmoPrefab, gizmoParent);
+                // newGizmo.rectTransform.SetParent(gizmoParent, false);
+                newGizmo.rectTransform.ResetLocalScale();
+                newGizmo.rectTransform.SetToFillWithMargins(margins);
+                newGizmo.SetSprite(sprite);
+                return newGizmo;
+            }
         }
 
         void ResetToDefault () {
@@ -86,12 +112,14 @@ namespace LightingModels {
         public void LoadColors (ColorScheme cs) {
             blitMat.SetColor("_BackgroundColor", cs.LSIGBackground);
             blitMat.SetColor("_ForegroundColor", cs.LSIGGraph);
-            foreach(var g in regularColorUIElements){
-                g.color = cs.LSIGUIElements;
-            }
-            foreach(var g in dropShadowUIElements){
-                g.color = cs.LSIGUIElementDropShadow;
-            }
+            var fg = cs.LSIGUIElements;
+            var bg = cs.LSIGUIElementDropShadow;
+            planarModeImage.color = fg;
+            planarModeDropShadow.color = bg;
+            sphericalModeImage.color = fg;
+            sphericalModeDropShadow.color = bg;
+            lightGizmo.LoadColors(cs);
+            viewGizmo.LoadColors(cs);
             windowOverlay.LoadColors(cs);
         }
 
@@ -118,7 +146,9 @@ namespace LightingModels {
             if(!initialized){
                 return;
             }
+            var lv = CalculateLightAndViewAngles();
             UpdateGraphMatValues(lightingScreen.GetMaterialPropertyBlock());
+            UpdateGizmos();
 
             void UpdateGraphMatValues (MaterialPropertyBlock mpb) {
                 blitMat.SetFloat("_GraphScale", graphScale);
@@ -142,27 +172,52 @@ namespace LightingModels {
                 }
                 blitMat.SetColor("_AmbientCol", RenderSettings.ambientLight);
                 blitMat.SetColor("_LightCol", lightingScreen.GetMainLightColor());
-
-                var lv = CalculateLightAndViewAngles();
+                
                 blitMat.SetVector("_LightDir", new Vector4(Mathf.Sin(lv.lightAngle), Mathf.Cos(lv.lightAngle), 0, 0));
-                blitMat.SetVector("_ViewDir", new Vector4(Mathf.Sin(lv.viewAngle), Mathf.Cos(lv.viewAngle), 0, 0));
+                blitMat.SetVector("_ViewDir", new Vector4(Mathf.Sin(lv.viewAngle), Mathf.Cos(lv.viewAngle), 0, 0));                
 
-                lightGizmoParent.localEulerAngles = new Vector3(0, 0, -lv.lightAngle * Mathf.Rad2Deg);
-                lightGizmoParent.GetChild(0).localEulerAngles = -lightGizmoParent.localEulerAngles;
-                viewGizmoParent.localEulerAngles = new Vector3(0, 0, -lv.viewAngle * Mathf.Rad2Deg);
-                viewGizmoParent.GetChild(0).localEulerAngles = -viewGizmoParent.localEulerAngles;
+                blitMat.SetFloat("_PlanarMode", planarMode ? 1 : 0);
+            }
 
-                // works well enough
-                (float lightAngle, float viewAngle) CalculateLightAndViewAngles () {
-                    var lDir = lightingScreen.GetMainLightDir();
-                    var vDir = lightingScreen.GetCamViewDir();
-                    var avg = (0.8f * lDir + vDir).normalized;
-                    var refAngle = Mathf.Atan2(avg.x, avg.y);
-                    var deltaAngle = Mathf.Deg2Rad * Vector3.Angle(lDir, vDir);
-                    var lightAngle = refAngle - deltaAngle / 2;
-                    var viewAngle = refAngle + deltaAngle / 2;
-                    return (lightAngle, viewAngle);
+            void UpdateGizmos () {
+                lightGizmo.SetRotation(-lv.lightAngle * Mathf.Rad2Deg);
+                viewGizmo.SetRotation(-lv.viewAngle * Mathf.Rad2Deg);
+                bool updateImages = false;
+                updateImages |= (planarMode && (!planarModeImage.gameObject.activeSelf || sphericalModeImage.gameObject.activeSelf));
+                updateImages |= (!planarMode && (planarModeImage.gameObject.activeSelf || !sphericalModeImage.gameObject.activeSelf));
+                if(updateImages){
+                    UpdateModeImages();     
                 }
+                if(planarMode && viewGizmo.gameObject.activeSelf){
+                    viewGizmo.gameObject.SetActive(false);
+                }else if(!planarMode && !viewGizmo.gameObject.activeSelf){
+                    viewGizmo.gameObject.SetActive(true);
+                }
+
+                void UpdateModeImages () {
+                    planarModeImage.SetGOActive(planarMode);
+                    planarModeDropShadow.SetGOActive(planarMode);
+                    sphericalModeImage.SetGOActive(!planarMode);
+                    sphericalModeDropShadow.SetGOActive(!planarMode);
+                }
+            }
+
+            // works well enough
+            (float lightAngle, float viewAngle) CalculateLightAndViewAngles () {
+                var lDir = lightingScreen.GetMainLightDir();
+                var vDir = lightingScreen.GetCamViewDir();
+                float lightAngle,  viewAngle;
+                if(planarMode){
+                    lightAngle = Mathf.Atan2(lDir.x, lDir.z);
+                    viewAngle = 0f;
+                }else{
+                    var avg = (0.1f * lDir + vDir).normalized;
+                    var refAngle = Mathf.Atan2(avg.x, avg.z);
+                    var deltaAngle = Mathf.Deg2Rad * Vector3.Angle(lDir, vDir);
+                    lightAngle = refAngle - deltaAngle / 2;
+                    viewAngle = refAngle + deltaAngle / 2;
+                }
+                return (lightAngle, viewAngle);
             }
         }
 

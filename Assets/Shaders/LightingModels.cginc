@@ -205,7 +205,6 @@ half Specular_Phong (lm_input input) {
 
 half Specular_Blinn_Phong (lm_input input) {
     return saturate(_SpecularIntensity * pow(saturate(input.nDotH), _SpecularHardness));
-    // return saturate(_SpecularIntensity * pow(input.nDotH, _SpecularHardness));       // doesn't change anything...
 }
 
 // https://en.wikipedia.org/wiki/Specular_highlight#Cook%E2%80%93Torrance_model

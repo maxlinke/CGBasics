@@ -24,6 +24,8 @@
         _SpecPhong ("_SpecPhong", Range(0, 1)) = 0
         _SpecWardAniso ("_SpecWardAniso", Range(0, 1)) = 0
         _SpecWardIso ("_SpecWardIso", Range(0, 1)) = 0
+        // planar mode
+        _PlanarMode ("Planar Mode", Range(0, 1)) = 1
     }
 	
     SubShader {
@@ -72,6 +74,8 @@
             float _SpecWardAniso;
             float _SpecWardIso;
 
+            float _PlanarMode;
+
             fixed4 _LightCol;
             fixed4 _AmbientCol;
 
@@ -110,11 +114,19 @@
 
             fixed4 frag (v2f i) : SV_Target {
                 float3 pixelVec = float3(normalize(i.uv), 0);
-                float3 normal = pixelVec;
+                float3 lightDir = normalize(float3(_LightDir.x, _LightDir.y, 0));
+                float3 normal;
+                float3 viewDir;
+                if(_PlanarMode > 0.5){
+                    normal = float3(0,1,0);
+                    viewDir = pixelVec;
+                }else{
+                    normal = pixelVec;
+                    viewDir = normalize(float3(_ViewDir.x, _ViewDir.y, 0));
+                }
                 float3 tangent = float3(0,0,1);
                 float distToCenter = length(i.uv);
-                float3 lightDir = normalize(float3(_LightDir.x, _LightDir.y, 0));
-                float3 viewDir = normalize(float3(_ViewDir.x, _ViewDir.y, 0));
+                
                 // synthetic v2f
                 lm_v2f t;
                 t.vertex = float4(0,0,0,0);
@@ -167,14 +179,14 @@
                 }
                 
                 // debug
-                float2 vPos = viewDir.xy * 1.3f;
-                float distToVPos = length(vPos - i.uv);
-                float s = step(0.02, distToVPos);
-                colorLookup *= s;
-                float2 lPos = lightDir.xy * 1.4f;
-                float distToLPos = length(lPos - i.uv);
-                s = step(0.02, distToLPos);
-                colorLookup *= s;
+                // float2 vPos = viewDir.xy * 1.3f;
+                // float distToVPos = length(vPos - i.uv);
+                // float s = step(0.02, distToVPos);
+                // colorLookup *= s;
+                // float2 lPos = lightDir.xy * 1.4f;
+                // float distToLPos = length(lPos - i.uv);
+                // s = step(0.02, distToLPos);
+                // colorLookup *= s;
 
                 colorLookup *= concentricLineMultiplier(distToCenter + 0.5, _MajorLineWidth, _MajorLineOpacity);
                 float lineSubdivCount = 10;

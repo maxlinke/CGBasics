@@ -1,24 +1,30 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 public class IntensityGraphDrawer : MonoBehaviour {
 
     [Header("Components")]
     [SerializeField] Material blitMatTemplate;
     [SerializeField] LightingModelGraphPropNameResolver nameResolver;
-    [SerializeField] Graphic[] existingGraphics;
+    [SerializeField] Image scrollTargetImage;
 
     [Header("Settings")]
     [SerializeField] Vector2 camRectPos;
     [SerializeField] Vector2 camRectSize;
-    [SerializeField] float graphScale;
+
+    [SerializeField] float defaultGraphScale;
+    [SerializeField] float minGraphScale;
+    [SerializeField] float maxGraphScale;
+
     [SerializeField] float majorLineWidth;
     [SerializeField] float majorLineOpacity;
     [SerializeField] float minorLineWidth;
     [SerializeField] float minorLineOpacity;
 
     bool initialized = false;
+    float graphScale;
     List<ShaderProperty> shaderProperties;
     Camera targetCam;
     Material blitMat;
@@ -29,12 +35,11 @@ public class IntensityGraphDrawer : MonoBehaviour {
         CreateCamera();
         CreateBlitMat();
         CollectShaderProperties();
+        SetupBackgroundScoll();
         uiGraphics = new List<Graphic>();
-        foreach(var g in existingGraphics){
-            uiGraphics.Add(g);
-        }
         this.lightingScreen = lightingScreen;
         this.initialized = true;
+        ResetToDefault();
 
         void CreateCamera () {
             targetCam = new GameObject("Intensity Graph Cam", typeof(Camera)).GetComponent<Camera>();
@@ -60,6 +65,16 @@ public class IntensityGraphDrawer : MonoBehaviour {
                 Debug.Log($"Found obects of type {nameof(ShaderProperty)}: {debugOut}.");
             }
         }
+
+        void SetupBackgroundScoll () {
+            scrollTargetImage.raycastTarget = true;
+            scrollTargetImage.color = Color.clear;
+            scrollTargetImage.gameObject.AddComponent<BackgroundScroll>().onScroll += (delta) => {graphScale = Mathf.Clamp(graphScale - (delta * graphScale), minGraphScale, maxGraphScale);};
+        }
+    }
+
+    void ResetToDefault () {
+        graphScale = defaultGraphScale;
     }
 
     public void LoadColors (ColorScheme cs) {
@@ -137,5 +152,40 @@ public class IntensityGraphDrawer : MonoBehaviour {
         }
 
     }
-	
+
+    class BackgroundScroll : ClickDragScrollHandler {
+
+        public event System.Action<float> onScroll = delegate {};
+
+        Vector3 lastMousePos;
+        PointerType currentPointerType;
+
+        void Update () {
+            if(currentPointerType != PointerType.Middle){
+                return;
+            }
+            var currentMousePos = Input.mousePosition;
+            float mouseDelta = currentMousePos.y - lastMousePos.y;
+            onScroll.Invoke(mouseDelta * 0.02f * InputSystem.shiftCtrlMultiplier);
+            lastMousePos = currentMousePos;
+        }
+
+        protected override void PointerDown (PointerEventData eventData) {
+            if(currentPointerType == PointerType.None){
+                currentPointerType = PointerIDToType(eventData.pointerId);
+                lastMousePos = Input.mousePosition;
+            }
+        }
+
+        protected override void PointerUp (PointerEventData eventData) {
+            if(PointerIDToType(eventData.pointerId) == currentPointerType){
+                currentPointerType = PointerType.None;
+            }
+        }
+
+        protected override void Scroll(PointerEventData ped) {
+            onScroll.Invoke(ped.scrollDelta.y * 0.1f * InputSystem.shiftCtrlMultiplier);
+        }
+    }
+
 }

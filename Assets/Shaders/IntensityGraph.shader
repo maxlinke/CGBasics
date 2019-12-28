@@ -101,6 +101,13 @@
                 return 2.0 * (saturate(2.0 * (frac(x) - 0.5)) + saturate(2.0 * (0.5 - frac(x)))) - 1;
             }
 
+            float concentricLineMultiplier (float pos, float lineWidth, float lineOpacity) {
+                float lineCos = (triCos(pos) + 1.0) / 2.0;
+                float lines = smoothstep(-0.002, 0.002, lineCos - lineWidth);
+                float lineTransparency = 1 - lineOpacity;
+                return lineTransparency + (lines * (1 - lineTransparency));
+            }
+
             fixed4 frag (v2f i) : SV_Target {
                 float3 pixelVec = float3(normalize(i.uv), 0);
                 float3 normal = pixelVec;
@@ -170,17 +177,18 @@
                 colorLookup *= s;
 
                 // lines
-                float majorLineCos = (triCos(distToCenter + 0.5) + 1.0) / 2.0;
-                float majorLines = smoothstep(-0.002, 0.002, majorLineCos - _MajorLineWidth);
-                float majorLineAlpha = 1 - _MajorLineOpacity;
-                colorLookup *= majorLineAlpha + (majorLines * (1 - majorLineAlpha));
+                // float majorLineCos = (triCos(distToCenter + 0.5) + 1.0) / 2.0;
+                // float majorLines = smoothstep(-0.002, 0.002, majorLineCos - _MajorLineWidth);
+                // float majorLineAlpha = 1 - _MajorLineOpacity;
+                colorLookup *= concentricLineMultiplier(distToCenter + 0.5, _MajorLineWidth, _MajorLineOpacity);
                 float lineSubdivCount = 10;
-                float minorLineAlpha = 1 - _MinorLineOpacity;
+                // float minorLineAlpha = 1 - _MinorLineOpacity;
                 for(float lCounter=1; lCounter<lineSubdivCount; lCounter+=1.0){
                     float minorLineOffset = lCounter / lineSubdivCount;
-                    float minorLineCos = (triCos(distToCenter + 0.5 + minorLineOffset) + 1.0) / 2.0;
-                    float minorLines = smoothstep(-0.002, 0.002, minorLineCos - _MinorLineWidth);
-                    colorLookup *= minorLineAlpha + (minorLines * (1 - minorLineAlpha));
+                    // float minorLineCos = (triCos(distToCenter + 0.5 + minorLineOffset) + 1.0) / 2.0;
+                    // float minorLines = smoothstep(-0.002, 0.002, minorLineCos - _MinorLineWidth);
+                    // colorLookup *= minorLineAlpha + (minorLines * (1 - minorLineAlpha));
+                    colorLookup *= concentricLineMultiplier(distToCenter + 0.5 + minorLineOffset, _MinorLineWidth, _MinorLineOpacity);
                 }
 
                 fixed4 col = lerp(_ForegroundColor, _BackgroundColor, saturate(colorLookup));

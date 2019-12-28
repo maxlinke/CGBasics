@@ -12,6 +12,10 @@ namespace LightingModels {
         [SerializeField] LightingModelGraphPropNameResolver nameResolver;
         [SerializeField] Image scrollTargetImage;
         [SerializeField] IntensityGraphWindowOverlay windowOverlay;
+        [SerializeField] RectTransform lightGizmoParent;
+        [SerializeField] RectTransform viewGizmoParent;
+        [SerializeField] List<Graphic> regularColorUIElements;
+        [SerializeField] List<Graphic> dropShadowUIElements;
 
         [Header("Settings")]
         [SerializeField] Vector2 camRectPos;
@@ -32,15 +36,13 @@ namespace LightingModels {
         Camera targetCam;
         Material blitMat;
         LightingScreen lightingScreen;
-        List<Graphic> uiGraphics;
 
         public void Initialize (LightingScreen lightingScreen) {
             CreateCamera();
             CreateBlitMat();
             CollectShaderProperties();
             SetupBackgroundScoll();
-            windowOverlay.Initialize("Reset the zoom", ResetToDefault, null);
-            uiGraphics = new List<Graphic>();
+            windowOverlay.Initialize("Reset the zoom", ResetToDefault);
             this.lightingScreen = lightingScreen;
             this.initialized = true;
             ResetToDefault();
@@ -84,8 +86,11 @@ namespace LightingModels {
         public void LoadColors (ColorScheme cs) {
             blitMat.SetColor("_BackgroundColor", cs.LSIGBackground);
             blitMat.SetColor("_ForegroundColor", cs.LSIGGraph);
-            foreach(var g in uiGraphics){
+            foreach(var g in regularColorUIElements){
                 g.color = cs.LSIGUIElements;
+            }
+            foreach(var g in dropShadowUIElements){
+                g.color = cs.LSIGUIElementDropShadow;
             }
             windowOverlay.LoadColors(cs);
         }
@@ -117,10 +122,15 @@ namespace LightingModels {
 
             void UpdateGraphMatValues (MaterialPropertyBlock mpb) {
                 blitMat.SetFloat("_GraphScale", graphScale);
-                blitMat.SetFloat("_MajorLineWidth", graphScale * majorLineWidth / Mathf.Min(Screen.width, Screen.height));
-                blitMat.SetFloat("_MajorLineOpacity", Mathf.Clamp01(majorLineOpacity / graphScale));
-                blitMat.SetFloat("_MinorLineWidth", graphScale * minorLineWidth / Mathf.Min(Screen.width, Screen.height));
-                blitMat.SetFloat("_MinorLineOpacity", Mathf.Clamp01(minorLineOpacity / graphScale));
+                if(windowOverlay.concentricLineToggle.isOn){
+                    blitMat.SetFloat("_MajorLineWidth", graphScale * majorLineWidth / Mathf.Min(Screen.width, Screen.height));
+                    blitMat.SetFloat("_MajorLineOpacity", Mathf.Clamp01(majorLineOpacity / graphScale));
+                    blitMat.SetFloat("_MinorLineWidth", graphScale * minorLineWidth / Mathf.Min(Screen.width, Screen.height));
+                    blitMat.SetFloat("_MinorLineOpacity", Mathf.Clamp01(minorLineOpacity / graphScale));
+                }else{
+                    blitMat.SetFloat("_MajorLineOpacity", 0);
+                    blitMat.SetFloat("_MinorLineOpacity", 0);
+                }
                 foreach(var sp in shaderProperties){
                     if(sp.type == ShaderProperty.Type.Float){
                         blitMat.SetFloat(sp.name, mpb.GetFloat(sp.name));
@@ -141,6 +151,11 @@ namespace LightingModels {
                 
                 blitMat.SetVector("_LightDir", new Vector4(Mathf.Sin(lightAngle), Mathf.Cos(lightAngle), 0, 0));
                 blitMat.SetVector("_ViewDir", new Vector4(Mathf.Sin(viewAngle), Mathf.Cos(viewAngle), 0, 0));
+
+                lightGizmoParent.localEulerAngles = new Vector3(0, 0, -lightAngle * Mathf.Rad2Deg);
+                lightGizmoParent.GetChild(0).localEulerAngles = -lightGizmoParent.localEulerAngles;
+                viewGizmoParent.localEulerAngles = new Vector3(0, 0, -viewAngle * Mathf.Rad2Deg);
+                viewGizmoParent.GetChild(0).localEulerAngles = -viewGizmoParent.localEulerAngles;
             }
         }
 

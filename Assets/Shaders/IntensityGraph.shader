@@ -166,28 +166,20 @@
                     colorLookup = step(0, (distToCenter - evalLum));
                 }
                 
-                // debug
-                float2 vPos = viewDir.xy * 1.3f;
-                float distToVPos = length(vPos - i.uv);
-                float s = step(0.02, distToVPos);
-                colorLookup *= s;
-                float2 lPos = lightDir.xy * 1.4f;
-                float distToLPos = length(lPos - i.uv);
-                s = step(0.02, distToLPos);
-                colorLookup *= s;
+                // // debug
+                // float2 vPos = viewDir.xy * 1.3f;
+                // float distToVPos = length(vPos - i.uv);
+                // float s = step(0.02, distToVPos);
+                // colorLookup *= s;
+                // float2 lPos = lightDir.xy * 1.4f;
+                // float distToLPos = length(lPos - i.uv);
+                // s = step(0.02, distToLPos);
+                // colorLookup *= s;
 
-                // lines
-                // float majorLineCos = (triCos(distToCenter + 0.5) + 1.0) / 2.0;
-                // float majorLines = smoothstep(-0.002, 0.002, majorLineCos - _MajorLineWidth);
-                // float majorLineAlpha = 1 - _MajorLineOpacity;
                 colorLookup *= concentricLineMultiplier(distToCenter + 0.5, _MajorLineWidth, _MajorLineOpacity);
                 float lineSubdivCount = 10;
-                // float minorLineAlpha = 1 - _MinorLineOpacity;
                 for(float lCounter=1; lCounter<lineSubdivCount; lCounter+=1.0){
                     float minorLineOffset = lCounter / lineSubdivCount;
-                    // float minorLineCos = (triCos(distToCenter + 0.5 + minorLineOffset) + 1.0) / 2.0;
-                    // float minorLines = smoothstep(-0.002, 0.002, minorLineCos - _MinorLineWidth);
-                    // colorLookup *= minorLineAlpha + (minorLines * (1 - minorLineAlpha));
                     colorLookup *= concentricLineMultiplier(distToCenter + 0.5 + minorLineOffset, _MinorLineWidth, _MinorLineOpacity);
                 }
 

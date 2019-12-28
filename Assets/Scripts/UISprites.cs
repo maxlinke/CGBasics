@@ -105,11 +105,9 @@ public class UISprites : ScriptableObject {
 
     [Header("Lighting Screen")]
     [SerializeField] Sprite lsRenderAmbientLight;
-    [SerializeField] Sprite lsGraphRGB;
-    [SerializeField] Sprite lsGraphSobel;
+    [SerializeField] Sprite lsConcentricCircles;
 
     public static Sprite LSRenderAmbientLight => instance.lsRenderAmbientLight;
-    public static Sprite LSGraphRGB => instance.lsGraphRGB;
-    public static Sprite LSGraphSobel => instance.lsGraphSobel;
+    public static Sprite LSConcentricCircles => instance.lsConcentricCircles;
 
 }

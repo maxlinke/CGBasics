@@ -425,10 +425,12 @@ public class ColorScheme : ScriptableObject {
     [SerializeField] Color lsigBackground;
     [SerializeField] Color lsigGraph;
     [SerializeField] Color lsigUIElements;
+    [SerializeField] Color lsigUIElementDropShadow;
 
     public Color LSIGBackground => lsigBackground;
     public Color LSIGGraph => lsigGraph;
     public Color LSIGUIElements => lsigUIElements;
+    public Color LSIGUIElementDropShadow => lsigUIElementDropShadow;
     
 }
 

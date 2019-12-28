@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Soft Split
   m_EditorClassIdentifier: 
   m_ambientColor: {r: 0.3, g: 0.3, b: 0.3, a: 1}
-  m_defaultEuler: {x: 40, y: 50, z: 0}
+  m_defaultEuler: {x: -25, y: 40, z: 0}
   m_lights:
   - m_color: {r: 0.7, g: 0.7, b: 0.7, a: 1}
     m_position: {x: 0, y: 0, z: -1}

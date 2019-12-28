@@ -208,16 +208,27 @@ namespace LightingModels {
                 var vDir = lightingScreen.GetCamViewDir();
                 float lightAngle,  viewAngle;
                 if(planarMode){
-                    lightAngle = Mathf.Atan2(lDir.x, lDir.z);
+                    var input = ConstructRotationMatrix(lDir) * lDir ;
+                    lightAngle = Mathf.Atan2(input.x, input.z);
                     viewAngle = 0f;
                 }else{
                     var avg = (0.1f * lDir + vDir).normalized;
-                    var refAngle = Mathf.Atan2(avg.x, avg.z);
+                    var newBase = ConstructRotationMatrix(avg);
+                    var refVec = newBase * avg;
+                    var refAngle = Mathf.Atan2(refVec.x, refVec.z);
                     var deltaAngle = Mathf.Deg2Rad * Vector3.Angle(lDir, vDir);
                     lightAngle = refAngle - deltaAngle / 2;
                     viewAngle = refAngle + deltaAngle / 2;
                 }
                 return (lightAngle, viewAngle);
+
+                Matrix4x4 ConstructRotationMatrix (Vector3 neutralVector) {
+                    var nz = Vector3.forward;
+                    var tx = neutralVector;
+                    var ny = Vector3.Cross(tx, nz);
+                    var nx = Vector3.Cross(-ny, nz);
+                    return new Matrix4x4(nx, ny, nz, new Vector4(0,0,0,1)).transpose;
+                }
             }
         }
 

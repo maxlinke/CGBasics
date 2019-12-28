@@ -244,7 +244,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &5716436090326242443
 RectTransform:
   m_ObjectHideFlags: 0
@@ -507,7 +507,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &8732992497008622722
 RectTransform:
   m_ObjectHideFlags: 0
@@ -766,7 +766,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 9e0da460daaca114799ba4be07e7f4e2, type: 2}
   - {fileID: 11400000, guid: 954fc2a480bd53442a7df7118e8124e0, type: 2}
   applyLightingSetupRotation: 1
-  defaultModel: {fileID: 11400000, guid: a2024be66dde725468f5aab9adc32c74, type: 2}
+  defaultModel: {fileID: 11400000, guid: 6e4bc72f5f91575449f615128042ea73, type: 2}
   defaultDiffuseModel: {fileID: 11400000, guid: a16cda9db628a644595ad6bdfa1d08a8,
     type: 2}
   defaultSpecularModel: {fileID: 11400000, guid: 4c228059d1b1f1a48956fcc44ff97603,
@@ -1128,7 +1128,7 @@ RectTransform:
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -1603,11 +1603,11 @@ MonoBehaviour:
   camAllowAA: 1
   camRectPosition: {x: 0.5, y: 0}
   camRectDimensions: {x: 0.5, y: 0.5}
-  defaultEuler: {x: 10, y: -30, z: 0}
+  defaultEuler: {x: 20, y: -40, z: 0}
   defaultFOV: 60
   defaultNearClip: 0.1
   defaultFarClip: 6.67
-  defaultDist: 1.5
+  defaultDist: 2
   minDist: 1
   maxDist: 3
 --- !u!114 &8023073832735854105
@@ -2070,7 +2070,7 @@ RectTransform:
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}

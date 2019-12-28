@@ -200,13 +200,12 @@ half Specular_Phong (lm_input input) {
     // half3 r = input.lightDir - 2 * input.normal * dot(input.normal, input.lightDir);
     half3 r = reflect(input.lightDir, input.normal);     // the easy way
     half3 e = -input.viewDir;
-    // return saturate(_SpecularIntensity * pow(saturate(dot(r, e)), _SpecularHardness));  //  * step(0, input.nDotV) ? 
-    return saturate(_SpecularIntensity * pow(dot(r, e), _SpecularHardness));  //  * step(0, input.nDotV) ? 
+    return max(0, _SpecularIntensity * pow(dot(r, e), _SpecularHardness));
 }
 
 
 half Specular_Blinn_Phong (lm_input input) {
-    return saturate(_SpecularIntensity * pow(saturate(input.nDotH), _SpecularHardness));
+    return max(0, _SpecularIntensity * pow(saturate(input.nDotH), _SpecularHardness));
 }
 
 // https://en.wikipedia.org/wiki/Specular_highlight#Cook%E2%80%93Torrance_model

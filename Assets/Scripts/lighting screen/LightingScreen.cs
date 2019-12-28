@@ -316,12 +316,8 @@ public class LightingScreen : MonoBehaviour {
                     float absDelta = Mathf.Abs(shaderVar.prop.minValue - shaderVar.prop.maxValue);
                     if(absDelta <= 1f){
                         customStringFormat = (f) => { return $"{f:F3}".ShortenNumberString();};
-                    }else if(absDelta <= 10f){
-                        customStringFormat = (f) => { return $"{f:F3}".ShortenNumberString();};
-                    }else if(absDelta <= 100f){
-                        customStringFormat = (f) => { return $"{f:F2}".ShortenNumberString();};
                     }else{
-                        customStringFormat = (f) => { return $"{f:F1}".ShortenNumberString();};
+                        customStringFormat = (f) => { return $"{f:F2}".ShortenNumberString();};
                     }
                     float scrollMultiplier = absDelta / 2f;
                     propGroup.AddFloatProperty(shaderVar.prop, (f) => {floatObj.value = f;}, customStringFormat, scrollMultiplier);

@@ -96,7 +96,7 @@ public class SyncedSliderAndInputField : MonoBehaviour {
                     slider.value = parsed;
                     inputField.text = GetInputFieldText(parsed);
                 });
-                m_currentValue = parsed;
+                m_currentValue = slider.value;
                 onValueUpdated.Invoke(m_currentValue);
             }
         }

@@ -1603,7 +1603,7 @@ MonoBehaviour:
   camAllowAA: 1
   camRectPosition: {x: 0.5, y: 0}
   camRectDimensions: {x: 0.5, y: 0.5}
-  defaultEuler: {x: 20, y: -40, z: 0}
+  defaultEuler: {x: -20, y: -40, z: 0}
   defaultFOV: 60
   defaultNearClip: 0.1
   defaultFarClip: 6.67

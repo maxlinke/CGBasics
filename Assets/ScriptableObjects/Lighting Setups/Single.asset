@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Single
   m_EditorClassIdentifier: 
   m_ambientColor: {r: 0.1, g: 0.1, b: 0.1, a: 1}
-  m_defaultEuler: {x: -25, y: 40, z: 0}
+  m_defaultEuler: {x: 30, y: 40, z: 0}
   m_lights:
   - m_color: {r: 0.8, g: 0.8, b: 0.8, a: 1}
     m_position: {x: 0, y: 0, z: -1}

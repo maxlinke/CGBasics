@@ -13,8 +13,9 @@ MonoBehaviour:
   m_Name: _SpecularHardnessY
   m_EditorClassIdentifier: 
   m_type: 0
+  m_specialIdentifier: 0
   m_niceName: Hardness (Y)
   m_defaultColor: {r: 0, g: 0, b: 0, a: 0}
-  m_minValue: 0
+  m_minValue: 0.01
   m_maxValue: 128
   m_defaultValue: 64

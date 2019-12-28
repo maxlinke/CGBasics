@@ -244,7 +244,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &5716436090326242443
 RectTransform:
   m_ObjectHideFlags: 0
@@ -651,7 +651,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &8732992497008622722
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1095,7 +1095,7 @@ RectTransform:
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -1195,10 +1195,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   blitMatTemplate: {fileID: 2100000, guid: de5486dc68af2e843ad6fd67704fda38, type: 2}
   nameResolver: {fileID: 11400000, guid: b9dd2bf499d45374a8c1af9bb26ab31b, type: 2}
+  existingGraphics: []
   camRectPos: {x: 0.5, y: 0.5}
   camRectSize: {x: 0.5, y: 0.5}
   graphScale: 1.5
-  lineWidth: 0.01
+  majorLineWidth: 8
+  majorLineOpacity: 1
+  minorLineWidth: 4
+  minorLineOpacity: 0.25
   lightAngle: 0
   viewAngle: 0
 --- !u!1 &5952719929888262804
@@ -1705,7 +1709,7 @@ RectTransform:
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}

@@ -183,3 +183,6 @@ MonoBehaviour:
   lswoButtonBackgroundInactive: {r: 0.4, g: 0.4, b: 0.4, a: 0.5019608}
   lswoButtonHover: {r: 0.8, g: 0.8, b: 0.8, a: 0.33333334}
   lswoButtonClick: {r: 0.5, g: 0.5, b: 0.5, a: 0.5019608}
+  lsigBackground: {r: 0.1, g: 0.1, b: 0.1, a: 1}
+  lsigGraph: {r: 0.667, g: 0.667, b: 0.667, a: 1}
+  lsigUIElements: {r: 0.8, g: 0.8, b: 0.8, a: 1}

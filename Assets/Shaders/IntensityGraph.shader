@@ -10,7 +10,10 @@
         _ViewDir ("View Dir", Vector) = (-1.0, 1.0, 0.0, 0.0)
         _ForegroundColor ("Foreground Color", Color) = (0.8, 0.8, 0.8, 1.0)
         _BackgroundColor ("Background Color", Color) = (0.2, 0.2, 0.2, 1.0)
-        _LineWidth ("Line Width", Float) = 0.1
+        _MajorLineWidth ("Major Line Width", Float) = 0.1
+        _MajorLineOpacity ("Major Line Opacity", Float) = 0.667
+        _MinorLineWidth ("Minor Line Width", Float) = 0.1
+        _MinorLineOpacity ("Minor Line Opacity", Float) = 0.333
         // the conditions
         _SpecBlinnPhong ("_SpecBlinnPhong", Range(0, 1)) = 0
         _SpecCookTorr ("_SpecCookTorr", Range(0, 1)) = 0
@@ -54,7 +57,10 @@
             float4 _ViewDir;
             fixed4 _ForegroundColor;
             fixed4 _BackgroundColor;
-            float _LineWidth;
+            float _MajorLineWidth;
+            float _MajorLineOpacity;
+            float _MinorLineWidth;
+            float _MinorLineOpacity;
 
             float _SpecBlinnPhong;
             float _SpecCookTorr;
@@ -83,6 +89,16 @@
                 o.uv *= _GraphScale;
                 o.pixelUV = v.uv * _ScreenParams.xy;
                 return o;
+            }
+
+            float normalizeWithLineWidth (float inputValue, float lineWidth) {
+                float normMin = -lineWidth / 2;
+                float normMax = +lineWidth / 2;
+                return (inputValue - normMin) / (normMax - normMin);
+            }
+
+            float triCos (float x) {
+                return 2.0 * (saturate(2.0 * (frac(x) - 0.5)) + saturate(2.0 * (0.5 - frac(x)))) - 1;
             }
 
             fixed4 frag (v2f i) : SV_Target {
@@ -133,22 +149,16 @@
                 }
 
                 float evalLum = 0.299 * evalCol.x + 0.587 * evalCol.y + 0.114 * evalCol.z;
-
-                float lerpMin = -_LineWidth / 2;
-                float lerpMax = +_LineWidth / 2;
-                float lerpVal = ((distToCenter - evalLum) - lerpMin) / (lerpMax - lerpMin);
-
-                float2 pixelFrac = frac(i.pixelUV / 2) * 2;
-                float pixelID = abs(pixelFrac.x - pixelFrac.y);
-                
                 float colorLookup;
                 if((evalLum > 1) && (distToCenter < evalLum) && (distToCenter > 1)){
-                    colorLookup = pixelID;
+                    // float2 pixelFrac = frac(i.pixelUV / 2) * 2;
+                    // float pixelID = abs(pixelFrac.x - pixelFrac.y);
+                    // colorLookup = pixelID;
+                    colorLookup = 0.5;
                 }else{
-                    colorLookup = saturate(lerpVal);
+                    colorLookup = step(0, (distToCenter - evalLum));
                 }
                 
-
                 // debug
                 float2 vPos = viewDir.xy * 1.3f;
                 float distToVPos = length(vPos - i.uv);
@@ -159,12 +169,21 @@
                 s = step(0.02, distToLPos);
                 colorLookup *= s;
 
-                fixed4 col = lerp(_ForegroundColor, _BackgroundColor, colorLookup);
-                // col = frac(col);
-                
-                // fixed4 col = fixed4(i.uv.x, i.uv.y, 1, 1);
-                // fixed4 col = fixed4(distToCenter, distToCenter, distToCenter, 1);
-                // col = frac(col);
+                // lines
+                float majorLineCos = (triCos(distToCenter + 0.5) + 1.0) / 2.0;
+                float majorLines = smoothstep(-0.002, 0.002, majorLineCos - _MajorLineWidth);
+                float majorLineAlpha = 1 - _MajorLineOpacity;
+                colorLookup *= majorLineAlpha + (majorLines * (1 - majorLineAlpha));
+                float lineSubdivCount = 10;
+                float minorLineAlpha = 1 - _MinorLineOpacity;
+                for(float lCounter=1; lCounter<lineSubdivCount; lCounter+=1.0){
+                    float minorLineOffset = lCounter / lineSubdivCount;
+                    float minorLineCos = (triCos(distToCenter + 0.5 + minorLineOffset) + 1.0) / 2.0;
+                    float minorLines = smoothstep(-0.002, 0.002, minorLineCos - _MinorLineWidth);
+                    colorLookup *= minorLineAlpha + (minorLines * (1 - minorLineAlpha));
+                }
+
+                fixed4 col = lerp(_ForegroundColor, _BackgroundColor, saturate(colorLookup));
                 return col;
             }
 			

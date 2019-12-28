@@ -1,32 +1,38 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class IntensityGraphDrawer : MonoBehaviour {
 
     [Header("Components")]
     [SerializeField] Material blitMatTemplate;
     [SerializeField] LightingModelGraphPropNameResolver nameResolver;
+    [SerializeField] Graphic[] existingGraphics;
 
     [Header("Settings")]
     [SerializeField] Vector2 camRectPos;
     [SerializeField] Vector2 camRectSize;
     [SerializeField] float graphScale;
-    [SerializeField] float lineWidth;   // TODO this might have to be scaled with the screen size...
-
-    [Header("TODO REMOVE")]             // TODO remove
-    [SerializeField] float lightAngle;
-    [SerializeField] float viewAngle;
+    [SerializeField] float majorLineWidth;
+    [SerializeField] float majorLineOpacity;
+    [SerializeField] float minorLineWidth;
+    [SerializeField] float minorLineOpacity;
 
     bool initialized = false;
     List<ShaderProperty> shaderProperties;
     Camera targetCam;
     Material blitMat;
     LightingScreen lightingScreen;
+    List<Graphic> uiGraphics;
 
     public void Initialize (LightingScreen lightingScreen) {
         CreateCamera();
         CreateBlitMat();
         CollectShaderProperties();
+        uiGraphics = new List<Graphic>();
+        foreach(var g in existingGraphics){
+            uiGraphics.Add(g);
+        }
         this.lightingScreen = lightingScreen;
         this.initialized = true;
 
@@ -53,6 +59,14 @@ public class IntensityGraphDrawer : MonoBehaviour {
                 debugOut = debugOut.Remove(debugOut.Length - 2);     // to remove the last ", "
                 Debug.Log($"Found obects of type {nameof(ShaderProperty)}: {debugOut}.");
             }
+        }
+    }
+
+    public void LoadColors (ColorScheme cs) {
+        blitMat.SetColor("_BackgroundColor", cs.LSIGBackground);
+        blitMat.SetColor("_ForegroundColor", cs.LSIGGraph);
+        foreach(var g in uiGraphics){
+            g.color = cs.LSIGUIElements;
         }
     }
 
@@ -83,7 +97,10 @@ public class IntensityGraphDrawer : MonoBehaviour {
 
         void UpdateGraphMatValues (MaterialPropertyBlock mpb) {
             blitMat.SetFloat("_GraphScale", graphScale);
-            blitMat.SetFloat("_LineWidth", lineWidth);
+            blitMat.SetFloat("_MajorLineWidth", graphScale * majorLineWidth / Mathf.Min(Screen.width, Screen.height));
+            blitMat.SetFloat("_MajorLineOpacity", Mathf.Clamp01(majorLineOpacity / graphScale));
+            blitMat.SetFloat("_MinorLineWidth", graphScale * minorLineWidth / Mathf.Min(Screen.width, Screen.height));
+            blitMat.SetFloat("_MinorLineOpacity", Mathf.Clamp01(minorLineOpacity / graphScale));
             foreach(var sp in shaderProperties){
                 if(sp.type == ShaderProperty.Type.Float){
                     blitMat.SetFloat(sp.name, mpb.GetFloat(sp.name));
@@ -98,9 +115,9 @@ public class IntensityGraphDrawer : MonoBehaviour {
 
             var lDir = lightingScreen.GetMainLightDir();
             var vDir = lightingScreen.GetCamViewDir();
-            viewAngle = Mathf.Deg2Rad * Vector3.Angle(vDir, Vector3.forward);
+            var viewAngle = Mathf.Deg2Rad * Vector3.Angle(vDir, Vector3.forward);
             var angleBetween = Mathf.Deg2Rad * Vector3.Angle(lDir, vDir);
-            lightAngle = viewAngle + angleBetween;
+            var lightAngle = viewAngle + angleBetween;
             
             blitMat.SetVector("_LightDir", new Vector4(Mathf.Sin(lightAngle), Mathf.Cos(lightAngle), 0, 0));
             blitMat.SetVector("_ViewDir", new Vector4(Mathf.Sin(viewAngle), Mathf.Cos(viewAngle), 0, 0));

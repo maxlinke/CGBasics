@@ -380,6 +380,7 @@ public class LightingScreen : MonoBehaviour {
             pg.LoadColors(cs);
         }
         renderViewController.LoadColors(cs);
+        intensityGraphDrawer.LoadColors(cs);
         windowOverlay.LoadColors(cs);
     }
 
@@ -453,10 +454,6 @@ public class LightingScreen : MonoBehaviour {
     }
 
     public Color GetMainLightColor () {
-        // if(lightsPropertyGroup.PropertyCount < 2){
-        //     return Color.black;
-        // }
-        // return ((ColorPropertyField)(lightsPropertyGroup[1])).currentColor;
         if(renderViewController.lightCount > 0){
             return renderViewController.mainLightColor;
         }

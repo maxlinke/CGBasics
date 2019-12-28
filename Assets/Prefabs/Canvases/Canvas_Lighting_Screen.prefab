@@ -340,7 +340,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 4793448864368272646}
   m_Direction: 2
   m_Value: 0
-  m_Size: 1
+  m_Size: 0.512987
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -771,7 +771,7 @@ MonoBehaviour:
     type: 2}
   defaultSpecularModel: {fileID: 11400000, guid: 4c228059d1b1f1a48956fcc44ff97603,
     type: 2}
-  defaultLightingSetup: {fileID: 11400000, guid: 83a0212fec7095146983fd82abb73714,
+  defaultLightingSetup: {fileID: 11400000, guid: f0f68b3435eceae47bd9c685a2331a01,
     type: 2}
 --- !u!1 &2787394391351740578
 GameObject:

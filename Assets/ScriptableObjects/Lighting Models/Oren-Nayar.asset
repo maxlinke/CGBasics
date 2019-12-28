@@ -16,7 +16,7 @@ MonoBehaviour:
   m_shader: {fileID: 4800000, guid: 9218c73b74fa37148bc0be98b690ec02, type: 3}
   m_description: A model for rough, microfaceted surfaces, such as sand, rough wallpaper
     and the moon. Developed by Michael Oren and Shree K. Nayar and published in 1994.
-  m_equation: {fileID: 0}
+  m_equation: {fileID: 21300000, guid: cc2dc3d694f6ae44e8bb593bca04a19e, type: 3}
   m_usedProperties:
   - {fileID: 11400000, guid: bdf75838d46d37d4d83a536bd970cb0e, type: 2}
   - {fileID: 11400000, guid: ef670eaae682bd342b03547564e2424c, type: 2}

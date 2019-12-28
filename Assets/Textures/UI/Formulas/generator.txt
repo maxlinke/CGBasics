@@ -1,0 +1,21 @@
+http://rogercortesi.com/eqn/index.php
+
+lambert: 
+k_{diff} = max(0, \vec{n} \cdot \vec{l})
+
+wrap: 
+k_{diff} = ((\vec{n} \cdot \vec{l})+1)/2
+
+minnaert: 
+k_{diff} = max(0, (\vec{n} \cdot \vec{l}*\vec{n} \cdot \vec{v}))^{k}
+k=Minnaert's Exponent
+
+oren-nayar:
+k_{diff} = max(0, (\vec{n} \cdot \vec{l}) * (A + B * sin(\alpha}))*tan(\beta)*max(0, cos(\phi_{\vec{l}}-\phi_{\vec{v}})))
+A=1-0.5\frac{\sigma^{2}}{\sigma^{2}+0.33}
+B=0.45\frac{\sigma^{2}}{{\sigma^{2}+0.09}
+\alpha=max(acos(\vec{n}\cdot\vec{l}), acos(\vec{n}\cdot\vec{v}))
+\beta=min(acos(\vec{n}\cdot\vec{l}), acos(\vec{n}\cdot\vec{v}))
+\sigma=Roughness
+\phi_{\vec{l}}=Azimuth angle of light vector
+\phi_{\vec{v}}=Azimuth angle of view vector

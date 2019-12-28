@@ -16,6 +16,6 @@ MonoBehaviour:
   m_shader: {fileID: 4800000, guid: 84539e2353c24fb48843ef791947a797, type: 3}
   m_description: The standard model for diffuse reflections in real-time CG. Named
     after Johann Heinrich Lambert and dating back to the mid-18th century.
-  m_equation: {fileID: 0}
+  m_equation: {fileID: 21300000, guid: 38eb6cb5101510f4ca7b793484d9a165, type: 3}
   m_usedProperties:
   - {fileID: 11400000, guid: bdf75838d46d37d4d83a536bd970cb0e, type: 2}

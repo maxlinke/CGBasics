@@ -92,7 +92,7 @@ namespace LightingModels {
             CreateRenderObject();
             CreateLightsParent();
             lights = new List<Light>();
-            windowOverlay.Initialize(ResetCamera, initialAmbientToggleState: false);
+            windowOverlay.Initialize(ResetCamera, initialAmbientToggleState: false, initialGizmoToggleState: true);
 
             this.initialized = true;
             ResetCamera();
@@ -133,7 +133,7 @@ namespace LightingModels {
         }
 
         void OnCamPostRender () {
-            if(!initialized || currentPointerType == PointerType.None){
+            if(!initialized || (currentPointerType == PointerType.None && !windowOverlay.gizmoToggle.isOn)){
                 return;
             }
             if(glMatSolid == null){

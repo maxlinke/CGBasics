@@ -83,10 +83,13 @@ namespace LightingModels {
                     shaderProperties.Add(sp);
                     debugOut += $"{sp.name}, ";
                 }
-                if(debugOut.Length > 0){
-                    debugOut = debugOut.Remove(debugOut.Length - 2);     // to remove the last ", "
-                    Debug.Log($"Found obects of type {nameof(ShaderProperty)}: {debugOut}.");
+                if(shaderProperties.Count < 1){
+                    Debug.LogError("Didn't find any shader properties!!!");
                 }
+                // if(debugOut.Length > 0){
+                //     debugOut = debugOut.Remove(debugOut.Length - 2);     // to remove the last ", "
+                //     Debug.Log($"Found obects of type {nameof(ShaderProperty)}: {debugOut}.");
+                // }
             }
 
             void SetupBackgroundScoll () {

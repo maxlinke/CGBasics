@@ -277,8 +277,9 @@ MonoBehaviour:
   flashOnMessage: 0
   hideWhenNotNeeded: 0
   lowerOpacityWhenNotNeeded: 1
-  opacityWhenNotNeeded: 0.2
-  opacityFadeOutTime: 0.2
+  showOnHover: 0
+  opacityWhenNotNeeded: 0
+  opacityFadeOutTime: 0.25
 --- !u!1 &5946522147847946897
 GameObject:
   m_ObjectHideFlags: 0

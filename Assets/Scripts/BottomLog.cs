@@ -18,6 +18,7 @@ public class BottomLog : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
     [SerializeField] bool flashOnMessage;
     [SerializeField] bool hideWhenNotNeeded;
     [SerializeField] bool lowerOpacityWhenNotNeeded;
+    [SerializeField] bool showOnHover;
     [SerializeField] float opacityWhenNotNeeded;
     [SerializeField] float opacityFadeOutTime;
 
@@ -62,7 +63,7 @@ public class BottomLog : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
             hideTime = Mathf.Infinity;
         }
         bool noMessage = currentlyDisplayedMessage == null || currentlyDisplayedMessage.message == null || currentlyDisplayedMessage.message.Length < 1;
-        bool notNeeded = !pointerHover && noMessage;
+        bool notNeeded = !(pointerHover && showOnHover) && noMessage;
         if(notNeeded){
             if(hideWhenNotNeeded){
                 bottomBarContentParent.SetActive(false);
@@ -110,23 +111,23 @@ public class BottomLog : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         instance.Display(message, LogType.REGULAR, duration);
     }
 
-    ///<summary>Displays and logs a message</summary>
-    public static void LogMessage (string message) {
-        instance.Display(message, LogType.REGULAR, Mathf.Infinity);
-        instance.logs.Add(new Log(message, LogType.REGULAR));           // TODO the scrolling display (only update if visible...)
-    }
+    // ///<summary>Displays and logs a message</summary>
+    // public static void LogMessage (string message) {
+    //     instance.Display(message, LogType.REGULAR, Mathf.Infinity);
+    //     instance.logs.Add(new Log(message, LogType.REGULAR));
+    // }
 
-    ///<summary>Displays and logs a warning</summary>
-    public static void LogWarning (string message) {
-        instance.Display(message, LogType.WARNING, Mathf.Infinity);
-        instance.logs.Add(new Log(message, LogType.WARNING));
-    }
+    // ///<summary>Displays and logs a warning</summary>
+    // public static void LogWarning (string message) {
+    //     instance.Display(message, LogType.WARNING, Mathf.Infinity);
+    //     instance.logs.Add(new Log(message, LogType.WARNING));
+    // }
 
-    ///<summary>Displays and logs an error</summary>
-    public static void LogError (string message) {
-        instance.Display(message, LogType.ERROR, Mathf.Infinity);
-        instance.logs.Add(new Log(message, LogType.ERROR));
-    }
+    // ///<summary>Displays and logs an error</summary>
+    // public static void LogError (string message) {
+    //     instance.Display(message, LogType.ERROR, Mathf.Infinity);
+    //     instance.logs.Add(new Log(message, LogType.ERROR));
+    // }
 
     ///<summary>Clears the display and the log</summary>
     public static void Clear () {

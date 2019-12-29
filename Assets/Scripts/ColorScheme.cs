@@ -95,11 +95,23 @@ public class ColorScheme : ScriptableObject {
     [Header("Main Menu")]
     [SerializeField] Color mainMenuBackgroundWireObject;
     [SerializeField] Color mainMenuTitle;
-    [SerializeField] Color mainMenuSubtitle;
+    [SerializeField] Color mainMenuTitleDropShadow;
     [SerializeField] Color mainMenuMainButtons;
     [SerializeField] Color mainMenuMainButtonsHover;
     [SerializeField] Color mainMenuMainButtonsClick;
+    [SerializeField] Color mainMenuMainButtonsOutline;
     [SerializeField] Color mainMenuMainButtonsText;
+    [SerializeField] Color mainMenuMainButtonsTextDropShadow;
+
+    public Color MainMenuBackgroundWireObject => mainMenuBackgroundWireObject;
+    public Color MainMenuTitle => mainMenuTitle;
+    public Color MainMenuTitleDropShadow => mainMenuTitleDropShadow;
+    public Color MainMenuMainButtons => mainMenuMainButtons;
+    public Color MainMenuMainButtonsHover => mainMenuMainButtonsHover;
+    public Color MainMenuMainButtonsClick => mainMenuMainButtonsClick;
+    public Color MainMenuMainButtonsOutline => mainMenuMainButtonsOutline;
+    public Color MainMenuMainButtonsText => mainMenuMainButtonsText;
+    public Color MainMenuMainButtonsTextDropShadow => mainMenuMainButtonsTextDropShadow;
 
     [Header("Vert Render View")]
     [SerializeField] Color vertRenderCameraFrustum;

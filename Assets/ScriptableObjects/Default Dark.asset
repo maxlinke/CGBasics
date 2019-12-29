@@ -27,13 +27,15 @@ MonoBehaviour:
   windowOverlayButtonBackgroundHover: {r: 0.8, g: 0.8, b: 0.8, a: 0.33333334}
   windowOverlayButtonBackgroundClick: {r: 0.5, g: 0.5, b: 0.5, a: 0.33333334}
   windowOverlayButtonBackgroundDisabled: {r: 0.333, g: 0.333, b: 0.333, a: 0.5019608}
-  mainMenuBackgroundWireObject: {r: 0, g: 0, b: 0, a: 0}
-  mainMenuTitle: {r: 0, g: 0, b: 0, a: 0}
-  mainMenuSubtitle: {r: 0, g: 0, b: 0, a: 0}
-  mainMenuMainButtons: {r: 0, g: 0, b: 0, a: 0}
-  mainMenuMainButtonsHover: {r: 0, g: 0, b: 0, a: 0}
-  mainMenuMainButtonsClick: {r: 0, g: 0, b: 0, a: 0}
-  mainMenuMainButtonsText: {r: 0, g: 0, b: 0, a: 0}
+  mainMenuBackgroundWireObject: {r: 1, g: 1, b: 1, a: 1}
+  mainMenuTitle: {r: 1, g: 1, b: 1, a: 1}
+  mainMenuTitleDropShadow: {r: 0, g: 0, b: 0, a: 1}
+  mainMenuMainButtons: {r: 0.2, g: 0.2, b: 0.2, a: 1}
+  mainMenuMainButtonsHover: {r: 0.3, g: 0.3, b: 0.3, a: 1}
+  mainMenuMainButtonsClick: {r: 0.2, g: 0.2, b: 0.2, a: 1}
+  mainMenuMainButtonsOutline: {r: 0.667, g: 0.667, b: 0.667, a: 1}
+  mainMenuMainButtonsText: {r: 1, g: 1, b: 1, a: 1}
+  mainMenuMainButtonsTextDropShadow: {r: 0, g: 0, b: 0, a: 0.33333334}
   vertRenderCameraFrustum: {r: 0.8, g: 0.8, b: 0.8, a: 1}
   vertRenderClipSpaceBox: {r: 0.667, g: 0.667, b: 0.667, a: 1}
   vertRenderPivot: {r: 1, g: 0.667, b: 0, a: 1}

@@ -5,19 +5,45 @@ using TMPro;
 
 public class MainMenu : MonoBehaviour {
     
-    [Header("Components")]
-    [SerializeField] MainMenuWindowOverlay windowOverlay;
-
     [Header("Prefabs")]
     [SerializeField] MatrixScreen matrixScreenPrefab;
     [SerializeField] LightingScreen lightingScreenPrefab;
 
-    [Header("TEMP")]
+    [Header("Components")]
+    [SerializeField] MainMenuWindowOverlay windowOverlay;
+    [SerializeField] TextMeshProUGUI label;
+    [SerializeField] TextMeshProUGUI labelDropShadow;
+
+    [Header("Main Buttons")]
     [SerializeField] Button matrixButton;
     [SerializeField] Button lightingButton;
+    [SerializeField] Image[] buttonBackgrounds;
+    [SerializeField] Image[] buttonOutlines;
+    [SerializeField] TextMeshProUGUI[] buttonLabels;
+    [SerializeField] TextMeshProUGUI[] buttonLabelDropShadows;
+
+    [Header("Background Settings")]
+    [SerializeField] int backgroundObjectLayer;
+    [SerializeField] float backgroundCamFOV;
+    [SerializeField] Vector3 backgroundCamPosition;
+    [SerializeField] float backgroundCamNearClip;
+    [SerializeField] float backgroundCamFarClip;
+    [SerializeField] Mesh backgroundMesh;
+    [SerializeField] Vector3 backgroundObjectPosition;
+    [SerializeField] float backgroundObjectScale;
+    [SerializeField] Material backgroundMatTemplate;
+    [SerializeField] float backgroundMeshRotationSpeed;
+    [SerializeField, Range(0, 1)] float wireGizmoColorStrength;
 
     bool initialized = false;
     List<Button> mainButtons;
+    Camera backgroundCam;
+    Color wireFloorColor;
+    Color xAxis, yAxis, zAxis;
+    Material backgroundMeshMat;
+    GameObject backgroundObject;
+    Material wireMat;
+    bool glWireCache;
 
     void Start () {
         Initialize();
@@ -29,37 +55,12 @@ public class MainMenu : MonoBehaviour {
             return;
         }
         mainButtons = new List<Button>();
-        // PopulateButtonList();
         matrixButton.onClick.AddListener(() => {OpenScreen(matrixScreenPrefab);});
         lightingButton.onClick.AddListener(() => {OpenScreen(lightingScreenPrefab);});
+        SetupBackground();
         windowOverlay.Initialize(this);
         this.initialized = true;
         LoadColors(ColorScheme.current);
-
-        void PopulateButtonList () {
-            // float newButtonY = 0;
-            // float buttonHeight = ((RectTransform)(buttonTemplate.transform)).sizeDelta.y;
-            //from the bottom up
-            CreateListButton("Quit", () => Application.Quit());
-            CreateListButton("Settings", null);
-            CreateListButton("Lighting Models", () => {OpenScreen(lightingScreenPrefab);});
-            CreateListButton("Matrix Transformations", () => {OpenScreen(matrixScreenPrefab);});
-            CreateListButton("TEST", () => {Application.OpenURL("https://github.com/maxlinke/CGBasics/releases");});
-
-            void CreateListButton (string title, System.Action onClick) {
-                // var newButton = Instantiate(buttonTemplate).GetComponent<Button>();
-                // newButton.onClick.AddListener(() => onClick?.Invoke());
-                // var newButtonRT = (RectTransform)(newButton.transform);
-                // newButtonRT.SetParent(buttonParent, false);
-                // newButtonRT.anchoredPosition = new Vector2(newButtonRT.anchoredPosition.x, newButtonY);
-                // var newButtonText = newButton.GetComponentInChildren<TextMeshProUGUI>();
-                // newButtonText.text = title;
-                // newButton.gameObject.name = buttonTemplate.name + $" ({title})";
-                // newButton.gameObject.SetActive(true);
-                // mainButtons.Add(newButton);
-                // newButtonY += buttonHeight + buttonVerticalMargin;
-            }
-        }
 
         void OpenScreen (CloseableScreen screenPrefab) {
             gameObject.SetActive(false);
@@ -69,6 +70,56 @@ public class MainMenu : MonoBehaviour {
                 gameObject.SetActive(true);
             });
         }
+
+        void SetupBackground () {
+            backgroundCam = new GameObject("Main Menu Background Cam", typeof(Camera)).GetComponent<Camera>();
+            backgroundCam.cullingMask = 1 << backgroundObjectLayer;
+            backgroundCam.allowMSAA = false;
+            backgroundCam.nearClipPlane = backgroundCamNearClip;
+            backgroundCam.farClipPlane = backgroundCamFarClip;
+            backgroundCam.orthographic = false;
+            backgroundCam.fieldOfView = backgroundCamFOV;
+            backgroundCam.transform.position = backgroundCamPosition;
+            backgroundCam.transform.rotation = Quaternion.LookRotation(backgroundObjectPosition-backgroundCamPosition, Vector3.up);
+
+            wireMat = CustomGLCamera.GetLineMaterial(false);
+            var camScript = backgroundCam.gameObject.AddComponent<BackgroundCam>();
+            camScript.onPreRender += () => {
+                glWireCache = GL.wireframe;
+                GL.wireframe = true;
+            };
+            camScript.onPostRender += () => {
+                GL.wireframe = false;
+                var view = GLMatrixCreator.GetViewMatrix(backgroundCam.transform.position, backgroundCam.transform.forward, backgroundCam.transform.up);
+                var proj = GLMatrixCreator.GetProjectionMatrix(backgroundCam.fieldOfView, backgroundCam.aspect, backgroundCam.nearClipPlane, backgroundCam.farClipPlane);
+                GL.PushMatrix();
+                GL.LoadIdentity();
+                GL.LoadProjectionMatrix(proj);
+                GL.MultMatrix(view);
+                wireMat.SetPass(0);
+                CustomGLCamera.DrawWireFloor(wireFloorColor, false, true);
+                CustomGLCamera.DrawAxes(xAxis, yAxis, zAxis, false);
+                GL.PopMatrix();
+                GL.wireframe = glWireCache;
+            };
+
+            backgroundMeshMat = Instantiate(backgroundMatTemplate);
+            backgroundMeshMat.hideFlags = HideFlags.HideAndDontSave;
+
+            backgroundObject = new GameObject("Main Menu Background Object", typeof(MeshFilter), typeof(MeshRenderer));
+            backgroundObject.layer = backgroundObjectLayer;
+            backgroundObject.transform.position = backgroundObjectPosition;
+            backgroundObject.transform.localScale = Vector3.one * backgroundObjectScale;
+            backgroundObject.GetComponent<MeshFilter>().sharedMesh = backgroundMesh;
+            backgroundObject.GetComponent<MeshRenderer>().sharedMaterial = backgroundMeshMat;
+        }
+    }
+
+    void Update () {
+        if(!initialized){
+            return;
+        }
+        backgroundObject.transform.localEulerAngles += new Vector3(0, Time.deltaTime * backgroundMeshRotationSpeed, 0);
     }
 
     void OnEnable () {
@@ -77,19 +128,68 @@ public class MainMenu : MonoBehaviour {
         }
         LoadColors(ColorScheme.current);
         ColorScheme.onChange += LoadColors;
+        backgroundCam.gameObject.SetActive(true);
+        backgroundObject.SetActive(true);
     }
 
     void OnDisable () {
         ColorScheme.onChange -= LoadColors;
+        if(backgroundCam != null && backgroundCam.gameObject != null){
+            backgroundCam.gameObject.SetActive(false);
+        }
+        if(backgroundObject != null){
+            backgroundObject.SetActive(false);
+        }
     }
 
     void LoadColors (ColorScheme cs) {
+        label.color = cs.MainMenuTitle;
+        labelDropShadow.color = cs.MainMenuTitleDropShadow;
+        foreach(var img in buttonBackgrounds){
+            img.color = Color.white;
+        }
+        foreach(var img in buttonOutlines){
+            img.color = cs.MainMenuMainButtonsOutline;
+        }
+        foreach(var text in buttonLabels){
+            text.color = cs.MainMenuMainButtonsText;
+        }
+        foreach(var text in buttonLabelDropShadows){
+            text.color = cs.MainMenuMainButtonsTextDropShadow;
+        }
+        matrixButton.SetFadeTransition(0f, cs.MainMenuMainButtons, cs.MainMenuMainButtonsHover, cs.MainMenuMainButtonsClick, Color.magenta);
+        lightingButton.SetFadeTransition(0f, cs.MainMenuMainButtons, cs.MainMenuMainButtonsHover, cs.MainMenuMainButtonsClick, Color.magenta);
+        backgroundCam.backgroundColor = cs.ApplicationBackground;
+        backgroundMeshMat.color = WireGizmoColor(cs.MainMenuBackgroundWireObject);
+        xAxis = WireGizmoColor(cs.RenderXAxis);
+        yAxis = WireGizmoColor(cs.RenderYAxis);
+        zAxis = WireGizmoColor(cs.RenderZAxis);
+        wireFloorColor = WireGizmoColor(cs.RenderWireFloor);
         windowOverlay.LoadColors(cs);
+
+        Color WireGizmoColor (Color origColor) {
+            return wireGizmoColorStrength * origColor + (1 - wireGizmoColorStrength) * cs.ApplicationBackground;
+        }
     }
 
     public void CloseRequested () {
         Debug.Log("close requested");
         // TODO open overlay canvas, temporarily disable the buttons (or set EventSystem.currentlyselected to null...) (could be done by the "really close?" dialog by setting NO as default)
+    }
+
+    class BackgroundCam : MonoBehaviour {
+
+        public event System.Action onPreRender = delegate {};
+        public event System.Action onPostRender = delegate {};
+
+        void OnPreRender () {
+            onPreRender.Invoke();
+        }
+
+        void OnPostRender () {
+            onPostRender.Invoke();
+        }
+
     }
 
 }

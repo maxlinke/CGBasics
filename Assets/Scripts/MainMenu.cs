@@ -1,22 +1,18 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using System;
 using TMPro;
 
 public class MainMenu : MonoBehaviour {
     
-    [Header("Components")]
-    [SerializeField] Canvas canvas;
+    [Header("Prefabs")]
+    [SerializeField] MatrixScreen matrixScreenPrefab;
+    [SerializeField] LightingScreen lightingScreenPrefab;
 
     [Header("Button Settings")]
     [SerializeField] RectTransform buttonParent;
     [SerializeField] GameObject buttonTemplate;
     [SerializeField, Range(0, 20)] float buttonVerticalMargin;
-
-    [Header("Outside References")]
-    [SerializeField] GameObject backgroundContainer;
 
     List<Button> mainButtons;
 
@@ -30,16 +26,14 @@ public class MainMenu : MonoBehaviour {
             float newButtonY = 0;
             float buttonHeight = ((RectTransform)(buttonTemplate.transform)).sizeDelta.y;
             //from the bottom up
-            //TODO access menus from menu singleton (reference to all canvases)
-            //TODO also load these labels from file
             CreateListButton("Quit", () => Application.Quit());
-            CreateListButton("Settings", () => {});
-            CreateListButton("Fragment Shaders", () => {});
-            CreateListButton("Vertex Shaders", () => {});
+            CreateListButton("Settings", null);
+            CreateListButton("Lighting Models", () => {OpenScreen(lightingScreenPrefab);});
+            CreateListButton("Transformation Matrices", () => {OpenScreen(matrixScreenPrefab);});
 
-            void CreateListButton (string title, Action onClick) {
+            void CreateListButton (string title, System.Action onClick) {
                 var newButton = Instantiate(buttonTemplate).GetComponent<Button>();
-                newButton.onClick.AddListener(() => onClick());
+                newButton.onClick.AddListener(() => onClick?.Invoke());
                 var newButtonRT = (RectTransform)(newButton.transform);
                 newButtonRT.SetParent(buttonParent, false);
                 newButtonRT.anchoredPosition = new Vector2(newButtonRT.anchoredPosition.x, newButtonY);
@@ -56,14 +50,13 @@ public class MainMenu : MonoBehaviour {
 
     // ---------------- TEMP ------------------------
 
-    public void Show () {
-        gameObject.SetActive(true);
-        backgroundContainer.SetActive(true);
-    }
-
-    public void Hide () {
+    public void OpenScreen (CloseableScreen screenPrefab) {
         gameObject.SetActive(false);
-        backgroundContainer.SetActive(false);
+        var newScreen = Instantiate(screenPrefab);
+        newScreen.SetupCloseAction(() => {
+            Destroy(newScreen.gameObject);
+            gameObject.SetActive(true);
+        });
     }
 
 }

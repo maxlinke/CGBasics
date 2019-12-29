@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using LightingModels;
 
-public class LightingScreen : MonoBehaviour {
+public class LightingScreen : CloseableScreen {
 
     private const string modelGroupName = "Model";
     private const string lightsGroupName = "Lights";

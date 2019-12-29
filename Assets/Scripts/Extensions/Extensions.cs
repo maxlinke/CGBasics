@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using RNG = UnityEngine.Random;
@@ -11,6 +12,15 @@ public static class Extensions {
 
     public static bool GOActiveSelf (this Component component) {
         return component.gameObject.activeSelf;
+    }
+
+    public static Coroutine DoNextFrame (this MonoBehaviour runner, System.Action doNextFrameAction) {
+        return runner.StartCoroutine(WaitAndDo());
+
+        IEnumerator WaitAndDo () {
+            yield return null;
+            doNextFrameAction?.Invoke();
+        }
     }
 
     public static string ShortenNumberString (this string inputString) {

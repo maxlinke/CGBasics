@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using MatrixScreenUtils;
 
-public class MatrixScreen : MonoBehaviour {
+public class MatrixScreen : CloseableScreen {
 
     private const int MAX_MATRIX_COUNT = 16;
 

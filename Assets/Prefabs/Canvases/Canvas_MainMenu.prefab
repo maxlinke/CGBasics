@@ -690,7 +690,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 30f38e864d1734b409f98db29af45311, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  canvas: {fileID: 7845365078698410575}
+  matrixScreenPrefab: {fileID: 2677544505658072108, guid: cfa033871734dbb429d1ea2bca1e88f9,
+    type: 3}
+  lightingScreenPrefab: {fileID: 4858127862247692806, guid: b6946066900d72b4d9568a3ab2d69386,
+    type: 3}
   buttonParent: {fileID: 2126990575997089664}
   buttonTemplate: {fileID: 8039316113908157172}
   buttonVerticalMargin: 5

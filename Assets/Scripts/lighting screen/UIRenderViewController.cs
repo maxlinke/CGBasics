@@ -150,7 +150,9 @@ namespace LightingModels {
             GL.LoadIdentity();
             GL.LoadProjectionMatrix(proj);
             GL.MultMatrix(view);
-            DrawTheThings(true);
+            if(currentPointerType != PointerType.None){
+                DrawTheThings(true);
+            }
             DrawTheThings(false);
             GL.PopMatrix();
 

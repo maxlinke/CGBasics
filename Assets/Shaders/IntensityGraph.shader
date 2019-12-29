@@ -105,11 +105,14 @@
                 return 2.0 * (saturate(2.0 * (frac(x) - 0.5)) + saturate(2.0 * (0.5 - frac(x)))) - 1;
             }
 
-            float concentricLineMultiplier (float pos, float lineWidth, float lineOpacity) {
+            float concentricLines (float pos, float lineWidth) {
                 float lineCos = (triCos(pos) + 1.0) / 2.0;
-                float lines = smoothstep(-0.002, 0.002, lineCos - lineWidth);
+                return smoothstep(-0.01, 0.01, lineCos - lineWidth);
+            }
+
+            float lineMultiplier (float inputLineValue, float lineOpacity) {
                 float lineTransparency = 1 - lineOpacity;
-                return lineTransparency + (lines * (1 - lineTransparency));
+                return lineTransparency + (inputLineValue * (1 - lineTransparency));
             }
 
             fixed4 frag (v2f i) : SV_Target {
@@ -188,12 +191,13 @@
                 // s = step(0.02, distToLPos);
                 // colorLookup *= s;
 
-                colorLookup *= concentricLineMultiplier(distToCenter + 0.5, _MajorLineWidth, _MajorLineOpacity);
-                float lineSubdivCount = 10;
-                for(float lCounter=1; lCounter<lineSubdivCount; lCounter+=1.0){
-                    float minorLineOffset = lCounter / lineSubdivCount;
-                    colorLookup *= concentricLineMultiplier(distToCenter + 0.5 + minorLineOffset, _MinorLineWidth, _MinorLineOpacity);
-                }
+                float majorLines = concentricLines(distToCenter + 0.5, _MajorLineWidth);
+                int minorLineCount = 10;
+                float minorLines = concentricLines((distToCenter * minorLineCount) + 0.5, _MinorLineWidth * minorLineCount);
+                minorLines += 1 - majorLines;
+
+                colorLookup *= lineMultiplier(majorLines, _MajorLineOpacity);
+                colorLookup *= lineMultiplier(minorLines, _MinorLineOpacity);
 
                 fixed4 col = lerp(_ForegroundColor, _BackgroundColor, saturate(colorLookup));
                 return col;

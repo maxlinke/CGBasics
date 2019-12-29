@@ -27,6 +27,9 @@ namespace MatrixScreenUtils {
         [SerializeField] TextMeshProUGUI sliderLabelDropShadow;
         [SerializeField] Image sliderBackground;
         [SerializeField] Image sliderFill;
+        [SerializeField] GameObject expandArrowContainer;
+        [SerializeField] Image expandArrow;
+        [SerializeField] Image expandArrowDropShadow;
 
         [Header("Settings")]
         [SerializeField] float hiddenYOffset;
@@ -97,6 +100,7 @@ namespace MatrixScreenUtils {
             freeModeToggle.SetGOActive(false);
             dividerRT.SetGOActive(false);
             sliderArea.SetGOActive(false);
+            expandArrowContainer.SetActive(true);
         }
 
         public void Show () {
@@ -105,6 +109,7 @@ namespace MatrixScreenUtils {
             freeModeToggle.SetGOActive(true);
             dividerRT.SetGOActive(true);
             sliderArea.SetGOActive(true);
+            expandArrowContainer.SetActive(false);
         }
 
         public void UpdateSlider (int newMaxVal, bool alsoSetValue = false, int newValue = -1) {
@@ -174,6 +179,8 @@ namespace MatrixScreenUtils {
             sliderFill.color = cs.MatrixScreenSliderFill;
             matrixSlider.SetFadeTransition(0f, cs.MatrixScreenSliderHandle, cs.MatrixScreenSliderHandleHover, cs.MatrixScreenSliderHandleClick, Color.magenta);
             freeModeToggle.SetFadeTransition(0f, cs.MatrixScreenBottomAreaToggle, cs.MatrixScreenBottomAreaToggleHover, cs.MatrixScreenBottomAreaToggleClick, Color.magenta);
+            expandArrow.color = sliderFill.color;
+            expandArrowDropShadow.color = ds;
             UpdateNotchColors();
         }
         public void OnPointerEnter (PointerEventData eventData) {

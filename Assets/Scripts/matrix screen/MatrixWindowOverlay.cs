@@ -48,7 +48,10 @@ namespace MatrixScreenUtils {
                 invokeStateChange: false
             );
             windowDresser.End();
-            CreateResetButtonAndLabel("Matrix View", "Resets the view", matrixScreen.PanAndZoomController.ResetView);
+            CreateResetButtonAndLabel("Matrix View", "Reset the view and matrices", () => {
+                matrixScreen.ActivateNonFreeMode();
+                matrixScreen.PanAndZoomController.ResetView();
+            });
 
             initialized = true;
         }

@@ -20,6 +20,8 @@ namespace LightingModels {
         [SerializeField] float lightGizmoDistance;
         [SerializeField] float lightGizmoRayLength;
         [SerializeField, Range(0, 90)] float topBottomLimit;
+        [SerializeField] bool alsoDrawOrigin;
+        [SerializeField] bool onlyDrawOriginWhenPointerDown;
 
         [Header("Cam Settings")]
         [SerializeField] bool camAllowAA;
@@ -51,6 +53,7 @@ namespace LightingModels {
         Material glMatTransparent;
         Color wireFloorColor;
         Color camBackgroundColor;
+        Color xAxis, yAxis, zAxis;
 
         PointerType currentPointerType;
         Vector3 lastMousePos;
@@ -76,9 +79,11 @@ namespace LightingModels {
         }
 
         public void LoadColors (ColorScheme cs) {
-            // cam.backgroundColor = cs.LightingScreenRenderBackground;
-            camBackgroundColor = cs.LightingScreenRenderBackground;
-            wireFloorColor = cs.LightingScreenRenderGrid;
+            camBackgroundColor = cs.ApplicationBackground;
+            wireFloorColor = cs.RenderWireFloor;
+            xAxis = cs.RenderXAxis;
+            yAxis = cs.RenderYAxis;
+            zAxis = cs.RenderZAxis;
             windowOverlay.LoadColors(cs);
         }
 
@@ -133,7 +138,8 @@ namespace LightingModels {
         }
 
         void OnCamPostRender () {
-            if(!initialized || (currentPointerType == PointerType.None && !windowOverlay.gizmoToggle.isOn)){
+            bool pointerDown = currentPointerType != PointerType.None;
+            if(!initialized || (!pointerDown && !windowOverlay.gizmoToggle.isOn)){
                 return;
             }
             if(glMatSolid == null){
@@ -150,19 +156,22 @@ namespace LightingModels {
             GL.LoadIdentity();
             GL.LoadProjectionMatrix(proj);
             GL.MultMatrix(view);
-            if(currentPointerType != PointerType.None){
-                DrawTheThings(true);
+            if(pointerDown){
+                DrawTheThings(true, alsoDrawOrigin);
             }
-            DrawTheThings(false);
+            DrawTheThings(false, alsoDrawOrigin && !onlyDrawOriginWhenPointerDown);
             GL.PopMatrix();
 
-            void DrawTheThings (bool seeThrough) {
+            void DrawTheThings (bool seeThrough, bool drawOrigin) {
                 if(seeThrough){
                     glMatTransparent.SetPass(0);
                 }else{
                     glMatSolid.SetPass(0);
                 }
-                CustomGLCamera.DrawWireFloor(wireFloorColor, seeThrough, false);
+                CustomGLCamera.DrawWireFloor(wireFloorColor, seeThrough, drawOrigin);
+                if(drawOrigin){
+                    CustomGLCamera.DrawAxes(xAxis, yAxis, zAxis, seeThrough);
+                }
                 foreach(var l in lights){
                     Vector3 pos = pivotPoint - (l.transform.forward * lightGizmoDistance);
                     Vector3 rayEnd = pos + (l.transform.forward * lightGizmoRayLength);

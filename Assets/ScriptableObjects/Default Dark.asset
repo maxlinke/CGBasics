@@ -13,13 +13,29 @@ MonoBehaviour:
   m_Name: Default Dark
   m_EditorClassIdentifier: 
   m_enumName: 0
-  vertRenderBackground: {r: 0.1, g: 0.1, b: 0.1, a: 1}
-  vertRenderWireGridFloor: {r: 0.3, g: 0.3, b: 0.3, a: 1}
+  applicationBackground: {r: 0.1, g: 0.1, b: 0.1, a: 1}
+  screenBorders: {r: 0.35, g: 0.35, b: 0.35, a: 1}
+  renderWireFloor: {r: 0.5, g: 0.5, b: 0.5, a: 0.4}
+  renderXAxis: {r: 1, g: 0.133, b: 0.133, a: 1}
+  renderYAxis: {r: 0.329, g: 1, b: 0.112, a: 1}
+  renderZAxis: {r: 0.112, g: 0.42, b: 1, a: 1}
+  windowOverlayLabel: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  windowOverlayDropShadow: {r: 0, g: 0, b: 0, a: 0.33333334}
+  windowOverlayButtonIcon: {r: 0.8, g: 0.8, b: 0.8, a: 1}
+  windowOverlayButtonIconDisabled: {r: 0.8, g: 0.8, b: 0.8, a: 0.33333334}
+  windowOverlayButtonBackground: {r: 0.45, g: 0.45, b: 0.45, a: 0.5019608}
+  windowOverlayButtonBackgroundHover: {r: 0.8, g: 0.8, b: 0.8, a: 0.33333334}
+  windowOverlayButtonBackgroundClick: {r: 0.5, g: 0.5, b: 0.5, a: 0.33333334}
+  windowOverlayButtonBackgroundDisabled: {r: 0.333, g: 0.333, b: 0.333, a: 0.5019608}
+  mainMenuBackgroundWireObject: {r: 0, g: 0, b: 0, a: 0}
+  mainMenuTitle: {r: 0, g: 0, b: 0, a: 0}
+  mainMenuSubtitle: {r: 0, g: 0, b: 0, a: 0}
+  mainMenuMainButtons: {r: 0, g: 0, b: 0, a: 0}
+  mainMenuMainButtonsHover: {r: 0, g: 0, b: 0, a: 0}
+  mainMenuMainButtonsClick: {r: 0, g: 0, b: 0, a: 0}
+  mainMenuMainButtonsText: {r: 0, g: 0, b: 0, a: 0}
   vertRenderCameraFrustum: {r: 0.8, g: 0.8, b: 0.8, a: 1}
   vertRenderClipSpaceBox: {r: 0.667, g: 0.667, b: 0.667, a: 1}
-  vertRenderOriginXAxis: {r: 1, g: 0.133, b: 0.133, a: 1}
-  vertRenderOriginYAxis: {r: 0.329, g: 1, b: 0.112, a: 1}
-  vertRenderOriginZAxis: {r: 0.112, g: 0.42, b: 1, a: 1}
   vertRenderPivot: {r: 1, g: 0.667, b: 0, a: 1}
   vertRenderPivotOutline: {r: 0, g: 0, b: 0, a: 1}
   vertRenderVectorPoint: {r: 1, g: 1, b: 1, a: 1}
@@ -31,12 +47,10 @@ MonoBehaviour:
   vertRenderLight2: {r: 0.2, g: 0.2, b: 0.5, a: 1}
   vertRenderAmbientLight: {r: 0.2, g: 0.1, b: 0.1, a: 1}
   vertRenderClippingOverlay: {r: 0.1, g: 0.1, b: 0.1, a: 0.8}
-  matrixScreenBackground: {r: 0.1, g: 0.1, b: 0.1, a: 1}
   matrixScreenMatrixGroupBackground: {r: 0.167, g: 0.167, b: 0.167, a: 1}
   matrixScreenModelMatrixHeader: {r: 0.5471698, g: 0.47036064, b: 0.3484336, a: 1}
   matrixScreenCameraMatrixHeader: {r: 0.3448736, g: 0.39271462, b: 0.4716981, a: 1}
   matrixScreenMultiplicationSign: {r: 1, g: 1, b: 1, a: 1}
-  matrixScreenBorderColor: {r: 0.35, g: 0.35, b: 0.35, a: 1}
   matrixScreenBottomAreaBackground: {r: 0.45, g: 0.45, b: 0.45, a: 1}
   matrixScreenBottomAreaOutline: {r: 0, g: 0, b: 0, a: 0}
   matrixScreenBottomAreaForegroundElement: {r: 0.9, g: 0.9, b: 0.9, a: 1}
@@ -50,14 +64,6 @@ MonoBehaviour:
   matrixScreenBottomAreaToggle: {r: 0.25, g: 0.25, b: 0.25, a: 1}
   matrixScreenBottomAreaToggleHover: {r: 0.3, g: 0.3, b: 0.3, a: 1}
   matrixScreenBottomAreaToggleClick: {r: 0.2, g: 0.2, b: 0.2, a: 1}
-  matrixWindowLabel: {r: 0.5, g: 0.5, b: 0.5, a: 1}
-  matrixWindowLabelDropShadow: {r: 0, g: 0, b: 0, a: 0.2}
-  matrixWindowButtonIconInactive: {r: 0.5, g: 0.5, b: 0.5, a: 1}
-  matrixWindowButtonIconActive: {r: 0.8, g: 0.8, b: 0.8, a: 1}
-  matrixWindowButtonBackgroundInactive: {r: 0.333, g: 0.333, b: 0.333, a: 0.5019608}
-  matrixWindowButtonBackgroundActive: {r: 0.45, g: 0.45, b: 0.45, a: 0.5019608}
-  matrixWindowButtonHover: {r: 0.8, g: 0.8, b: 0.8, a: 0.33333334}
-  matrixWindowButtonClick: {r: 0.5, g: 0.5, b: 0.5, a: 0.33333334}
   uiMatrixHeaders:
   - {r: 0.509434, g: 0.20906019, b: 0.20906019, a: 1}
   - {r: 0.5849056, g: 0.49183732, b: 0.18485224, a: 1}
@@ -146,8 +152,6 @@ MonoBehaviour:
   colorPickerInputFieldBackground: {r: 0.2, g: 0.2, b: 0.2, a: 1}
   colorPickerInputFieldBackgroundHover: {r: 0.3, g: 0.3, b: 0.3, a: 1}
   colorPickerInputFieldBackgroundClick: {r: 0.2, g: 0.2, b: 0.2, a: 1}
-  lightingScreenBackground: {r: 0.1, g: 0.1, b: 0.1, a: 1}
-  lightingScreenBorders: {r: 0.35, g: 0.35, b: 0.35, a: 1}
   lightingScreenPropGroupHeaders: {r: 0.9, g: 0.9, b: 0.9, a: 1}
   lightingScreenPropGroupPropertyLabels: {r: 0.667, g: 0.667, b: 0.667, a: 1}
   lightingScreenPropGroupBottomText: {r: 0.667, g: 0.667, b: 0.667, a: 1}
@@ -173,16 +177,6 @@ MonoBehaviour:
   lightingScreenInputFieldHover: {r: 0.3, g: 0.3, b: 0.3, a: 1}
   lightingScreenInputFieldClick: {r: 0.2, g: 0.2, b: 0.2, a: 1}
   lightingScreenInputFieldSelection: {r: 0.333, g: 0.5, b: 0.67, a: 1}
-  lightingScreenRenderBackground: {r: 0.1, g: 0.1, b: 0.1, a: 1}
-  lightingScreenRenderGrid: {r: 0.5, g: 0.5, b: 0.5, a: 0.33333334}
-  lswoLabel: {r: 0.5, g: 0.5, b: 0.5, a: 1}
-  lswoDropShadow: {r: 0, g: 0, b: 0, a: 0.33333334}
-  lswoButtonIconActive: {r: 0.8, g: 0.8, b: 0.8, a: 1}
-  lswoButtonIconInactive: {r: 0.8, g: 0.8, b: 0.8, a: 0.33333334}
-  lswoButtonBackgroundActive: {r: 0.4, g: 0.4, b: 0.4, a: 0.5019608}
-  lswoButtonBackgroundInactive: {r: 0.4, g: 0.4, b: 0.4, a: 0.5019608}
-  lswoButtonHover: {r: 0.8, g: 0.8, b: 0.8, a: 0.33333334}
-  lswoButtonClick: {r: 0.5, g: 0.5, b: 0.5, a: 0.5019608}
   lsigBackground: {r: 0.1, g: 0.1, b: 0.1, a: 1}
   lsigGraph: {r: 0.667, g: 0.667, b: 0.667, a: 1}
   lsigUIElements: {r: 0.8, g: 0.8, b: 0.8, a: 1}

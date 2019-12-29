@@ -3,7 +3,7 @@ using UnityEngine.UI;
 
 namespace MatrixScreenUtils {
 
-    public class CamControllerWindowOverlay : MatrixScreenWindowOverlay {
+    public class CamControllerWindowOverlay : WindowOverlay {
 
         const string renderCamLabelText = "Render View";
         const string externalCamLabelText = "External View";
@@ -28,18 +28,17 @@ namespace MatrixScreenUtils {
                 var cam = camController.targetCam;
                 var extCtrl = camController.IsExternalCamController;
                 windowDresser.Begin(uiParent, new Vector2(1, 1), new Vector2(0, -1), Vector2.zero);
-                int toggleIndex = 0;
-                wireToggle = CreateSpecialToggle(ref toggleIndex, UISprites.MCamCtrlDrawWireframe, "Wireframe", "Toggles wireframe drawing", (b) => {
+                wireToggle = CreateSpecialToggle(UISprites.MCamCtrlDrawWireframe, "Wireframe", "Toggles wireframe drawing", (b) => {
                     cam.drawObjectAsWireFrame = b;
                     camController.otherController.overlay.WireToggled(b);
                 }, false, offsetAfter: true);
-                CreateSpecialToggle(ref toggleIndex, UISprites.MCamCtrlDrawFloor, "Grid", "Toggles drawing the grid floor", (b) => {cam.drawGridFloor = b;}, !extCtrl);
-                CreateSpecialToggle(ref toggleIndex, UISprites.MCamCtrlDrawOrigin, "Origin", "Toggles drawing the origin", (b) => {cam.drawOrigin = b;}, extCtrl);
-                CreateSpecialToggle(ref toggleIndex, UISprites.MCamCtrlDrawSeeThrough, "XRay", "Toggles see-through drawing for all wireframe gizmos", (b) => {cam.drawSeeThrough = b;}, false, offsetAfter: extCtrl);
+                CreateSpecialToggle(UISprites.MCamCtrlDrawFloor, "Grid", "Toggles drawing the grid floor", (b) => {cam.drawGridFloor = b;}, !extCtrl);
+                CreateSpecialToggle(UISprites.MCamCtrlDrawOrigin, "Origin", "Toggles drawing the origin", (b) => {cam.drawOrigin = b;}, extCtrl);
+                CreateSpecialToggle(UISprites.MCamCtrlDrawSeeThrough, "XRay", "Toggles see-through drawing for all wireframe gizmos", (b) => {cam.drawSeeThrough = b;}, false, offsetAfter: extCtrl);
                 if(camController.IsExternalCamController){     
-                    CreateSpecialToggle(ref toggleIndex, UISprites.MCamCtrlDrawCamera, "Cam", "Toggles drawing the other camera", (b) => {cam.drawCamera = b;}, true);
-                    CreateSpecialToggle(ref toggleIndex, UISprites.MCamCtrlDrawClipBox, "ClipBox", "Toggles drawing the clip space area", (b) => {cam.drawClipSpace = b;}, true);
-                    CreateSpecialToggle(ref toggleIndex, UISprites.MCamCtrlShowCulling, "ShowClip", "Toggles culling visualization", (b) => {cam.showClipping = b;}, true);
+                    CreateSpecialToggle(UISprites.MCamCtrlDrawCamera, "Cam", "Toggles drawing the other camera", (b) => {cam.drawCamera = b;}, true);
+                    CreateSpecialToggle(UISprites.MCamCtrlDrawClipBox, "ClipBox", "Toggles drawing the clip space area", (b) => {cam.drawClipSpace = b;}, true);
+                    CreateSpecialToggle(UISprites.MCamCtrlShowCulling, "ShowClip", "Toggles culling visualization", (b) => {cam.showClipping = b;}, true);
                 }
                 windowDresser.End();
             }

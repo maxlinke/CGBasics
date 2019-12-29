@@ -365,12 +365,12 @@ public class LightingScreen : CloseableScreen {
         if(!initialized){
             return;
         }
-        background.color = cs.LightingScreenBackground;
+        background.color = cs.ApplicationBackground;
         scrollRect.verticalScrollbar.GetComponent<Image>().color = cs.LightingScreenScrollbarBackground;
         scrollRect.verticalScrollbar.targetGraphic.color = Color.white;
         scrollRect.verticalScrollbar.SetFadeTransition(0f, cs.LightingScreenScrollbar, cs.LightingScreenScrollbarHover, cs.LightingScreenScrollbarClick, Color.magenta);
         foreach(var b in borders){
-            b.color = cs.LightingScreenBorders;
+            b.color = cs.ScreenBorders;
         }
         foreach(var pg in allPropertyGroups){
             pg.LoadColors(cs);

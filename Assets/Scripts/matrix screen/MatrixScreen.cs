@@ -58,6 +58,7 @@ public class MatrixScreen : CloseableScreen {
     float currentLinearWeight;
     float currentWeightTarget;
 
+    public Toggle FreeModeToggle => centerBottomPopup.FreeModeToggle;
     public bool FreeMode => centerBottomPopup.FreeModeToggle.isOn;
     public bool OpenGLMode => windowOverlay.glToggle.isOn;
     public bool OrthoMode => windowOverlay.orthoToggle.isOn;
@@ -368,14 +369,14 @@ public class MatrixScreen : CloseableScreen {
     }
 
     void LoadColors (ColorScheme cs) {
-        backgroundImage.color = cs.MatrixScreenBackground;
+        backgroundImage.color = cs.ApplicationBackground;
         foreach(var mulImg in mathematicalSignImages){
             mulImg.color = cs.MatrixScreenMultiplicationSign;
         }
         modelGroup.LoadColors(cs.MatrixScreenModelMatrixHeader, cs);
         camGroup.LoadColors(cs.MatrixScreenCameraMatrixHeader, cs);
         foreach(var b in borders){
-            b.color = cs.MatrixScreenBorderColor;
+            b.color = cs.ScreenBorders;
         }
         centerBottomPopup.LoadColors(cs);
         windowOverlay.LoadColors(cs);

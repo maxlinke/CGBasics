@@ -19,6 +19,10 @@ public abstract class WindowOverlay : MonoBehaviour {
     protected List<Image> toggleBackgrounds;
     protected List<Image> toggleIcons;
 
+    protected List<Button> buttons;
+    protected List<Image> buttonBackgrounds;
+    protected List<Image> buttonIcons;
+
     protected Button resetButton;
     protected RectTransform resetButtonRT;
     protected Image resetButtonBackground;
@@ -67,15 +71,31 @@ public abstract class WindowOverlay : MonoBehaviour {
         toggles = new List<Toggle>();
         toggleBackgrounds = new List<Image>();
         toggleIcons = new List<Image>();
+        buttons = new List<Button>();
+        buttonBackgrounds = new List<Image>();
+        buttonIcons = new List<Image>();
     }
 
-    public abstract void LoadColors (ColorScheme cs);
+    public virtual void LoadColors (ColorScheme cs) {
+        label.color = cs.WindowOverlayLabel;
+        labelDropShadow.color = cs.WindowOverlayDropShadow;
+        buttonIconActive = cs.WindowOverlayButtonIcon;
+        buttonIconInactive = cs.WindowOverlayButtonIconDisabled;
+        buttonBackgroundActive = cs.WindowOverlayButtonBackground;
+        buttonBackgroundInactive = cs.WindowOverlayButtonBackgroundDisabled;
+        buttonHover = cs.WindowOverlayButtonBackgroundHover;
+        buttonClick = cs.WindowOverlayButtonBackgroundClick;
+        ApplyLoadedColorsToTogglesAndButtons();
+    }
 
     protected void ApplyLoadedColorsToTogglesAndButtons () {
         for(int i=0; i<toggles.Count; i++){
             SetColorsForActiveState(toggleBackgrounds[i], toggleIcons[i], toggles[i].isOn, toggles[i]);
         }
-        SetColorsForActiveState(resetButtonBackground, resetButtonIcon, resetButton.interactable, resetButton);
+        for(int i=0; i<buttons.Count; i++){
+            SetColorsForActiveState(buttonBackgrounds[i], buttonIcons[i], buttons[i].interactable, buttons[i]);
+        }
+        SetColorsForActiveState(resetButtonBackground, resetButtonIcon, resetButton.interactable, resetButton);     // it's a special snowflake...
     }
 
     protected void SetColorsForActiveState (Image backgroundImage, Image iconImage, bool activeState, Selectable targetSelectable) {
@@ -115,7 +135,7 @@ public abstract class WindowOverlay : MonoBehaviour {
         labelText = initialLabelText;
     }
 
-    protected virtual Toggle CreateSpecialToggle (ref int toggleIndex, Sprite icon, string toggleName, string hoverMessage, System.Action<bool> onStateChange, bool initialState, bool offsetAfter = false, bool invokeStateChange = true) {
+    protected virtual Toggle CreateSpecialToggle (Sprite icon, string toggleName, string hoverMessage, System.Action<bool> onStateChange, bool initialState, bool offsetAfter = false, bool invokeStateChange = true) {
         // setting up position and looks
         var newToggleRT = windowDresser.CreateCircleWithIcon(icon, toggleName, hoverMessage, out var newToggleIcon, out var newToggleBackground, offsetAfter);
         // setting up the actual toggle
@@ -123,7 +143,7 @@ public abstract class WindowOverlay : MonoBehaviour {
         var newToggle = newToggleRT.GetComponent<Toggle>();
         newToggle.targetGraphic = newToggleBackground;
         newToggle.isOn = initialState;
-        var indexCopy = toggleIndex;
+        var indexCopy = toggles.Count;
         newToggle.onValueChanged.AddListener((newVal) => {
             SetToggleColors(indexCopy);
             onStateChange?.Invoke(newVal);
@@ -135,9 +155,20 @@ public abstract class WindowOverlay : MonoBehaviour {
         toggles.Add(newToggle);
         toggleBackgrounds.Add(newToggleBackground);
         toggleIcons.Add(newToggleIcon);
-        toggleIndex++;
         // output
         return newToggle;
+    }
+
+    protected virtual Button CreateSpecialButton (Sprite icon, string buttonName, string hoverMessage, System.Action onClick, bool offsetAfter = false) {
+        var newButtonRT = windowDresser.CreateCircleWithIcon(icon, buttonName, hoverMessage, out var newBtnIcon, out var newBtnBG, offsetAfter);
+        var newButton = newButtonRT.gameObject.AddComponent<Button>();
+        newButton.targetGraphic = newBtnBG;
+        newButton.interactable = true;
+        newButton.onClick.AddListener(() => {onClick?.Invoke();});
+        buttons.Add(newButton);
+        buttonBackgrounds.Add(newBtnBG);
+        buttonIcons.Add(newBtnIcon);
+        return newButton;
     }
 
     protected virtual void OnResetButtonActiveStateChanged (bool value) { }

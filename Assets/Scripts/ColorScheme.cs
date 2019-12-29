@@ -61,27 +61,57 @@ public class ColorScheme : ScriptableObject {
     [SerializeField] EnumName m_enumName;
     public EnumName enumName => m_enumName;
 
+    [Header("General Settings")]
+    [SerializeField] Color applicationBackground;
+    [SerializeField] Color screenBorders;
+    [SerializeField] Color renderWireFloor;
+    [SerializeField] Color renderXAxis;
+    [SerializeField] Color renderYAxis;
+    [SerializeField] Color renderZAxis;
+    [SerializeField] Color windowOverlayLabel;
+    [SerializeField] Color windowOverlayDropShadow;
+    [SerializeField] Color windowOverlayButtonIcon;
+    [SerializeField] Color windowOverlayButtonIconDisabled;
+    [SerializeField] Color windowOverlayButtonBackground;
+    [SerializeField] Color windowOverlayButtonBackgroundHover;
+    [SerializeField] Color windowOverlayButtonBackgroundClick;
+    [SerializeField] Color windowOverlayButtonBackgroundDisabled;
+
+    public Color ApplicationBackground => applicationBackground;
+    public Color ScreenBorders => screenBorders;
+    public Color RenderWireFloor => renderWireFloor;
+    public Color RenderXAxis => renderXAxis;
+    public Color RenderYAxis => renderYAxis;
+    public Color RenderZAxis => renderZAxis;
+    public Color WindowOverlayLabel => windowOverlayLabel;
+    public Color WindowOverlayDropShadow => windowOverlayDropShadow;
+    public Color WindowOverlayButtonIcon => windowOverlayButtonIcon;
+    public Color WindowOverlayButtonIconDisabled => windowOverlayButtonIconDisabled;
+    public Color WindowOverlayButtonBackground => windowOverlayButtonBackground;
+    public Color WindowOverlayButtonBackgroundHover => windowOverlayButtonBackgroundHover;
+    public Color WindowOverlayButtonBackgroundClick => windowOverlayButtonBackgroundClick;
+    public Color WindowOverlayButtonBackgroundDisabled => windowOverlayButtonBackgroundDisabled;
+
+    [Header("Main Menu")]
+    [SerializeField] Color mainMenuBackgroundWireObject;
+    [SerializeField] Color mainMenuTitle;
+    [SerializeField] Color mainMenuSubtitle;
+    [SerializeField] Color mainMenuMainButtons;
+    [SerializeField] Color mainMenuMainButtonsHover;
+    [SerializeField] Color mainMenuMainButtonsClick;
+    [SerializeField] Color mainMenuMainButtonsText;
+
     [Header("Vert Render View")]
-    [SerializeField] Color vertRenderBackground;
-    [SerializeField] Color vertRenderWireGridFloor;
     [SerializeField] Color vertRenderCameraFrustum;
     [SerializeField] Color vertRenderClipSpaceBox;
-    [SerializeField] Color vertRenderOriginXAxis;
-    [SerializeField] Color vertRenderOriginYAxis;
-    [SerializeField] Color vertRenderOriginZAxis;
     [SerializeField] Color vertRenderPivot;
     [SerializeField] Color vertRenderPivotOutline;
     [SerializeField] Color vertRenderVectorPoint;
     [SerializeField] Color vertRenderVectorPointOutline;
     [SerializeField] Color vertRenderWireObject;
 
-    public Color VertRenderBackground => vertRenderBackground;
-    public Color VertRenderWireGridFloor => vertRenderWireGridFloor;
     public Color VertRenderCameraFrustum => vertRenderCameraFrustum;
     public Color VertRenderClipSpaceBox => vertRenderClipSpaceBox;
-    public Color VertRenderOriginXAxis => vertRenderOriginXAxis;
-    public Color VertRenderOriginYAxis => vertRenderOriginYAxis;
-    public Color VertRenderOriginZAxis => vertRenderOriginZAxis;
     public Color VertRenderPivot => vertRenderPivot;
     public Color VertRenderPivotOutline => vertRenderPivotOutline;
     public Color VertRenderVectorPoint => vertRenderVectorPoint;
@@ -104,19 +134,15 @@ public class ColorScheme : ScriptableObject {
     public Color VertRenderClippingOverlay => vertRenderClippingOverlay;
 
     [Header("Matrix Screen")]
-    [SerializeField] Color matrixScreenBackground;
     [SerializeField] Color matrixScreenMatrixGroupBackground;
     [SerializeField] Color matrixScreenModelMatrixHeader;
     [SerializeField] Color matrixScreenCameraMatrixHeader;
     [SerializeField] Color matrixScreenMultiplicationSign;
-    [SerializeField] Color matrixScreenBorderColor;
 
-    public Color MatrixScreenBackground => matrixScreenBackground;
     public Color MatrixScreenMatrixGroupBackground => matrixScreenMatrixGroupBackground;
     public Color MatrixScreenModelMatrixHeader => matrixScreenModelMatrixHeader;
     public Color MatrixScreenCameraMatrixHeader => matrixScreenCameraMatrixHeader;
     public Color MatrixScreenMultiplicationSign => matrixScreenMultiplicationSign;
-    public Color MatrixScreenBorderColor => matrixScreenBorderColor;
 
     [Header("Matrix Screen Center Bottom Popup")]
     [SerializeField] Color matrixScreenBottomAreaBackground;
@@ -146,25 +172,6 @@ public class ColorScheme : ScriptableObject {
     public Color MatrixScreenBottomAreaToggle => matrixScreenBottomAreaToggle;
     public Color MatrixScreenBottomAreaToggleHover => matrixScreenBottomAreaToggleHover;
     public Color MatrixScreenBottomAreaToggleClick => matrixScreenBottomAreaToggleClick;
-
-    [Header("Matrix Screen Window Elements")]
-    [SerializeField] Color matrixWindowLabel;
-    [SerializeField] Color matrixWindowLabelDropShadow;
-    [SerializeField] Color matrixWindowButtonIconInactive;
-    [SerializeField] Color matrixWindowButtonIconActive;
-    [SerializeField] Color matrixWindowButtonBackgroundInactive;
-    [SerializeField] Color matrixWindowButtonBackgroundActive;
-    [SerializeField] Color matrixWindowButtonHover;
-    [SerializeField] Color matrixWindowButtonClick;
-
-    public Color MatrixWindowLabel => matrixWindowLabel;
-    public Color MatrixWindowLabelDropShadow => matrixWindowLabelDropShadow;
-    public Color MatrixWindowButtonIconInactive => matrixWindowButtonIconInactive;
-    public Color MatrixWindowButtonIconActive => matrixWindowButtonIconActive;
-    public Color MatrixWindowButtonBackgroundInactive => matrixWindowButtonBackgroundInactive;
-    public Color MatrixWindowButtonBackgroundActive => matrixWindowButtonBackgroundActive;
-    public Color MatrixWindowButtonHover => matrixWindowButtonHover;
-    public Color MatrixWindowButtonClick => matrixWindowButtonClick;
 
     [Header("UI Matrix")]
     [SerializeField] Color[] uiMatrixHeaders;
@@ -339,8 +346,6 @@ public class ColorScheme : ScriptableObject {
     public Color ColorPickerInputFieldBackgroundClick => colorPickerInputFieldBackgroundClick;
 
     [Header("Lighting Screen")]
-    [SerializeField] Color lightingScreenBackground;
-    [SerializeField] Color lightingScreenBorders;
     [SerializeField] Color lightingScreenPropGroupHeaders;
     [SerializeField] Color lightingScreenPropGroupPropertyLabels;
     [SerializeField] Color lightingScreenPropGroupBottomText;
@@ -367,8 +372,6 @@ public class ColorScheme : ScriptableObject {
     [SerializeField] Color lightingScreenInputFieldClick;
     [SerializeField] Color lightingScreenInputFieldSelection;
 
-    public Color LightingScreenBackground => lightingScreenBackground;
-    public Color LightingScreenBorders => lightingScreenBorders;
     public Color LightingScreenPropGroupHeaders => lightingScreenPropGroupHeaders;
     public Color LightingScreenPropGroupPropertyLabels => lightingScreenPropGroupPropertyLabels;
     public Color LightingScreenPropGroupBottomText => lightingScreenPropGroupBottomText;
@@ -394,32 +397,6 @@ public class ColorScheme : ScriptableObject {
     public Color LightingScreenInputFieldHover => lightingScreenInputFieldHover;
     public Color LightingScreenInputFieldClick => lightingScreenInputFieldClick;
     public Color LightingScreenInputFieldSelection => lightingScreenInputFieldSelection;
-
-    [Header("Lighting Screen Render")]
-    [SerializeField] Color lightingScreenRenderBackground;
-    [SerializeField] Color lightingScreenRenderGrid;
-
-    public Color LightingScreenRenderBackground => lightingScreenRenderBackground;
-    public Color LightingScreenRenderGrid => lightingScreenRenderGrid;
-
-    [Header("Lighting Screen Window Overlays")]
-    [SerializeField] Color lswoLabel;
-    [SerializeField] Color lswoDropShadow;
-    [SerializeField] Color lswoButtonIconActive;
-    [SerializeField] Color lswoButtonIconInactive;
-    [SerializeField] Color lswoButtonBackgroundActive;
-    [SerializeField] Color lswoButtonBackgroundInactive;
-    [SerializeField] Color lswoButtonHover;
-    [SerializeField] Color lswoButtonClick;
-
-    public Color LSWOLabel => lswoLabel;
-    public Color LSWODropShadow => lswoDropShadow;
-    public Color LSWOButtonIconActive => lswoButtonIconActive;
-    public Color LSWOButtonIconInactive => lswoButtonIconInactive;
-    public Color LSWOButtonBackgroundActive => lswoButtonBackgroundActive;
-    public Color LSWOButtonBackgroundInactive => lswoButtonBackgroundInactive;
-    public Color LSWOButtonHover => lswoButtonHover;
-    public Color LSWOButtonClick => lswoButtonClick;
 
     [Header("Lighting Screen Intensity Graph")]
     [SerializeField] Color lsigBackground;

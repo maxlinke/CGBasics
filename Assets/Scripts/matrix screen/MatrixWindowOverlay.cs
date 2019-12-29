@@ -3,7 +3,7 @@ using UnityEngine.UI;
 
 namespace MatrixScreenUtils {
 
-    public class MatrixWindowOverlay : MatrixScreenWindowOverlay {
+    public class MatrixWindowOverlay : WindowOverlay {
 
         private const string resetWarning = "(Resets matrix view)";
 
@@ -15,10 +15,8 @@ namespace MatrixScreenUtils {
 
         public void Initialize (MatrixScreen matrixScreen, bool glInit, System.Action<bool> onGLToggled, bool orthoInit, System.Action<bool> onOrthoToggled, bool vectorInit, System.Action<bool> onVectorToggled) {
             InitializeLists();
-            int toggleIndex = 0;
             windowDresser.Begin(uiParent, new Vector2(1, 1), new Vector2(0, -1), new Vector2(0, 0));
             glToggle = CreateSpecialToggle(
-                ref toggleIndex, 
                 icon: UISprites.MatrixScreenGL, 
                 toggleName: "OpenGLMode", 
                 hoverMessage: $"Toggle Open GL Mode {resetWarning}", 
@@ -28,7 +26,6 @@ namespace MatrixScreenUtils {
                 invokeStateChange: false
             );
             orthoToggle = CreateSpecialToggle(
-                ref toggleIndex, 
                 icon: UISprites.MatrixScreenOrtho, 
                 toggleName: "OrthoMode", 
                 hoverMessage: $"Toggles between orthographic and perspective projection {resetWarning}", 
@@ -38,7 +35,6 @@ namespace MatrixScreenUtils {
                 invokeStateChange: false
             );
             vectorToggle = CreateSpecialToggle(
-                ref toggleIndex, 
                 icon: UISprites.MatrixScreenVector, 
                 toggleName: "VectorMode", 
                 hoverMessage: $"Disables the mesh and instead shows a configurable vector", 
@@ -49,7 +45,11 @@ namespace MatrixScreenUtils {
             );
             windowDresser.End();
             CreateResetButtonAndLabel("Matrix View", "Reset the view and matrices", () => {
-                matrixScreen.ActivateNonFreeMode();
+                if(matrixScreen.FreeMode){
+                    matrixScreen.FreeModeToggle.isOn = false;
+                }else{
+                    matrixScreen.ActivateNonFreeMode();
+                }
                 matrixScreen.PanAndZoomController.ResetView();
             });
 

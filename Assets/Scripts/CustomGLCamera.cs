@@ -193,14 +193,14 @@ public class CustomGLCamera : MonoBehaviour {
 
     public void LoadColors (ColorScheme cs) {
         EnsureUnityCamLoaded();
-        attachedUnityCam.backgroundColor = cs.VertRenderBackground;
-        wireGridColor = cs.VertRenderWireGridFloor;
+        attachedUnityCam.backgroundColor = cs.ApplicationBackground;
+        wireGridColor = cs.RenderWireFloor;
         wireObjectColor = cs.VertRenderWireObject;
         camFrustumColor = cs.VertRenderCameraFrustum;
         clipBoxColor = cs.VertRenderClipSpaceBox;
-        xColor = cs.VertRenderOriginXAxis;
-        yColor = cs.VertRenderOriginYAxis;
-        zColor = cs.VertRenderOriginZAxis;
+        xColor = cs.RenderXAxis;
+        yColor = cs.RenderYAxis;
+        zColor = cs.RenderZAxis;
         pivotColor = cs.VertRenderPivot;
         pivotOutlineColor = cs.VertRenderPivotOutline;
         vectorColor = cs.VertRenderVectorPoint;
@@ -434,7 +434,7 @@ public class CustomGLCamera : MonoBehaviour {
                 DrawWireFloor(wireGridColor, seeThrough, drawOrigin);
             }
             if(drawOrigin){
-                DrawAxes(seeThrough);
+                DrawAxes(xColor, yColor, zColor, seeThrough);
             }
             if(isExternalCamera){
                 if(drawCamera && !matrixScreen.CameraMatrixFullyWeighted()){
@@ -456,7 +456,7 @@ public class CustomGLCamera : MonoBehaviour {
                             DrawWireFloor(wireGridColor, seeThrough, otherCamera.drawOrigin || (this.drawOrigin && !matrixScreen.CameraMatrixNotUnweighted()));
                         }
                         if(otherCamera.drawOrigin){
-                            DrawAxes(seeThrough);
+                            DrawAxes(xColor, yColor, zColor, seeThrough);
                         }
                     });
                 }
@@ -494,7 +494,7 @@ public class CustomGLCamera : MonoBehaviour {
         });
     }
 
-    void DrawAxes (bool seeThrough) {
+    public static void DrawAxes (Color xColor, Color yColor, Color zColor, bool seeThrough) {
         GLDraw(GL.LINES, () => {
             GL.Color(GetConditionalSeeThroughColor(xColor, seeThrough));
             GL.Vertex3(0, 0, 0);

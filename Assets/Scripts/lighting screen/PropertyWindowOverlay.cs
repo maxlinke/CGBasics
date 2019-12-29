@@ -2,7 +2,7 @@
 
 namespace LightingModels {
 
-    public class PropertyWindowOverlay : LightingScreenWindowOverlay {
+    public class PropertyWindowOverlay : WindowOverlay {
 
         [SerializeField] float headerHideUnhideTime;
 

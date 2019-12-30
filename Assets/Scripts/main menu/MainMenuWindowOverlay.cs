@@ -101,7 +101,7 @@ public class MainMenuWindowOverlay : WindowOverlay {
         #if UNITY_EDITOR
             Debug.Log("I'd close this if I could.");
         #else
-            Application.Quit;
+            Application.Quit();
         #endif
     }
 

@@ -1,14 +1,16 @@
 ﻿using UnityEngine;
 
-public class CloseableScreen : MonoBehaviour {
+public abstract class CloseableScreen : MonoBehaviour {
+
+    protected abstract bool CanBeClosed ();
 
     public void SetupCloseAction (System.Action onCloseCalled) {
-        this.DoNextFrame(() => {
-            InputSystem.Subscribe(this, new InputSystem.KeyEvent(KeyCode.Escape, () => {
+        InputSystem.Subscribe(this, new InputSystem.KeyEvent(KeyCode.Escape, () => {
+            if(CanBeClosed()){
                 InputSystem.UnSubscribe(this);
                 onCloseCalled?.Invoke();
-            }));
-        });
+            }
+        }));
     }
 	
 }

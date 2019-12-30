@@ -100,6 +100,8 @@ public class LightingScreen : CloseableScreen {
     Dictionary<ShaderVariable, FloatObject> shaderFloats;
     Dictionary<ShaderVariable, ColorObject> shaderColors;
 
+    protected override bool CanBeClosed () => initialized;
+
     void Start () {
         Initialize();
     }

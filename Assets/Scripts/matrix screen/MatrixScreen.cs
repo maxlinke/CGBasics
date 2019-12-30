@@ -64,6 +64,8 @@ public class MatrixScreen : CloseableScreen {
     public bool OrthoMode => windowOverlay.orthoToggle.isOn;
     public bool VectorMode => windowOverlay.vectorToggle.isOn;
 
+    protected override bool CanBeClosed () => initialized;
+
     void OnEnable () {
         if(!initialized){
             Initialize();

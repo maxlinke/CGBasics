@@ -29,13 +29,22 @@ public class MainMenuWindowOverlay : WindowOverlay {
             closeButton = CreateSpecialButton(UISprites.MatrixDelete, "Close", "Close the application", () => { CloseRequested(); });
             resolutionButton = CreateSpecialButton(UISprites.UIConfig, "Resolution", "Choose a different resolution", () => {
                 List<Foldout.ButtonSetup> setups = new List<Foldout.ButtonSetup>();
+                var fullScreenButtonName = (Screen.fullScreen ? "Go Windowed" : "Go Fullscreen");
+                var fullScreenButtonSetValue = !Screen.fullScreen;
+                setups.Add(new Foldout.ButtonSetup(
+                    buttonName: fullScreenButtonName,
+                    buttonHoverMessage: fullScreenButtonName,
+                    buttonClickAction: () => {Screen.fullScreen = fullScreenButtonSetValue;},
+                    buttonInteractable: true
+                ));
                 foreach(var res in Screen.resolutions){
                     string sizeString = $"{res.width}x{res.height}";
                     string refreshString = $"{res.refreshRate}Hz";
                     var resCopy = res;
                     setups.Add(new Foldout.ButtonSetup(
-                        buttonName: $"{sizeString} <size=67%>{refreshString}</size>",
-                        buttonHoverMessage: $"Update the resolution to {sizeString}",
+                        // buttonName: $"{sizeString} <size=67%>{refreshString}</size>",
+                        buttonName: $"{sizeString} ({refreshString})",
+                        buttonHoverMessage: $"Update the resolution to {sizeString} pixels",
                         buttonClickAction: () => {
                             Screen.SetResolution(resCopy.width, resCopy.height, Screen.fullScreen, resCopy.refreshRate);
                         }, buttonInteractable: true

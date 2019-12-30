@@ -64,12 +64,12 @@ public class MainMenu : MonoBehaviour {
         lightingButton.onClick.AddListener(() => {OpenScreen(lightingScreenPrefab);});
         SetupBackground();
         windowOverlay.Initialize(this);
-        InputSystem.Subscribe(this, new InputSystem.KeyEvent(KeyCode.Escape, () => {windowOverlay.CloseRequested();}));
         #if UNITY_WEBGL
             var dlURL = "https://github.com/maxlinke/CGBasics/releases";
             downloadButton.onClick.AddListener(() => {Application.OpenURL(dlURL);});
             downloadButton.gameObject.AddComponent<UIHoverEventCaller>().SetActions((ped) => {BottomLog.DisplayMessage(dlURL);}, (ped) => {BottomLog.ClearDisplay();});
         #else
+            InputSystem.Subscribe(this, new InputSystem.KeyEvent(KeyCode.Escape, () => {windowOverlay.CloseRequested();}));
             Destroy(downloadButton.gameObject);
         #endif
         this.initialized = true;

@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1fe0aafb42bd6b145a6c31b73812d444, type: 3}
   m_Name: 3DBenchy
   m_EditorClassIdentifier: 
-  m_mesh: {fileID: 4300000, guid: 54a6745e0f57d0546afa024175e6fd11, type: 3}
-  m_flatMesh: {fileID: 4300000, guid: 54a6745e0f57d0546afa024175e6fd11, type: 3}
+  m_mesh: {fileID: 4300000, guid: b403839525949594692ab516ca039f30, type: 3}
+  m_flatMesh: {fileID: 4300000, guid: 0df19d83f44b9c14882a72fb96ab5046, type: 3}
   m_color: {r: 0.72, g: 0.846, b: 0.462, a: 1}
   m_specColor: {r: 0.8, g: 0.8, b: 0.8, a: 1}
   m_description: A popular benchmark model (hence the name) for 3D printing.

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Text
   m_EditorClassIdentifier: 
   m_mesh: {fileID: 4300000, guid: 206b23aa8a8c55d42a527c13a5ffbe6e, type: 3}
-  m_flatMesh: {fileID: 4300000, guid: 206b23aa8a8c55d42a527c13a5ffbe6e, type: 3}
+  m_flatMesh: {fileID: 4300000, guid: 1f5dec07581de8747baafde48490e465, type: 3}
   m_color: {r: 0.636, g: 0.531, b: 0.755, a: 1}
   m_specColor: {r: 0.7583418, g: 0.9622642, b: 0.6127626, a: 1}
   m_description: The famous "Lorem Ipsum" as a 3D-model. Useful for checking whether

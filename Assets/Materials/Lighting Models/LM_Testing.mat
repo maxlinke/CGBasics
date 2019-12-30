@@ -73,7 +73,7 @@ Material:
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
-    - _Roughness: 1
+    - _Roughness: 0
     - _SmoothnessTextureChannel: 0
     - _SpecularAnisoX: 0.106
     - _SpecularAnisoY: 0.474

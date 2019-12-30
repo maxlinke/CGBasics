@@ -75,6 +75,7 @@ public class BottomLog : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
             bottomBackgroundImage.color = backgroundColor;
             backgroundLerp = 1f;
         }
+        bottomBackgroundImage.raycastTarget = showOnHover || bottomBackgroundImage.color.a > 0;
     }
 
     void OnEnable () {

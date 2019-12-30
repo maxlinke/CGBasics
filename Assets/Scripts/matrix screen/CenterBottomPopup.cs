@@ -89,6 +89,27 @@ namespace MatrixScreenUtils {
             sliderLabelDropShadow.text = sliderLabel.text;
             sliderLabelDropShadow.rectTransform.MatchOther(sliderLabel.rectTransform);
             sliderLabelDropShadow.rectTransform.anchoredPosition += new Vector2(1, -1);
+
+            freeModeToggle.gameObject.AddComponent<UIHoverEventCaller>().SetActions((ped) => {
+                string message;
+                if(freeModeToggle.isOn){
+                    message = "Deactivate free mode and reset all matrices back to default.";
+                }else{
+                    message = "Enter free mode. All matrices become fully editable.";
+                }
+                BottomLog.DisplayMessage(message);
+            }, (ped) => {
+                BottomLog.ClearDisplay();
+            });
+            freeModeToggle.onValueChanged.AddListener((b) => {
+                BottomLog.ClearDisplay();
+            });
+
+            matrixSlider.gameObject.AddComponent<UIHoverEventCaller>().SetActions((ped) => {
+                BottomLog.DisplayMessage("Set the matrix weights. Unweighted matrices will be interpreted as identity.");
+            }, (ped) => {
+                BottomLog.ClearDisplay();
+            });
             
             Hide();
             initialized = true;

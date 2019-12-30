@@ -23,6 +23,19 @@ public static class Extensions {
         }
     }
 
+    public static Coroutine WaitNumberOfFrames (this MonoBehaviour runner, System.Action doAction, int waitFrames) {
+        return runner.StartCoroutine(WaitAndDo());
+
+        IEnumerator WaitAndDo () {
+            int i=0;
+            while(i<waitFrames){
+                yield return null;
+                i++;
+            }
+            doAction?.Invoke();
+        }
+    }
+
     public static string ShortenNumberString (this string inputString) {
         string output = inputString;
         if(float.TryParse(inputString, out var parsed)){

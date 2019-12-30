@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
@@ -38,6 +39,9 @@ namespace UIMatrices {
         List<InsertButton> funcButtons;
         bool subscribedToInputSystem;
 
+        bool selectionEnded = false;
+        (int start, int end) selectionLimits;
+
         public void Initialize () {
             editingInfo.text = "(Editing is only possible in free mode)";
             fieldInfo.text = "Field expression";
@@ -57,11 +61,19 @@ namespace UIMatrices {
             });
 
             expressionInputField.onEndTextSelection.AddListener((s, i1, i2) => {
-                Debug.Log($"On END TextSelection: ({s}, {i1}, {i2})");
+                selectionEnded = true;
+                selectionLimits = (start: i1, end: i2);
+                StartCoroutine(ResetSelectionWhenAppropriate());
+                Debug.Log("endedit" + Time.frameCount);
             });
-            expressionInputField.onTextSelection.AddListener((s, i1, i2) => {       // i should account for the possibility of this being called before the insert button onclick...
-                Debug.Log($"OnTextSelection: ({s}, {i1}, {i2})");                   // have the selection always persist for one frame? don't listen for the end edit?
-            });
+
+            IEnumerator ResetSelectionWhenAppropriate () {
+                yield return new WaitUntil(() => !Input.GetKey(KeyCode.Mouse0));
+                yield return null;
+                selectionEnded = false;
+                selectionLimits = default;
+                Debug.Log("resetting" + Time.frameCount);
+            }
         }
 
         public void LoadColors (ColorScheme cs) {
@@ -145,15 +157,6 @@ namespace UIMatrices {
             doneButton.onClick.RemoveAllListeners();
             doneButton.onClick.AddListener(() => {Close();});
             doneButtonText.text = "Done";
-            // var hover = doneButton.gameObject.GetComponent<UIHoverEventCaller>();
-            // if(hover == null){
-            //     doneButton.gameObject.AddComponent(typeof(UIHoverEventCaller));
-            //     hover = doneButton.gameObject.GetComponent<UIHoverEventCaller>();
-            // }
-            // hover.SetActions(
-            //     onHoverEnter: (ped) => {BottomLog.DisplayMessage("Finish editing this field");},
-            //     onHoverExit: (ped) => {BottomLog.ClearDisplay();}
-            // );
         }
 
         void CreateInsertButtons (int buttonCount, RectTransform parentRT, List<InsertButton> list, System.Action<int, InsertButton> setupButton) {
@@ -167,7 +170,9 @@ namespace UIMatrices {
                     targetInputField: expressionInputField,
                     button: cloned,
                     label: cloned.gameObject.GetComponentInChildren<TextMeshProUGUI>(),
-                    backgroundImage: cloned.GetComponentInChildren<Image>()
+                    backgroundImage: cloned.GetComponentInChildren<Image>(),
+                    shouldReplace: () => { return selectionEnded; },
+                    replaceStartAndEnd: () => { return selectionLimits; }
                 );
                 var newButtonRT = cloned.GetComponent<RectTransform>();
                 newButtonRT.SetParent(parentRT, false);
@@ -186,6 +191,8 @@ namespace UIMatrices {
             private Image m_backgroundImage;
             private TMP_InputField targetInputField;
             private string hoverMessage;
+            private System.Func<bool> shouldReplace;
+            private System.Func<(int, int)> replaceStartAndEnd;
 
             public bool interactable {
                 get {
@@ -196,17 +203,13 @@ namespace UIMatrices {
                 }
             }
 
-            public void Initialize (TMP_InputField targetInputField, Button button, TextMeshProUGUI label, Image backgroundImage){
+            public void Initialize (TMP_InputField targetInputField, Button button, TextMeshProUGUI label, Image backgroundImage, System.Func<bool> shouldReplace, System.Func<(int, int)> replaceStartAndEnd){
                 this.targetInputField = targetInputField;
                 this.m_button = button;
                 this.m_label = label;
                 this.m_backgroundImage = backgroundImage;
-            }
-
-            void Update () {
-                // int cPos = targetInputField.caretPosition;
-                // int cPos2 = targetInputField.selectionFocusPosition;
-                // Debug.Log($"{cPos}, {cPos2}");
+                this.shouldReplace = shouldReplace;
+                this.replaceStartAndEnd = replaceStartAndEnd;
             }
 
             public void Setup (string labelText, string hoverMessage, string insert) {
@@ -214,9 +217,18 @@ namespace UIMatrices {
                 this.hoverMessage = hoverMessage;
                 m_button.onClick.RemoveAllListeners();
                 m_button.onClick.AddListener(() => {
-                    int cPos = targetInputField.caretPosition;
-                    // int cPos2 = targetInputField.selectionFocusPosition;
-                    // Debug.Log($"{cPos}, {cPos2}");
+                    int cPos;
+                    if(shouldReplace.Invoke()){
+                        var limits = replaceStartAndEnd();
+                        var start = Mathf.Min(limits.Item1, limits.Item2);
+                        var end = Mathf.Max(limits.Item1, limits.Item2);
+                        targetInputField.text = targetInputField.text.Remove(start, end - start);
+                        cPos = start;
+                        Debug.Log("replacing");
+                    }else{
+                        cPos = targetInputField.caretPosition;
+                        Debug.Log("inserting");
+                    }
                     targetInputField.text = targetInputField.text.Insert(cPos, insert);
                     EventSystem.current.SetSelectedGameObject(targetInputField.gameObject);
                     targetInputField.caretPosition = cPos + insert.Length;

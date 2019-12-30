@@ -111,7 +111,7 @@ namespace LightingModels {
                 cam = new GameObject("Render Cam", typeof(Camera)).GetComponent<Camera>();
                 cam.cullingMask = 1 << renderLayer;
                 cam.backgroundColor = Color.black;
-                cam.allowMSAA = camAllowAA;             // TODO disable in web-version?
+                cam.allowMSAA = camAllowAA;
                 cam.transform.SetParent(camXRotParent, false);
                 cam.transform.ResetLocalScale();
                 var camScript = cam.gameObject.AddComponent<ControlledCamera>();

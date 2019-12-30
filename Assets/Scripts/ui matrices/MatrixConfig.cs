@@ -367,7 +367,6 @@ namespace UIMatrices {
 
         }
 
-        // TODO is this REALLY the best name?
         public class RebaseConfig : MatrixConfig {
 
             public const string newXx = "newXx";

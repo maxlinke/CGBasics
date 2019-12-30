@@ -231,7 +231,6 @@ namespace UIMatrices {
                 BottomLog.ClearDisplay();
             }
 
-            // TODO refactor the whole colorscheme so there's fewer overall colors (there's a LOT of overlap...)
             public void LoadColors (ColorScheme cs) {
                 m_backgroundImage.color = Color.white;
                 m_button.SetFadeTransition(0f, cs.UiMatrixFieldViewerDoneButton, cs.UiMatrixFieldViewerDoneButtonHover, cs.UiMatrixFieldViewerDoneButtonClick, Color.clear);

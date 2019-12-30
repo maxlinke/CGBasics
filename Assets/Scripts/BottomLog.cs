@@ -35,8 +35,6 @@ public class BottomLog : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
     float hideTime;
     bool pointerHover = false;
 
-    // TODO the expanded log thing, the counters for the actual LOGS, flashing...
-
     public void OnPointerEnter (PointerEventData eventData) {
         pointerHover = true;
     }

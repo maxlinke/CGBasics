@@ -127,8 +127,6 @@ public class UIMatrixGroup : MonoBehaviour {
         headerDropShadow.text = name;
     }
 
-    // TODO adding buttons to the header (resizing the text recttransform), editing the text, loading the colors...
-
     void RebuildContent () {
         EnsureTheresAtLeastOneMatrix();
         EnsureRightAmountOfMultiplicationSigns();

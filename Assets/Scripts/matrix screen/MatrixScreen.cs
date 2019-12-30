@@ -438,14 +438,14 @@ public class MatrixScreen : CloseableScreen {
             m.moveLeftBlocked = (i == 0);
             m.moveRightBlocked = (i == (modelGroup.matrixCount - 1)) && cantAddMoreMatrices && (modelGroup.matrixCount == 1);
             m.addButtonBlocked = cantAddMoreMatrices;
-            m.deleteButtonBlocked = modelGroup.matrixCount == 1;    // TODO is this REALLY important?
+            m.deleteButtonBlocked = modelGroup.matrixCount == 1;
         }
         for(int i=0; i<camGroup.matrixCount; i++){
             var m = camGroup[i];
             m.moveLeftBlocked = (i == 0) && cantAddMoreMatrices && (camGroup.matrixCount == 1);
             m.moveRightBlocked = (i == (camGroup.matrixCount - 1));
             m.addButtonBlocked = cantAddMoreMatrices;
-            m.deleteButtonBlocked = camGroup.matrixCount == 1;      // TODO is this REALLY important?
+            m.deleteButtonBlocked = camGroup.matrixCount == 1;
         }
         var totalMatrixCount = modelGroup.matrixCount + camGroup.matrixCount;
         if(newSliderValue != -1){

@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Quad
   m_EditorClassIdentifier: 
   m_mesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
+  m_flatMesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
   m_color: {r: 0.692, g: 0.843, b: 0.692, a: 1}
   m_specColor: {r: 0.6, g: 0.5, b: 0.4, a: 1}
   m_description: A simple quad consisting of four vertices and two triangles sharing

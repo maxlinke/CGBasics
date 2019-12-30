@@ -58,6 +58,7 @@ public class ModelPicker : MonoBehaviour {
 public class LoadedModel {
     
     public readonly Mesh mesh;
+    public readonly Mesh flatMesh;
     public readonly string name;
     public readonly Color color;
     public readonly Color specularColor;
@@ -65,6 +66,7 @@ public class LoadedModel {
 
     public LoadedModel (Mesh mesh, string name, Color color, Color specularColor, string description) {
         this.mesh = mesh;
+        this.flatMesh = CreateFlatShadedMesh(mesh);
         this.name = name;
         this.color = color;
         this.specularColor = specularColor;
@@ -73,10 +75,34 @@ public class LoadedModel {
 
     public LoadedModel (ModelPreset preset) {
         this.mesh = preset.mesh;
+        this.flatMesh = (preset.flatMesh != null) ? preset.flatMesh : CreateFlatShadedMesh(preset.mesh);
         this.name = preset.name;
         this.color = preset.color;
         this.specularColor = preset.specColor;
         this.description = preset.description;
+    }
+
+    Mesh CreateFlatShadedMesh (Mesh inputMesh) {
+        Debug.Log("creating flat mesh. this might take a while...");
+        // unity wiky says apply the triangles last.
+        var output = new Mesh();
+        List<Vector3> vertices = new List<Vector3>();
+        List<Vector3> normals = new List<Vector3>();
+        List<int> triangles = new List<int>();
+        for(int i=0; i<inputMesh.triangles.Length; i+=3){
+            var v1 = inputMesh.vertices[inputMesh.triangles[i+0]];
+            var v2 = inputMesh.vertices[inputMesh.triangles[i+1]];
+            var v3 = inputMesh.vertices[inputMesh.triangles[i+2]];
+            var n = Vector3.Cross(v2-v1, v3-v2);
+            vertices.AddRange(new Vector3[]{v1, v2, v3});
+            normals.AddRange(new Vector3[]{n, n, n});
+            triangles.AddRange(new int[]{i, i+1, i+2});
+        }
+        output.hideFlags = HideFlags.HideAndDontSave;
+        output.vertices = vertices.ToArray();
+        output.normals = normals.ToArray();
+        output.triangles = triangles.ToArray();
+        return output;
     }
 
 }

@@ -532,7 +532,8 @@ public class LightingScreen : CloseableScreen {
         modelPropertyGroup.SetName(CreateGroupName(modelGroupName, newModel.name));
         modelPropertyGroup.SetBottomTextShown(true);
         modelPropertyGroup.UpdateBottomText(newModel.description);
-        renderViewController.LoadMesh(newModel.mesh);
+        // renderViewController.LoadMesh(newModel.mesh);
+        renderViewController.LoadMesh(newModel.flatMesh);
         RebuildContent();
     }
 

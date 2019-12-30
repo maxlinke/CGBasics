@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Cube
   m_EditorClassIdentifier: 
   m_mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+  m_flatMesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
   m_color: {r: 0.909, g: 0.825, b: 0.587, a: 1}
   m_specColor: {r: 0.8867924, g: 0.66510427, b: 0.4141153, a: 1}
   m_description: A simple cube.

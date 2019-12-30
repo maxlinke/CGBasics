@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Plane
   m_EditorClassIdentifier: 
   m_mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
+  m_flatMesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
   m_color: {r: 0.608, g: 0.741, b: 0.8962264, a: 1}
   m_specColor: {r: 0.667, g: 0.667, b: 0.667, a: 1}
   m_description: A flat subdivided plane.

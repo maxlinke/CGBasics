@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Icosphere
   m_EditorClassIdentifier: 
   m_mesh: {fileID: 4300000, guid: 0300f5c06bc6c654b87a830e165ff7e1, type: 3}
+  m_flatMesh: {fileID: 4300000, guid: 0300f5c06bc6c654b87a830e165ff7e1, type: 3}
   m_color: {r: 0.7176471, g: 0.83137256, b: 0.80319935, a: 1}
   m_specColor: {r: 1, g: 1, b: 1, a: 1}
   m_description: A sphere consisting of equal-size, equilateral triangles.

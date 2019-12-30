@@ -32,6 +32,9 @@ public class Foldout : MonoBehaviour {
     List<List<FoldoutButton>> buttonGroups;
     List<FoldoutButton> displayedButtons;
 
+    public static Foldout GetInstance () => instance;
+    public Button this[int index] => buttons[index].button;
+
     System.Action onNotSelectAnything;
 
     void OnEnable () {

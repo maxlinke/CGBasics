@@ -41,11 +41,11 @@ G = min(1, \frac{ 2(\vec{n} \cdot \vec{h})(\vec{n} \cdot \vec{v}) }{(\vec{v} \cd
 \alpha = arccos(\vec{n} \cdot \vec{h})
 
 ward aniso:
-k_{spec} = \frac {\zeta (\vec{n} \cdot \vec{l})} {\sqrt{(\vec{n} \cdot \vec{l}) (\vec{n} \cdot \vec{v})} 4 \pi m_{x} m_{y}} exp(-2 \frac {(\frac {\vec{h} \cdot \vec{t_{x}}} {m_{x}})^{2} + (\frac {\vec{h} \cdot \vec{t_{y}}} {m_{y}})^{2} } {1+(\vec{n} \cdot \vec{h})} )
-t_{x, y} = Surface tangent and bitangent
+k_{spec} = \frac {\zeta (\vec{n} \cdot \vec{l})} {4 \pi m_{x} m_{y} \sqrt{(\vec{n} \cdot \vec{l}) (\vec{n} \cdot \vec{v})}} \cdot exp(-2 \frac {(\frac {\vec{h} \cdot \vec{t_{x}}} {m_{x}})^{2} + (\frac {\vec{h} \cdot \vec{t_{y}}} {m_{y}})^{2} } {1+(\vec{n} \cdot \vec{h})} )
+\vec{t}_{x, y} = Surface tangent and bitangent
 
 ward iso:
-k_{spec} = \frac {\zeta (\vec{n} \cdot \vec{l})} {\sqrt{(\vec{n} \cdot \vec{l}) (\vec{n} \cdot \vec{v})} 4 \pi m^{2}} exp( \frac {-tan^{2}(acos(\vec{n} \cdot \vec{h}))} {m^{2}} )
+k_{spec} = \frac {\zeta (\vec{n} \cdot \vec{l})} {4 \pi m^{2} \sqrt{(\vec{n} \cdot \vec{l}) (\vec{n} \cdot \vec{v})}} \cdot exp( \frac {-tan^{2}(acos(\vec{n} \cdot \vec{h}))} {m^{2}} )
 
 
 

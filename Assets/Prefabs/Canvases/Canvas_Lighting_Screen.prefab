@@ -244,7 +244,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &5716436090326242443
 RectTransform:
   m_ObjectHideFlags: 0
@@ -507,7 +507,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &8732992497008622722
 RectTransform:
   m_ObjectHideFlags: 0
@@ -746,6 +746,7 @@ MonoBehaviour:
   groupLabelSuffixSize: 120
   applyModelPresetColors: 1
   scrollYForHidingPropWindowHeader: 10
+  lightingModelInfoStartsExpanded: 1
   nullDiffuseLM: {fileID: 11400000, guid: 0d18cd5f03713bf43b1f92146881d9e4, type: 2}
   nullSpecularLM: {fileID: 11400000, guid: 0d18cd5f03713bf43b1f92146881d9e4, type: 2}
   lightingModels:
@@ -1128,7 +1129,7 @@ RectTransform:
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -1604,7 +1605,6 @@ MonoBehaviour:
   cameraPitchLimit: 89.9
   alsoDrawOrigin: 0
   onlyDrawOriginWhenPointerDown: 0
-  camAllowAA: 1
   camRectPosition: {x: 0.5, y: 0}
   camRectDimensions: {x: 0.5, y: 0.5}
   defaultEuler: {x: -20, y: -40, z: 0}
@@ -2074,7 +2074,7 @@ RectTransform:
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}

@@ -87,7 +87,11 @@ public class MainMenu : MonoBehaviour {
         void SetupBackground () {
             backgroundCam = new GameObject("Main Menu Background Cam", typeof(Camera)).GetComponent<Camera>();
             backgroundCam.cullingMask = 1 << backgroundObjectLayer;
-            backgroundCam.allowMSAA = false;
+            backgroundCam.renderingPath = RenderingPath.Forward;
+            backgroundCam.allowMSAA = CustomGLCamera.allowMSAA;
+            if(backgroundCam.allowMSAA){
+                backgroundCam.rect = new Rect(new Vector2(0, 0), new Vector2(1.0000001f, 1f));  // this is really weird but a (0,0),(1,1)-rect camera doesn't get msaa...
+            }
             backgroundCam.nearClipPlane = backgroundCamNearClip;
             backgroundCam.farClipPlane = backgroundCamFarClip;
             backgroundCam.orthographic = false;

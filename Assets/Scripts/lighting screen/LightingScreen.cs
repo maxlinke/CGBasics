@@ -31,6 +31,7 @@ public class LightingScreen : CloseableScreen {
     [SerializeField] float groupLabelSuffixSize;
     [SerializeField] bool applyModelPresetColors;
     [SerializeField] float scrollYForHidingPropWindowHeader;
+    [SerializeField] bool lightingModelInfoStartsExpanded;
 
     [Header("Lighting Models")]
     [SerializeField] LightingModel nullDiffuseLM;
@@ -392,8 +393,8 @@ public class LightingScreen : CloseableScreen {
         LoadDiffuseLightingModel(defaultDiffuseModel);
         LoadSpecularLightingModel(defaultSpecularModel);
         LoadLightingSetup(defaultLightingSetup, true, !isInit);
-        diffuseInfoToggle.isOn = false;
-        specularInfoToggle.isOn = false;
+        diffuseInfoToggle.isOn = lightingModelInfoStartsExpanded;
+        specularInfoToggle.isOn = lightingModelInfoStartsExpanded;
     }
 
     void RebuildGroups () {

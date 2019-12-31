@@ -11,6 +11,13 @@ public class CustomGLCamera : MonoBehaviour {
     const string inverseModelMatrixName = "_SpecialInverseModelMatrix";
     const string camPosName = "_SpecialCamPos";
 
+    #if UNITY_WEBGL
+        public const bool allowMSAA = false;
+    #else
+        public const bool allowMSAA = true;
+    #endif
+    
+
     [SerializeField] Material objectMatTemplate;
     [SerializeField] Material objectMatTemplateWebGL;
 
@@ -196,6 +203,7 @@ public class CustomGLCamera : MonoBehaviour {
     void EnsureUnityCamLoaded () {
         if(attachedUnityCam == null){
             attachedUnityCam = GetComponent<Camera>();
+            attachedUnityCam.allowMSAA = CustomGLCamera.allowMSAA;
         }
     }
 

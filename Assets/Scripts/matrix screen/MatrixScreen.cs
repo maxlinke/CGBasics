@@ -26,6 +26,7 @@ public class MatrixScreen : CloseableScreen {
     [SerializeField] PanAndZoom panAndZoomController;
     [SerializeField] Image[] borders;
     [SerializeField] CenterBottomPopup centerBottomPopup;
+    [SerializeField] Button standaloneDownloadButton;
 
     [Header("Settings")]
     [SerializeField] ModelPreset defaultModel;
@@ -160,6 +161,13 @@ public class MatrixScreen : CloseableScreen {
         modelPreview.rectTransform.SetParent(uiMatrixParent, false);
         modelPreview.rectTransform.ResetLocalScale();
         
+        #if UNITY_WEBGL
+            var dlURL = "https://github.com/maxlinke/CGBasics/releases";
+            standaloneDownloadButton.onClick.AddListener(() => {Application.OpenURL(dlURL);});
+            standaloneDownloadButton.gameObject.AddComponent<UIHoverEventCaller>().SetActions((ped) => {BottomLog.DisplayMessage(dlURL);}, (ped) => {BottomLog.ClearDisplay();});
+        #else
+            Destroy(standaloneDownloadButton.gameObject);
+        #endif
 
         CreateMathematicalSign(UISprites.MatrixMultiply, out vectorMultiplicationSignRT);
         CreateMathematicalSign(UISprites.MatrixEquals, out vectorEqualsSignRT);
@@ -391,6 +399,11 @@ public class MatrixScreen : CloseableScreen {
         foreach(var b in borders){
             b.color = cs.ScreenBorders;
         }
+
+        #if UNITY_WEBGL
+            standaloneDownloadButton.SetFadeTransition(0f, cs.MainMenuDownloadButtonText, cs.MainMenuDownloadButtonTextHover, cs.MainMenuDownloadButtonTextClick, Color.magenta);
+        #endif
+
         centerBottomPopup.LoadColors(cs);
         windowOverlay.LoadColors(cs);
     }

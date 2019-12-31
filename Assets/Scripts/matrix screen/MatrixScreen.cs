@@ -337,7 +337,7 @@ public class MatrixScreen : CloseableScreen {
     public void ActivateNonFreeMode () {
         modelGroup.ResetToOnlyOneMatrix(false);
         modelGroup[0].LoadConfig(UIMatrices.MatrixConfig.scaleConfig);
-        modelGroup.CreateMatrixAtIndex(UIMatrices.MatrixConfig.fullRotationConfig, UIMatrix.Editability.FULL, 1, false);
+        modelGroup.CreateMatrixAtIndex(UIMatrices.MatrixConfig.eulerRadiansConfig, UIMatrix.Editability.FULL, 1, false);
         modelGroup.CreateMatrixAtIndex(UIMatrices.MatrixConfig.translationConfig, UIMatrix.Editability.FULL, 2, true);
 
         camGroup.ResetToOnlyOneMatrix(false);

@@ -9,6 +9,7 @@ namespace UIMatrices {
             Translation,
             Scale,
             RotationZXY,
+            RotationZXYDeg,
             RotationX,
             RotationY,
             RotationZ,
@@ -23,7 +24,8 @@ namespace UIMatrices {
         public static IdentityConfig identityConfig { get; private set; }
         public static TranslationConfig translationConfig { get; private set; }
         public static InverseTranslationConfig inverseTranslationConfig { get; private set; }
-        public static FullEulerRotationConfig fullRotationConfig { get; private set; }
+        public static EulerRotationConfig eulerRadiansConfig { get; private set; }
+        public static EulerRotationConfig eulerDegreesConfig { get; private set; }
         public static ScaleConfig scaleConfig { get; private set; }
         public static XRotConfig xRotConfig { get; private set; }
         public static YRotConfig yRotConfig { get; private set; }
@@ -46,8 +48,10 @@ namespace UIMatrices {
             map.Add(Type.Translation, translationConfig);
             scaleConfig = new ScaleConfig();
             map.Add(Type.Scale, scaleConfig);
-            fullRotationConfig = new FullEulerRotationConfig();
-            map.Add(Type.RotationZXY, fullRotationConfig);
+            eulerRadiansConfig = new EulerRotationConfig(useDegrees: false);
+            map.Add(Type.RotationZXY, eulerRadiansConfig);
+            eulerDegreesConfig = new EulerRotationConfig(useDegrees: true);
+            map.Add(Type.RotationZXYDeg, eulerDegreesConfig);
             xRotConfig = new XRotConfig();
             map.Add(Type.RotationX, xRotConfig);
             yRotConfig = new YRotConfig();
@@ -232,37 +236,71 @@ namespace UIMatrices {
 
         }
 
-        public class FullEulerRotationConfig : MatrixConfig {
+        public class EulerRotationConfig : MatrixConfig {
 
-            public const string xAngle = "xAngle";
-            public const string yAngle = "yAngle";
-            public const string zAngle = "zAngle";
+            public readonly string xAngle;
+            public readonly string yAngle;
+            public readonly string zAngle;
 
             // it is assumed that the function names accepted by the parser will never change...
-            private static string sx => $"sindeg({xAngle})";
-            private static string sy => $"sindeg({yAngle})";
-            private static string sz => $"sindeg({zAngle})";
-            private static string cx => $"cosdeg({xAngle})";
-            private static string cy => $"cosdeg({yAngle})";
-            private static string cz => $"cosdeg({zAngle})";
+            private readonly string sx;
+            private readonly string sy;
+            private readonly string sz;
+            private readonly string cx;
+            private readonly string cy;
+            private readonly string cz;
 
-            private List<string> matrix = new List<string>(){
-                $"({cz} * {cy}) + ({sx} * {sy} * {sz})", $"{sz} * {cx}", $"(-{sy} * {cz}) + ({sx} * {sz} * {cy})", "0",
-                $"(-{sz} * {cy}) + ({cz} * {sx} * {sy})", $"{cz} * {cx}", $"({sz} * {sy}) + ({cy} * {cz} * {sx})", "0",
-                $"{cx} * {sy}", $"-{sx}", $"{cx} * {cy}", "0",
-                "0", "0", "0", "1"
-            };
+            private readonly string m_name;
+            private readonly string m_description;
 
-            private List<VarPreset> varPresets = new List<VarPreset>(){
-                new VarPreset(xAngle, 0),
-                new VarPreset(yAngle, 0),
-                new VarPreset(zAngle, 0)
-            };
+            private List<string> matrix;
+            private List<VarPreset> varPresets;
 
-            public override string name => "Euler Rotation (ZXY)";
-            public override string description => "Rotates a vector around the z-, x- and y-Axis (in that order) by the degrees given.";
+            public override string name => m_name;
+            public override string description => m_description;
             public override VarPreset[] defaultVariables => varPresets.ToArray();
             public override string[] fieldStrings => matrix.ToArray();
+
+            public EulerRotationConfig (bool useDegrees) {
+                if(useDegrees){
+                    xAngle = "xAngle";
+                    yAngle = "yAngle";
+                    zAngle = "zAngle";
+                    sx = $"sindeg({xAngle})";
+                    sy = $"sindeg({yAngle})";
+                    sz = $"sindeg({zAngle})";
+                    cx = $"cosdeg({xAngle})";
+                    cy = $"cosdeg({yAngle})";
+                    cz = $"cosdeg({zAngle})";
+                    m_name = "Euler Rotation (ZXY) - Degrees";
+                    m_description = "Rotates a vector around the z-, x- and y-Axis (in that order) by the degrees given.";
+                }else{
+                    xAngle = "xRadians";
+                    yAngle = "yRadians";
+                    zAngle = "zRadians";
+                    sx = $"sin({xAngle})";
+                    sy = $"sin({yAngle})";
+                    sz = $"sin({zAngle})";
+                    cx = $"cos({xAngle})";
+                    cy = $"cos({yAngle})";
+                    cz = $"cos({zAngle})";
+                    m_name = "Euler Rotation (ZXY)";
+                    m_description = "Rotates a vector around the z-, x- and y-Axis (in that order) by the radians given.";
+                }
+
+                matrix = new List<string>(){
+                    $"({cz} * {cy}) + ({sx} * {sy} * {sz})", $"{sz} * {cx}", $"(-{sy} * {cz}) + ({sx} * {sz} * {cy})", "0",
+                    $"(-{sz} * {cy}) + ({cz} * {sx} * {sy})", $"{cz} * {cx}", $"({sz} * {sy}) + ({cy} * {cz} * {sx})", "0",
+                    $"{cx} * {sy}", $"-{sx}", $"{cx} * {cy}", "0",
+                    "0", "0", "0", "1"
+                };
+
+                varPresets = new List<VarPreset>(){
+                    new VarPreset(xAngle, 0),
+                    new VarPreset(yAngle, 0),
+                    new VarPreset(zAngle, 0)
+                };
+            }
 
         }
 
@@ -294,10 +332,10 @@ namespace UIMatrices {
 
         public class XRotConfig : MatrixConfig {
 
-            public const string angle = "angle";
+            public const string angle = "radians";
 
-            private static string sx => $"sindeg({angle})";
-            private static string cx => $"cosdeg({angle})";
+            private static string sx => $"sin({angle})";
+            private static string cx => $"cos({angle})";
 
             private List<string> matrix = new List<string>(){
                 "1", "0", "0", "0",
@@ -319,10 +357,10 @@ namespace UIMatrices {
 
         public class YRotConfig : MatrixConfig {
 
-            public const string angle = "angle";
+            public const string angle = "radians";
 
-            private static string sx => $"sindeg({angle})";
-            private static string cx => $"cosdeg({angle})";
+            private static string sx => $"sin({angle})";
+            private static string cx => $"cos({angle})";
 
             private List<string> matrix = new List<string>(){
                 cx, "0", $"-{sx}", "0",
@@ -344,10 +382,10 @@ namespace UIMatrices {
 
         public class ZRotConfig : MatrixConfig {
 
-            public const string angle = "angle";
+            public const string angle = "radians";
 
-            private static string sx => $"sindeg({angle})";
-            private static string cx => $"cosdeg({angle})";
+            private static string sx => $"sin({angle})";
+            private static string cx => $"cos({angle})";
 
             private List<string> matrix = new List<string>(){
                 cx, sx, "0", "0",

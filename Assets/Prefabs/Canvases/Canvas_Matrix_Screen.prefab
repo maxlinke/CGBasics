@@ -997,10 +997,10 @@ MonoBehaviour:
   camRectSize: {x: 0.5, y: 0.5}
   camDefaultFOV: 60
   camDefaultOrthoSize: 3
-  camDefaultNearClip: 0.5
-  camDefaultFarClip: 10
+  camDefaultNearClip: 0.4
+  camDefaultFarClip: 8
   farClipMaximum: 40
-  camDefaultPosition: {x: -1.5, y: 1, z: -3.5}
+  camDefaultPosition: {x: -1, y: 0.667, z: -1.5}
 --- !u!114 &986018775139316719
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1204,7 +1204,7 @@ MonoBehaviour:
   - {fileID: 3837312825538119510}
   centerBottomPopup: {fileID: 5726293091513977209}
   standaloneDownloadButton: {fileID: 8285277932823065075}
-  defaultModel: {fileID: 11400000, guid: a2024be66dde725468f5aab9adc32c74, type: 2}
+  defaultModel: {fileID: 11400000, guid: 300253f75bf74f14989f156ae803ccf0, type: 2}
   defaultVector: {x: 0, y: 0, z: 0, w: 1}
   weightLerpDeltaPerSecond: 7.5
   multiplicationSignSize: 40

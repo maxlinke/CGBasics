@@ -231,6 +231,9 @@ public class CustomCameraUIController : ClickDragScrollHandler {
     }
 
     protected override void Scroll (PointerEventData eventData) {
+        if(!CanCurrentlyControlCamera){
+            return;
+        }
         Zoom(eventData.scrollDelta.y);
     }
 	

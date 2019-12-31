@@ -19,7 +19,8 @@ namespace LightingModels {
         [SerializeField] int renderLayer;
         [SerializeField] float lightGizmoDistance;
         [SerializeField] float lightGizmoRayLength;
-        [SerializeField, Range(0, 90)] float topBottomLimit;
+        [SerializeField] bool limitCameraPitch;
+        [SerializeField, Range(0, 90)] float cameraPitchLimit;
         [SerializeField] bool alsoDrawOrigin;
         [SerializeField] bool onlyDrawOriginWhenPointerDown;
 
@@ -229,7 +230,10 @@ namespace LightingModels {
         void OrbitCam (Vector3 mouseDelta) {
             mouseDelta *= InputSystem.shiftCtrlMultiplier * orbitSensitivity;
             camRotY = Mathf.Repeat(camRotY + mouseDelta.x, 360f);
-            camRotX = Mathf.Clamp(camRotX - mouseDelta.y, -topBottomLimit, topBottomLimit);
+            camRotX -= mouseDelta.y;
+            if(limitCameraPitch){
+                camRotX = Mathf.Clamp(camRotX, -cameraPitchLimit, cameraPitchLimit);
+            }
             ApplyCamRotation();
         }
 

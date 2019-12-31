@@ -1600,7 +1600,10 @@ MonoBehaviour:
   renderLayer: 10
   lightGizmoDistance: 1.4142135
   lightGizmoRayLength: 0.3
-  topBottomLimit: 89.9
+  limitCameraPitch: 0
+  cameraPitchLimit: 89.9
+  alsoDrawOrigin: 0
+  onlyDrawOriginWhenPointerDown: 0
   camAllowAA: 1
   camRectPosition: {x: 0.5, y: 0}
   camRectDimensions: {x: 0.5, y: 0.5}

@@ -60,8 +60,9 @@ public class BottomLog : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
             ClearDisplay();
             hideTime = Mathf.Infinity;
         }
+        pointerHover &= showOnHover;
         bool noMessage = currentlyDisplayedMessage == null || currentlyDisplayedMessage.message == null || currentlyDisplayedMessage.message.Length < 1;
-        bool notNeeded = !(pointerHover && showOnHover) && noMessage;
+        bool notNeeded = !pointerHover && noMessage;
         if(notNeeded){
             if(hideWhenNotNeeded){
                 bottomBarContentParent.SetActive(false);
@@ -75,7 +76,7 @@ public class BottomLog : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
             bottomBackgroundImage.color = backgroundColor;
             backgroundLerp = 1f;
         }
-        bottomBackgroundImage.raycastTarget = showOnHover || bottomBackgroundImage.color.a > 0;
+        bottomBackgroundImage.raycastTarget = showOnHover;
     }
 
     void OnEnable () {

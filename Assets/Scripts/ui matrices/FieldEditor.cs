@@ -64,7 +64,6 @@ namespace UIMatrices {
                 selectionEnded = true;
                 selectionLimits = (start: i1, end: i2);
                 StartCoroutine(ResetSelectionWhenAppropriate());
-                Debug.Log("endedit" + Time.frameCount);
             });
 
             IEnumerator ResetSelectionWhenAppropriate () {
@@ -72,7 +71,6 @@ namespace UIMatrices {
                 yield return null;
                 selectionEnded = false;
                 selectionLimits = default;
-                Debug.Log("resetting" + Time.frameCount);
             }
         }
 
@@ -224,10 +222,8 @@ namespace UIMatrices {
                         var end = Mathf.Max(limits.Item1, limits.Item2);
                         targetInputField.text = targetInputField.text.Remove(start, end - start);
                         cPos = start;
-                        Debug.Log("replacing");
                     }else{
                         cPos = targetInputField.caretPosition;
-                        Debug.Log("inserting");
                     }
                     targetInputField.text = targetInputField.text.Insert(cPos, insert);
                     EventSystem.current.SetSelectedGameObject(targetInputField.gameObject);

@@ -309,7 +309,13 @@ public class UIMatrix : MonoBehaviour {
             CreateButton("Set Identity", "Set this matrix to identity (also removes all variables)", UISprites.MatrixIdentity, false, 0, SetIdentity);
             matrixInvertButton = CreateButton("Invert", "Invert this matrix (removes all variables)", UISprites.MatrixInvert, false, 1, Invert);
             CreateButton("Transpose", "Transpose this matrix", UISprites.MatrixTranspose, false, 2, () => {Transpose();});
-            CreateButton("Load Config", "Load a matrix configuration", UISprites.MatrixConfig, false, 3, () => {ConfigPicker.Open(LoadConfig, (matrixScreen != null ? matrixScreen.zoomLevel : 1f));});
+            CreateButton("Load Config", "Load a matrix configuration", UISprites.MatrixConfig, false, 3, () => {
+                var foldoutScale = 1f;
+                if(matrixScreen != null && matrixScreen.scaleFoldouts){
+                    foldoutScale = matrixScreen.zoomLevel;
+                }
+                ConfigPicker.Open(LoadConfig, foldoutScale);
+            });
 
             Button CreateButton (string newButtonName, string description, Sprite newButtonMainImage, bool leftBound, int displayIndex, System.Action onClickAction) {
                 var newlyCreatedButtonRT = new GameObject(newButtonName, typeof(RectTransform), typeof(Image), typeof(Button), typeof(UIHoverEventCaller)).GetComponent<RectTransform>();

@@ -14,11 +14,19 @@ public class ModelPicker : MonoBehaviour {
             return;
         }
         loadedModels = new List<LoadedModel>();
-        foreach(var preset in interestingModelPresets){
-            loadedModels.Add(new LoadedModel(preset));
-        }
-        foreach(var preset in boringModelPresets){
-            loadedModels.Add(new LoadedModel(preset));
+        LoadPresets(interestingModelPresets);
+        LoadPresets(boringModelPresets);
+
+        void LoadPresets (IEnumerable<ModelPreset> inputCollection) {
+            foreach(var preset in inputCollection){
+                #if UNITY_WEBGL
+                    if(preset.includeInWebGLBuilds){
+                        loadedModels.Add(new LoadedModel(preset));
+                    }
+                #else
+                    loadedModels.Add(new LoadedModel(preset));
+                #endif
+            }
         }
         // TODO streamingassets maybe (color hue from hash, then hsv with a fairly fixed value and saturation range)
     }

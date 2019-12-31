@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1fe0aafb42bd6b145a6c31b73812d444, type: 3}
   m_Name: Quad
   m_EditorClassIdentifier: 
+  m_includeInWebGLBuilds: 1
   m_mesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
   m_flatMesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
   m_color: {r: 0.692, g: 0.843, b: 0.692, a: 1}

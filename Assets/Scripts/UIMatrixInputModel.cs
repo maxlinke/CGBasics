@@ -18,7 +18,8 @@ public class UIMatrixInputModel : MonoBehaviour {
     [SerializeField] bool perspectivePreview;
     [SerializeField] bool dynamicallyScalePreview;
     [SerializeField] Vector3 previewCamPosition;
-    [SerializeField] Material meshPreviewMat;
+    [SerializeField] Material meshPreviewMatNormal;
+    [SerializeField] Material meshPreviewMatWebGL;
 
     private RectTransform m_rectTransform;
     public RectTransform rectTransform => m_rectTransform;
@@ -26,22 +27,34 @@ public class UIMatrixInputModel : MonoBehaviour {
     bool initialized = false;
     RenderTexture previewTex;
     Mesh previewMesh;
+    Material meshPreviewMat;
     MatrixScreen matrixScreen;
     float lastScale = 1;
 
     public void Initialize (MatrixScreen matrixScreen, Mesh mesh, string meshName, System.Action<Mesh> onMeshChanged) {
         this.matrixScreen = matrixScreen;
         this.m_rectTransform = GetComponent<RectTransform>();
+        #if UNITY_WEBGL
+            meshPreviewMat = meshPreviewMatWebGL;
+        #else
+            meshPreviewMat = meshPreviewMatNormal;
+        #endif
         UpdateNameAndMesh(meshName, mesh);
         previewButton.onClick.AddListener(() => {
             ModelPicker.Open(
-                (newMesh, newName) => {
-                    if(newMesh != null){
+                (newModel) => {
+                    if(newModel != null){
+                        var newName = newModel.name;
+                        #if UNITY_WEBGL
+                            var newMesh = newModel.flatMesh;
+                        #else
+                            var newMesh = newModel.mesh;
+                        #endif
                         UpdateNameAndMesh(newName, newMesh, true); 
                         onMeshChanged?.Invoke(newMesh);
                     }
                 }, 
-                (matrixScreen != null ? matrixScreen.zoomLevel : 1f)
+                ((matrixScreen != null && matrixScreen.scaleFoldouts) ? matrixScreen.zoomLevel : 1f)
             );
         });
         this.initialized = true;
@@ -103,15 +116,24 @@ public class UIMatrixInputModel : MonoBehaviour {
             clearColor: true,
             backgroundColor: Color.clear
         );
-        GL.PushMatrix();
-        GL.LoadProjectionMatrix(GetProjectionMatrix());
-        GL.LoadIdentity();
-        GL.MultMatrix(GetModelViewMatrix());
-        meshPreviewMat.SetPass(0);
         if(previewMesh != null){
-            CustomGLCamera.DrawMesh(previewMesh, Color.white);
+            GL.PushMatrix();
+            GL.LoadProjectionMatrix(GetProjectionMatrix());
+            GL.LoadIdentity();
+            GL.MultMatrix(GetModelViewMatrix());
+            meshPreviewMat.SetPass(0);
+            var meshColor = Color.white;
+            #if UNITY_WEBGL
+                if(wireframe){
+                    CustomGLCamera.DrawMeshManualWireframe(previewMesh, meshColor);
+                }else{
+                    CustomGLCamera.DrawMeshWithNormalsAsColors(previewMesh);
+                }
+            #else
+                CustomGLCamera.DrawMesh(previewMesh, Color.white);
+            #endif
+            GL.PopMatrix();
         }
-        GL.PopMatrix();
         GL.wireframe = wireCache;
         previewImage.texture = previewTex;
         RenderTexture.active = rtCache;

@@ -8,9 +8,13 @@ public class CustomGLCamera : MonoBehaviour {
     const string clippingMatrixName = "_SpecialClippingMatrix";
     const string specialModelMatrixKeyword = "USE_SPECIAL_MODEL_MATRIX";
     const string modelMatrixName = "_SpecialModelMatrix";
+    const string inverseModelMatrixName = "_SpecialInverseModelMatrix";
     const string camPosName = "_SpecialCamPos";
 
-    [SerializeField] Material objectMat;
+    [SerializeField] Material objectMatTemplate;
+    [SerializeField] Material objectMatTemplateWebGL;
+
+    Material objectMat;
 
     public bool IsExternalCamera => isExternalCamera;
     public bool matricesAreUpdated { get; private set; }
@@ -126,7 +130,11 @@ public class CustomGLCamera : MonoBehaviour {
         EnsureUnityCamLoaded();
         SetupPremadeUnityColoredMaterials();        
 
-        objectMat = Instantiate(objectMat);
+        #if UNITY_WEBGL
+            objectMat = Instantiate(objectMatTemplateWebGL);
+        #else
+            objectMat = Instantiate(objectMatTemplate);
+        #endif
         objectMat.hideFlags = HideFlags.HideAndDontSave;
         objectMat.EnableKeyword(specialModelMatrixKeyword);
         lineMaterialSolid.EnableKeyword(specialModelMatrixKeyword);
@@ -367,13 +375,24 @@ public class CustomGLCamera : MonoBehaviour {
                 drawMat.DisableKeyword(clippingKeyword);
                 objectMat.SetVector(camPosName, transform.position);
             }
-            drawMat.SetMatrix(modelMatrixName, isExternalCamera ? otherCamera.modelMatrix : modelMatrix);
+            var mm = isExternalCamera ? otherCamera.modelMatrix : modelMatrix;
+            drawMat.SetMatrix(modelMatrixName, mm);
+            drawMat.SetMatrix(inverseModelMatrixName, mm.inverse);
 
             bool wireCache = GL.wireframe;
             GL.wireframe = drawObjectAsWireFrame;
             DrawWithNewMVPMatrix(newMVP, () => {
                 drawMat.SetPass(0);
-                DrawMesh(currentMesh, drawObjectAsWireFrame ? wireObjectColor : Color.white);
+                var meshColor = drawObjectAsWireFrame ? wireObjectColor : Color.white;
+                #if UNITY_WEBGL
+                    if(drawObjectAsWireFrame){
+                        DrawMeshManualWireframe(currentMesh, meshColor);
+                    }else{
+                        DrawMeshWithNormalsAsColors(currentMesh);
+                    }
+                #else
+                    DrawMesh(currentMesh, meshColor);
+                #endif
             });
             GL.wireframe = wireCache;
         }
@@ -533,6 +552,44 @@ public class CustomGLCamera : MonoBehaviour {
                 GL.Vertex(verts[tris[i+0]]);
                 GL.Vertex(verts[tris[i+1]]);
                 GL.Vertex(verts[tris[i+2]]);
+            }
+        });
+    }
+
+    public static void DrawMeshWithNormalsAsColors (Mesh meshToDraw) {
+        GLDraw(GL.TRIANGLES, () => {
+            var verts = meshToDraw.vertices;
+            var norms = meshToDraw.normals;
+            var tris = meshToDraw.triangles;
+            for(int i=0; i<tris.Length; i+=3){
+                var n1 = (norms[tris[i+0]] + Vector3.one) / 2f;
+                var n2 = (norms[tris[i+1]] + Vector3.one) / 2f;
+                var n3 = (norms[tris[i+2]] + Vector3.one) / 2f;
+                GL.Color(new Color(n1.x, n1.y, n1.z));
+                GL.Color(new Color(n2.x, n2.y, n2.z));
+                GL.Color(new Color(n3.x, n3.y, n3.z));
+                GL.Vertex(verts[tris[i+0]]);
+                GL.Vertex(verts[tris[i+1]]);
+                GL.Vertex(verts[tris[i+2]]);
+            }
+        });
+    }
+
+    public static void DrawMeshManualWireframe (Mesh meshToDraw, Color drawColor) {
+        GLDraw(GL.LINES, () => {
+            GL.Color(drawColor);
+            var verts = meshToDraw.vertices;
+            var tris = meshToDraw.triangles;
+            for(int i=0; i<tris.Length; i+=3){
+                var v1 = verts[tris[i+0]];
+                var v2 = verts[tris[i+1]];
+                var v3 = verts[tris[i+2]];
+                GL.Vertex(v1);
+                GL.Vertex(v2);
+                GL.Vertex(v2);
+                GL.Vertex(v3);
+                GL.Vertex(v3);
+                GL.Vertex(v1);
             }
         });
     }

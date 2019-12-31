@@ -335,7 +335,9 @@ MonoBehaviour:
   perspectivePreview: 0
   dynamicallyScalePreview: 0
   previewCamPosition: {x: 1, y: 1, z: -2}
-  meshPreviewMat: {fileID: 2100000, guid: e7f3840cfe72eb14597634e5a22d91a3, type: 2}
+  meshPreviewMatNormal: {fileID: 2100000, guid: e7f3840cfe72eb14597634e5a22d91a3,
+    type: 2}
+  meshPreviewMatWebGL: {fileID: 2100000, guid: 52ef52d1f1570dc4199317d8e9b30855, type: 2}
 --- !u!222 &1669636760370137196
 CanvasRenderer:
   m_ObjectHideFlags: 0

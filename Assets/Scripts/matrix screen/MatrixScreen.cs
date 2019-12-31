@@ -5,7 +5,11 @@ using MatrixScreenUtils;
 
 public class MatrixScreen : CloseableScreen {
 
+    #if UNITY_WEBGL
+    private const int MAX_MATRIX_COUNT = 8;
+    #else
     private const int MAX_MATRIX_COUNT = 16;
+    #endif
 
     [Header("Prefabs")]
     [SerializeField] UIMatrix uiMatrixPrefab;
@@ -29,7 +33,9 @@ public class MatrixScreen : CloseableScreen {
     [SerializeField] float weightLerpDeltaPerSecond;
     [SerializeField] float multiplicationSignSize;
     [SerializeField] float matrixGroupMargin;
+    [SerializeField] bool m_scaleFoldouts;
 
+    public bool scaleFoldouts => m_scaleFoldouts;
     public float zoomLevel => panAndZoomController.zoomLevel;
     public float maxmumZoomLevel => panAndZoomController.maxZoomLevel;
     public UIMatrix ViewPosMatrix => viewPosMatrix;
@@ -145,10 +151,15 @@ public class MatrixScreen : CloseableScreen {
 
         CreateMathematicalSign(UISprites.MatrixMultiply, out previewMultiplicationSignRT);
         modelPreview = Instantiate(modelPreviewPrefab);
-        modelPreview.Initialize(this, defaultModel.mesh, defaultModel.name, (m) => {currentMesh = m;});
+        #if UNITY_WEBGL
+            currentMesh = defaultModel.flatMesh;
+        #else
+            currentMesh = defaultModel.mesh;
+        #endif
+        modelPreview.Initialize(this, currentMesh, defaultModel.name, (m) => {currentMesh = m;});
         modelPreview.rectTransform.SetParent(uiMatrixParent, false);
         modelPreview.rectTransform.ResetLocalScale();
-        currentMesh = defaultModel.mesh;
+        
 
         CreateMathematicalSign(UISprites.MatrixMultiply, out vectorMultiplicationSignRT);
         CreateMathematicalSign(UISprites.MatrixEquals, out vectorEqualsSignRT);

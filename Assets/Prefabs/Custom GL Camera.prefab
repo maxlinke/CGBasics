@@ -86,4 +86,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a64e194b52a185d45910f7a7134f67bf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  objectMat: {fileID: 2100000, guid: e7f3840cfe72eb14597634e5a22d91a3, type: 2}
+  objectMatTemplate: {fileID: 2100000, guid: e7f3840cfe72eb14597634e5a22d91a3, type: 2}
+  objectMatTemplateWebGL: {fileID: 2100000, guid: 52ef52d1f1570dc4199317d8e9b30855,
+    type: 2}

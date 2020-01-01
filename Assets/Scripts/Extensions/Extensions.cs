@@ -169,5 +169,67 @@ public static class Extensions {
             return (vec.x + vec.y + vec.z) / 3f;
         }
     }
+
+    public static void LogInfo (this Mesh inputMesh) {
+        string debugLog = string.Empty;
+        AppendInfo("triangles", inputMesh.triangles);
+        AppendInfo("vertices", inputMesh.vertices);
+        AppendInfo("normals", inputMesh.normals);
+        AppendInfo("uv", inputMesh.uv);
+        AppendInfo("uv2", inputMesh.uv2);
+        AppendInfo("uv3", inputMesh.uv3);
+        AppendInfo("colors", inputMesh.colors);
+        AppendInfo("colors32", inputMesh.colors32);
+        Debug.Log(debugLog);
+
+        void AppendInfo<T> (string inputArrayName, T[] inputArray){
+            debugLog += $"{inputArrayName}: {((inputArray == null) ? "null" : inputArray.Length.ToString())}\n";
+        }
+    }
+
+    public static Mesh CreateClone (this Mesh inputMesh, bool flatShading, bool normalsAsVertexColors) {
+        var output = new Mesh();
+        List<Vector3> vertices = new List<Vector3>();
+        List<Vector3> normals = new List<Vector3>();
+        List<Color> colors = new List<Color>();
+        List<int> triangles = new List<int>();
+        if(flatShading){
+            for(int i=0; i<inputMesh.triangles.Length; i+=3){
+                var v1 = inputMesh.vertices[inputMesh.triangles[i+0]];
+                var v2 = inputMesh.vertices[inputMesh.triangles[i+1]];
+                var v3 = inputMesh.vertices[inputMesh.triangles[i+2]];
+                var n = Vector3.Cross(v2-v1, v3-v2);
+                vertices.AddRange(new Vector3[]{v1, v2, v3});
+                normals.AddRange(new Vector3[]{n, n, n});
+                triangles.AddRange(new int[]{i, i+1, i+2});
+            }
+        }else{
+            for(int i=0; i<inputMesh.triangles.Length; i++){
+                triangles.Add(inputMesh.triangles[i]);
+            }
+            for(int i=0; i<inputMesh.vertices.Length; i++){
+                vertices.Add(inputMesh.vertices[i]);
+            }
+            for(int i=0; i<inputMesh.normals.Length; i++){
+                normals.Add(inputMesh.normals[i]);
+            }
+        }
+        if(normalsAsVertexColors){
+            for(int i=0; i<inputMesh.normals.Length; i++){
+                var n = (inputMesh.normals[i] + Vector3.one) / 2f;
+                colors.Add(new Color(n.x, n.y, n.z));
+            }
+        }else{
+            for(int i=0; i<inputMesh.colors.Length; i++){
+                colors.Add(inputMesh.colors[i]);
+            }
+        }
+        output.hideFlags = HideFlags.HideAndDontSave;
+        output.vertices = vertices.ToArray();
+        output.normals = normals.ToArray();
+        output.colors = colors.ToArray();
+        output.triangles = triangles.ToArray();
+        return output;
+    }
 	
 }

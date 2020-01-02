@@ -573,11 +573,11 @@ public class CustomGLCamera : MonoBehaviour {
                 var n1 = (norms[tris[i+0]] + Vector3.one) / 2f;
                 var n2 = (norms[tris[i+1]] + Vector3.one) / 2f;
                 var n3 = (norms[tris[i+2]] + Vector3.one) / 2f;
-                GL.Color(new Color(n1.x, n1.y, n1.z));
-                GL.Color(new Color(n2.x, n2.y, n2.z));
-                GL.Color(new Color(n3.x, n3.y, n3.z));
+                GL.Color(new Color(n1.x, n1.y, n1.z));              // if the colors come before the vertices, it's like bad flat shading...
                 GL.Vertex(verts[tris[i+0]]);
+                GL.Color(new Color(n2.x, n2.y, n2.z));
                 GL.Vertex(verts[tris[i+1]]);
+                GL.Color(new Color(n3.x, n3.y, n3.z));
                 GL.Vertex(verts[tris[i+2]]);
             }
         });

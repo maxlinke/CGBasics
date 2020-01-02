@@ -89,6 +89,15 @@ public static class GLMatrixCreator {
         );
     }
 
+    public static Matrix4x4 GetRotationMatrix (Vector3 newX, Vector3 newY, Vector3 newZ) {
+        return new Matrix4x4(
+            new Vector4(newX.x, newX.y, newX.z, 0f),
+            new Vector4(newY.x, newY.y, newY.z, 0f),
+            new Vector4(newZ.x, newZ.y, newZ.z, 0f),
+            new Vector4(0f, 0f, 0f, 1f)
+        );
+    }
+
     public static Matrix4x4 GetScaleMatrix (Vector3 scale) {
         return new Matrix4x4(
             new Vector4(scale.x, 0, 0, 0),
@@ -96,6 +105,13 @@ public static class GLMatrixCreator {
             new Vector4(0, 0, scale.z, 0),
             new Vector4(0, 0, 0, 1)
         );
+    }
+
+    public static Matrix4x4 GetModelMatrix (Transform inputTransform) {
+        var t = GetTranslationMatrix(inputTransform.position);
+        var r = GetRotationMatrix(inputTransform.right, inputTransform.up, inputTransform.forward);
+        var s = GetScaleMatrix(inputTransform.lossyScale);
+        return t * r * s;
     }
 
     public static Matrix4x4 GetModelMatrix (Vector3 position, Vector3 eulerAngles, Vector3 scale) {
@@ -137,6 +153,17 @@ public static class GLMatrixCreator {
             new Vector4(0, 0, 2f / (zFar - zNear), 0),
             new Vector4(0, 0, -(zFar + zNear) / (zFar - zNear), 1)
         );
+    }
+
+    public static Matrix4x4 GetCameraMatrix (Camera inputCamera) {
+        Matrix4x4 p, v;
+        if(inputCamera.orthographic){
+            p = GetOrthoProjectionMatrix(inputCamera.orthographicSize, inputCamera.aspect, inputCamera.nearClipPlane, inputCamera.farClipPlane);
+        }else{
+            p = GetProjectionMatrix(inputCamera.fieldOfView, inputCamera.aspect, inputCamera.nearClipPlane, inputCamera.farClipPlane);
+        }
+        v = GetViewMatrix(inputCamera.transform.position, inputCamera.transform.forward, inputCamera.transform.up);
+        return p * v;
     }
 	
 }

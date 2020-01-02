@@ -30,11 +30,17 @@ public class MeshDebug : MonoBehaviour {
         public MeshFilter targetMF;
         public Material drawMat;
 
+        Camera ownCam;
+
         void OnEnable () {
-            var ownCam = gameObject.AddComponent<Camera>();
-            ownCam.cullingMask = 0;
-            ownCam.backgroundColor = Color.black;
+            ownCam = gameObject.AddComponent<Camera>();
             ownCam.rect = new Rect(new Vector2(0.5f, 0f), new Vector2(0.5f, 1f));
+        }
+
+        void OnPreRender () {
+            ownCam.cullingMask = 0;
+            ownCam.backgroundColor = matchCam.backgroundColor + (Color.white * 0.05f);
+            ownCam.allowMSAA = matchCam.allowMSAA;
         }
 
         void OnPostRender () {

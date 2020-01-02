@@ -5,6 +5,7 @@ public class ModelPicker : MonoBehaviour {
 
     [Tooltip("These are at the beginning of the list"), SerializeField] ModelPreset[] interestingModelPresets;
     [Tooltip("These are at the end of the list"), SerializeField] ModelPreset[] boringModelPresets;
+    [SerializeField] bool logInfoOnLoad;
 
     static List<LoadedModel> loadedModels;
 
@@ -21,10 +22,18 @@ public class ModelPicker : MonoBehaviour {
             foreach(var preset in inputCollection){
                 #if UNITY_WEBGL
                     if(preset.includeInWebGLBuilds){
-                        loadedModels.Add(new LoadedModel(preset));
+                        var lm = new LoadedModel(preset);
+                        if(logInfoOnLoad){
+                            lm.mesh.LogInfo();
+                        }
+                        loadedModels.Add(lm);
                     }
                 #else
-                    loadedModels.Add(new LoadedModel(preset));
+                    var lm = new LoadedModel(preset);
+                    if(logInfoOnLoad){
+                        lm.mesh.LogInfo();
+                    }
+                    loadedModels.Add(lm);
                 #endif
             }
         }

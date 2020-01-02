@@ -55,3 +55,4 @@ MonoBehaviour:
   - {fileID: 11400000, guid: b42d8a5a11498634b8b5746b4d7b1550, type: 2}
   - {fileID: 11400000, guid: 6e4bc72f5f91575449f615128042ea73, type: 2}
   - {fileID: 11400000, guid: 8790fb78004d21b489803fa118a066e4, type: 2}
+  logInfoOnLoad: 0

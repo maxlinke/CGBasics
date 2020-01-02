@@ -171,7 +171,7 @@ public static class Extensions {
     }
 
     public static void LogInfo (this Mesh inputMesh) {
-        string debugLog = string.Empty;
+        string debugLog = $"mesh: {inputMesh.name} \n";
         AppendInfo("triangles", inputMesh.triangles);
         AppendInfo("vertices", inputMesh.vertices);
         AppendInfo("normals", inputMesh.normals);

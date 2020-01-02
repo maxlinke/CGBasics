@@ -13,7 +13,6 @@ public class MainMenu : MonoBehaviour {
     [SerializeField] MainMenuWindowOverlay windowOverlay;
     [SerializeField] TextMeshProUGUI label;
     [SerializeField] TextMeshProUGUI labelDropShadow;
-    [SerializeField] Button downloadButton;
 
     [Header("Main Buttons")]
     [SerializeField] Button matrixButton;
@@ -64,14 +63,6 @@ public class MainMenu : MonoBehaviour {
         lightingButton.onClick.AddListener(() => {OpenScreen(lightingScreenPrefab);});
         SetupBackground();
         windowOverlay.Initialize(this);
-        #if UNITY_WEBGL
-            var dlURL = "https://github.com/maxlinke/CGBasics/releases";
-            downloadButton.onClick.AddListener(() => {Application.OpenURL(dlURL);});
-            downloadButton.gameObject.AddComponent<UIHoverEventCaller>().SetActions((ped) => {BottomLog.DisplayMessage(dlURL);}, (ped) => {BottomLog.ClearDisplay();});
-        #else
-            InputSystem.Subscribe(this, new InputSystem.KeyEvent(KeyCode.Escape, () => {windowOverlay.CloseRequested();}));
-            Destroy(downloadButton.gameObject);
-        #endif
         this.initialized = true;
         LoadColors(ColorScheme.current);
 
@@ -189,9 +180,6 @@ public class MainMenu : MonoBehaviour {
         zAxis = WireGizmoColor(cs.RenderZAxis);
         wireFloorColor = WireGizmoColor(cs.RenderWireFloor);
         backgroundColor = cs.ApplicationBackground;
-        #if UNITY_WEBGL
-            downloadButton.SetFadeTransition(0f, cs.MainMenuDownloadButtonText, cs.MainMenuDownloadButtonTextHover, cs.MainMenuDownloadButtonTextClick, Color.magenta);
-        #endif
         windowOverlay.LoadColors(cs);
 
         Color WireGizmoColor (Color origColor) {

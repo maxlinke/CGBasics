@@ -240,16 +240,8 @@ public class CustomGLCamera : MonoBehaviour {
         DoForBothMaterials((m) => {m.SetColor("_LightColorAmbient", cs.VertRenderAmbientLight);});
         clipOverlayColor = cs.VertRenderClippingOverlay;
         DoForBothMaterials((m) => {m.SetColor("_ClippingOverlayColor", clipOverlayColor);});
-        if(cs.VertRenderBackfacesSolid){
-            DoForBothMaterials((m) => {m.EnableKeyword(solidBackfaceKeyword);});
-        }else{
-            DoForBothMaterials((m) => {m.DisableKeyword(solidBackfaceKeyword);});
-        }
-        if(cs.VertRenderBackfacesLit){
-            DoForBothMaterials((m) => {m.EnableKeyword(litBackfaceKeyword);});
-        }else{
-            DoForBothMaterials((m) => {m.DisableKeyword(litBackfaceKeyword);});
-        }
+        DoForBothMaterials((m) => {m.SetKeywordEnabled(solidBackfaceKeyword, cs.VertRenderBackfacesSolid);});
+        DoForBothMaterials((m) => {m.SetKeywordEnabled(litBackfaceKeyword, cs.VertRenderBackfacesLit);});
         lineMaterialSolid.SetColor("_ClippingOverlayColor", clipOverlayColor);
         lineMaterialSeeThrough.SetColor("_ClippingOverlayColor", clipOverlayColor);
     }

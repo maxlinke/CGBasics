@@ -14,6 +14,14 @@ public static class Extensions {
         return component.gameObject.activeSelf;
     }
 
+    public static void SetKeywordEnabled (this Material material, string keyword, bool enabledValue) {
+        if(enabledValue){
+            material.EnableKeyword(keyword);
+        }else{
+            material.DisableKeyword(keyword);
+        }
+    }
+
     public static Coroutine DoNextFrame (this MonoBehaviour runner, System.Action doNextFrameAction) {
         return runner.StartCoroutine(WaitAndDo());
 

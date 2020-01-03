@@ -11,6 +11,9 @@ public class CustomGLCamera : MonoBehaviour {
     const string inverseModelMatrixName = "_SpecialInverseModelMatrix";
     const string camPosName = "_SpecialCamPos";
 
+    const string litBackfaceKeyword = "LIT_BACKFACES";
+    const string solidBackfaceKeyword = "SOLID_BACKFACES";
+
     #if UNITY_WEBGL
         public const bool allowMSAA = false;
     #else
@@ -23,6 +26,7 @@ public class CustomGLCamera : MonoBehaviour {
 
     Material objectMat;
 
+    public Material ObjectRenderMaterial { get; private set; }
     public bool IsExternalCamera => isExternalCamera;
     public bool matricesAreUpdated { get; private set; }
     public Matrix4x4 modelMatrix { get; private set; }
@@ -139,10 +143,12 @@ public class CustomGLCamera : MonoBehaviour {
 
         #if UNITY_WEBGL
             objectMat = Instantiate(objectMatTemplateWebGL);
+            ObjectRenderMaterial = Instantiate(objectMatTemplateWebGL);
         #else
             objectMat = Instantiate(objectMatTemplate);
+            ObjectRenderMaterial = Instantiate(objectMatTemplate);
         #endif
-        objectMat.hideFlags = HideFlags.HideAndDontSave;
+        DoForBothMaterials((m) => {m.hideFlags = HideFlags.HideAndDontSave;});
         objectMat.EnableKeyword(specialModelMatrixKeyword);
         lineMaterialSolid.EnableKeyword(specialModelMatrixKeyword);
         lineMaterialSeeThrough.EnableKeyword(specialModelMatrixKeyword);
@@ -168,6 +174,11 @@ public class CustomGLCamera : MonoBehaviour {
         startOrthoSize = inputOrthoSize;
 
         initialized = true;
+    }
+
+    void DoForBothMaterials (System.Action<Material> doAction) {
+        doAction(objectMat);
+        doAction(ObjectRenderMaterial);
     }
 
     public void SetupViewportRect (Rect viewportRect) {
@@ -222,45 +233,37 @@ public class CustomGLCamera : MonoBehaviour {
         vectorColor = cs.VertRenderVectorPoint;
         vectorOutlineColor = cs.VertRenderVectorPointOutline;
 
-        objectMat.SetColor("_FrontColor", cs.VertRenderObjectColor);
-        objectMat.SetColor("_BackColor", cs.VertRenderObjectBackfaceColor);
-        objectMat.SetColor("_LightColorFront", cs.VertRenderLight1);
-        objectMat.SetColor("_LightColorBack", cs.VertRenderLight2);
-        objectMat.SetColor("_LightColorAmbient", cs.VertRenderAmbientLight);
+        DoForBothMaterials((m) => {m.SetColor("_FrontColor", cs.VertRenderObjectColor);});
+        DoForBothMaterials((m) => {m.SetColor("_BackColor", cs.VertRenderObjectBackfaceColor);});
+        DoForBothMaterials((m) => {m.SetColor("_LightColorFront", cs.VertRenderLight1);});
+        DoForBothMaterials((m) => {m.SetColor("_LightColorBack", cs.VertRenderLight2);});
+        DoForBothMaterials((m) => {m.SetColor("_LightColorAmbient", cs.VertRenderAmbientLight);});
         clipOverlayColor = cs.VertRenderClippingOverlay;
-        objectMat.SetColor("_ClippingOverlayColor", clipOverlayColor);
+        DoForBothMaterials((m) => {m.SetColor("_ClippingOverlayColor", clipOverlayColor);});
+        if(cs.VertRenderBackfacesSolid){
+            DoForBothMaterials((m) => {m.EnableKeyword(solidBackfaceKeyword);});
+        }else{
+            DoForBothMaterials((m) => {m.DisableKeyword(solidBackfaceKeyword);});
+        }
+        if(cs.VertRenderBackfacesLit){
+            DoForBothMaterials((m) => {m.EnableKeyword(litBackfaceKeyword);});
+        }else{
+            DoForBothMaterials((m) => {m.DisableKeyword(litBackfaceKeyword);});
+        }
         lineMaterialSolid.SetColor("_ClippingOverlayColor", clipOverlayColor);
         lineMaterialSeeThrough.SetColor("_ClippingOverlayColor", clipOverlayColor);
     }
 
     void SetupPremadeUnityColoredMaterials () {
-        // modified from https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnPostRender.html
-        // var shader = Shader.Find("Custom/InternalColoredWithCulling");
-        // lineMaterialSolid = new Material(shader);
-        // lineMaterialSolid.hideFlags = HideFlags.HideAndDontSave;
-        // lineMaterialSolid.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.One);
-        // lineMaterialSolid.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.Zero);
-        // lineMaterialSolid.SetInt("_Cull", (int)UnityEngine.Rendering.CullMode.Off);
-        // lineMaterialSolid.SetInt("_ZWrite", 1);
-        // lineMaterialSolid.SetInt("_ZTest", (int)UnityEngine.Rendering.CompareFunction.LessEqual);
         lineMaterialSolid = GetLineMaterial(false);
-
-        // lineMaterialSeeThrough = new Material(shader);
-        // lineMaterialSeeThrough.hideFlags = HideFlags.HideAndDontSave;
-        // lineMaterialSeeThrough.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
-        // lineMaterialSeeThrough.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-        // lineMaterialSeeThrough.SetInt("_Cull", (int)UnityEngine.Rendering.CullMode.Off);
-        // lineMaterialSeeThrough.SetInt("_ZWrite", 0);
-        // lineMaterialSeeThrough.SetInt("_ZTest", (int)UnityEngine.Rendering.CompareFunction.Always);
         lineMaterialSeeThrough = GetLineMaterial(true);
     }
 
     public static Material GetLineMaterial (bool seeThrough) {
+        // modified from https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnPostRender.html
         var shader = Shader.Find("Custom/InternalColoredWithCulling");
         var output = new Material(shader);
         output.hideFlags = HideFlags.HideAndDontSave;
-        // output.SetInt("_SrcBlend", seeThrough ? (int)UnityEngine.Rendering.BlendMode.SrcAlpha : (int)UnityEngine.Rendering.BlendMode.One);
-        // output.SetInt("_DstBlend", seeThrough ? (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha : (int)UnityEngine.Rendering.BlendMode.Zero);
         output.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
         output.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
         output.SetInt("_Cull", (int)UnityEngine.Rendering.CullMode.Off);

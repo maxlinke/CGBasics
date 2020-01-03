@@ -18,8 +18,6 @@ public class UIMatrixInputModel : MonoBehaviour {
     [SerializeField] bool perspectivePreview;
     [SerializeField] bool dynamicallyScalePreview;
     [SerializeField] Vector3 previewCamPosition;
-    [SerializeField] Material meshPreviewMatNormal;
-    [SerializeField] Material meshPreviewMatWebGL;
 
     private RectTransform m_rectTransform;
     public RectTransform rectTransform => m_rectTransform;
@@ -31,14 +29,12 @@ public class UIMatrixInputModel : MonoBehaviour {
     MatrixScreen matrixScreen;
     float lastScale = 1;
 
-    public void Initialize (MatrixScreen matrixScreen, Mesh mesh, string meshName, System.Action<Mesh> onMeshChanged) {
+    public void Initialize (MatrixScreen matrixScreen, Mesh mesh, string meshName, System.Action<Mesh> onMeshChanged, Material renderMat) {
         this.matrixScreen = matrixScreen;
         this.m_rectTransform = GetComponent<RectTransform>();
-        #if UNITY_WEBGL
-            meshPreviewMat = meshPreviewMatWebGL;
-        #else
-            meshPreviewMat = meshPreviewMatNormal;
-        #endif
+        if(!wireframe){
+            meshPreviewMat = renderMat;
+        }
         UpdateNameAndMesh(meshName, mesh);
         previewButton.onClick.AddListener(() => {
             ModelPicker.Open(

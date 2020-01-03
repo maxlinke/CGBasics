@@ -47,7 +47,9 @@ MonoBehaviour:
   vertRenderVectorPointOutline: {r: 0, g: 0, b: 0, a: 1}
   vertRenderWireObject: {r: 1, g: 1, b: 1, a: 1}
   vertRenderObjectColor: {r: 1, g: 1, b: 1, a: 1}
-  vertRenderObjectBackfaceColor: {r: 1, g: 0, b: 1, a: 1}
+  vertRenderObjectBackfaceColor: {r: 1, g: 1, b: 1, a: 1}
+  vertRenderBackfacesSolid: 1
+  vertRenderBackfacesLit: 1
   vertRenderLight1: {r: 0.8, g: 0.8, b: 0.8, a: 1}
   vertRenderLight2: {r: 0.2, g: 0.2, b: 0.5, a: 1}
   vertRenderAmbientLight: {r: 0.2, g: 0.1, b: 0.1, a: 1}

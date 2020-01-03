@@ -157,7 +157,7 @@ public class MatrixScreen : CloseableScreen {
         #else
             currentMesh = defaultModel.mesh;
         #endif
-        modelPreview.Initialize(this, currentMesh, defaultModel.name, (m) => {currentMesh = m;});
+        modelPreview.Initialize(this, currentMesh, defaultModel.name, (m) => {currentMesh = m;}, matrixCamController.targetCam.ObjectRenderMaterial);
         modelPreview.rectTransform.SetParent(uiMatrixParent, false);
         modelPreview.rectTransform.ResetLocalScale();
         

@@ -28,12 +28,14 @@ public class UIMatrixInputModel : MonoBehaviour {
     Material meshPreviewMat;
     MatrixScreen matrixScreen;
     float lastScale = 1;
+    bool previewMatCreatedHere = false;
 
     public void Initialize (MatrixScreen matrixScreen, Mesh mesh, string meshName, System.Action<Mesh> onMeshChanged, Material renderMat) {
         this.matrixScreen = matrixScreen;
         this.m_rectTransform = GetComponent<RectTransform>();
         if(!wireframe){
             meshPreviewMat = renderMat;
+            previewMatCreatedHere = false;
         }
         UpdateNameAndMesh(meshName, mesh);
         previewButton.onClick.AddListener(() => {
@@ -98,6 +100,12 @@ public class UIMatrixInputModel : MonoBehaviour {
 
     void OnDisable () {
         ColorScheme.onChange -= LoadColors;
+    }
+
+    void OnDestroy () {
+        if(previewMatCreatedHere){
+            DestroyImmediate(meshPreviewMat);
+        }
     }
 
     public void UpdatePreview () {
@@ -205,6 +213,7 @@ public class UIMatrixInputModel : MonoBehaviour {
         meshPreviewMat.SetInt("_Cull", (int)UnityEngine.Rendering.CullMode.Off);
         meshPreviewMat.SetInt("_ZWrite", 1);
         meshPreviewMat.SetInt("_ZTest", (int)UnityEngine.Rendering.CompareFunction.LessEqual);
+        previewMatCreatedHere = true;
     }
 	
 }

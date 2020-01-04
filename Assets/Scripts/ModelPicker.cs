@@ -7,6 +7,7 @@ public class ModelPicker : MonoBehaviour {
     [Tooltip("These are at the end of the list"), SerializeField] ModelPreset[] boringModelPresets;
 
     static List<LoadedModel> loadedModels;
+    static List<Mesh> nonAssetMeshes;
 
     void Awake () {
         if(loadedModels != null){
@@ -14,6 +15,7 @@ public class ModelPicker : MonoBehaviour {
             return;
         }
         loadedModels = new List<LoadedModel>();
+        nonAssetMeshes = new List<Mesh>();
         LoadPresets(interestingModelPresets);
         LoadPresets(boringModelPresets);
 
@@ -21,18 +23,32 @@ public class ModelPicker : MonoBehaviour {
             foreach(var preset in inputCollection){
                 #if UNITY_WEBGL
                     if(preset.includeInWebGLBuilds){
-                        loadedModels.Add(new LoadedModel(preset));
+                        loadedModels.Add(CreateLoadedModel());
                     }
                 #else
-                    loadedModels.Add(new LoadedModel(preset));
+                    loadedModels.Add(CreateLoadedModel());
                 #endif
+
+                LoadedModel CreateLoadedModel () {
+                    var output = new LoadedModel(preset);
+                    if(!output.flatMeshIsAsset){
+                        nonAssetMeshes.Add(output.flatMesh);
+                    }
+                    return output;
+                }
             }
         }
         // TODO streamingassets maybe (color hue from hash, then hsv with a fairly fixed value and saturation range)
     }
 
     void OnDestroy () {
+        loadedModels.Clear();
         loadedModels = null;
+        for(int i=nonAssetMeshes.Count-1; i>=0; i--){
+            DestroyImmediate(nonAssetMeshes[i]);
+        }
+        nonAssetMeshes.Clear();
+        nonAssetMeshes = null;
     }
 
     private static List<Foldout.ButtonSetup> GetButtonSetups (System.Action<LoadedModel> buttonClick) {
@@ -71,10 +87,12 @@ public class LoadedModel {
     public readonly Color color;
     public readonly Color specularColor;
     public readonly string description;
+    public bool flatMeshIsAsset { get; private set; }
 
     public LoadedModel (Mesh mesh, string name, Color color, Color specularColor, string description) {
         this.mesh = mesh;
         this.flatMesh = CreateFlatShadedMesh(mesh);
+        flatMeshIsAsset = false;
         this.name = name;
         this.color = color;
         this.specularColor = specularColor;
@@ -84,6 +102,7 @@ public class LoadedModel {
     public LoadedModel (ModelPreset preset) {
         this.mesh = preset.mesh;
         this.flatMesh = (preset.flatMesh != null) ? preset.flatMesh : CreateFlatShadedMesh(preset.mesh);
+        flatMeshIsAsset = (preset.flatMesh != null);
         this.name = preset.name;
         this.color = preset.color;
         this.specularColor = preset.specColor;

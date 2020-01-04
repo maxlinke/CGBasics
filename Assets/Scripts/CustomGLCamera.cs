@@ -78,7 +78,6 @@ public class CustomGLCamera : MonoBehaviour {
 
     [System.NonSerialized] public bool drawSeeThrough;
     [System.NonSerialized] public bool drawObjectAsWireFrame;
-    // [System.NonSerialized] public bool canDrawCamera;
     [System.NonSerialized] public bool drawCamera;
     [System.NonSerialized] public bool drawClipSpace;
     [System.NonSerialized] public bool showClipping;
@@ -98,7 +97,6 @@ public class CustomGLCamera : MonoBehaviour {
     float startFarClipPlane;
     float startFieldOfView;
     float startOrthoSize;
-    // float startAspect;       // use ResetAspect instead
     Vector3 startPosition;
     Quaternion startRotation;
 
@@ -195,6 +193,13 @@ public class CustomGLCamera : MonoBehaviour {
     void OnDisable () {
         ResetToDefault();
         ColorScheme.onChange -= LoadColors;
+    }
+
+    void OnDestroy () {
+        DestroyImmediate(objectMat);
+        DestroyImmediate(ObjectRenderMaterial);
+        DestroyImmediate(lineMaterialSeeThrough);
+        DestroyImmediate(lineMaterialSolid);
     }
 
     public void ResetToDefault () {

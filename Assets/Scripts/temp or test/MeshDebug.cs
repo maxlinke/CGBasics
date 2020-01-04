@@ -6,21 +6,28 @@ public class MeshDebug : MonoBehaviour {
     [SerializeField] Mesh initDebugMesh;
     [SerializeField] Shader testShader;
 
+    Mesh initMeshClone;
 
     IEnumerator Start () {
         yield return null;
         if(initDebugMesh != null){
-            var clone = initDebugMesh.CreateClone(false, true);
+            initMeshClone = initDebugMesh.CreateClone(false, true);
             var mat = new Material(testShader);
             mat.hideFlags = HideFlags.HideAndDontSave;
             var mf = gameObject.AddComponent<MeshFilter>();
-            mf.sharedMesh = clone;
+            mf.sharedMesh = initMeshClone;
             var mr = gameObject.AddComponent<MeshRenderer>();
             mr.material = mat;
             var cam = new GameObject("GL Cam", typeof(InternalGLCam)).GetComponent<InternalGLCam>();
             cam.matchCam = Camera.main;
             cam.targetMF = mf;
             cam.drawMat = mat;
+        }
+    }
+
+    void OnDestroy () {
+        if(initMeshClone != null){
+            DestroyImmediate(initMeshClone);
         }
     }
 

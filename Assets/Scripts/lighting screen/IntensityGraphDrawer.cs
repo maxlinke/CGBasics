@@ -144,6 +144,9 @@ namespace LightingModels {
             if(targetCam != null && targetCam.gameObject != null){
                 Destroy(targetCam.gameObject);
             }
+            if(blitMat != null){
+                DestroyImmediate(blitMat);
+            }
         }
 
         void LateUpdate () {

@@ -38,6 +38,10 @@ public class CustomCamera : MonoBehaviour {
         }
     }
 
+    void OnDestroy () {
+        DestroyImmediate(lineMaterial);
+    }
+
     void OnPostRender () {
         if(lineMaterial == null){
             // from https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnPostRender.html

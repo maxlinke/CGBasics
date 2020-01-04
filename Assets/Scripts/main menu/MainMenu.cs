@@ -153,6 +153,10 @@ public class MainMenu : MonoBehaviour {
         }
     }
 
+    void OnDestroy () {
+        DestroyImmediate(backgroundMeshMat);
+    }
+
     void LoadColors (ColorScheme cs) {
         if(!initialized){
             return;

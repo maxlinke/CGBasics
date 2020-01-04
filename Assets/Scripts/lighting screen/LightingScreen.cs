@@ -364,6 +364,21 @@ public class LightingScreen : CloseableScreen {
         ColorScheme.onChange -= LoadColors;
     }
 
+    void OnDestroy () {
+        DestroyMaterialsClearAndSetNull(ref diffuseMatMap);
+        DestroyMaterialsClearAndSetNull(ref specularMatMap);
+        DestroyImmediate(nullDiffuseMat);
+        DestroyImmediate(nullSpecularMat);
+
+        void DestroyMaterialsClearAndSetNull(ref Dictionary<LightingModel, Material> matMap){
+            foreach(var key in matMap.Keys){
+                DestroyImmediate(matMap[key]);
+            }
+            matMap.Clear();
+            matMap = null;
+        }
+    }
+
     void LoadColors (ColorScheme cs) {
         if(!initialized){
             return;

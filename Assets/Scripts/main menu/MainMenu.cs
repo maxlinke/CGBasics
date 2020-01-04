@@ -63,6 +63,7 @@ public class MainMenu : MonoBehaviour {
         lightingButton.onClick.AddListener(() => {OpenScreen(lightingScreenPrefab);});
         SetupBackground();
         windowOverlay.Initialize(this);
+        InputSystem.Subscribe(this, new InputSystem.KeyEvent(KeyCode.Escape, windowOverlay.CloseRequested));
         this.initialized = true;
         LoadColors(ColorScheme.current);
 

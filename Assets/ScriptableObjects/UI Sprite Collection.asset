@@ -50,6 +50,12 @@ MonoBehaviour:
     type: 3}
   mCamCtrlShowCulling: {fileID: 21300000, guid: 1ff0354b05ecd6c43b842abc803147b0,
     type: 3}
+  mCamCtrlBackfaceCullingOff: {fileID: 21300000, guid: 48a0dbcb36e450e448ba9de917df252c,
+    type: 3}
+  mCamCtrlBackfaceCullingOn: {fileID: 21300000, guid: 46e2d17db96bb2142bda2645af497f85,
+    type: 3}
+  mCamCtrlBackfaceHighlight: {fileID: 21300000, guid: 9e7b6976fdf1b0f41a18b18356493296,
+    type: 3}
   lsRenderAmbientLight: {fileID: 21300000, guid: 35af0c75a1e4a9740a17df834a9b9e24,
     type: 3}
   lsConcentricCircles: {fileID: 21300000, guid: c64d9adb9d7049f4fbf51ca897829ba6,

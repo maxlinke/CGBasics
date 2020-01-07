@@ -25,6 +25,7 @@ public class CustomGLCamera : MonoBehaviour {
     [SerializeField] Material objectMatTemplateWebGL;
 
     Material objectMat;
+    BackfaceCullingMode currentCullingMode;
 
     public Material ObjectRenderMaterial { get; private set; }
     public bool IsExternalCamera => isExternalCamera;
@@ -102,6 +103,9 @@ public class CustomGLCamera : MonoBehaviour {
 
     const float seeThroughAlphaMultiplier = 0.333f;
     const float pointSize = 8f;
+
+    Color matFrontFaces;
+    Color matBackFaces;
 
     Color wireGridColor;
     Color wireObjectColor;
@@ -238,18 +242,50 @@ public class CustomGLCamera : MonoBehaviour {
         vectorColor = cs.VertRenderVectorPoint;
         vectorOutlineColor = cs.VertRenderVectorPointOutline;
 
-        DoForBothMaterials((m) => {m.SetColor("_FrontColor", cs.VertRenderObjectColor);});
-        DoForBothMaterials((m) => {m.SetColor("_BackColor", cs.VertRenderObjectBackfaceColor);});
+        matFrontFaces = cs.VertRenderObjectColor;
+        matBackFaces = cs.VertRenderObjectBackfaceColor;
+        DoForBothMaterials((m) => {m.SetColor("_FrontColor", matFrontFaces);});
         DoForBothMaterials((m) => {m.SetColor("_LightColorFront", cs.VertRenderLight1);});
         DoForBothMaterials((m) => {m.SetColor("_LightColorBack", cs.VertRenderLight2);});
         DoForBothMaterials((m) => {m.SetColor("_LightColorAmbient", cs.VertRenderAmbientLight);});
         clipOverlayColor = cs.VertRenderClippingOverlay;
         DoForBothMaterials((m) => {m.SetColor("_ClippingOverlayColor", clipOverlayColor);});
-        DoForBothMaterials((m) => {m.SetKeywordEnabled(solidBackfaceKeyword, cs.VertRenderBackfacesSolid);});
-        DoForBothMaterials((m) => {m.SetKeywordEnabled(litBackfaceKeyword, cs.VertRenderBackfacesLit);});
         lineMaterialSolid.SetColor("_ClippingOverlayColor", clipOverlayColor);
         lineMaterialSeeThrough.SetColor("_ClippingOverlayColor", clipOverlayColor);
+        UpdateBackfaceCulling(currentCullingMode);
     }
+
+    public enum BackfaceCullingMode {
+        Off,
+        On,
+        Highlight
+    }
+
+    public void UpdateBackfaceCulling (BackfaceCullingMode inputMode) {
+        switch(inputMode){
+            case BackfaceCullingMode.Off:
+                DoForBothMaterials((m) => {m.SetColor("_BackColor", matFrontFaces);});
+                DoForBothMaterials((m) => {m.SetKeywordEnabled(solidBackfaceKeyword, true);});
+                DoForBothMaterials((m) => {m.SetKeywordEnabled(litBackfaceKeyword, true);});
+                DoForBothMaterials((m) => {m.SetInt("_Cull", (int)(UnityEngine.Rendering.CullMode.Off));});
+                break;
+            case BackfaceCullingMode.On: 
+                DoForBothMaterials((m) => {m.SetColor("_BackColor", matFrontFaces);});
+                DoForBothMaterials((m) => {m.SetKeywordEnabled(solidBackfaceKeyword, true);});
+                DoForBothMaterials((m) => {m.SetKeywordEnabled(litBackfaceKeyword, true);});
+                DoForBothMaterials((m) => {m.SetInt("_Cull", (int)(UnityEngine.Rendering.CullMode.Back));});
+                break;
+            case BackfaceCullingMode.Highlight:
+                DoForBothMaterials((m) => {m.SetColor("_BackColor", matBackFaces);});
+                DoForBothMaterials((m) => {m.SetKeywordEnabled(solidBackfaceKeyword, false);});
+                DoForBothMaterials((m) => {m.SetKeywordEnabled(litBackfaceKeyword, false);});
+                DoForBothMaterials((m) => {m.SetInt("_Cull", (int)(UnityEngine.Rendering.CullMode.Off));});
+                break;
+            default:
+                throw new System.ArgumentException($"Unknown {nameof(BackfaceCullingMode)} \"{inputMode}\"!");
+        }
+        this.currentCullingMode = inputMode;
+    } 
 
     void SetupPremadeUnityColoredMaterials () {
         lineMaterialSolid = GetLineMaterial(false);

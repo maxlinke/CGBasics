@@ -94,6 +94,9 @@ public class UISprites : ScriptableObject {
     [SerializeField] Sprite mCamCtrlDrawCamera;
     [SerializeField] Sprite mCamCtrlDrawClipBox;
     [SerializeField] Sprite mCamCtrlShowCulling;
+    [SerializeField] Sprite mCamCtrlBackfaceCullingOff;
+    [SerializeField] Sprite mCamCtrlBackfaceCullingOn;
+    [SerializeField] Sprite mCamCtrlBackfaceHighlight;
 
     public static Sprite MCamCtrlDrawFloor => instance.mCamCtrlDrawFloor;
     public static Sprite MCamCtrlDrawOrigin => instance.mCamCtrlDrawOrigin;
@@ -102,6 +105,9 @@ public class UISprites : ScriptableObject {
     public static Sprite MCamCtrlDrawCamera => instance.mCamCtrlDrawCamera;
     public static Sprite MCamCtrlDrawClipBox => instance.mCamCtrlDrawClipBox;
     public static Sprite MCamCtrlShowCulling => instance.mCamCtrlShowCulling;
+    public static Sprite MCamCtrlBackfaceCullingOff => instance.mCamCtrlBackfaceCullingOff;
+    public static Sprite MCamCtrlBackfaceCullingOn => instance.mCamCtrlBackfaceCullingOn;
+    public static Sprite MCamCtrlBackfaceHighlight => instance.mCamCtrlBackfaceHighlight;
 
     [Header("Lighting Screen")]
     [SerializeField] Sprite lsRenderAmbientLight;

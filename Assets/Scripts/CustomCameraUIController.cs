@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.EventSystems;
 using MatrixScreenUtils;
 
@@ -13,6 +14,9 @@ public class CustomCameraUIController : ClickDragScrollHandler {
     public const float orbitSensitivity = 0.8f;
     public const float orthoMoveSensitivity = 0.01f;
     public const float perspMoveSensitivity = 0.0025f;
+
+    static List<CullButtonSetup> cullButtonSetups;
+    static CullButtonSetup currentCullButtonSetup;
 
     [Header("Prefabs")]
     [SerializeField] CustomGLCamera targetCamPrefab;
@@ -62,6 +66,17 @@ public class CustomCameraUIController : ClickDragScrollHandler {
             Debug.LogError("Duplicate init call! Aborting...", this.gameObject);
             return;
         }
+        if(cullButtonSetups == null){
+            cullButtonSetups = new List<CullButtonSetup>();
+            var backfacesShown = new CullButtonSetup(CustomGLCamera.BackfaceCullingMode.Off, UISprites.MCamCtrlBackfaceCullingOff);
+            var backfacesCulled = new CullButtonSetup(CustomGLCamera.BackfaceCullingMode.On, UISprites.MCamCtrlBackfaceCullingOn);
+            var backfacesHighlighted = new CullButtonSetup(CustomGLCamera.BackfaceCullingMode.Highlight, UISprites.MCamCtrlBackfaceHighlight);
+            currentCullButtonSetup = backfacesShown;
+            cullButtonSetups.Add(backfacesShown);
+            cullButtonSetups.Add(backfacesCulled);
+            cullButtonSetups.Add(backfacesHighlighted);
+        }
+
         this.matrixScreen = matrixScreen;
         this.otherController = otherController;
         targetCam = Instantiate(targetCamPrefab);
@@ -81,7 +96,21 @@ public class CustomCameraUIController : ClickDragScrollHandler {
         targetCam.name += $" {nameSuffix}";
         windowOverlay.Initialize(this);
         initialized = true;
-        LoadColors(ColorScheme.current);    
+        LoadColors(ColorScheme.current);
+        CullButtonSetupUpdated(); 
+    }
+
+    public void CullButtonClicked () {
+        int currentIndex = cullButtonSetups.IndexOf(currentCullButtonSetup);
+        int newIndex = (currentIndex + 1) % cullButtonSetups.Count;
+        currentCullButtonSetup = cullButtonSetups[newIndex];
+        this.CullButtonSetupUpdated();
+        otherController.CullButtonSetupUpdated();
+    }
+
+    void CullButtonSetupUpdated () {
+        targetCam.UpdateBackfaceCulling(currentCullButtonSetup.camCullMode);
+        windowOverlay.cullButtonImage.sprite = currentCullButtonSetup.buttonSprite;
     }
 
     public void ResetCamera () {
@@ -103,6 +132,11 @@ public class CustomCameraUIController : ClickDragScrollHandler {
     void OnDestroy () {
         if(targetCam != null){   // because the unity editor sometimes destroys the camera before it destroy this thing...
             Destroy(targetCam.gameObject);
+        }
+        if(cullButtonSetups != null){
+            cullButtonSetups.Clear();
+            cullButtonSetups = null;
+            currentCullButtonSetup = null;
         }
     }
 
@@ -235,6 +269,17 @@ public class CustomCameraUIController : ClickDragScrollHandler {
             return;
         }
         Zoom(eventData.scrollDelta.y);
+    }
+
+    public class CullButtonSetup {
+
+        public readonly CustomGLCamera.BackfaceCullingMode camCullMode;
+        public readonly Sprite buttonSprite;
+
+        public CullButtonSetup (CustomGLCamera.BackfaceCullingMode camCullMode, Sprite sprite) {
+            this.camCullMode = camCullMode;
+            this.buttonSprite = sprite;
+        }
     }
 	
 }

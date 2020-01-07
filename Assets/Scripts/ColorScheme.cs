@@ -139,8 +139,6 @@ public class ColorScheme : ScriptableObject {
     [Header("Vert Render View Object")]
     [SerializeField] Color vertRenderObjectColor;
     [SerializeField] Color vertRenderObjectBackfaceColor;
-    [SerializeField] bool vertRenderBackfacesSolid;
-    [SerializeField] bool vertRenderBackfacesLit;
     [SerializeField] Color vertRenderLight1;
     [SerializeField] Color vertRenderLight2;
     [SerializeField] Color vertRenderAmbientLight;
@@ -148,8 +146,6 @@ public class ColorScheme : ScriptableObject {
 	
     public Color VertRenderObjectColor => vertRenderObjectColor;
     public Color VertRenderObjectBackfaceColor => vertRenderObjectBackfaceColor;
-    public bool VertRenderBackfacesSolid => vertRenderBackfacesSolid;
-    public bool VertRenderBackfacesLit => vertRenderBackfacesLit;
     public Color VertRenderLight1 => vertRenderLight1;
     public Color VertRenderLight2 => vertRenderLight2;
     public Color VertRenderAmbientLight => vertRenderAmbientLight;

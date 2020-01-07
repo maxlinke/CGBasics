@@ -11,9 +11,10 @@ namespace MatrixScreenUtils {
 
         private bool initialized = false;
         private CustomCameraUIController camController;
-        private Toggle wireToggle;
-
-        public Toggle WireToggle => wireToggle;
+        
+        public Toggle wireToggle { get; private set; }
+        public Button cullButton { get; private set; }
+        public Image cullButtonImage { get; private set; }
 
         public void Initialize (CustomCameraUIController camController) {
             this.camController = camController;
@@ -28,10 +29,8 @@ namespace MatrixScreenUtils {
                 var cam = camController.targetCam;
                 var extCtrl = camController.IsExternalCamController;
                 windowDresser.Begin(uiParent, new Vector2(1, 1), new Vector2(0, -1), Vector2.zero);
-                wireToggle = CreateSpecialToggle(UISprites.MCamCtrlDrawWireframe, "Wireframe", "Toggles wireframe drawing", (b) => {
-                    cam.drawObjectAsWireFrame = b;
-                    camController.otherController.overlay.WireToggled(b);
-                }, false, offsetAfter: true);
+                CreateWireToggle();
+                CreateCullButton();
                 CreateSpecialToggle(UISprites.MCamCtrlDrawFloor, "Grid", "Toggles drawing the grid floor", (b) => {cam.drawGridFloor = b;}, !extCtrl);
                 CreateSpecialToggle(UISprites.MCamCtrlDrawOrigin, "Origin", "Toggles drawing the origin", (b) => {cam.drawOrigin = b;}, extCtrl);
                 CreateSpecialToggle(UISprites.MCamCtrlDrawSeeThrough, "XRay", "Toggles see-through drawing for all wireframe gizmos", (b) => {cam.drawSeeThrough = b;}, false, offsetAfter: extCtrl);
@@ -41,6 +40,28 @@ namespace MatrixScreenUtils {
                     CreateSpecialToggle(UISprites.MCamCtrlShowCulling, "ShowClip", "Toggles culling visualization", (b) => {cam.showClipping = b;}, true);
                 }
                 windowDresser.End();
+
+                void CreateWireToggle () {
+                    wireToggle = CreateSpecialToggle(UISprites.MCamCtrlDrawWireframe, "Wireframe", "Toggles wireframe drawing", (b) => {
+                        cam.drawObjectAsWireFrame = b;
+                        camController.otherController.overlay.WireToggled(b);
+                    }, false, offsetAfter: false);
+                }
+
+                void CreateCullButton () {
+                    Sprite cullButtonInitSprite = UISprites.UITemp;
+                    cullButton = CreateSpecialButton(cullButtonInitSprite, "Culling", "Toggle backface culling modes (Off, On, Highlight)", camController.CullButtonClicked, offsetAfter: true);
+                    var imgs = cullButton.GetComponentsInChildren<Image>();
+                    foreach(var img in imgs){
+                        if(img.sprite == cullButtonInitSprite){
+                            cullButtonImage = img;
+                            break;
+                        }
+                    }
+                    if(cullButtonImage == null){
+                        Debug.LogError("Couldn't find the main image of the cull button!");
+                    }
+                }
             }
 
         }

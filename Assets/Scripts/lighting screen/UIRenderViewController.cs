@@ -139,7 +139,7 @@ namespace LightingModels {
 
         void OnCamPostRender () {
             bool pointerDown = currentPointerType != PointerType.None;
-            if(!initialized || (!pointerDown && !windowOverlay.gizmoToggle.isOn)){
+            if(!initialized || !windowOverlay.gizmoToggle.isOn){
                 return;
             }
             if(glMatSolid == null){

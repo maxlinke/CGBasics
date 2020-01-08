@@ -25,7 +25,7 @@ namespace LightingModels {
             gizmoToggle = CreateSpecialToggle(
                 icon: UISprites.MCamCtrlDrawFloor,
                 toggleName: "Wire Toggle",
-                hoverMessage: "Always draw floor and lights",
+                hoverMessage: "Draw grid floor and light gizmos",
                 onStateChange: null,
                 initialState: initialGizmoToggleState,
                 offsetAfter: false,

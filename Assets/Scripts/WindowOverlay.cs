@@ -88,6 +88,15 @@ public abstract class WindowOverlay : MonoBehaviour {
         ApplyLoadedColorsToTogglesAndButtons();
     }
 
+    public void UpdateColors (Button inputButton) {
+        if(!(inputButton == resetButton || (buttons.Contains(inputButton)))){
+            Debug.LogError("Asked to update colors on button but it's not registered here!");
+            return;
+        }
+        var i = buttons.IndexOf(inputButton);
+        SetColorsForActiveState(buttonBackgrounds[i], buttonIcons[i], buttons[i].interactable, buttons[i]);
+    }
+
     protected void ApplyLoadedColorsToTogglesAndButtons () {
         for(int i=0; i<toggles.Count; i++){
             SetColorsForActiveState(toggleBackgrounds[i], toggleIcons[i], toggles[i].isOn, toggles[i]);

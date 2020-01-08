@@ -125,6 +125,10 @@ namespace MatrixScreenUtils {
             }
         }
 
+        public void SetNeutralZoom () {
+            zoomRT.localScale = Vector3.one;
+        }
+
         public void ResetView () {
             if(panRT.childCount == 0){
                 zoomRT.localScale = Vector3.one;

@@ -9,6 +9,7 @@ namespace MatrixScreenUtils {
 
         private bool initialized = false;
 
+        public Button neutralZoomButton { get; private set; }
         public Toggle glToggle { get; private set; }
         public Toggle orthoToggle { get; private set; }
         public Toggle vectorToggle { get; private set; }
@@ -16,6 +17,13 @@ namespace MatrixScreenUtils {
         public void Initialize (MatrixScreen matrixScreen, bool glInit, System.Action<bool> onGLToggled, bool orthoInit, System.Action<bool> onOrthoToggled, bool vectorInit, System.Action<bool> onVectorToggled) {
             InitializeLists();
             windowDresser.Begin(uiParent, new Vector2(1, 1), new Vector2(0, -1), new Vector2(0, 0));
+            neutralZoomButton = CreateSpecialButton(
+                icon: UISprites.UIOneOne,
+                buttonName: "1:1 Scale",
+                hoverMessage: "Set the zoom level to 1",
+                onClick: matrixScreen.PanAndZoomController.SetNeutralZoom,
+                offsetAfter: true
+            );
             glToggle = CreateSpecialToggle(
                 icon: UISprites.MatrixScreenGL, 
                 toggleName: "OpenGLMode", 

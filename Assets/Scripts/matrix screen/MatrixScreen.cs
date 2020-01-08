@@ -92,6 +92,12 @@ public class MatrixScreen : CloseableScreen {
         UpdateLinearWeight();
         ApplyIndividualWeights();
         outputVector.VectorValue = GetWeightedCameraMatrixForRendering() * GetWeightedModelMatrixForRendering() * inputVector.VectorValue;
+        var neutralZoom = panAndZoomController.zoomLevel == 1f;
+        if(windowOverlay.neutralZoomButton.interactable != !neutralZoom){
+            windowOverlay.neutralZoomButton.interactable = !neutralZoom;
+            // windowOverlay.LoadColors(ColorScheme.current);
+            windowOverlay.UpdateColors(windowOverlay.neutralZoomButton);
+        }
 
         void UpdateLinearWeight () {
             float delta = currentWeightTarget - currentLinearWeight;

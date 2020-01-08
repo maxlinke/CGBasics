@@ -19,6 +19,11 @@ namespace LightingModels {
         [SerializeField] TextMeshProUGUI headerDropShadow;
         [SerializeField] TextMeshProUGUI bottomText;
         [SerializeField] Image bottomImage;
+        [SerializeField] Toggle topToggle;
+        [SerializeField] RectTransform topToggleRT;
+        [SerializeField] TextMeshProUGUI topToggleLabel;
+        [SerializeField] Graphic topToggleBackground;
+        [SerializeField] Graphic topToggleCheckmark;
 
         [Header("Settings")]
         [SerializeField] float buttonSize;
@@ -85,6 +90,10 @@ namespace LightingModels {
                     hsi.color = cs.LightingScreenButtonIcon;
                 }
             }
+            topToggle.SetFadeTransition(0f, cs.LightingScreenButton, cs.LightingScreenButtonHover, cs.LightingScreenButtonClick, Color.magenta);
+            topToggleBackground.color = Color.white;
+            topToggleCheckmark.color = cs.LightingScreenButtonIcon;
+            topToggleLabel.color = bottomText.color;
             foreach(var propField in propFields){
                 propField.LoadColors(cs);
             }
@@ -104,6 +113,7 @@ namespace LightingModels {
             headerDropShadow.rectTransform.anchoredPosition += new Vector2(1, -1);
             bottomImage.SetGOActive(false);
             bottomText.SetGOActive(false);
+            topToggle.SetGOActive(false);
             bottomImage.sprite = null;
             bottomText.text = string.Empty;
             this.m_forceHideBottomImage = false;
@@ -145,6 +155,13 @@ namespace LightingModels {
                 Debug.LogWarning($"{nameof(UIPropertyGroup)} \"{gameObject.name}\" is not active in hierarchy! Heights of TMPs might be off!", this.gameObject);
             }
             float y = 0;
+            if(topToggle.GOActiveSelf()){
+                topToggleRT.SetAnchoredPositionY(y);
+                topToggleLabel.ForceMeshUpdate();
+                topToggleLabel.rectTransform.SetSizeDeltaX(topToggleLabel.preferredWidth + 2f);
+                topToggleRT.SetSizeDeltaX(Mathf.Abs(topToggleLabel.rectTransform.anchoredPosition.x) + topToggleLabel.rectTransform.rect.width);
+                y -= topToggleRT.rect.height;
+            }
             foreach(var field in propFields){
                 if(field.gameObject.activeSelf){
                     field.rectTransform.SetAnchoredPositionY(y);
@@ -153,7 +170,7 @@ namespace LightingModels {
             }
             var textActive = bottomText.gameObject.activeSelf;
             var imgActive = bottomImage.gameObject.activeSelf;
-            if(textActive || imgActive){
+            if((textActive || imgActive) && propFields.Count > 0){
                 y -= spaceBetweenPropsAndBottomThings;
             }
             if(textActive){
@@ -274,6 +291,18 @@ namespace LightingModels {
             void UpdateToggleIconColor (Toggle inputToggle, Image inputImage) {
                 inputImage.color = inputToggle.isOn ? toggleOnColor : toggleOffColor;
             }
+        }
+
+        public Toggle ActivateContentAreaToggle (string label, System.Action<bool> onStateChanged) {
+            if(topToggle.GOActiveSelf()){
+                Debug.LogError("Duplicate top toggle activation is not supported!");
+                return null;
+            }
+            topToggle.SetGOActive(true);
+            topToggleLabel.text = label;
+            topToggle.onValueChanged.RemoveAllListeners();
+            topToggle.onValueChanged.AddListener((b) => {onStateChanged?.Invoke(b);});
+            return topToggle;
         }
 
         public UIPropertyField AddFloatProperty (ShaderProperty prop, System.Action<float> onValueChanged, System.Func<float, string> formatString, float scrollMultiplier = 1f) {

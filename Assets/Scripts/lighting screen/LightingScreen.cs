@@ -29,7 +29,6 @@ public class LightingScreen : CloseableScreen {
     [SerializeField] float additionalSpaceAtTheBottom;
     [SerializeField] float groupLabelPrefixSize;
     [SerializeField] float groupLabelSuffixSize;
-    [SerializeField] bool applyModelPresetColors;
     [SerializeField] float scrollYForHidingPropWindowHeader;
     [SerializeField] bool lightingModelInfoStartsExpanded;
 
@@ -55,6 +54,7 @@ public class LightingScreen : CloseableScreen {
 
     LightingModel currentDiffuseModel;
     LightingModel currentSpecularModel;
+    LoadedModel current3DModel;
 
     Material nullDiffuseMat;
     Material nullSpecularMat;
@@ -66,6 +66,7 @@ public class LightingScreen : CloseableScreen {
     UIPropertyGroup diffusePropertyGroup;
     UIPropertyGroup specularPropertyGroup;
     List<UIPropertyGroup> allPropertyGroups;
+    Toggle modelGroupColorToggle;
     ColorPropertyField diffuseColorPropertyField;
     ColorPropertyField specularColorPropertyField;
     Toggle diffuseInfoToggle;
@@ -257,6 +258,7 @@ public class LightingScreen : CloseableScreen {
                     );
                 }, hoverMessage: "Select a model"
             );
+            modelGroupColorToggle = modelPropertyGroup.ActivateContentAreaToggle("Load Model Colors", (b) => {if(b){LoadModel(current3DModel);}});
             modelPropertyGroup.RebuildContent();
         }
 
@@ -541,7 +543,7 @@ public class LightingScreen : CloseableScreen {
         if(newModel == null){
             return;
         }
-        if(applyModelPresetColors){
+        if(modelGroupColorToggle.isOn){
             diffuseColorPropertyField.UpdateColor(newModel.color);
             specularColorPropertyField.UpdateColor(newModel.specularColor);
         }
@@ -549,6 +551,7 @@ public class LightingScreen : CloseableScreen {
         modelPropertyGroup.SetBottomTextShown(true);
         modelPropertyGroup.UpdateBottomText(newModel.description);
         renderViewController.LoadMesh(newModel.mesh);
+        current3DModel = newModel;
         RebuildContent();
     }
 

@@ -6,7 +6,7 @@ namespace MatrixScreenUtils {
     public class CamControllerWindowOverlay : WindowOverlay {
 
         const string renderCamLabelText = "Render View";
-        const string externalCamLabelText = "External View";
+        const string externalCamLabelText = "Clip Space Visualization";
         const string renderCamLockedSuffix = "(Locked, use the matrices or deactivate free mode)";
 
         private bool initialized = false;

@@ -5,10 +5,6 @@ using MatrixScreenUtils;
 
 public class CustomCameraUIController : ClickDragScrollHandler {
 
-    const string renderCamLabelText = "Render View";
-    const string externalCamLabelText = "External View";
-    const string renderCamLockedSuffix = "(Locked, use the matrices or deactivate free mode)";
-
     public const float scrollSensitivity = 0.2f;
     public const float smoothScrollSensitivity = 0.2f;
     public const float orbitSensitivity = 0.8f;

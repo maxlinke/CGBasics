@@ -44,28 +44,35 @@ namespace MatrixScreenUtils {
             }
             KeepEverythingKindaOnscreen();
 
-            void KeepEverythingKindaOnscreen () {       // TODO depth
-                float minX = Mathf.Infinity;
-                float minY = Mathf.Infinity;
-                float maxX = Mathf.NegativeInfinity;
-                float maxY = Mathf.NegativeInfinity;
-                for(int i=0; i<panRT.childCount; i++){
-                    var c = (RectTransform)(panRT.GetChild(i));
-                    var cr = c.rect;
-                    minX = Mathf.Min(minX, cr.position.x);
-                    minY = Mathf.Min(minY, cr.position.y);
-                    maxX = Mathf.Max(maxX, cr.position.x + cr.width);
-                    maxY = Mathf.Max(maxY, cr.position.y + cr.height);
-                }
-                minX -= maxHorizontalOverpan;
-                maxX += maxHorizontalOverpan;
-                minY -= maxVerticalOverpan;
-                maxY += maxVerticalOverpan;
+            void KeepEverythingKindaOnscreen () {
+                GetContentDimensions(out var min, out var max);
+                min.x -= maxHorizontalOverpan;
+                max.x += maxHorizontalOverpan;
+                min.y -= maxVerticalOverpan;
+                max.y += maxVerticalOverpan;
                 panRT.anchoredPosition = new Vector2(
-                    -Mathf.Clamp(-panRT.anchoredPosition.x, minX, maxX),        // i know. it's weird...
-                    Mathf.Clamp(panRT.anchoredPosition.y, minY, maxY)
+                    -Mathf.Clamp(-panRT.anchoredPosition.x, min.x, max.x),        // i know. it's weird...
+                    Mathf.Clamp(panRT.anchoredPosition.y, min.y, max.y)
                 );                
             }
+        }
+
+        // doesn't really work but it works well enough...
+        void GetContentDimensions (out Vector2 min, out Vector2 max) {
+            float minX = Mathf.Infinity;
+            float minY = Mathf.Infinity;
+            float maxX = Mathf.NegativeInfinity;
+            float maxY = Mathf.NegativeInfinity;
+            for(int i=0; i<panRT.childCount; i++){
+                var c = (RectTransform)(panRT.GetChild(i));
+                var cr = c.rect;
+                minX = Mathf.Min(minX, cr.position.x);
+                minY = Mathf.Min(minY, cr.position.y);
+                maxX = Mathf.Max(maxX, cr.position.x + cr.width);
+                maxY = Mathf.Max(maxY, cr.position.y + cr.height);
+            }
+            min = new Vector2(minX, minY);
+            max = new Vector2(maxX, maxY);
         }
 
         protected override void PointerDown (PointerEventData ped) {
@@ -119,8 +126,14 @@ namespace MatrixScreenUtils {
         }
 
         public void ResetView () {
-            zoomRT.localScale = Vector3.one;
-            panRT.anchoredPosition = Vector2.zero;
+            if(panRT.childCount == 0){
+                zoomRT.localScale = Vector3.one;
+                panRT.anchoredPosition = Vector2.zero;
+            }else{
+                GetContentDimensions(out var min, out var max);
+                zoomRT.localScale = Vector3.one * Mathf.Clamp(Screen.width / (1.167f * Mathf.Abs(min.x - max.x)), minZoom, maxZoom);    // HACK magic numbers yey...
+                panRT.anchoredPosition = new Vector2((min.x + max.x) / 2f, 0);
+            }
         }
     
     }

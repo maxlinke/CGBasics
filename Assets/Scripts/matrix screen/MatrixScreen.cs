@@ -182,6 +182,7 @@ public class MatrixScreen : CloseableScreen {
         camGroup.onContentRebuilt += UpdatePreviewPosition;
         camGroup.onContentRebuilt += UpdateVectorPositions;
         ActivateNonFreeMode();
+        panAndZoomController.ResetView();
         initialized = true;
 
         UIMatrixGroup CreateMatrixGroup (bool leftSide) {

@@ -7,6 +7,8 @@ public class MainMenuWindowOverlay : WindowOverlay {
     const string githubPage = "https://github.com/maxlinke";
     const KeyCode closeConfirm = KeyCode.Y;
     const KeyCode closeAbort = KeyCode.N;
+    const int minResWidth = 640;
+    const int minResHeight = 480;
     
     bool abortIsFirstOption = true;
 
@@ -37,13 +39,30 @@ public class MainMenuWindowOverlay : WindowOverlay {
                     buttonClickAction: () => {Screen.fullScreen = fullScreenButtonSetValue;},
                     buttonInteractable: true
                 ));
+                var resMap = new Dictionary<(int w, int h), Resolution>();
                 foreach(var res in Screen.resolutions){
+                    if(res.width < minResWidth || res.height < minResHeight){
+                        continue;
+                    }
+                    (int w, int h) id = (res.width, res.height);
+                    if(!resMap.ContainsKey(id)){
+                        resMap.Add(id, res);
+                    }else{
+                        var mapRes = resMap[id];
+                        if(res.refreshRate > mapRes.refreshRate){
+                            resMap[id] = res;
+                        }
+                    }
+                }
+                foreach(var key in resMap.Keys){
+                    var res = resMap[key];
                     string sizeString = $"{res.width}x{res.height}";
-                    string refreshString = $"{res.refreshRate}Hz";
+                    // string refreshString = $"{res.refreshRate}Hz";
                     var resCopy = res;
                     setups.Add(new Foldout.ButtonSetup(
                         // buttonName: $"{sizeString} <size=67%>{refreshString}</size>",
-                        buttonName: $"{sizeString} ({refreshString})",
+                        // buttonName: $"{sizeString} ({refreshString})",
+                        buttonName: sizeString,
                         buttonHoverMessage: $"Update the resolution to {sizeString} pixels",
                         buttonClickAction: () => {
                             Screen.SetResolution(resCopy.width, resCopy.height, Screen.fullScreen, resCopy.refreshRate);

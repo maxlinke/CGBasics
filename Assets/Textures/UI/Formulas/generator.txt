@@ -5,7 +5,7 @@ lambert:
 k_{diff} = max(0, \vec{n} \cdot \vec{l})
 
 wrap: 
-k_{diff} = ((\vec{n} \cdot \vec{l})+1)/2
+k_{diff} = ((\vec{n} \cdot \vec{l}) \cdot 0.5 + 0.5)^{2}
 
 minnaert: 
 k_{diff} = max(0, (\vec{n} \cdot \vec{l})(\vec{n} \cdot \vec{v}))^{k}

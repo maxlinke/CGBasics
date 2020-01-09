@@ -10,12 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5859b189b0df5e142b058c77dc346f41, type: 3}
-  m_Name: Diffuse Wrap
+  m_Name: Half Lambert
   m_EditorClassIdentifier: 
   m_type: 0
   m_shader: {fileID: 4800000, guid: 8fcedad3203aab34c859169a20dd9722, type: 3}
-  m_description: Non-physically-based lighting model. Found in older video games,
-    such as the original Half-Life.
+  m_description: Non-physically-based lighting model. The lambert term is wrapped
+    around the object, so that the side facing away from the light doesn't look as
+    flat. It was developed for the original Half-Life and was still used in Source
+    on the faces of characters, as it somewhat simulates subsurface scattering.
   m_equation: {fileID: 21300000, guid: ba019bb0b5e889849b24f72ee160be28, type: 3}
   m_usedProperties:
   - {fileID: 11400000, guid: bdf75838d46d37d4d83a536bd970cb0e, type: 2}

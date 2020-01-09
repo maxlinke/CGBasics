@@ -145,7 +145,7 @@ half Diffuse_Lambert (lm_input input) {
 }
 
 half Diffuse_Wrap (lm_input input) {
-    return saturate((input.nDotL + 1.0) / 2.0);
+    return pow(input.nDotL * 0.5 + 0.5, 2.0);
 }
 
 // half3 Diffuse_Oren_Nayar (lm_input input) {

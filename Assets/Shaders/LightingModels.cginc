@@ -248,6 +248,13 @@ half Specular_Ward_Aniso (lm_input input) {
     return Ward (input, sqrt(roughX * roughY), expAB);
 }
 
+half Specular_Schlick (lm_input input) {
+    half3 r = reflect(input.lightDir, input.normal);
+    half3 e = -input.viewDir;
+    half rDotE = dot(r, e);
+    return _SpecularIntensity * rDotE / (_SpecularHardness - ((_SpecularHardness - 1) * rDotE));
+}
+
 // ----------------------------------------------------------------
 // fragment shaders using the lighting models
 // ----------------------------------------------------------------
@@ -320,6 +327,14 @@ fixed4 lm_frag_ward_aniso (lm_v2f i) : SV_TARGET {
     fixed4 col = _SpecularColor;
     lm_input li = GetLMInput(i);
     fixed3 spec = _LightColor0.rgb * Specular_Ward_Aniso(li);
+    col.rgb *= spec;
+    return col;
+}
+
+fixed4 lm_frag_schlick (lm_v2f i) : SV_TARGET {
+    fixed4 col = _SpecularColor;
+    lm_input li = GetLMInput(i);
+    fixed3 spec = _LightColor0.rgb * Specular_Schlick(li);
     col.rgb *= spec;
     return col;
 }

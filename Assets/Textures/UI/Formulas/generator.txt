@@ -32,6 +32,13 @@ blinn-phong:
 k_{spec}= max(0, \zeta (\vec{n}\cdot\vec{h})^{\psi})
 \vec{h} = \frac{\vec{l}+\vec{v}}{\vbar\vbar\vec{l}+\vec{v}\vbar\vbar}
 
+schlick:
+k_{spec}= \zeta \cdot \frac{(\vec{r} \cdot \vec{e})} {\psi - (\psi - 1) \cdot (\vec{r} \cdot \vec{e})}
+\vec{r} = \vec{l} - 2 \vec{n} (\vec{n}\cdot\vec{l})
+\vec{e} = -\vec{v}
+\zeta = Specular intensity
+\psi = Specular hardness
+
 cook-torr:
 k_{spec}= \frac{DFG}{\pi(\vec{n}\cdot\vec{v})(\vec{n}\cdot\vec{l})}
 m = \sqrt{\frac{2}{\psi+2}}

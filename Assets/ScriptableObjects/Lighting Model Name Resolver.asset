@@ -31,3 +31,5 @@ MonoBehaviour:
     m_propName: _SpecWardAniso
   - m_lm: {fileID: 11400000, guid: 240a88a9367acb843b002ecb4ba7339d, type: 2}
     m_propName: _SpecWardIso
+  - m_lm: {fileID: 11400000, guid: 3405235db1cd6ee40af6d9bb83d3b268, type: 2}
+    m_propName: _SpecSchlick

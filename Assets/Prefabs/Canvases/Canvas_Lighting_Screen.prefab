@@ -758,6 +758,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: a24b7c067182356449ae153744b4b5a0, type: 2}
   - {fileID: 11400000, guid: 77853b1b8ad6a6145a0a13855874df34, type: 2}
   - {fileID: 11400000, guid: 240a88a9367acb843b002ecb4ba7339d, type: 2}
+  - {fileID: 11400000, guid: 3405235db1cd6ee40af6d9bb83d3b268, type: 2}
   lightingSetups:
   - {fileID: 11400000, guid: 50a7abb293f72854b8ac5ba0bd3fd085, type: 2}
   - {fileID: 11400000, guid: f0f68b3435eceae47bd9c685a2331a01, type: 2}

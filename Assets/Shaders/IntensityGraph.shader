@@ -24,6 +24,7 @@
         _SpecPhong ("_SpecPhong", Range(0, 1)) = 0
         _SpecWardAniso ("_SpecWardAniso", Range(0, 1)) = 0
         _SpecWardIso ("_SpecWardIso", Range(0, 1)) = 0
+        _SpecSchlick ("_SpecSchlick", Range(0, 1)) = 0
         // planar mode
         _PlanarMode ("Planar Mode", Range(0, 1)) = 1
     }
@@ -73,6 +74,7 @@
             float _SpecPhong;
             float _SpecWardAniso;
             float _SpecWardIso;
+            float _SpecSchlick;
 
             float _PlanarMode;
 
@@ -168,6 +170,9 @@
                 }
                 if(_SpecWardIso > 0.5){
                     evalCol += _LightCol * Specular_Ward_Iso(li) * _SpecularColor;
+                }
+                if(_SpecSchlick > 0.5){
+                    evalCol += _LightCol * Specular_Schlick(li) * _SpecularColor;
                 }
 
                 float evalLum = 0.299 * evalCol.x + 0.587 * evalCol.y + 0.114 * evalCol.z;

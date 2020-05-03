@@ -83,7 +83,7 @@ Material:
     - _SmoothnessTextureChannel: 0
     - _SpecularAnisoX: 0.106
     - _SpecularAnisoY: 0.474
-    - _SpecularHardness: 95.1
+    - _SpecularHardness: 21.7
     - _SpecularHardnessX: 128
     - _SpecularHardnessY: 128
     - _SpecularHighlights: 1

@@ -13,6 +13,9 @@ public static partial class StringExpressions {
             functions = new Dictionary<string, Function>();
             AddFunc(new Function0("pi", "Shorthand for 3.1415...", () => Mathf.PI));
             AddFunc(new Function0("e", "Euler's number 2.71828...", () => (float)(System.Math.E)));
+            #if !UNITY_WEBGL
+            AddFunc(new Function0("time", "Time since application start", () => Time.time, true));
+            #endif
             AddFunc(new Function1("sin", $"The sine of angle {IndexToVariableName(0)} in radians", Mathf.Sin));
             AddFunc(new Function1("cos", $"The cosine of angle {IndexToVariableName(0)} in radians", Mathf.Cos));
             AddFunc(new Function1("tan", $"The tangent of angle {IndexToVariableName(0)} in radians", Mathf.Tan));
@@ -72,12 +75,14 @@ public static partial class StringExpressions {
             public readonly string exampleCall;
             public readonly int paramNumber;
             public abstract float Execute (float[] inputParameters);
+            public readonly bool requiresAutoUpdate;
 
-            protected Function (string name, string desc, int paramNumber) {
+            protected Function (string name, string desc, int paramNumber, bool requiresAutoUpdate) {
                 this.functionName = name;
                 this.description = desc;
                 this.paramNumber = paramNumber;
                 this.exampleCall = GenerateExampleCall(paramNumber);
+                this.requiresAutoUpdate = requiresAutoUpdate;
             }
 
             protected string GenerateExampleCall (int paramNumber){
@@ -103,7 +108,7 @@ public static partial class StringExpressions {
 
             private System.Func<float> realFunction;
 
-            public Function0 (string name, string desc, System.Func<float> realFunction) : base(name, desc, 0) {
+            public Function0 (string name, string desc, System.Func<float> realFunction, bool requiresAutoUpdate = false) : base(name, desc, 0, requiresAutoUpdate) {
                 this.realFunction = realFunction;
             }
 
@@ -117,7 +122,7 @@ public static partial class StringExpressions {
 
             private System.Func<float, float> realFunction;
 
-            public Function1 (string name, string desc, System.Func<float, float> realFunction) : base(name, desc, 1) {
+            public Function1 (string name, string desc, System.Func<float, float> realFunction, bool requiresAutoUpdate = false) : base(name, desc, 1, requiresAutoUpdate) {
                 this.realFunction = realFunction;
             }
 
@@ -131,7 +136,7 @@ public static partial class StringExpressions {
 
             private System.Func<float, float, float> realFunction;
 
-            public Function2 (string name, string desc, System.Func<float, float, float> realFunction) : base(name, desc, 2) {
+            public Function2 (string name, string desc, System.Func<float, float, float> realFunction, bool requiresAutoUpdate = false) : base(name, desc, 2, requiresAutoUpdate) {
                 this.realFunction = realFunction;
             }
 

@@ -32,15 +32,27 @@ namespace UIMatrices {
             }
             LoadColors(ColorScheme.current);
             ColorScheme.onChange += LoadColors;
+            if(currentCallingMatrix != null){
+                currentCallingMatrix.onMatrixUpdate += UpdateFieldTexts;
+            }
         }
 
         void OnDisable () {
             ColorScheme.onChange -= LoadColors;
+            if(currentCallingMatrix != null){
+                currentCallingMatrix.onMatrixUpdate -= UpdateFieldTexts;
+            }
         }
 
         void OnDestroy () {
             if(instance == this){
                 instance = null;
+            }
+        }
+
+        void LateUpdate () {
+            if(!initialized){
+                return;
             }
         }
 
@@ -68,7 +80,7 @@ namespace UIMatrices {
                 var field = actualFields[i];
                 var expression = currentCallingMatrix[i];
                 field.expression = expression;
-                field.UpdateResultText(currentCallingMatrix.FieldExpressionToColoredResult(expression, out _, out _));
+                field.UpdateResultText(currentCallingMatrix.tmpFieldText(i));
             }
         }
 
@@ -139,8 +151,8 @@ namespace UIMatrices {
         }
 
         void HideAndReset () {
-            currentCallingMatrix = null;
             gameObject.SetActive(false);
+            currentCallingMatrix = null;
             if(subscribedToInputSystem){
                 InputSystem.UnSubscribe(this);
                 subscribedToInputSystem = false;

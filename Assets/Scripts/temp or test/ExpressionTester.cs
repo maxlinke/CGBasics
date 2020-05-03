@@ -31,7 +31,7 @@ public class ExpressionTester : MonoBehaviour {
 
             var outputString = string.Empty;
             try{
-                outputString = StringExpressions.ParseExpression(input, vars).ToString();
+                outputString = StringExpressions.ParseExpression(input, vars, out _).ToString();
             }catch(System.Exception e){
                 outputString = e.ToString();
             }finally{
@@ -98,7 +98,7 @@ public class ExpressionTester : MonoBehaviour {
         for(int i=0; i<testNumber; i++){
             var generated = generateInput();
             try{
-                var parsed = StringExpressions.ParseExpression(generated, null);
+                var parsed = StringExpressions.ParseExpression(generated, null, out _);
                 if(float.IsNaN(parsed) && (NaNIsError || !InputMightCauseNaN(generated))){
                     errorList.Add(generated);
                 }

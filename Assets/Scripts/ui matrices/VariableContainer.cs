@@ -258,7 +258,7 @@ namespace UIMatrices {
             if(updateEverything){
                 parentMatrix.UpdateMatrixAndGridView();
             }else{
-                parentMatrix.SetMatrixNotUpToDate();
+                parentMatrix.MarkMatrixForRecalculation();
             }
         }
 

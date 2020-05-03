@@ -13,7 +13,7 @@ public static partial class StringExpressions {
     
     public static bool TryParseExpression (string inputExpression, out float number, Dictionary<string, float> variables = null) {
         try{
-            number = ParseExpression(inputExpression, variables);
+            number = ParseExpression(inputExpression, variables, out _);
             return !(float.IsNaN(number));
         }catch{
             number = float.NaN;
@@ -21,10 +21,9 @@ public static partial class StringExpressions {
         }
     }
 
-    public static float ParseExpression (string inputExpression, Dictionary<string, float> variables) {
+    public static float ParseExpression (string inputExpression, Dictionary<string, float> variables, out bool containsAutoUpdateFunctions) {
         PruneInputExpression();
-        var postfix = InfixToPostfix(inputExpression, variables);
-        // Debug.Log(GetPostfixAsString(postfix));
+        var postfix = InfixToPostfix(inputExpression, variables, out containsAutoUpdateFunctions);
         return EvaluatePostfix(postfix);
 
         void PruneInputExpression () {
@@ -38,11 +37,11 @@ public static partial class StringExpressions {
         }
     }
 
-    private static Queue<Token> InfixToPostfix (string inputExpression, Dictionary<string, float> variables) {
+    private static Queue<Token> InfixToPostfix (string inputExpression, Dictionary<string, float> variables, out bool containsAutoUpdateFunctions) {
         Stack<Token> tempStack = new Stack<Token>();
         Queue<Token> postfix = new Queue<Token>();
+        containsAutoUpdateFunctions = false;
         bool nextPlusOrMinusIsSignInsteadOfOperator = true;
-        // float tempSign = 1;
         while(inputExpression.Length > 0){
             char ch = inputExpression[0];
             if(IsOperatorChar(ch, true)){
@@ -55,7 +54,6 @@ public static partial class StringExpressions {
                     }
                     tempStack.Pop();
                 }else if((ch == '+' || ch == '-') && nextPlusOrMinusIsSignInsteadOfOperator){
-                    // tempSign *= (ch == '-' ? -1 : 1);
                     if(ch == '-'){
                         postfix.Enqueue(new NumberToken(-1));
                         inputExpression = inputExpression.Insert(1, "*");
@@ -77,9 +75,8 @@ public static partial class StringExpressions {
                 }
                 inputExpression = inputExpression.Substring(1);
             }else{
-                inputExpression = ParseAndRemoveOperand(inputExpression, out float parsedOperand, variables);
-                // parsedOperand *= tempSign;
-                // tempSign = 1;
+                inputExpression = ParseAndRemoveOperand(inputExpression, out float parsedOperand, variables, out var operandRequiresAutoUpdates);
+                containsAutoUpdateFunctions |= operandRequiresAutoUpdates;
                 nextPlusOrMinusIsSignInsteadOfOperator = false;
                 postfix.Enqueue(new NumberToken(parsedOperand));
             }
@@ -129,10 +126,11 @@ public static partial class StringExpressions {
         return ((NumberToken)(tempStack.Pop())).value;
     }
 
-    private static string ParseAndRemoveOperand (string inputString, out float operandValue, Dictionary<string, float> variables) {
+    private static string ParseAndRemoveOperand (string inputString, out float operandValue, Dictionary<string, float> variables, out bool containsAutoUpdateFunctions) {
         float sign = 1;
         int charCounter = 0;
         operandValue = float.NaN;
+        containsAutoUpdateFunctions = false;
         foreach(char ch in inputString){
             charCounter ++;
             if(ch == '-'){
@@ -144,7 +142,7 @@ public static partial class StringExpressions {
                     inputString = ParseAndRemoveNumber(inputString, out operandValue);
                     break;
                 }else if(IsIdentifierChar(ch)){
-                    inputString = ParseAndRemoveIdentifier(inputString, out operandValue, variables);
+                    inputString = ParseAndRemoveIdentifier(inputString, out operandValue, variables, out containsAutoUpdateFunctions);
                     break;
                 }else{
                     throw new System.ArgumentException($"Invalid operand char \"{ch}\"!");
@@ -219,7 +217,7 @@ public static partial class StringExpressions {
     }
 
     // variables and functions...
-    private static string ParseAndRemoveIdentifier (string inputString, out float outputNumber, Dictionary<string, float> variables) {
+    private static string ParseAndRemoveIdentifier (string inputString, out float outputNumber, Dictionary<string, float> variables, out bool containsAutoUpdateFunctions) {
         int charCounter = 0;
         foreach(var ch in inputString){
             charCounter++;
@@ -232,73 +230,34 @@ public static partial class StringExpressions {
                     var functionName = inputString.Substring(0, charCounter-1);
                     inputString = inputString.Remove(0, charCounter-1).Trim();                          // trim is new
                     inputString = RemoveAndGetFunctionParameters(inputString, out var parameters);
-                    outputNumber = ExecuteFunction(functionName, parameters, variables);
+                    outputNumber = ExecuteFunction(functionName, parameters, variables, out containsAutoUpdateFunctions);
                     return inputString;
                 }else{
                     var variableName = inputString.Substring(0, charCounter-1);
                     inputString = inputString.Remove(0, charCounter-1);
                     outputNumber = GetVariableValue(variableName, variables);
+                    containsAutoUpdateFunctions = false;
                     return inputString;
                 }
             }
         }
         outputNumber = GetVariableValue(inputString, variables);
+        containsAutoUpdateFunctions = false;
         return string.Empty;
     }
 
-    private static float ExecuteFunction (string functionName, string[] parameters, Dictionary<string, float> variables) {
+    private static float ExecuteFunction (string functionName, string[] parameters, Dictionary<string, float> variables, out bool containsAutoUpdateFunctions) {
         if(Functions.TryGetFunction(functionName, out var funcToExecute)){
             float[] floatParams = new float[parameters.Length];
+            bool paramsContainsAutoUpdates = false;
             for(int i=0; i<floatParams.Length; i++){
-                floatParams[i] = ParseExpression(parameters[i], variables);
+                floatParams[i] = ParseExpression(parameters[i], variables, out paramsContainsAutoUpdates);
             }
+            containsAutoUpdateFunctions = funcToExecute.requiresAutoUpdate || paramsContainsAutoUpdates;
             return funcToExecute.Execute(floatParams);
         }else{
+            containsAutoUpdateFunctions = false;
             throw new System.ArgumentException($"Unknown function call \"{functionName}\"...");
-        }
-    }
-
-    // keep around, in case the other version is wayy to laggy (doesn't seem like it at present tho)
-    private static float ExecuteFunctionLegacy (string functionName, string[] parameters, Dictionary<string, float> variables) {
-        switch(functionName){
-            case "pi":      return Exec0(() => Mathf.PI);
-            case "e":       return Exec0(() => (float)(System.Math.E));            // interesting that Mathf doesn't have that value...
-            case "sin":     return Exec1(Mathf.Sin);
-            case "cos":     return Exec1(Mathf.Cos);
-            case "tan":     return Exec1(Mathf.Tan);
-            case "asin":    return Exec1(Mathf.Asin);
-            case "acos":    return Exec1(Mathf.Acos);
-            case "atan":    return Exec1(Mathf.Atan);
-            case "atan2":   return Exec2(Mathf.Atan2);
-            case "sqrt":    return Exec1(Mathf.Sqrt);
-            case "pow":     return Exec2(Mathf.Pow);
-            case "exp":     return Exec1(Mathf.Exp);
-            default:        throw new System.ArgumentException($"Unknown function call \"{functionName}\"...");
-        }
-
-        void CheckParameterCount (int expectedParameterCount) {
-            if(parameters.Length != expectedParameterCount){
-                throw new System.ArgumentException($"Function \"{functionName}\" expected {expectedParameterCount} parameters but got {parameters.Length}!");
-            }
-        }
-
-        float Param (int index) {
-            return ParseExpression(parameters[index], variables);
-        }
-
-        float Exec0 (System.Func<float> function){
-            CheckParameterCount(0);
-            return function();
-        }
-
-        float Exec1 (System.Func<float, float> function) {
-            CheckParameterCount(1);
-            return function(Param(0));
-        }
-
-        float Exec2 (System.Func<float, float, float> function) {
-            CheckParameterCount(2);
-            return function(Param(0), Param(1));
         }
     }
 

@@ -41,16 +41,21 @@ public class UIMatrix : MonoBehaviour {
     [SerializeField] Sprite TEMPBUTTONMAINIMAGE;
 
     bool initialized = false;
+    bool autoUpdate = false;
+    int lastUpdateFrame = -1;
     string[] stringFieldValues = new string[16];
     TextMeshProUGUI[] fieldTextMeshes = new TextMeshProUGUI[16];
     Button[] fieldButtons = new Button[16];
     ImageFlasher[] fieldFlashers = new ImageFlasher[16];
 
+    public bool IsAutoUpdating => autoUpdate;
+    public event System.Action onMatrixUpdate = delegate {};
+
     [System.NonSerialized] public MatrixScreen matrixScreen;
     [System.NonSerialized] public UIMatrixGroup matrixGroup;
     
     Matrix4x4 calculatedMatrix;
-    bool calculatedMatrixUpToDate;
+    bool calculatedMatrixIsFromCurrentExpressions;
     bool calculatedMatrixIsDisplayedMatrix;
     bool m_addButtonBlocked;
     bool m_moveLeftBlocked;
@@ -97,7 +102,7 @@ public class UIMatrix : MonoBehaviour {
 
     public Matrix4x4 MatrixValue {
         get {
-            if(!calculatedMatrixUpToDate){
+            if(!calculatedMatrixIsFromCurrentExpressions || (autoUpdate && (lastUpdateFrame != Time.frameCount))){
                 UpdateMatrixAndGridView();
             }
             return calculatedMatrix;
@@ -173,6 +178,7 @@ public class UIMatrix : MonoBehaviour {
     }
 
     public string this[int i] => stringFieldValues[i];
+    public string tmpFieldText(int i) => fieldTextMeshes[i].text;
 
     public bool IsInvertible => (MatrixValue.determinant != 0 && calculatedMatrixIsDisplayedMatrix);
     public VariableContainer VariableContainer => variableContainer;        // spoken to by the camera i guess.
@@ -184,6 +190,15 @@ public class UIMatrix : MonoBehaviour {
     void Awake () {
         if(!initialized && shouldSelfInit){
             SelfInit();
+        }
+    }
+
+    void LateUpdate () {
+        if(!initialized){
+            return;
+        }
+        if(autoUpdate && lastUpdateFrame != Time.frameCount){
+            UpdateMatrixAndGridView();
         }
     }
 
@@ -389,9 +404,9 @@ public class UIMatrix : MonoBehaviour {
         }
     }
 
-    public string FieldExpressionToColoredResult (string inputExpression, out float parsedValue, out bool validValue) {
+    public string FieldExpressionToColoredResult (string inputExpression, out float parsedValue, out bool validValue, out bool fieldExpressionRequiresAutoUpdates) {
         try{
-            parsedValue = StringExpressions.ParseExpression(inputExpression, variableContainer.GetVariableMap());
+            parsedValue = StringExpressions.ParseExpression(inputExpression, variableContainer.GetVariableMap(), out fieldExpressionRequiresAutoUpdates);
             if(float.IsNaN(parsedValue)){
                 validValue = false;
                 return InvalidColors("NaN");
@@ -410,6 +425,7 @@ public class UIMatrix : MonoBehaviour {
         }catch(System.Exception){
             validValue = false;
             parsedValue = float.NaN;
+            fieldExpressionRequiresAutoUpdates = false;
             return InvalidColors("ERR");
         }
 
@@ -453,7 +469,7 @@ public class UIMatrix : MonoBehaviour {
 
     public void Transpose (bool changeName = true) {
         stringFieldValues = GetTransposedStringArray(stringFieldValues);
-        calculatedMatrixUpToDate = false;
+        calculatedMatrixIsFromCurrentExpressions = false;
         UpdateMatrixAndGridView();
         if(changeName){
             UpdateNameWithSuffixToggle("(Tranposed)");
@@ -499,7 +515,7 @@ public class UIMatrix : MonoBehaviour {
             Debug.LogError("Call for inversion was received even though matrix is not invertible! This should NOT happen!");
             return;
         }
-        if(!calculatedMatrixUpToDate){
+        if(!calculatedMatrixIsFromCurrentExpressions){
             Debug.LogError("This case should never happen, so this SHOULD be pointless. But since you're reading this, what went wrong?");
             UpdateMatrixAndGridView();
         }
@@ -594,9 +610,11 @@ public class UIMatrix : MonoBehaviour {
     public void UpdateMatrixAndGridView () {
         bool matrixValid = true;
         var newMatrix = Matrix4x4.identity;
+        bool autoUpdateRequired = false;
         for(int i=0; i<16; i++){
             var origText = fieldTextMeshes[i].text;
-            var newText = FieldExpressionToColoredResult(stringFieldValues[i], out float parsedValue, out bool validValue);
+            var newText = FieldExpressionToColoredResult(stringFieldValues[i], out float parsedValue, out bool validValue, out bool fieldExpressionRequiresAutoUpdates);
+            autoUpdateRequired |= fieldExpressionRequiresAutoUpdates;
             if(!validValue){
                 matrixValid = false;
             }else{
@@ -616,11 +634,14 @@ public class UIMatrix : MonoBehaviour {
             calculatedMatrixIsDisplayedMatrix = false;
             matrixInvertButton.interactable = false;
         }
-        calculatedMatrixUpToDate = true;
+        this.autoUpdate = autoUpdateRequired;
+        this.lastUpdateFrame = Time.frameCount;
+        this.calculatedMatrixIsFromCurrentExpressions = true;
+        onMatrixUpdate.Invoke();
     }
 
-    public void SetMatrixNotUpToDate () {
-        calculatedMatrixUpToDate = false;
+    public void MarkMatrixForRecalculation () {
+        calculatedMatrixIsFromCurrentExpressions = false;
     }
 
 }

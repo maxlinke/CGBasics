@@ -69,9 +69,11 @@ public class MainMenu : MonoBehaviour {
 
         void OpenScreen (CloseableScreen screenPrefab) {
             gameObject.SetActive(false);
+            BottomLog.ClearDisplay();
             var newScreen = Instantiate(screenPrefab);
             newScreen.SetupCloseAction(() => {
                 Destroy(newScreen.gameObject);
+                BottomLog.ClearDisplay();
                 gameObject.SetActive(true);
             });
         }

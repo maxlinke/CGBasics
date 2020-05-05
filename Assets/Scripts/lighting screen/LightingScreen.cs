@@ -487,6 +487,8 @@ public class LightingScreen : CloseableScreen {
         return Vector3.zero;
     }
 
+    public int LightCount => renderViewController.lightCount;
+
     string CreateGroupName (string prefix, string suffix) {
         return $"<size={groupLabelPrefixSize}%>{prefix}: <size={groupLabelSuffixSize}%>{suffix}";
     }

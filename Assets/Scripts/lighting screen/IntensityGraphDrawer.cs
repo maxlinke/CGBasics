@@ -200,6 +200,12 @@ namespace LightingModels {
                 }else if(!planarMode && !viewGizmo.GOActiveSelf()){
                     viewGizmo.gameObject.SetActive(true);
                 }
+                var shouldDrawLightGizmo = lightingScreen.LightCount > 0;
+                if(shouldDrawLightGizmo && !lightGizmo.GOActiveSelf()){
+                    lightGizmo.SetGOActive(true);
+                }else if(!shouldDrawLightGizmo && lightGizmo.GOActiveSelf()){
+                    lightGizmo.SetGOActive(false);
+                }
                 if(windowOverlay.gizmoToggle.isOn && !gizmoContainer.activeSelf){
                     gizmoContainer.SetActive(true);
                 }else if(!windowOverlay.gizmoToggle.isOn && gizmoContainer.activeSelf){

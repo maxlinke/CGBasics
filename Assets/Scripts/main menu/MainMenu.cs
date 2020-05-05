@@ -22,6 +22,16 @@ public class MainMenu : MonoBehaviour {
     [SerializeField] TextMeshProUGUI[] buttonLabels;
     [SerializeField] TextMeshProUGUI[] buttonLabelDropShadows;
 
+    [Header("Version Label")]
+    [SerializeField] RectTransform versionLabelRT;
+    [SerializeField] TextMeshProUGUI versionText;
+    [SerializeField] TextMeshProUGUI versionTextDropShadow;
+    [SerializeField] RectTransform updateButtonRT;
+    [SerializeField] Button updateButton;
+    [SerializeField] TextMeshProUGUI updateButtonText;
+    [SerializeField] TextMeshProUGUI updateButtonTextDropShadow;
+    [SerializeField] float spaceBetweenVersionLabelElements;
+
     [Header("Background Settings")]
     [SerializeField] int backgroundObjectLayer;
     [SerializeField] float backgroundCamFOV;
@@ -66,6 +76,7 @@ public class MainMenu : MonoBehaviour {
         InputSystem.Subscribe(this, new InputSystem.KeyEvent(KeyCode.Escape, windowOverlay.CloseRequested));
         this.initialized = true;
         LoadColors(ColorScheme.current);
+        VersionCheck();
 
         void OpenScreen (CloseableScreen screenPrefab) {
             gameObject.SetActive(false);
@@ -124,6 +135,77 @@ public class MainMenu : MonoBehaviour {
             backgroundObject.GetComponent<MeshFilter>().sharedMesh = backgroundMesh;
             backgroundObject.GetComponent<MeshRenderer>().sharedMaterial = backgroundMeshMat;
         }
+
+        void VersionCheck () {
+            string basicVersionText = $"Version {Application.version}";
+            UpdateVersionText(basicVersionText);
+            updateButton.SetGOActive(false);
+            ResizeVersionLabel();
+            VersionChecker.CheckVersion((result, gitVersion) => {
+                bool showUpdateButton = false;
+                switch(result){
+                    case VersionChecker.VersionCheckResult.WEB_ERROR:
+                        UpdateVersionText(basicVersionText + " (Unable to check for updates)");
+                        break;
+                    case VersionChecker.VersionCheckResult.UPDATE_AVAILABLE:
+                        showUpdateButton = true;
+                        UpdateButtonText($"(Update available)");
+                        break;
+                    case VersionChecker.VersionCheckResult.UP_TO_DATE:
+                        UpdateVersionText(basicVersionText + " (Up to date)");
+                        break;
+                    case VersionChecker.VersionCheckResult.YOU_ARE_THE_UPDATE:
+                        showUpdateButton = true;
+                        UpdateButtonText($"(You are ahead of the releases...)");
+                        break;
+                    case VersionChecker.VersionCheckResult.OTHER_ERROR:
+                        UpdateVersionText(basicVersionText + " (An error occured comparing this to the latest version)");
+                        break;
+                    default:
+                        Debug.LogError($"Unknown {typeof(VersionChecker.VersionCheckResult)} \"{result}\"!");
+                        break;
+                }
+                if(showUpdateButton){
+                    var releasesPage = "https://github.com/maxlinke/CGBasics/releases";
+                    updateButton.onClick.AddListener(() => {Application.OpenURL(releasesPage);});
+                    var updateButtonHover = updateButton.gameObject.AddComponent<UIHoverEventCaller>();
+                    updateButtonHover.SetActions(
+                        onHoverEnter: (ped) => {BottomLog.DisplayMessage(releasesPage);},
+                        onHoverExit: (ped) => {BottomLog.ClearDisplay();}
+                    );
+                    updateButton.SetGOActive(true);
+                    updateButtonText.ForceMeshUpdate();
+                    updateButtonRT.SetSizeDeltaX(updateButtonText.preferredWidth);
+                }
+                ResizeVersionLabel();
+            });
+
+            void ResizeVersionLabel () {
+                versionText.ForceMeshUpdate();
+                updateButtonText.ForceMeshUpdate();
+                float totalWidth = 0f;
+                if(versionText.GOActiveSelf()){
+                    totalWidth += versionText.preferredWidth;
+                }
+                if(updateButton.GOActiveSelf()){
+                    totalWidth += updateButtonRT.rect.width;
+                }
+                if(versionText.GOActiveSelf() && updateButton.GOActiveSelf()){
+                    totalWidth += spaceBetweenVersionLabelElements;
+                }
+                versionLabelRT.SetSizeDeltaX(totalWidth);
+            }
+
+            void UpdateVersionText (string newText) {
+                versionText.text = newText;
+                versionTextDropShadow.text = newText;
+            }
+
+            void UpdateButtonText (string newText) {
+                updateButtonText.text = newText;
+                updateButtonTextDropShadow.text = newText;
+            }
+        }
     }
 
     void Update () {
@@ -178,6 +260,11 @@ public class MainMenu : MonoBehaviour {
         foreach(var text in buttonLabelDropShadows){
             text.color = cs.MainMenuMainButtonsTextDropShadow;
         }
+        updateButton.SetFadeTransition(0f, cs.MainMenuDownloadButtonText, cs.MainMenuDownloadButtonTextHover, cs.MainMenuDownloadButtonTextClick, Color.magenta);
+        updateButtonText.color = Color.white;
+        updateButtonTextDropShadow.color = cs.WindowOverlayDropShadow;
+        versionText.color = cs.WindowOverlayLabel;
+        versionTextDropShadow.color = cs.WindowOverlayDropShadow;
         matrixButton.SetFadeTransition(0f, cs.MainMenuMainButtons, cs.MainMenuMainButtonsHover, cs.MainMenuMainButtonsClick, Color.magenta);
         lightingButton.SetFadeTransition(0f, cs.MainMenuMainButtons, cs.MainMenuMainButtonsHover, cs.MainMenuMainButtonsClick, Color.magenta);
         backgroundCam.backgroundColor = cs.ApplicationBackground;

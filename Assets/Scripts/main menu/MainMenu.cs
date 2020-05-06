@@ -141,30 +141,50 @@ public class MainMenu : MonoBehaviour {
             UpdateVersionText(basicVersionText);
             updateButton.SetGOActive(false);
             ResizeVersionLabel();
-            VersionChecker.CheckVersion((result, gitVersion) => {
+            if(!VersionChecker.CheckVersionValidity()){
+                Debug.LogError("The project version isn't a valid string. Fix it!");
+                return;
+            }
+            VersionChecker.LookForUpdates((result, gitVersion) => {
                 bool showUpdateButton = false;
                 switch(result){
-                    case VersionChecker.VersionCheckResult.WEB_ERROR:
+                    case VersionChecker.UpdateCheckResult.WEB_ERROR:
                         UpdateVersionText(basicVersionText + " (Unable to check for updates)");
                         break;
-                    case VersionChecker.VersionCheckResult.UPDATE_AVAILABLE:
+                    case VersionChecker.UpdateCheckResult.UPDATE_AVAILABLE:
                         showUpdateButton = true;
                         UpdateButtonText($"(Update available)");
                         break;
-                    case VersionChecker.VersionCheckResult.UP_TO_DATE:
+                    case VersionChecker.UpdateCheckResult.UP_TO_DATE:
                         UpdateVersionText(basicVersionText + " (Up to date)");
                         break;
-                    case VersionChecker.VersionCheckResult.YOU_ARE_THE_UPDATE:
+                    case VersionChecker.UpdateCheckResult.YOU_ARE_THE_UPDATE:
                         showUpdateButton = true;
                         UpdateButtonText($"(You are ahead of the releases...)");
                         break;
-                    case VersionChecker.VersionCheckResult.OTHER_ERROR:
+                    case VersionChecker.UpdateCheckResult.OTHER_ERROR:
                         UpdateVersionText(basicVersionText + " (An error occured comparing this to the latest version)");
                         break;
                     default:
-                        Debug.LogError($"Unknown {typeof(VersionChecker.VersionCheckResult)} \"{result}\"!");
+                        Debug.LogError($"Unknown {typeof(VersionChecker.UpdateCheckResult)} \"{result}\"!");
                         break;
                 }
+                #if UNITY_EDITOR
+                switch(result){
+                    case VersionChecker.UpdateCheckResult.UPDATE_AVAILABLE:
+                        Debug.LogError("Why is the project version lower than the newest available release?");
+                        break;
+                    case VersionChecker.UpdateCheckResult.UP_TO_DATE:
+                        Debug.LogError("Why is the project version the same as the newest available release?");
+                        break;
+                    case VersionChecker.UpdateCheckResult.YOU_ARE_THE_UPDATE:
+                        // this is what it should be...
+                        break;
+                    default:
+                        Debug.LogWarning($"Unable to check for updates! ({result})");
+                        break;
+                }
+                #endif
                 if(showUpdateButton){
                     var releasesPage = "https://github.com/maxlinke/CGBasics/releases";
                     updateButton.onClick.AddListener(() => {Application.OpenURL(releasesPage);});

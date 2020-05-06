@@ -1,14 +1,13 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
 public class VersionChecker : MonoBehaviour { 
 
-    [SerializeField] bool runTestsOnAwake;
-
     private static VersionChecker instance;
 
-    public enum VersionCheckResult {
+    public enum UpdateCheckResult {
         WEB_ERROR,
         OTHER_ERROR,
         UPDATE_AVAILABLE,
@@ -22,10 +21,6 @@ public class VersionChecker : MonoBehaviour {
             return;
         }
         instance = this;
-
-        if(runTestsOnAwake){
-            RunTests();
-        }
     }
 
     void OnDestroy () {
@@ -34,43 +29,57 @@ public class VersionChecker : MonoBehaviour {
         }
     }
 
-    public static void CheckVersion (System.Action<VersionCheckResult, string> onCheckComplete) {
+    public static void LookForUpdates (System.Action<UpdateCheckResult, string> onCheckComplete) {
         if(instance == null){
             Debug.LogError("Instance was null! Aaaaaahhhhh!");
-            onCheckComplete.Invoke(VersionCheckResult.OTHER_ERROR, string.Empty);
+            onCheckComplete.Invoke(UpdateCheckResult.OTHER_ERROR, string.Empty);
             return;
         }
-        instance.DoTheVersionCheck(onCheckComplete);
+        instance.DoTheUpdateCheck(onCheckComplete);
     }
 
-    void DoTheVersionCheck (System.Action<VersionCheckResult, string> onCheckComplete) {
+    public static bool CheckVersionValidity () {
+        try{
+            new Version(Application.version);
+            return true;
+        }catch{
+            return false;
+        }
+    }
+
+    void DoTheUpdateCheck (System.Action<UpdateCheckResult, string> onCheckComplete) {
         StartCoroutine(VersionCheckCoroutine(onCheckComplete));
     }
 
-    IEnumerator VersionCheckCoroutine (System.Action<VersionCheckResult, string> onCheckComplete) {
+    IEnumerator VersionCheckCoroutine (System.Action<UpdateCheckResult, string> onCheckComplete) {
         UnityWebRequest www = UnityWebRequest.Get("https://api.github.com/repos/maxlinke/CGBasics/releases/latest");
         yield return www.SendWebRequest();
         if((www.isNetworkError || www.isHttpError)){
-            onCheckComplete.Invoke(VersionCheckResult.WEB_ERROR, string.Empty);
-        }else if(TryGetGitVersion(www.downloadHandler.text, out var gitVersion)){
-            var compareResult = CompareVersions(Application.version, gitVersion);
-            switch(compareResult){
-                case ComparisonResult.EQUAL:
-                    onCheckComplete.Invoke(VersionCheckResult.UP_TO_DATE, gitVersion);
-                    break;
-                case ComparisonResult.A_GREATER_THAN_B:
-                    onCheckComplete.Invoke(VersionCheckResult.YOU_ARE_THE_UPDATE, gitVersion);
-                    break;
-                case ComparisonResult.B_GREATER_THAN_A:
-                    onCheckComplete.Invoke(VersionCheckResult.UPDATE_AVAILABLE, gitVersion);
-                    break;
-                default: 
-                    Debug.LogError($"Unknown thing: \"{compareResult}\"!");
-                    onCheckComplete.Invoke(VersionCheckResult.OTHER_ERROR, string.Empty);
-                    break;
+            onCheckComplete.Invoke(UpdateCheckResult.WEB_ERROR, string.Empty);
+        }else if(TryGetGitVersion(www.downloadHandler.text, out var gitVersionString)){
+            try{
+                var compareResult = new Version(Application.version).CompareTo(new Version(gitVersionString));
+                switch(compareResult){
+                    case Version.CompareResult.EQUAL:
+                        onCheckComplete.Invoke(UpdateCheckResult.UP_TO_DATE, gitVersionString);
+                        break;
+                    case Version.CompareResult.NEWER:
+                        onCheckComplete.Invoke(UpdateCheckResult.YOU_ARE_THE_UPDATE, gitVersionString);
+                        break;
+                    case Version.CompareResult.OLDER:
+                        onCheckComplete.Invoke(UpdateCheckResult.UPDATE_AVAILABLE, gitVersionString);
+                        break;
+                    default: 
+                        Debug.LogError($"Unknown thing: \"{compareResult}\"!");
+                        onCheckComplete.Invoke(UpdateCheckResult.OTHER_ERROR, string.Empty);
+                        break;
+                }
+            }catch{
+                onCheckComplete.Invoke(UpdateCheckResult.OTHER_ERROR, string.Empty);
             }
+            
         }else{
-            onCheckComplete.Invoke(VersionCheckResult.OTHER_ERROR, string.Empty);
+            onCheckComplete.Invoke(UpdateCheckResult.OTHER_ERROR, string.Empty);
         }
 
         bool TryGetGitVersion (string gitAPIText, out string outputGitVersion) {
@@ -95,133 +104,164 @@ public class VersionChecker : MonoBehaviour {
         }
     }
 
-    private enum ComparisonResult {
-        A_GREATER_THAN_B = 1,
-        B_GREATER_THAN_A = -1,
-        EQUAL = 0,
-        UNKNOWN = int.MaxValue
-    }
+    private class Version {
 
-    private ComparisonResult CompareVersions (string versionA, string versionB) {
-        versionA = TrimExcess(versionA);
-        versionB = TrimExcess(versionB);
-        if(versionA.Length > 0 && versionB.Length > 0){
-            var aParts = versionA.Split(new char[]{'.'}, System.StringSplitOptions.RemoveEmptyEntries);
-            var bParts = versionB.Split(new char[]{'.'}, System.StringSplitOptions.RemoveEmptyEntries);
-            int max = Mathf.Max(aParts.Length, bParts.Length);
-            for(int i=0; i<max; i++){
-                string a = (i >= aParts.Length) ? string.Empty : aParts[i].Trim();
-                string b = (i >= bParts.Length) ? string.Empty : bParts[i].Trim();
-                if(a.Equals(b)){
-                    continue;
-                }
-                SplitNumbersAndLetters(a, out var aNums, out var aLetters);
-                SplitNumbersAndLetters(b, out var bNums, out var bLetters); 
-                if(TryGetNumValue(aNums, out var aNumVal) && TryGetNumValue(bNums, out var bNumVal)){
-                    if(aNumVal > bNumVal){
-                        return ComparisonResult.A_GREATER_THAN_B;
-                    }
-                    if(bNumVal > aNumVal){
-                        return ComparisonResult.B_GREATER_THAN_A;
-                    }
-                }else{
-                    return ComparisonResult.UNKNOWN;
-                }
-                int lMax = Mathf.Max(aLetters.Length, bLetters.Length);
-                for(int j=0; j<lMax; j++){
-                    int aVal = (j < aLetters.Length) ? (int)(aLetters[j]) : 0;
-                    int bVal = (j < bLetters.Length) ? (int)(bLetters[j]) : 0;
-                    if(aVal == bVal){
-                        continue;
-                    }
-                    if(aVal > bVal){
-                        return ComparisonResult.A_GREATER_THAN_B;
-                    }
-                    if(bVal > aVal){
-                        return ComparisonResult.B_GREATER_THAN_A;
-                    }
-                }
-            }
-            return ComparisonResult.EQUAL;
+        public enum CompareResult {
+            NEWER,
+            EQUAL,
+            OLDER
         }
 
-        return ComparisonResult.UNKNOWN;
+        private List<int> numbers;
+        private string letterSuffix;
 
-        string TrimExcess (string inputString) {
+        public Version (string versionString) {
+            if(versionString == null || versionString.Length == 0){
+                throw new System.Exception("Null or empty version strings aren't valid!");
+            }
+            versionString = versionString.ToLower();
+            if(versionString[0] == 'v'){
+                versionString = versionString.Substring(1);
+            }else if(!IsNumeral(versionString[0])){
+                throw new System.Exception($"Invalid first char! ({versionString[0]})");
+            }
+            this.numbers = new List<int>();
+            this.letterSuffix = string.Empty;
             int i = 0;
-            foreach(var c in inputString){
-                if(c >= '0' || c <= '9'){
+            char c = versionString[0];
+            while(i<versionString.Length){
+                string numberPart = string.Empty;
+                string letterPart = string.Empty;
+                // first char of each element must be a numeral (don't advance here)
+                if(!IsNumeral(c)){
+                    throw GetFormatException();
+                }
+                // collect all 1 or more numerals
+                while(IsNumeral(c)){
+                    numberPart += c;
+                    if(!Next()) break;
+                }
+                // next char must be letter or '.'
+                // if the end is reached, c will still be a numeral and so this won't execute
+                // similarly this won't executed if the c is '.'
+                while(IsLetter(c)){
+                    letterPart += c;
+                    if(!Next()) break;
+                }
+                if(EndReached()){           // letters must be absolute end! ("1.0.3f" is okay but "1.0.3f.1" is not!)
+                    ParseAndSaveNumber();
+                    this.letterSuffix = letterPart;
                     break;
+                }else if(letterPart.Length > 0){
+                    throw GetFormatException();
                 }
-                i++;
-            }
-            return inputString.Substring(i);
-        }
+                // now it MUST be '.'
+                if((c != '.')){
+                    throw GetFormatException();
+                }
+                ParseAndSaveNumber();
+                Next();
+                if(EndReached()){
+                    throw GetFormatException();
+                }
 
-        void SplitNumbersAndLetters (string inputString, out string outputNumbersPart, out string outputLettersPart) {
-            for(int i=0; i<inputString.Length; i++){
-                var c = inputString[i];
-                if(c >= '0' && c <= '9'){
-                    continue;
-                }else{
-                    outputNumbersPart = inputString.Substring(0, i);
-                    outputLettersPart = inputString.Substring(i).ToLower();
-                    return;
+                bool Next () {
+                    i++;
+                    if(EndReached()){
+                        return false;
+                    }
+                    c = versionString[i];
+                    return true;
+                }
+
+                bool EndReached () {
+                    return (i >= versionString.Length);
+                }
+
+                void ParseAndSaveNumber () {
+                    if(int.TryParse(numberPart, out int parsedNumber)){
+                        numbers.Add(parsedNumber);
+                    }else{
+                        throw GetFormatException();
+                    }
                 }
             }
-            outputNumbersPart = inputString.Substring(0);   // copy instead of just =
-            outputLettersPart = string.Empty;
+
+            bool IsNumeral (char inputChar) {
+                return (inputChar >= '0' && inputChar <= '9');
+            }
+
+            bool IsLetter (char inputChar) {
+                return ((inputChar >= 'a' && inputChar <= 'z') || (inputChar >= 'A' && inputChar <= 'Z'));
+            }
+
+            System.Exception GetFormatException () {
+                return new System.Exception("Couldn't parse version string, check your formatting!");
+            }
         }
 
-        bool TryGetNumValue (string inputString, out int outputNumValue) {
-            if(int.TryParse(inputString, out outputNumValue)){
-                return true;
+        public CompareResult CompareTo (Version other) {
+            int max = Mathf.Max(this.numbers.Count, other.numbers.Count);
+            for(int i=0; i<max; i++){
+                int thisNum = (i < this.numbers.Count) ? this.numbers[i] : 0;
+                int otherNum = (i < other.numbers.Count) ? other.numbers[i] : 0;
+                if(thisNum > otherNum){
+                    return CompareResult.NEWER;
+                }else if(thisNum < otherNum){
+                    return CompareResult.OLDER;
+                }
             }
-            outputNumValue = 0;
-            return (inputString.Length == 0);
+            max = Mathf.Max(this.letterSuffix.Length, other.letterSuffix.Length);
+            for(int i=0; i<max; i++){
+                int thisLet = (i < this.letterSuffix.Length) ? this.letterSuffix[i] : 0;
+                int otherLet = (i < other.letterSuffix.Length) ? other.letterSuffix[i] : 0;
+                if(thisLet > otherLet){
+                    return CompareResult.NEWER;
+                }else if(thisLet < otherLet){
+                    return CompareResult.OLDER;
+                }
+            }
+            return CompareResult.EQUAL;
         }
-    }
 
-    void RunTests () {
-        TestVersions("v1.0", "v1", ComparisonResult.EQUAL);
-        TestVersions("1.0", "1", ComparisonResult.EQUAL);
-        TestVersions("1.0", "1.", ComparisonResult.EQUAL);
-        TestVersions("1.0", "1.0.0", ComparisonResult.EQUAL);
-        TestVersions("1.a", "1.1", ComparisonResult.B_GREATER_THAN_A);
-        TestVersions("1.0.1", "1.0.1a", ComparisonResult.B_GREATER_THAN_A);
-        TestVersions("1.0", "2", ComparisonResult.B_GREATER_THAN_A);
-        TestVersions("2.0", "1", ComparisonResult.A_GREATER_THAN_B);
-        TestVersions("1.1", "1.01", ComparisonResult.EQUAL);
-        TestVersions("124.0", "1.0", ComparisonResult.A_GREATER_THAN_B);
-        TestVersions("0.9", "1.0", ComparisonResult.B_GREATER_THAN_A);
-        TestVersions("", "1.0", ComparisonResult.UNKNOWN);
-        TestVersions("", "", ComparisonResult.UNKNOWN);
-        TestVersions("  01.0  ", " 1.0.0  ", ComparisonResult.EQUAL);
-        TestVersions("1.1", "1.1a", ComparisonResult.B_GREATER_THAN_A);
-        TestVersions("1.1a", "1.1b", ComparisonResult.B_GREATER_THAN_A);
-        TestVersions("1.1b", "1.1ba", ComparisonResult.B_GREATER_THAN_A);
-        TestVersions("123.00.123", "122.99.123", ComparisonResult.A_GREATER_THAN_B);
-        TestVersions("123.99", "123.99a", ComparisonResult.B_GREATER_THAN_A);
-
-        void TestVersions (string va, string vb, ComparisonResult expected) {
-            var result = CompareVersions(va, vb);
-            if(result != expected){
-                Debug.LogError($"\"{va}\", \"{vb}\", Result: {result}, Expected: {expected}");
-                return;
-            }
-            var inverseResult = CompareVersions(vb, va);
-            if(inverseResult == result && (result == ComparisonResult.EQUAL || result == ComparisonResult.UNKNOWN)){
-                // symmetry yey
-            }else if(result == ComparisonResult.A_GREATER_THAN_B && inverseResult == ComparisonResult.B_GREATER_THAN_A){
-                // symmetry yey
-            }else if(result == ComparisonResult.B_GREATER_THAN_A && inverseResult == ComparisonResult.A_GREATER_THAN_B){
-                // symmetry yey
-            }else{
-                Debug.LogError($"\"{va}\", \"{vb}\", Result: {result}, Inverse: {inverseResult}");
-                return;
-            }
-            Debug.Log($"successful test: \"{va}\", \"{vb}\"");
+        public bool IsNewerThan (Version other) {
+            return this.CompareTo(other) == CompareResult.NEWER;
         }
+
+        public bool IsOlderThan (Version other) {
+            return this.CompareTo(other) == CompareResult.OLDER;
+        }
+
+        public override bool Equals (object obj) {
+            if(obj is Version other){
+                return this.CompareTo(other) == CompareResult.EQUAL;
+            }
+            return false;
+        }
+
+        public override int GetHashCode () {
+            int output = 0;
+            foreach(var number in numbers){
+                output += number;
+            }
+            foreach(var ch in letterSuffix){
+                output += ((int)ch);
+            }
+            return output;
+        }
+
+        public override string ToString () {
+            var sb = new System.Text.StringBuilder();
+            for(int i=0; i<numbers.Count; i++){
+                sb.Append($"{numbers[i]}");
+                if(i+1 < numbers.Count){
+                    sb.Append(".");
+                }
+            }
+            sb.Append(letterSuffix);
+            return sb.ToString();
+        }
+
     }
 	
 }

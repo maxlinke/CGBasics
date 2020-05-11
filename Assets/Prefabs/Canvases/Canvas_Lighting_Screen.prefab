@@ -1358,7 +1358,7 @@ MonoBehaviour:
   camRectSize: {x: 0.5, y: 0.5}
   defaultGraphScale: 1.5
   minGraphScale: 0.2
-  maxGraphScale: 5
+  maxGraphScale: 10
   majorLineWidth: 8
   majorLineOpacity: 1
   minorLineWidth: 4

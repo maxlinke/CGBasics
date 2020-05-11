@@ -105,18 +105,6 @@ half Beckmann_Distribution (lm_input input) {
     return exp(-tanAlpha2 / m2) / (UNITY_PI * m2 * cosAlpha4);
 }
 
-// https://en.wikipedia.org/wiki/Schlick%27s_approximation
-// half Schlicks_Fresnel_Approximation_IOR (lm_input input) {
-//     float n1 = 1;   // assuming air as refractive medium
-//     float n2 = _SpecularIndexOfRefraction;
-
-//     float sqrtR0 = (n1 - n2) / (n1 + n2);
-//     float r0 = sqrtR0 * sqrtR0;
-
-//     float cosTheta = input.nDotL;
-//     return r0 + (1.0 - r0) * pow(1 - cosTheta, 5);
-// }
-
 // https://en.wikibooks.org/wiki/GLSL_Programming/Unity/Specular_Highlights_at_Silhouettes
 half Schlicks_Fresnel_Approximation_Intensity (lm_input input) {
     float fLambda = _SpecularIntensity;
@@ -147,24 +135,6 @@ half Diffuse_Lambert (lm_input input) {
 half Diffuse_Wrap (lm_input input) {
     return pow(input.nDotL * 0.5 + 0.5, 2.0);
 }
-
-// half3 Diffuse_Oren_Nayar (lm_input input) {
-//     half nDotL = dot(input.normal, input.lightDir);
-//     half nDotV = dot(input.normal, input.viewDir);
-//     half lDotV = dot(input.lightDir, input.viewDir);
-
-//     half roughSQ = _Roughness * _Roughness;
-//     half3 orenNayarFraction = roughSQ / (roughSQ + half3(0.33, 0.13, 0.09));
-//     half3 orenNayar = half3(1,0,0) + half3(-0.5, 0.17, 0.45) * orenNayarFraction;
-//     half orenNayarS = lDotV - nDotL * nDotV;
-//     orenNayarS /= lerp(max(nDotL, nDotV), 1, step(orenNayarS, 0));
-
-//     half3 finalFactor = orenNayar.x;
-//     finalFactor += _Color * orenNayar.y;
-//     finalFactor += orenNayar.z * orenNayarS;	
-
-//     return saturate(nDotL) * finalFactor * _LightColor0.rgb;
-// }
 
 // real oren nayer
 // modified from this:
@@ -203,25 +173,28 @@ half Specular_Phong (lm_input input) {
     return max(0, _SpecularIntensity * pow(dot(r, e), _SpecularHardness));
 }
 
-
 half Specular_Blinn_Phong (lm_input input) {
     return max(0, _SpecularIntensity * pow(saturate(input.nDotH), _SpecularHardness));
+}
+
+half Specular_Schlick (lm_input input) {
+    half3 r = reflect(input.lightDir, input.normal);
+    half3 e = -input.viewDir;
+    half rDotE = dot(r, e);
+    return _SpecularIntensity * rDotE / (_SpecularHardness - ((_SpecularHardness - 1) * rDotE));
 }
 
 // https://en.wikipedia.org/wiki/Specular_highlight#Cook%E2%80%93Torrance_model
 half Specular_Cook_Torrance (lm_input input) {
     half d = Beckmann_Distribution(input);
-    // half f = Schlicks_Fresnel_Approximation_IOR(input);
     half f = Schlicks_Fresnel_Approximation_Intensity(input);
     half g = Geometric_Attenuation(input);
     
-    // return saturate((d * f * g) / (UNITY_PI * input.nDotV * input.nDotL));  //  * step(0, input.nDotV) ? 
     return (d * f * g) / (UNITY_PI * input.nDotV * input.nDotL);  //  * step(0, input.nDotV) ? 
 }
 
 half Ward (lm_input input, half roughness, half exponent) {
     half root = sqrt(input.nDotL * input.nDotV);
-    // return saturate(_SpecularIntensity * input.nDotL * exp(exponent) / (root * 4.0 * UNITY_PI * roughness * roughness));  // ndotl isn't in the original paper but it's necessary
     return max(0, _SpecularIntensity * input.nDotL * exp(exponent) / (root * 4.0 * UNITY_PI * roughness * roughness));  // ndotl isn't in the original paper but it's necessary
 }
 
@@ -246,13 +219,6 @@ half Specular_Ward_Aniso (lm_input input) {
     half expB = dot(input.halfVec, input.bitangent) / roughY;
     half expAB = -2.0 * (expA * expA + expB * expB) / (1.0 + input.nDotH);
     return Ward (input, sqrt(roughX * roughY), expAB);
-}
-
-half Specular_Schlick (lm_input input) {
-    half3 r = reflect(input.lightDir, input.normal);
-    half3 e = -input.viewDir;
-    half rDotE = dot(r, e);
-    return _SpecularIntensity * rDotE / (_SpecularHardness - ((_SpecularHardness - 1) * rDotE));
 }
 
 // ----------------------------------------------------------------
